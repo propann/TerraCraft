@@ -63,7 +63,7 @@ public final class OsmCells {
      * ({@code minecraft:bricks}) résolus par le générateur.
      */
     public record Building(int baseY, int topY, int floorStep, String wall, String roof, String window,
-                           RoofShape shape, boolean shopFront, long seed) {
+                           RoofShape shape, boolean shopFront, boolean curtain, long seed) {
     }
 
     /** Grilles d'une cellule ; indices locaux de -MARGIN à CELL_SIZE+MARGIN-1. */
@@ -355,9 +355,7 @@ public final class OsmCells {
             for (Shape shape : roads) {
                 road(shape);
             }
-            for (Shape shape : buildings) {
-                building(shape);
-            }
+            buildings(buildings);
             computeInsets();
             return cell;
         }
@@ -504,53 +502,135 @@ public final class OsmCells {
             }
         }
 
-        private void building(Shape shape) {
-            List<double[]> rings = shape.parts();
-            // Base : point le plus bas du contour, pour ne jamais flotter.
-            int base = Integer.MAX_VALUE;
-            double sumX = 0;
-            double sumZ = 0;
-            int count = 0;
+        /**
+         * Un bâtiment OSM peut arriver en plusieurs morceaux (découpe des tuiles) : on les
+         * regroupe par identifiant pour leur donner une base, une hauteur et un style uniques.
+         */
+        private void buildings(List<Shape> shapes) {
+            Map<Long, List<Shape>> groups = new java.util.LinkedHashMap<>();
+            long anonymous = -1;
+            for (Shape shape : shapes) {
+                long id = shape.feature().id();
+                groups.computeIfAbsent(id != 0 ? id : anonymous--, k -> new ArrayList<>()).add(shape);
+            }
+            groups.forEach(this::building);
+            cleanFootprints();
+        }
+
+        private void building(long osmId, List<Shape> parts) {
             double minX = Double.MAX_VALUE, maxX = -Double.MAX_VALUE, minZ = Double.MAX_VALUE, maxZ = -Double.MAX_VALUE;
-            for (double[] ring : rings) {
-                for (int k = 0; k < ring.length; k += 2) {
-                    base = Math.min(base, terrain.surfaceY((int) Math.floor(ring[k]), (int) Math.floor(ring[k + 1])));
-                    sumX += ring[k];
-                    sumZ += ring[k + 1];
-                    count++;
-                    minX = Math.min(minX, ring[k]);
-                    maxX = Math.max(maxX, ring[k]);
-                    minZ = Math.min(minZ, ring[k + 1]);
-                    maxZ = Math.max(maxZ, ring[k + 1]);
+            List<double[]> rings = new ArrayList<>();
+            for (Shape part : parts) {
+                for (double[] ring : part.parts()) {
+                    rings.add(ring);
+                    for (int k = 0; k < ring.length; k += 2) {
+                        minX = Math.min(minX, ring[k]);
+                        maxX = Math.max(maxX, ring[k]);
+                        minZ = Math.min(minZ, ring[k + 1]);
+                        maxZ = Math.max(maxZ, ring[k + 1]);
+                    }
                 }
             }
-            double latitude = terrain.latitudeAt(sumZ / count);
+            // Trop petit pour un bâtiment lisible (abri, kiosque mal tracé) : ignoré.
+            if ((maxX - minX) * (maxZ - minZ) < 6) {
+                return;
+            }
+            double latitude = terrain.latitudeAt((minZ + maxZ) / 2);
+            double longitude = terrain.longitudeAt((minX + maxX) / 2);
             double bpm = terrain.blocksPerMetre(latitude);
-            double metres = shape.feature().number("render_height", 9);
-            double minMetres = shape.feature().number("render_min_height", 0);
+            int ground = groundLevel(rings, minX, maxX, minZ, maxZ);
+            MvtDecoder.Feature feature = parts.get(0).feature();
+            double metres = feature.number("render_height", 9);
+            double minMetres = feature.number("render_min_height", 0);
             int floorStep = Math.max(3, (int) Math.round(3.0 * bpm));
-            base += (int) Math.round(minMetres * bpm);
+            int base = ground + (int) Math.round(minMetres * bpm);
             int height = Math.max(4, (int) Math.round((metres - minMetres) * bpm));
             int top = Math.min(EarthTerrain.MAX_SURFACE_Y + 2, base + height);
-            // Le schéma OpenMapTiles ne donne pas le type : on le devine (hauteur, emprise).
             double footprint = (maxX - minX) * (maxZ - minZ) / (bpm * bpm);
-            String type;
-            if (metres <= 8 && footprint < 250) {
-                type = "house";
-            } else if (metres <= 15 && footprint > 2500) {
-                type = "industrial";
-            } else {
-                type = "apartments";
-            }
+            String type = BuildingStyles.guessType(metres, footprint, latitude, longitude);
             JsonObject tags = new JsonObject();
-            String colour = shape.get("colour");
+            String colour = parts.get(0).get("colour");
             if (!colour.isEmpty()) {
                 tags.addProperty("building:colour", colour);
             }
-            long seed = Double.doubleToLongBits(sumX * 31 + sumZ);
-            cell.buildings.add(BuildingStyles.style(tags, type, seed, base, top, floorStep, latitude));
+            cell.buildings.add(BuildingStyles.style(tags, type, osmId, base, top, floorStep, latitude));
             int id = cell.buildings.size();
-            fillPolygon(rings, i -> cell.building[i] = id);
+            for (Shape part : parts) {
+                fillPolygon(part.parts(), i -> cell.building[i] = id);
+            }
+        }
+
+        /**
+         * Niveau du sol au pied du bâtiment : médiane du relief en de nombreux points (sommets,
+         * milieux d'arêtes, grille intérieure). Le minimum enfonçait les bâtiments dès qu'un
+         * sommet touchait un quai ou un creux du relief ; la médiane les pose au niveau de la rue.
+         */
+        private int groundLevel(List<double[]> rings, double minX, double maxX, double minZ, double maxZ) {
+            List<Integer> samples = new ArrayList<>();
+            for (double[] ring : rings) {
+                int stride = Math.max(2, (ring.length / 2 / 24) * 2);
+                for (int k = 0; k + 1 < ring.length; k += stride) {
+                    samples.add(terrain.surfaceY((int) Math.floor(ring[k]), (int) Math.floor(ring[k + 1])));
+                    if (k + 3 < ring.length) {
+                        samples.add(terrain.surfaceY((int) Math.floor((ring[k] + ring[k + 2]) / 2),
+                                (int) Math.floor((ring[k + 1] + ring[k + 3]) / 2)));
+                    }
+                }
+            }
+            for (int i = 1; i <= 3; i++) {
+                for (int j = 1; j <= 3; j++) {
+                    samples.add(terrain.surfaceY((int) Math.floor(minX + (maxX - minX) * i / 4),
+                            (int) Math.floor(minZ + (maxZ - minZ) * j / 4)));
+                }
+            }
+            samples.sort(Integer::compare);
+            return samples.get(samples.size() / 2);
+        }
+
+        /**
+         * Contours propres : retire les excroissances d'un bloc (moins de deux voisins du même
+         * bâtiment) et bouche les encoches d'un bloc (trois voisins du même bâtiment).
+         */
+        private void cleanFootprints() {
+            int[] ids = cell.building;
+            int[] copy = ids.clone();
+            int[] areas = new int[cell.buildings.size() + 1];
+            for (int id : copy) {
+                if (id > 0 && id < areas.length) {
+                    areas[id]++;
+                }
+            }
+            for (int z = 1; z < GRID - 1; z++) {
+                for (int x = 1; x < GRID - 1; x++) {
+                    int i = z * GRID + x;
+                    int[] around = {copy[i - 1], copy[i + 1], copy[i - GRID], copy[i + GRID]};
+                    if (copy[i] != 0) {
+                        int same = 0;
+                        for (int n : around) {
+                            same += n == copy[i] ? 1 : 0;
+                        }
+                        // Ne pas éroder les petites maisons ou les annexes étroites : leurs
+                        // contours peuvent légitimement ne faire qu'un bloc de large.
+                        if (areas[copy[i]] >= 8 && same <= 1) {
+                            ids[i] = 0;
+                        }
+                    } else {
+                        for (int candidate : around) {
+                            if (candidate == 0) {
+                                continue;
+                            }
+                            int same = 0;
+                            for (int n : around) {
+                                same += n == candidate ? 1 : 0;
+                            }
+                            if (same >= 3 && cell.surface[i] != WATER) {
+                                ids[i] = candidate;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         /** Distance de chanfrein au contour de chaque bâtiment (deux passes). */

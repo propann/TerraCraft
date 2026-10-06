@@ -18,7 +18,8 @@ final class MvtDecoder {
     static final int LINE = 2;
     static final int POLYGON = 3;
 
-    record Feature(String layer, int type, Map<String, Object> tags, List<double[]> parts) {
+    /** {@code id} : identifiant de l'élément (OSM), identique dans toutes les tuiles qu'il traverse. */
+    record Feature(String layer, long id, int type, Map<String, Object> tags, List<double[]> parts) {
         String string(String key) {
             Object value = tags.get(key);
             return value == null ? "" : value.toString();
@@ -102,12 +103,15 @@ final class MvtDecoder {
 
     private Feature feature(String layer, int extent, List<String> keys, List<Object> values) {
         int type = 0;
+        long id = 0;
         int[] tags = new int[0];
         int[] geometry = new int[0];
         while (pos < limit) {
             int key = (int) varint();
             int field = key >>> 3;
-            if (field == 2 && (key & 7) == 2) {
+            if (field == 1 && (key & 7) == 0) {
+                id = varint();
+            } else if (field == 2 && (key & 7) == 2) {
                 tags = packed();
             } else if (field == 3 && (key & 7) == 0) {
                 type = (int) varint();
@@ -126,7 +130,7 @@ final class MvtDecoder {
                 map.put(keys.get(tags[i]), values.get(tags[i + 1]));
             }
         }
-        return new Feature(layer, type, map, geometry(geometry, extent));
+        return new Feature(layer, id, type, map, geometry(geometry, extent));
     }
 
     /** Commandes MoveTo/LineTo/ClosePath → parties (lignes ou anneaux fermés). */

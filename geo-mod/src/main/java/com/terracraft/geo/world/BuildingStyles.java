@@ -63,6 +63,25 @@ final class BuildingStyles {
             Map.entry("slate", "deepslate_tiles"), Map.entry("zinc", "polished_andesite"),
             Map.entry("copper", "oxidized_cut_copper"), Map.entry("thatch", "hay_block"));
 
+    /**
+     * Type de bâtiment déduit de la hauteur réelle et de l'emprise (le schéma OpenMapTiles ne
+     * donne pas le type) : tour au-delà de 40 m, entrepôt bas et large, maison petite et basse,
+     * immeuble haussmannien en Europe tempérée, immeuble moderne ailleurs.
+     */
+    static String guessType(double metres, double footprint, double latitude, double longitude) {
+        if (metres >= 40) {
+            return "tower";
+        }
+        if (metres <= 8 && footprint < 250) {
+            return "house";
+        }
+        if (metres <= 15 && footprint > 2500) {
+            return "industrial";
+        }
+        boolean europe = latitude > 36 && latitude < 60 && longitude > -10 && longitude < 30;
+        return europe ? "apartments" : "modern";
+    }
+
     static OsmCells.Building style(JsonObject tags, String type, long osmId, int base, int top, int floorStep,
                                    double latitude) {
         int hash = (int) ((osmId * 0x9E3779B97F4A7C15L) >>> 40);
@@ -72,6 +91,7 @@ final class BuildingStyles {
         String roof;
         OsmCells.RoofShape shape;
         boolean shop = false;
+        boolean curtain = false;
         int floors = Math.max(1, (top - base) / floorStep);
         switch (type) {
             case "house", "detached", "semidetached_house", "terrace", "bungalow", "farm", "cabin", "hut" -> {
@@ -100,6 +120,20 @@ final class BuildingStyles {
                 roof = pick(hash >> 3, new String[]{"gray_concrete", "smooth_stone"});
                 shape = OsmCells.RoofShape.FLAT;
                 shop = type.matches("retail|supermarket|commercial");
+            }
+            case "tower" -> {
+                // Tour : structure béton, façade rideau vitrée, toit plat.
+                wall = pick(hash, new String[]{"gray_concrete", "light_gray_concrete", "black_concrete", "quartz_block"});
+                roof = "gray_concrete";
+                shape = OsmCells.RoofShape.FLAT;
+                curtain = true;
+                shop = true;
+            }
+            case "modern" -> {
+                wall = pick(hash, new String[]{"white_concrete", "light_gray_concrete", "white_terracotta", "smooth_sandstone"});
+                roof = pick(hash >> 3, new String[]{"gray_concrete", "smooth_stone"});
+                shape = OsmCells.RoofShape.FLAT;
+                shop = floors >= 4;
             }
             case "garage", "garages", "shed", "kiosk", "toilets", "service", "greenhouse" -> {
                 wall = "greenhouse".equals(type) ? "glass" : pick(hash, new String[]{"spruce_planks", "cobblestone", "light_gray_concrete"});
@@ -141,9 +175,11 @@ final class BuildingStyles {
             default -> {
             }
         }
-        String window = wall.contains("glass") ? "light_blue_stained_glass" : "glass";
+        String window = curtain
+                ? pick(hash >> 5, new String[]{"light_blue_stained_glass", "gray_stained_glass", "cyan_stained_glass", "black_stained_glass"})
+                : wall.contains("glass") ? "light_blue_stained_glass" : "glass";
         return new OsmCells.Building(base, top, floorStep, "minecraft:" + wall, "minecraft:" + roof,
-                "minecraft:" + window, shape, shop, osmId);
+                "minecraft:" + window, shape, shop, curtain, osmId);
     }
 
     private static String pick(int hash, String[] options) {
