@@ -36,6 +36,8 @@ mkdir -p "$WORK/tree/mods" "$WORK/tree/config"
 cp "$WORK/mods/"*.jar "$WORK/tree/mods/"
 cp "$ROOT/serveur-local/config/openpartiesandclaims-server.toml" "$WORK/tree/config/"
 cp "$ROOT/deploy/FALIX.md" "$WORK/tree/TERRACRAFT-FALIX.md"
+# Administrateurs du serveur (réécrit à chaque déploiement : ajoute-les ici, pas dans la console).
+cp "$ROOT/deploy/ops.json" "$WORK/tree/ops.json"
 
 cd "$WORK/tree"
 git add -A

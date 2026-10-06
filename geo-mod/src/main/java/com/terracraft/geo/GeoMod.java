@@ -27,6 +27,7 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.Commands;
+import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -80,6 +81,13 @@ public final class GeoMod implements ModInitializer {
                 START_POINTS.onChoice(context.player(), payload));
 
         ServerLifecycleEvents.SERVER_STARTED.register(START_POINTS::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            // Gravité lunaire, fusée, chute d'arrivée : sans vol autorisé, le serveur expulserait les joueurs.
+            if (server instanceof DedicatedServer dedicated && !dedicated.allowFlight()) {
+                dedicated.setAllowFlight(true);
+                LOGGER.info("TerraCraft : allow-flight activé (nécessaire pour la Lune, l'orbite et les fusées).");
+            }
+        });
         ServerLifecycleEvents.SERVER_STARTED.register(Progression.get()::load);
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> Progression.get().save());
         ServerTickEvents.END_SERVER_TICK.register(Progression.get()::tick);
