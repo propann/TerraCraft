@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "terracraft_geo:fuel_can",
+    "minecraft:coal_block",
+    "minecraft:gunpowder"
+  ],
+  "result": {
+    "id": "terracraft_geo:rocket_fuel",
+    "count": 1
+  }
+}

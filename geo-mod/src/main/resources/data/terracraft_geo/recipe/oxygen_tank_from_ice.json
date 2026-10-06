@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "terracraft_geo:titanium_ingot",
+    "minecraft:packed_ice"
+  ],
+  "result": {
+    "id": "terracraft_geo:oxygen_tank",
+    "count": 2
+  }
+}

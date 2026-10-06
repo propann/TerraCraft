@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "terracraft_geo:helium3_shard",
+    "terracraft_geo:helium3_shard",
+    "terracraft_geo:helium3_shard",
+    "terracraft_geo:helium3_shard"
+  ],
+  "result": {
+    "id": "terracraft_geo:rocket_fuel"
+  }
+}

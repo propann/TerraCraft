@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "T": "terracraft_geo:titanium_ingot",
+    "G": "minecraft:glowstone"
+  },
+  "pattern": [
+    " T ",
+    "TGT",
+    " T "
+  ],
+  "result": {
+    "id": "terracraft_geo:station_light",
+    "count": 4
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "T": "terracraft_geo:titanium_ingot"
+  },
+  "pattern": [
+    "T T",
+    " T ",
+    "T T"
+  ],
+  "result": {
+    "id": "terracraft_geo:station_floor",
+    "count": 6
+  }
+}

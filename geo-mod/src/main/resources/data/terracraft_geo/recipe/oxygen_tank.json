@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:iron_ingot",
+    "minecraft:copper_ingot",
+    "minecraft:copper_ingot",
+    "minecraft:kelp"
+  ],
+  "result": {
+    "id": "terracraft_geo:oxygen_tank",
+    "count": 1
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "K": "minecraft:dried_kelp",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    " K ",
+    "KIK",
+    " K "
+  ],
+  "result": {
+    "id": "terracraft_geo:wheel",
+    "count": 2
+  }
+}

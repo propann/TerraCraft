@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": "minecraft:copper_ingot",
+    "B": "minecraft:iron_bars"
+  },
+  "pattern": [
+    "CBC",
+    "CBC"
+  ],
+  "result": {
+    "id": "terracraft_geo:radiator",
+    "count": 1
+  }
+}

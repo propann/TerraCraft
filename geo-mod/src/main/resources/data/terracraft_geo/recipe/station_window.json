@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "T": "terracraft_geo:titanium_ingot",
+    "G": "minecraft:glass"
+  },
+  "pattern": [
+    "TGT",
+    "GGG",
+    "TGT"
+  ],
+  "result": {
+    "id": "terracraft_geo:station_window",
+    "count": 4
+  }
+}

@@ -25,4 +25,4 @@ if [ -z "$SERVER_JAR" ]; then
 fi
 
 cd "$SERVER_DIR"
-exec java -Xms2G -Xmx4G -jar "$SERVER_JAR" nogui
+exec java -Xms1G -Xmx3G -XX:+UseG1GC -jar "$SERVER_JAR" nogui

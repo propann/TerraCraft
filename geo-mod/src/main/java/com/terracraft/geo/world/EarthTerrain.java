@@ -15,15 +15,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * Le niveau de la mer réel correspond à {@link #SEA_LEVEL} (eau jusqu'à y=62). L'altitude
  * est convertie en blocs avec la même échelle que l'horizontale Mercator
  * ({@code scale / cos(latitude)} blocs par mètre), linéairement jusqu'à
- * {@link #LINEAR_LIMIT} blocs, puis compressée en racine carrée pour que l'Everest tienne
- * sous la limite de construction (y=319). Les fonds marins sont compressés de la même façon.
+ * {@link #LINEAR_LIMIT} blocs (≈ 800 m réels en France), puis compressée en racine carrée pour
+ * que l'Everest tienne sous la limite de la dimension terracraft_geo:earth (y=1471). Les fonds marins sont compressés de la même façon.
  */
 public final class EarthTerrain {
     public static final int SEA_LEVEL = 63;
     public static final int MIN_Y = -64;
-    public static final int MAX_SURFACE_Y = 316;
+    public static final int MAX_SURFACE_Y = 1440;
     public static final int MIN_FLOOR_Y = -54;
-    static final double LINEAR_LIMIT = 60.0;
+    static final double LINEAR_LIMIT = 1200.0;
     static final double DEPTH_LINEAR_LIMIT = 20.0;
     /** Taille de la grille du bruit de variété des biomes, en blocs. */
     private static final int VARIETY_CELL = 1536;
@@ -43,6 +43,7 @@ public final class EarthTerrain {
     private final double scale;
     private final ElevationTiles tiles;
     private final ElevationTiles bathymetry;
+    private final OsmCells osm;
     private final double worldSize;
 
     /**
@@ -61,6 +62,7 @@ public final class EarthTerrain {
                 ? new ElevationTiles(BATHYMETRY_ZOOM, ElevationTiles.DEFAULT_URL, cacheDir.resolve("terrarium"))
                 : tiles;
         this.worldSize = WebMercator.worldSize(scale);
+        this.osm = new OsmCells(this, cacheDir.resolve("osm").resolve("scale-" + scale));
     }
 
     /** Zoom de tuile visant environ 20 blocs par pixel (les données SRTM font ~30 m). */
@@ -68,6 +70,11 @@ public final class EarthTerrain {
         double blocksPerTile = WebMercator.worldSize(scale) / 256.0;
         int zoom = (int) Math.round(Math.log(blocksPerTile / 20.0) / Math.log(2.0));
         return Math.max(0, Math.min(15, zoom));
+    }
+
+    /** Routes, bâtiments, eau et occupation du sol OpenStreetMap. */
+    public OsmCells osm() {
+        return osm;
     }
 
     public double scale() {

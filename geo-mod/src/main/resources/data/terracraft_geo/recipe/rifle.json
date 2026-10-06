@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "W": "#minecraft:planks"
+  },
+  "pattern": [
+    "III",
+    "WWI"
+  ],
+  "result": {
+    "id": "terracraft_geo:rifle",
+    "count": 1
+  }
+}

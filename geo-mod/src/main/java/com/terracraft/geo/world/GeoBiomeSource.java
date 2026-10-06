@@ -42,14 +42,16 @@ public final class GeoBiomeSource extends BiomeSource {
 
     private final HolderGetter<Biome> biomes;
     private volatile EarthTerrain terrain;
+    private volatile boolean osm;
     private final ThreadLocal<long[]> lastColumn = ThreadLocal.withInitial(() -> new long[]{Long.MIN_VALUE, 0});
 
     public GeoBiomeSource(HolderGetter<Biome> biomes) {
         this.biomes = biomes;
     }
 
-    void bind(EarthTerrain terrain) {
+    void bind(EarthTerrain terrain, boolean osm) {
         this.terrain = terrain;
+        this.osm = osm;
     }
 
     @Override
@@ -62,7 +64,8 @@ public final class GeoBiomeSource extends BiomeSource {
         Stream<ResourceKey<Biome>> oceans = Stream.of(
                 Biomes.WARM_OCEAN, Biomes.LUKEWARM_OCEAN, Biomes.DEEP_LUKEWARM_OCEAN,
                 Biomes.OCEAN, Biomes.DEEP_OCEAN, Biomes.COLD_OCEAN, Biomes.DEEP_COLD_OCEAN,
-                Biomes.FROZEN_OCEAN, Biomes.DEEP_FROZEN_OCEAN);
+                Biomes.FROZEN_OCEAN, Biomes.DEEP_FROZEN_OCEAN,
+                Biomes.RIVER, Biomes.FROZEN_RIVER, Biomes.FOREST, Biomes.TAIGA, Biomes.JUNGLE, Biomes.PLAINS);
         return Stream.concat(oceans, LAND.values().stream()).distinct().map(biomes::getOrThrow);
     }
 
@@ -88,10 +91,32 @@ public final class GeoBiomeSource extends BiomeSource {
             cache[1] = Double.doubleToRawLongBits(elevation);
         }
         EarthTerrain.Zone zone = terrain.zone(blockX, blockZ, elevation);
+        if (osm && elevation > 0 && zone.ordinal() < EarthTerrain.Zone.ALPINE_MEADOW.ordinal()) {
+            ResourceKey<Biome> mapped = fromOsm(terrain.osm().cellAt(blockX, blockZ), blockX, blockZ,
+                    Math.abs(terrain.latitudeAt(blockZ)));
+            if (mapped != null) {
+                return biomes.getOrThrow(mapped);
+            }
+        }
         return biomes.getOrThrow(switch (zone) {
             case OCEAN, DEEP_OCEAN -> ocean(Math.abs(terrain.latitudeAt(blockZ)), zone == EarthTerrain.Zone.DEEP_OCEAN);
             default -> LAND.get(zone);
         });
+    }
+
+    /** Biome dicté par OpenStreetMap (forêt, parc, eau…), ou null pour garder le climat. */
+    private static ResourceKey<Biome> fromOsm(OsmCells.Cell cell, int x, int z, double absLatitude) {
+        if (cell.surface(x, z) == OsmCells.WATER) {
+            return absLatitude > 60 ? Biomes.FROZEN_RIVER : Biomes.RIVER;
+        }
+        return switch (cell.land(x, z)) {
+            case OsmCells.LAND_FOREST -> absLatitude > 52 ? Biomes.TAIGA : absLatitude < 15 ? Biomes.JUNGLE : Biomes.FOREST;
+            // Ville, parcs et champs : peu d'arbres, de l'herbe et des fleurs.
+            case OsmCells.LAND_GRASS, OsmCells.LAND_FARMLAND, OsmCells.LAND_URBAN, OsmCells.LAND_PARK, OsmCells.LAND_PITCH ->
+                    absLatitude > 62 ? null : absLatitude < 30 ? Biomes.SAVANNA : Biomes.PLAINS;
+            case OsmCells.LAND_SAND -> Biomes.BEACH;
+            default -> null;
+        };
     }
 
     private static ResourceKey<Biome> ocean(double absLatitude, boolean deep) {

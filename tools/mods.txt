@@ -1,0 +1,16 @@
+# Mods tiers TerraCraft — Minecraft 26.3, Fabric.
+# Format : <slug Modrinth> <côté : both | server | client> [type : mod | shader]
+fabric-api               both
+open-parties-and-claims  both
+forge-config-api-port    both
+lithium                  server
+ferrite-core             both
+krypton                  server
+chunky                   server
+sodium                   client
+iris                     client
+distanthorizons          client
+xaeros-minimap           client
+xaeros-world-map         client
+modmenu                  client
+complementary-reimagined client shader

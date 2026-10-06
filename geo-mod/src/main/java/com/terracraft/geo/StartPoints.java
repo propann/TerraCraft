@@ -6,6 +6,7 @@ import com.google.gson.reflect.TypeToken;
 import com.terracraft.geo.world.EarthTerrain;
 import com.terracraft.geo.world.ElevationTiles;
 import com.terracraft.geo.world.GeoChunkGenerator;
+import com.terracraft.geo.world.OsmCells;
 import com.terracraft.geo.world.WebMercator;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -30,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -138,9 +140,10 @@ public final class StartPoints {
         double x = WebMercator.blockX(longitude, terrain.scale());
         double z = WebMercator.blockZ(latitude, terrain.scale());
         preparing.add(uuid);
-        player.sendOverlayMessage(Component.literal("Import du relief de " + label + "…").withStyle(ChatFormatting.AQUA));
-        terrain.prefetch(x, z, PREFETCH_RADIUS)
-                .orTimeout(90, TimeUnit.SECONDS)
+        player.sendOverlayMessage(Component.literal("Import du relief, des rues et des bâtiments de " + label + "…")
+                .withStyle(ChatFormatting.AQUA));
+        CompletableFuture.allOf(terrain.prefetch(x, z, PREFETCH_RADIUS), terrain.osm().prefetch(x, z, 64))
+                .orTimeout(150, TimeUnit.SECONDS)
                 .whenComplete((ignored, error) -> server.execute(() -> {
                     preparing.remove(uuid);
                     ServerPlayer online = server.getPlayerList().getPlayer(uuid);
@@ -165,26 +168,43 @@ public final class StartPoints {
 
         boolean firstChoice = !choices.containsKey(player.getUUID());
         invited.remove(player.getUUID());
-        player.teleportTo(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, Set.of(), player.getYRot(), 0, true);
+        // Largage au-dessus du point choisi (chute ralentie) ; la réapparition, elle, se fait au sol.
+        int dropY = Math.min(level.getMaxY() - 2, pos.getY() + Arrival.DROP_HEIGHT);
+        player.teleportTo(level, pos.getX() + 0.5, dropY, pos.getZ() + 0.5, Set.of(), player.getYRot(), 20, true);
         player.setRespawnPosition(new ServerPlayer.RespawnConfig(
                 new LevelData.RespawnData(GlobalPos.of(Level.OVERWORLD, pos), player.getYRot(), 0), true), false);
         if (firstChoice) {
             player.setGameMode(server.getDefaultGameType());
         }
+        Arrival.welcome(player, label, firstChoice);
         choices.put(player.getUUID(), new Choice(latitude, longitude, label, pos.getX(), pos.getY(), pos.getZ()));
         save();
 
         player.sendSystemMessage(Component.literal(String.format(Locale.ROOT,
                 "Bienvenue à %s (%.4f, %.4f) — 1 bloc ≈ %.2f m.", label, latitude, longitude,
                 1.0 / terrain.blocksPerMetre(latitude))).withStyle(ChatFormatting.GREEN));
-        player.sendSystemMessage(Component.literal(ElevationTiles.ATTRIBUTION + " · Carte © OpenStreetMap contributors")
+        player.sendSystemMessage(Component.literal(ElevationTiles.ATTRIBUTION + " · " + OsmCells.ATTRIBUTION)
                 .withStyle(ChatFormatting.DARK_GRAY));
         GeoMod.LOGGER.info("{} arrive à {} ({}, {}) → {}", player.getName().getString(), label, latitude, longitude, pos);
     }
 
-    /** Cherche la terre ferme la plus proche en spirale ; reste sur place si tout est en mer. */
+    /** Terre ferme, hors eau et hors bâtiment (on atterrit dans la rue, pas sur un toit). */
+    private static boolean isGoodSpot(EarthTerrain terrain, int x, int z, int originX, int originZ) {
+        if (terrain.elevation(x, z) <= 0) {
+            return false;
+        }
+        if (Math.floorDiv(x, OsmCells.CELL_SIZE) != Math.floorDiv(originX, OsmCells.CELL_SIZE)
+                || Math.floorDiv(z, OsmCells.CELL_SIZE) != Math.floorDiv(originZ, OsmCells.CELL_SIZE)) {
+            // Cellule voisine pas encore téléchargée : ne pas bloquer le serveur pour elle.
+            return true;
+        }
+        OsmCells.Cell cell = terrain.osm().cellAt(x, z);
+        return cell.surface(x, z) != OsmCells.WATER && cell.building(x, z) == null;
+    }
+
+    /** Cherche le bon endroit le plus proche en spirale ; reste sur place si rien ne convient. */
     private static int[] findLand(EarthTerrain terrain, int x, int z) {
-        if (terrain.elevation(x, z) > 0) {
+        if (isGoodSpot(terrain, x, z, x, z)) {
             return new int[]{x, z};
         }
         for (int radius = 8; radius <= LAND_SEARCH_RADIUS; radius += 8) {
@@ -193,7 +213,7 @@ public final class StartPoints {
                 double angle = Math.PI * 2 * step / radius;
                 int cx = x + (int) Math.round(Math.cos(angle) * radius);
                 int cz = z + (int) Math.round(Math.sin(angle) * radius);
-                if (terrain.elevation(cx, cz) > 0) {
+                if (isGoodSpot(terrain, cx, cz, x, z)) {
                     return new int[]{cx, cz};
                 }
             }

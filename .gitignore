@@ -23,3 +23,6 @@ serveur-local/banned-*.json
 serveur-local/*.log
 serveur-local/data/*.json
 __pycache__/
+serveur-local/console.*
+geo-mod/logs/
+serveur-local/config/chunky/

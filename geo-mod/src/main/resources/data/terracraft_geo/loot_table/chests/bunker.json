@@ -1,0 +1,261 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 3,
+        "max": 6
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:ammo",
+          "weight": 12,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 8,
+              "max": 24
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cooked_beef",
+          "weight": 8,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 6
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:bread",
+          "weight": 8,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 6
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:golden_apple",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_ingot",
+          "weight": 8,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 6
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:copper_ingot",
+          "weight": 6,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 6
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:redstone",
+          "weight": 6,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 8
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:diamond",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:fuel_can",
+          "weight": 8,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 3
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:shield",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_chestplate",
+          "weight": 1
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 1,
+        "max": 3
+      },
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 15
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:wheel",
+          "weight": 10,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2,
+              "max": 4
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:engine",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:radiator",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:battery",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:turbo",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:car_chassis",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:truck_chassis",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:pistol",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:shotgun",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:rifle",
+          "weight": 3
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:empty",
+          "weight": 40
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:rocket_engine",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:rocket_tank",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:nose_cone",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:fins",
+          "weight": 8
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:rocket_fuel",
+          "weight": 8,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 2
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:space_helmet",
+          "weight": 6
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:oxygen_tank",
+          "weight": 8,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 3
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:rocket_hull",
+          "weight": 3
+        }
+      ]
+    }
+  ]
+}

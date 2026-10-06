@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "cookingtime": 200,
+  "experience": 0.8,
+  "ingredient": "terracraft_geo:titanium_ore",
+  "result": {
+    "id": "terracraft_geo:titanium_ingot"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:iron_ingot",
+    "minecraft:iron_ingot",
+    "minecraft:copper_ingot",
+    "minecraft:blaze_powder"
+  ],
+  "result": {
+    "id": "terracraft_geo:turbo",
+    "count": 1
+  }
+}

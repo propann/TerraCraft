@@ -1,10 +1,11 @@
 {
   "dimensions": {
     "minecraft:overworld": {
-      "type": "minecraft:overworld",
+      "type": "terracraft_geo:earth",
       "generator": {
         "type": "terracraft_geo:earth",
-        "scale": 1.0
+        "scale": 1.0,
+        "apocalypse": true
       }
     },
     "minecraft:the_nether": {

@@ -1,0 +1,10 @@
+{
+  "type": "terracraft_geo:moon",
+  "generator": {
+    "type": "terracraft_geo:moon",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "terracraft_geo:moon"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "P": "minecraft:piston",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    "IPI",
+    "IRI"
+  ],
+  "result": {
+    "id": "terracraft_geo:engine",
+    "count": 1
+  }
+}
