@@ -160,8 +160,9 @@ public class Vehicle extends VehicleEntity {
         if (item == ModContent.WHEEL && wheels() < 4) {
             entityData.set(DATA_WHEELS, (byte) (wheels() + 1));
             used = true;
-        } else if (item == ModContent.FUEL_CAN && fuel() + FUEL_PER_CAN / 2 <= MAX_FUEL) {
-            entityData.set(DATA_FUEL, Math.min(MAX_FUEL, fuel() + FUEL_PER_CAN));
+        } else if (item == ModContent.FUEL_CAN && fuel() + FUEL_PER_CAN <= MAX_FUEL) {
+            // Un bidon est consommé uniquement s'il peut être entièrement stocké.
+            entityData.set(DATA_FUEL, fuel() + FUEL_PER_CAN);
             used = true;
         } else if (part != 0 && !has(part)) {
             entityData.set(DATA_PARTS, (byte) (parts() | part));
