@@ -1,0 +1,25 @@
+serveur-local/*.jar
+serveur-local/eula.txt
+serveur-local/world/
+serveur-local/world_nether/
+serveur-local/world_the_end/
+serveur-local/logs/
+serveur-local/cache/
+serveur-local/web/.DS_Store
+serveur-local/world-*/
+serveur-local/mods/*.jar
+serveur-local/terracraft-cache/
+serveur-local/.fabric/
+serveur-local/libraries/
+serveur-local/versions/
+geo-mod/build/
+geo-mod/.gradle/
+# Fichiers d'exécution du serveur (contiennent des secrets ou des données de joueurs)
+serveur-local/server.properties
+serveur-local/ops.json
+serveur-local/whitelist.json
+serveur-local/usercache.json
+serveur-local/banned-*.json
+serveur-local/*.log
+serveur-local/data/*.json
+__pycache__/

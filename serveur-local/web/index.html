@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TerraCraft — Choisir son départ</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, sans-serif; }
+    body { margin: 0; background: #10161b; color: #f1f5f4; }
+    header { padding: 18px 24px; background: #17242a; border-bottom: 1px solid #31444a; }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: 1.35rem; }
+    main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; min-height: calc(100vh - 72px); }
+    #map { min-height: 620px; }
+    aside { padding: 22px; background: #182126; overflow-y: auto; }
+    .eyebrow { margin-top: 5px; color: #9bb8b0; font-size: .82rem; }
+    label { display: block; margin: 20px 0 7px; color: #b7cbc6; font-size: .85rem; }
+    input, button { width: 100%; box-sizing: border-box; border: 1px solid #40565c; border-radius: 8px; padding: 11px 12px; background: #10191d; color: inherit; }
+    button { cursor: pointer; background: #9bd46c; border-color: #b4ee82; color: #152016; font-weight: 700; }
+    button.secondary { margin-top: 9px; background: transparent; color: #d7e6e1; border-color: #557069; }
+    .vehicles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .vehicle { padding: 12px 8px; text-align: left; }
+    .vehicle.selected { outline: 2px solid #9bd46c; background: #253b2c; }
+    .vehicle span { display: block; font-size: 1.45rem; margin-bottom: 5px; }
+    #status { min-height: 42px; margin: 16px 0; color: #b9d8ce; line-height: 1.4; }
+    .leaflet-control-attribution { font-size: 10px; }
+    @media (max-width: 850px) { main { display: block; } #map { min-height: 55vh; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TerraCraft</h1>
+    <p class="eyebrow">Choisis un lieu réel, puis prépare ton arrivée.</p>
+  </header>
+  <main>
+    <div id="map" aria-label="Carte mondiale interactive"></div>
+    <aside>
+      <h2>Point de départ</h2>
+      <p class="eyebrow">Zoome sur une rue et clique sur la carte.</p>
+      <label for="search">Rechercher une rue ou une ville</label>
+      <input id="search" type="search" placeholder="Ex. Paris, rue de Rivoli">
+      <div id="status">Aucun point choisi.</div>
+      <button id="confirm" style="margin-top:18px">Choisir ce point de départ</button>
+      <button class="secondary" id="reset">Réinitialiser</button>
+    </aside>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const status = document.querySelector('#status');
+    let marker;
+    const map = L.map('map', { worldCopyJump: true, minZoom: 2, maxZoom: 19 }).setView([30, 8], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+    }).addTo(map);
+    map.on('click', (event) => {
+      const { lng, lat } = event.latlng;
+      if (marker) marker.remove();
+      marker = L.marker([lat, lng]).addTo(map);
+      status.textContent = `Position choisie : ${lat.toFixed(5)}, ${lng.toFixed(5)} — zoome encore si nécessaire puis confirme.`;
+      window.selection = { latitude: lat, longitude: lng };
+    });
+    document.querySelector('#confirm').addEventListener('click', () => {
+      if (!window.selection) { status.textContent = 'Choisis d’abord un point sur la carte.'; return; }
+      localStorage.setItem('terracraft-selection', JSON.stringify(window.selection));
+      status.textContent = 'Récupération de la météo de cette zone...';
+      fetch('/api/selection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(window.selection)
+      }).then(async (response) => {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Erreur météo');
+        const current = result.weather.current;
+        status.textContent = `Point enregistré. Météo : ${current.temperature_2m} °C, ${current.wind_speed_10m} km/h de vent, précipitations ${current.precipitation} mm. Zone prête pour la génération.`;
+      }).catch((error) => {
+        status.textContent = `Point enregistré, mais la météo n'a pas répondu : ${error.message}`;
+      });
+    });
+    document.querySelector('#reset').addEventListener('click', () => {
+      if (marker) marker.remove();
+      window.selection = undefined;
+      localStorage.removeItem('terracraft-selection');
+      status.textContent = 'Aucun point choisi.';
+    });
+  </script>
+</body>
+</html>

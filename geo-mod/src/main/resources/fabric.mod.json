@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "terracraft_geo",
+  "version": "${version}",
+  "name": "TerraCraft Geo",
+  "description": "Choix du point de départ et génération géographique de TerraCraft.",
+  "authors": ["TerraCraft"],
+  "license": "All-Rights-Reserved",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.terracraft.geo.GeoMod"],
+    "client": ["com.terracraft.geo.GeoModClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
