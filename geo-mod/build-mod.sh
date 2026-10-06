@@ -31,7 +31,8 @@ fi
 FABRIC_API_VERSION="$(sed -n 's/^fabric_api_version=//p' gradle.properties)"
 FABRIC_API_JAR="$(find "${GRADLE_USER_HOME:-$HOME/.gradle}/caches/modules-2/files-2.1/net.fabricmc.fabric-api/fabric-api/${FABRIC_API_VERSION}" \
   -name "fabric-api-${FABRIC_API_VERSION}.jar" -print -quit 2>/dev/null || true)"
-MOD_JAR="$(ls build/libs/terracraft-geo-*.jar | grep -v -- '-sources' | head -1)"
+MOD_VERSION="$(sed -n 's/^mod_version=//p' gradle.properties)"
+MOD_JAR="build/libs/terracraft-geo-${MOD_VERSION}.jar"
 
 install_into() {
   local target="$1"

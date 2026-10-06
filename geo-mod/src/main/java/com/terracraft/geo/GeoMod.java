@@ -41,7 +41,7 @@ public final class GeoMod implements ModInitializer {
     public static final String MOD_ID = "terracraft_geo";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     /** Identifiant HTTP exigé par les politiques d'usage d'OSM et de Nominatim. */
-    public static final String USER_AGENT = "TerraCraftGeo/0.2 (prototype de serveur Minecraft local)";
+    public static final String USER_AGENT = "TerraCraftGeo/0.2 (+https://github.com/propann/TerraCraft)";
 
     private static final StartPoints START_POINTS = new StartPoints();
     private static final RealSky REAL_SKY = new RealSky();

@@ -4,6 +4,7 @@
 Usage :
   python3 tools/install_mods.py server serveur-local/mods
   python3 tools/install_mods.py client <instance>/minecraft/mods [--shaders <instance>/minecraft/shaderpacks]
+  --stable-names : enregistre chaque mod sous « <slug>.jar » (déploiement par copie, sans doublons)
 """
 import hashlib
 import json
@@ -15,7 +16,7 @@ from pathlib import Path
 GAME_VERSION = "26.3"
 LOADER = "fabric"
 API = "https://api.modrinth.com/v2"
-USER_AGENT = "TerraCraftGeo/0.2 (prototype de serveur Minecraft local)"
+USER_AGENT = "TerraCraftGeo/0.2 (+https://github.com/propann/TerraCraft)"
 
 
 def get(url):
@@ -38,24 +39,29 @@ def latest(slug, kind):
     return (release or versions)[0]
 
 
+STABLE = "--stable-names" in sys.argv
+
+
 def install(slug, kind, target):
     version = latest(slug, kind)
     file = next(f for f in version["files"] if f["primary"])
-    destination = target / file["filename"]
+    name = f"{slug}.jar" if STABLE and kind == "mod" else file["filename"]
+    destination = target / name
     if destination.exists() and hashlib.sha512(destination.read_bytes()).hexdigest() == file["hashes"]["sha512"]:
-        print(f"  ok      {file['filename']}")
-        return file["filename"]
+        print(f"  ok      {name}")
+        return name
     data = get(file["url"])
     if hashlib.sha512(data).hexdigest() != file["hashes"]["sha512"]:
         raise SystemExit(f"{slug} : somme sha512 invalide, téléchargement refusé")
     # Retire les anciennes versions du même projet avant d'écrire la nouvelle.
-    prefix = file["filename"].split("-")[0].lower()
-    for old in target.glob("*.jar" if kind == "mod" else "*.zip"):
-        if old.name != file["filename"] and old.name.lower().startswith(prefix) and old.name.lower() != "terracraft-geo":
-            old.unlink()
+    if not STABLE:
+        prefix = file["filename"].split("-")[0].lower()
+        for old in target.glob("*.jar" if kind == "mod" else "*.zip"):
+            if old.name != file["filename"] and old.name.lower().startswith(prefix):
+                old.unlink()
     destination.write_bytes(data)
-    print(f"  ajouté  {file['filename']}")
-    return file["filename"]
+    print(f"  ajouté  {name}  ({file['filename']})")
+    return name
 
 
 def main():

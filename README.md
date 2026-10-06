@@ -24,3 +24,9 @@ Le projet cible **Minecraft Java Edition sur PC** avec un serveur **Fabric modif
 
 Voir `geo-mod/README.md` pour l'état du mod et `docs/feuille-de-route.md` pour la suite (import OSM : routes, bâtiments, eau).
 
+
+## Déploiement (Falix)
+
+- `deploy/make_falix_branch.sh` compile le mod et met à jour la branche **`falix`**, qui ne contient que `mods/` (noms de fichiers fixes) et `config/`. Falix la copie à la racine du serveur à chaque push.
+- Réglages du panel et lignes de `server.properties` : voir `deploy/FALIX.md`.
+- Pack client pour Prism : `python3 tools/make_mrpack.py geo-mod/build/libs/terracraft-geo-<version>.jar dist/TerraCraft-client.mrpack`, publié dans les Releases GitHub.
