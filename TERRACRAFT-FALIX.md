@@ -13,28 +13,14 @@ Elle est générée par `deploy/make_falix_branch.sh` depuis `main`. Ne pas la m
 2. **Java** : **25** (image Java 25 dans les paramètres de démarrage).
 3. **RAM** : le maximum de l'offre (8 Go : laisse environ 7 Go au serveur).
 4. **GitHub** : dépôt `propann/TerraCraft`, branche **`falix`**, champ « Deploy into » **vide** (racine), « Deploy on every push » activé.
+5. **Bedrock / Geyser : désactivé.** Falix installe Geyser-Fabric, qui n'existe pas en 26.3 et empêche le démarrage : supprime `mods/Geyser-Fabric*.jar` (et Floodgate).
 
-## `server.properties` à modifier (gestionnaire de fichiers Falix)
+## `server.properties` : rien d'obligatoire
 
-**Avant le premier démarrage**, ou alors supprime ensuite le dossier `world/` : le type de monde n'est appliqué qu'à la création. Ne touche pas à `server-port` ni à `server-ip`, c'est Falix qui les gère.
-
-```properties
-level-type=terracraft_geo\:earth
-gamemode=survival
-difficulty=normal
-allow-flight=true
-max-tick-time=300000
-view-distance=10
-simulation-distance=8
-spawn-protection=0
-white-list=true
-enforce-whitelist=true
-motd=TerraCraft - la Terre apres la chute
-```
-
-- `allow-flight=true` évite d'être expulsé pour « vol » avec la gravité lunaire, en fusée ou pendant la chute d'arrivée.
-- `max-tick-time=300000` laisse le temps aux premières zones d'être générées (téléchargement du relief et des villes).
-- Liste blanche : ajoute tes amis dans la console Falix avec `whitelist add <pseudo>`, et donne-toi les droits avec `op <pseudo>`.
+- Le préréglage **Défaut** (`level-type=minecraft:normal`) est remplacé par la Terre post-apocalyptique : un monde neuf est automatiquement TerraCraft. Si un monde `world/` existait avant l'installation du mod, supprime-le une fois.
+- Le mod active `allow-flight` au démarrage, pour éviter les expulsions sur la Lune, en fusée ou pendant la chute d'arrivée.
+- **Administrateurs** : `ops.json` est fourni par cette branche et réécrit à chaque déploiement. Pour ajouter un admin, modifie `deploy/ops.json` dans `main`.
+- Optionnel : `max-tick-time=300000` (plus de marge pendant les premiers téléchargements) et `view-distance=8` si le serveur n'a que 4 Go.
 
 ## Le serveur a besoin d'internet
 
