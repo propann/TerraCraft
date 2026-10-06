@@ -31,7 +31,8 @@ public final class EarthTerrain {
     public enum Zone {
         DEEP_OCEAN, OCEAN, SHORE,
         ICE_CAP, TUNDRA, BOREAL, TEMPERATE, TEMPERATE_FOREST, MEDITERRANEAN,
-        DESERT, SAVANNA, TROPICAL,
+        DESERT, SAVANNA, TROPICAL, MONSOON, STEPPE, COLD_TAIGA,
+        // Les zones d'altitude restent en dernier (GeoBiomeSource compare les ordinaux).
         ALPINE_MEADOW, ROCKY_PEAK, SNOWY_PEAK
     }
 
@@ -177,8 +178,9 @@ public final class EarthTerrain {
     }
 
     /**
-     * Zone climatique très simplifiée (latitude + altitude + un bruit de variété). Elle sera
-     * remplacée par des données réelles d'occupation du sol (ESA WorldCover / OSM landuse).
+     * Zone climatique : climat réel de Köppen-Geiger ({@link KoppenMap}), corrigé par
+     * l'altitude (alpages, sommets) et varié par un bruit à grande échelle. Sans carte, on
+     * retombe sur une estimation par la latitude.
      */
     public Zone zone(int blockX, int blockZ, double elevationMetres) {
         double latitude = latitudeAt(blockZ);
@@ -200,6 +202,10 @@ public final class EarthTerrain {
             return Zone.ALPINE_MEADOW;
         }
         double variety = variety(blockX, blockZ);
+        Zone climate = fromKoppen(KoppenMap.get().classAt(latitude, longitudeAt(blockX)), variety);
+        if (climate != null) {
+            return climate;
+        }
         if (absLat > 70) {
             return Zone.ICE_CAP;
         }
@@ -222,6 +228,28 @@ public final class EarthTerrain {
             return variety < 0.75 ? Zone.SAVANNA : Zone.TROPICAL;
         }
         return Zone.TROPICAL;
+    }
+
+    /** Classe de Köppen → zone de paysage, ou null si la classe est inconnue (océan). */
+    static Zone fromKoppen(int koppen, double variety) {
+        return switch (koppen) {
+            case KoppenMap.AF -> Zone.TROPICAL;
+            case KoppenMap.AM -> Zone.MONSOON;
+            case KoppenMap.AW, KoppenMap.BSH -> Zone.SAVANNA;
+            case KoppenMap.BWH, KoppenMap.BWK -> Zone.DESERT;
+            case KoppenMap.BSK -> Zone.STEPPE;
+            case KoppenMap.CSA -> variety < 0.6 ? Zone.MEDITERRANEAN : Zone.TEMPERATE;
+            case KoppenMap.CSB, KoppenMap.CSC -> variety < 0.5 ? Zone.TEMPERATE : Zone.TEMPERATE_FOREST;
+            case KoppenMap.CFA, KoppenMap.CWA -> variety < 0.6 ? Zone.TEMPERATE_FOREST : Zone.TEMPERATE;
+            case KoppenMap.CFB, KoppenMap.CWB -> variety < 0.55 ? Zone.TEMPERATE : Zone.TEMPERATE_FOREST;
+            case KoppenMap.CFC, KoppenMap.CWC, KoppenMap.DSC, KoppenMap.DWC, KoppenMap.DFC -> Zone.BOREAL;
+            case KoppenMap.DSA, KoppenMap.DSB, KoppenMap.DWA, KoppenMap.DWB, KoppenMap.DFA, KoppenMap.DFB ->
+                    variety < 0.7 ? Zone.TEMPERATE_FOREST : Zone.BOREAL;
+            case KoppenMap.DSD, KoppenMap.DWD, KoppenMap.DFD -> Zone.COLD_TAIGA;
+            case KoppenMap.ET -> Zone.TUNDRA;
+            case KoppenMap.EF -> Zone.ICE_CAP;
+            default -> null;
+        };
     }
 
     /** Bruit de valeur lissé dans [0, 1), stable pour une position. */

@@ -143,6 +143,10 @@ public final class GeoChunkGenerator extends ChunkGenerator {
                     ? new BlockState[]{SANDSTONE, SANDSTONE}
                     : new BlockState[]{SAND, SAND, SAND, SANDSTONE, SANDSTONE};
             case SNOWY_PEAK -> slope >= 6 ? new BlockState[]{STONE} : new BlockState[]{SNOW, SNOW};
+            case ICE_CAP -> new BlockState[]{SNOW, PACKED_ICE, PACKED_ICE};
+            // Steppe : herbe rase et plaques de terre sèche.
+            case STEPPE -> Math.floorMod(Apocalypse.hash(blockX, blockZ, 71), 100) < 30
+                    ? new BlockState[]{TRACK, DIRT, DIRT} : new BlockState[]{GRASS, DIRT, DIRT};
             case ROCKY_PEAK -> slope >= 3 ? new BlockState[]{STONE} : new BlockState[]{GRAVEL, STONE};
             default -> slope >= 4 ? new BlockState[]{STONE} : new BlockState[]{GRASS, DIRT, DIRT, DIRT};
         };
@@ -298,6 +302,9 @@ public final class GeoChunkGenerator extends ChunkGenerator {
         } else if (osm != null && land && apocalypse && solidTop >= waterTop) {
             decorateRuinedStreet(chunk, osm, blockX, blockZ, x, z, solidTop);
         }
+        if (osm != null && land && building == null) {
+            balconies(chunk, osm, blockX, blockZ, x, z, solidTop, apocalypse);
+        }
     }
 
     /** Tablier de 2 blocs (si la place existe), parapet sur les bords, pilier jusqu'au sol ou au lit. */
@@ -319,6 +326,36 @@ public final class GeoChunkGenerator extends ChunkGenerator {
             for (int y = solidTop + 1; y < deck - 1; y++) {
                 set(chunk, x, y, z, BRIDGE);
             }
+        }
+    }
+
+    private static final BlockState BALCONY = Blocks.SMOOTH_STONE_SLAB.defaultBlockState()
+            .setValue(net.minecraft.world.level.block.SlabBlock.TYPE, net.minecraft.world.level.block.state.properties.SlabType.TOP);
+    private static final BlockState RAILING = Blocks.IRON_BARS.defaultBlockState();
+
+    /** Balcons filants (3 blocs sur 6) aux étages des immeubles à mansarde, côté extérieur. */
+    private static void balconies(ChunkAccess chunk, OsmCells.Cell osm, int blockX, int blockZ, int x, int z, int ground,
+                                  boolean apocalypse) {
+        if (Math.floorMod(blockX + blockZ, 6) >= 3) {
+            return;
+        }
+        int[][] around = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+        for (int[] d : around) {
+            OsmCells.Building b = osm.building(blockX + d[0], blockZ + d[1]);
+            if (b == null || b.shape() != OsmCells.RoofShape.MANSARD || !osm.isWall(blockX + d[0], blockZ + d[1])) {
+                continue;
+            }
+            int top = apocalypse ? Apocalypse.effectiveTop(b, blockX + d[0], blockZ + d[1]) : b.topY();
+            if (apocalypse && Apocalypse.ruin(b) == Apocalypse.Ruin.RUBBLE) {
+                return;
+            }
+            for (int y = b.baseY() + b.floorStep(); y + 2 < top && y + 1 < chunk.getMaxY(); y += b.floorStep()) {
+                if (y > ground + 3 && (!apocalypse || Apocalypse.roll(blockX, blockZ * 7L + y, 263) >= 20)) {
+                    set(chunk, x, y, z, BALCONY);
+                    set(chunk, x, y + 1, z, RAILING);
+                }
+            }
+            return;
         }
     }
 
@@ -397,6 +434,10 @@ public final class GeoChunkGenerator extends ChunkGenerator {
         BlockState windowBlock = block(building.window());
         boolean door = wall && Math.floorMod(blockX * 31 + blockZ * 17, 11) == 0 && facesOutside(osm, blockX, blockZ);
         boolean lamp = !apocalypse && !wall && Math.floorMod(blockX, 6) == 3 && Math.floorMod(blockZ, 6) == 3;
+        net.minecraft.core.Direction ladder = wall ? null : BuildingInterior.ladder(osm, blockX, blockZ);
+        boolean partition = !wall && ladder == null && BuildingInterior.isPartition(osm, blockX, blockZ);
+        boolean doorway = partition && BuildingInterior.isDoorway(blockX, blockZ);
+        BlockState furnitureTop = null;
 
         for (int y = groundY + 1; y < base; y++) {
             set(chunk, x, y, z, FOUNDATION);
@@ -419,12 +460,30 @@ public final class GeoChunkGenerator extends ChunkGenerator {
                     state = state == windowBlock ? Apocalypse.window(windowBlock, blockX, y, blockZ)
                             : state == wallBlock ? Apocalypse.wall(wallBlock, blockX, y, blockZ) : state;
                 }
+            } else if (ladder != null) {
+                // Échelle continue du rez-de-chaussée au dernier étage (traverse les planchers).
+                state = BuildingInterior.ladderState(ladder);
+            } else if (partition && level > 0) {
+                state = doorway && level <= 2 ? AIR : BuildingInterior.partition();
             } else if (apocalypse) {
                 state = Apocalypse.interior(FLOOR, level, blockX, y, blockZ);
             } else if (level == 0) {
                 state = FLOOR;
             } else {
                 state = lamp && level == step - 1 ? LIGHT : AIR;
+            }
+            // Mobilier posé sur le plancher (pas sur les cloisons ni dans les trous).
+            if (!wall && ladder == null && !partition && level == 1 && state.isAir() && y + 1 < top) {
+                BlockState[] furniture = BuildingInterior.furniture(blockX, y, blockZ);
+                if (furniture != null) {
+                    state = furniture[0];
+                    furnitureTop = furniture[1];
+                }
+            } else if (level == 2 && furnitureTop != null) {
+                state = furnitureTop;
+                furnitureTop = null;
+            } else if (level != 1) {
+                furnitureTop = null;
             }
             set(chunk, x, y, z, state);
         }
@@ -461,22 +520,33 @@ public final class GeoChunkGenerator extends ChunkGenerator {
             set(chunk, x, y, z, y > top + rise - thickness ? roofBlock : AIR);
         }
         if (top + rise < maxY) {
-            set(chunk, x, top + Math.max(rise, 1), z, roofBlock);
+            // Toit à quatre pans : escaliers orientés vers le faîte, bloc plein au sommet.
+            BlockState cover = roofBlock;
+            if (building.shape() == OsmCells.RoofShape.HIPPED && rise < 8 && !roofBlock.isAir()) {
+                BlockState stair = BuildingInterior.roofStair(osm, blockX, blockZ, roofBlock);
+                if (stair != null) {
+                    cover = stair;
+                }
+            }
+            set(chunk, x, top + Math.max(rise, 1), z, cover);
         }
     }
 
     /** Essence selon le climat ; les avenues tempérées ont surtout de grands arbres (type platane). */
-    private static ResourceKey<Feature> species(double latitude, int kind, long hash) {
-        double absLat = Math.abs(latitude);
+    private static ResourceKey<Feature> species(EarthTerrain.Zone zone, int kind, long hash) {
         int roll = (int) Math.floorMod(hash, 100);
-        if (absLat > 55) {
-            return roll < 70 ? TreeFeatures.SPRUCE : TreeFeatures.BIRCH;
-        }
-        if (absLat < 15) {
-            return roll < 60 ? TreeFeatures.JUNGLE_TREE_NO_VINE : TreeFeatures.ACACIA;
-        }
-        if (absLat < 30) {
-            return roll < 60 ? TreeFeatures.ACACIA : TreeFeatures.OAK;
+        switch (zone) {
+            case BOREAL, COLD_TAIGA, TUNDRA, ICE_CAP -> {
+                return roll < 70 ? TreeFeatures.SPRUCE : TreeFeatures.BIRCH;
+            }
+            case TROPICAL, MONSOON -> {
+                return roll < 60 ? TreeFeatures.JUNGLE_TREE_NO_VINE : TreeFeatures.ACACIA;
+            }
+            case DESERT, SAVANNA, STEPPE -> {
+                return roll < 60 ? TreeFeatures.ACACIA : TreeFeatures.OAK;
+            }
+            default -> {
+            }
         }
         if (kind == UrbanTrees.AVENUE) {
             return roll < 65 ? TreeFeatures.FANCY_OAK : TreeFeatures.OAK;
@@ -513,7 +583,7 @@ public final class GeoChunkGenerator extends ChunkGenerator {
                 }
                 long hash = UrbanTrees.mix(blockX * 0x9E3779B97F4A7C15L ^ blockZ * 0xC2B2AE3D27D4EB4FL);
                 RandomSource random = RandomSource.create(hash);
-                features.get(species(terrain.latitudeAt(blockZ), kind, hash >>> 8))
+                features.get(species(terrain.zone(blockX, blockZ, terrain.elevation(blockX, blockZ)), kind, hash >>> 8))
                         .ifPresent(feature -> feature.value().place(level, this, random, trunk));
             }
         }

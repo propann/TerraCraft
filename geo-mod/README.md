@@ -33,14 +33,13 @@ Le client a besoin de Fabric Loader 0.19.5, de Fabric API et de ce mod. Le serve
 | Projection | Web Mercator, bloc (0, 0) = 0°N 0°E, nord = -Z. Échelle 1 : 1 bloc = 1 m à l'équateur, `cos(lat)` m ailleurs (0,66 m à Paris). Réglable avec `scale` dans `data/terracraft_geo/worldgen/world_preset/earth.json`. |
 | Hauteur | Dimension `terracraft_geo:earth` de 1536 blocs (y -64 à 1471). Mer réelle = y 63. Altitude à la même échelle que l'horizontale, **linéaire sur 1200 blocs** (≈ 800 m réels en France : villes et collines à l'échelle exacte), puis compressée en racine carrée (Everest ≈ y 1440). |
 | Relief | Tuiles Terrarium zoom 13 (~19 blocs/pixel, interpolation bicubique) + zoom 10 pour la bathymétrie en pleine mer. Cache disque `terracraft-cache/terrarium/` à côté du serveur. |
-| Biomes | Provisoire : latitude + altitude + bruit de variété (`EarthTerrain.zone`). |
+| Biomes | Climats réels de Köppen-Geiger (Beck et al. 2023, 1991-2020, 0,1°, CC BY 4.0) : `KoppenMap`, données `assets/terracraft_geo/koppen_0p1.bin.gz` générées par `tools/make_koppen.py`. L'altitude (alpages, sommets) et OSM (forêts, parcs, eau) restent prioritaires. |
 | Sécurité | Le serveur n'accepte un point que d'un joueur invité à choisir (première connexion ou `/terracraft depart`). |
 
 ## Limites connues (prochaines étapes)
 
 - Le type de bâtiment n'est pas dans les tuiles OpenMapTiles : il est deviné (hauteur + emprise). Les styles sont dans `BuildingStyles.java`.
 - Overpass a été abandonné (trop lent, erreurs 504/429) au profit d'OpenFreeMap (CDN). Cache : `terracraft-cache/osm/`.
-- Les biomes ne reflètent pas l'occupation réelle du sol (ESA WorldCover envisagé).
 - Au-dessus d'environ 800 m d'altitude réelle, le relief est compressé.
 - Les tuiles OSM publiques conviennent pour le prototype ; un serveur public devra utiliser son propre serveur de tuiles.
 
@@ -135,3 +134,6 @@ Conception inspirée d'Ad Astra, mais écrite pour ce mod : le code d'Ad Astra v
 
 - Données sauvegardées dans `<monde>/terracraft_geo/progression.json`.
 - Tests serveur : le mod Carpet (`/player … spawn`) sert de joueur factice, **uniquement sur le serveur de test** (pas dans `tools/mods.txt`).
+
+## Intérieurs des bâtiments (`BuildingInterior.java`)
+Échelles dans un coin intérieur sur deux (accès à tous les étages), cloisons blanches sur une grille de 7 blocs avec passages de porte, mobilier (bibliothèques, établis, tables, chaises, chaudrons, plantes, métiers), toits à quatre pans en escaliers orientés, balcons filants aux étages des immeubles.
