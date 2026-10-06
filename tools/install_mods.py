@@ -47,6 +47,9 @@ def install(slug, kind, target):
     file = next(f for f in version["files"] if f["primary"])
     name = f"{slug}.jar" if STABLE and kind == "mod" else file["filename"]
     destination = target / name
+    if (target / (name + ".disabled")).exists():
+        print(f"  désactivé  {name} (laissé tel quel)")
+        return name
     if destination.exists() and hashlib.sha512(destination.read_bytes()).hexdigest() == file["hashes"]["sha512"]:
         print(f"  ok      {name}")
         return name

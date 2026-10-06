@@ -57,6 +57,13 @@ public final class StartPoints {
 
     public void load(MinecraftServer server) {
         this.server = server;
+        if (generator(server) == null) {
+            GeoMod.LOGGER.error("Le monde « {} » n'utilise PAS le générateur TerraCraft : il a été créé avant l'installation "
+                    + "du mod. Supprime world/, world_nether/ et world_the_end/ puis redémarre pour obtenir la Terre.",
+                    server.getWorldData().getLevelName());
+        } else {
+            GeoMod.LOGGER.info("Monde TerraCraft détecté : carte de départ active.");
+        }
         this.file = server.getWorldPath(LevelResource.ROOT).resolve(GeoMod.MOD_ID).resolve("start_points.json");
         choices.clear();
         invited.clear();
@@ -91,7 +98,16 @@ public final class StartPoints {
 
     /** À la connexion : un joueur sans point de départ doit choisir sur la carte. */
     public void onJoin(ServerPlayer player) {
-        if (choices.containsKey(player.getUUID()) || generator(server) == null) {
+        if (generator(server) == null) {
+            // Monde créé avant l'installation du mod : pas de carte possible, on le dit clairement.
+            if (server.getPlayerList().isOp(player.nameAndId())) {
+                player.sendSystemMessage(Component.literal("⚠ Ce monde n'est pas un monde TerraCraft (créé avant le mod). "
+                        + "Arrête le serveur, supprime les dossiers world, world_nether et world_the_end, puis redémarre.")
+                        .withStyle(ChatFormatting.RED));
+            }
+            return;
+        }
+        if (choices.containsKey(player.getUUID())) {
             return;
         }
         if (!ServerPlayNetworking.canSend(player, OpenMapPayload.TYPE)) {
