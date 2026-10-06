@@ -203,8 +203,10 @@ public class Rocket extends VehicleEntity {
         if (getFirstPassenger() instanceof ServerPlayer player && player.getLastClientInput().jump()
                 && isComplete() && fuel() >= FUEL_NEEDED) {
             if (!Space.hasLifeSupport(player)) {
-                player.sendOverlayMessage(Component.literal("Décollage impossible : casque spatial chargé requis.")
-                        .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+                if (level.getGameTime() % 20 == 0) {
+                    player.sendOverlayMessage(Component.literal("Décollage impossible : équipe le casque-combinaison et recharge son oxygène.")
+                            .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+                }
                 return;
             }
             entityData.set(DATA_PHASE, COUNTDOWN);

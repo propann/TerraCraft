@@ -111,7 +111,7 @@ Conception inspirée d'Ad Astra, mais écrite pour ce mod : le code d'Ad Astra v
 
 - **Fusée** : poser la coque, puis clic droit avec le moteur-fusée, le réservoir, le cône et les ailerons, puis 4 carburants de fusée. Monter (clic droit), puis **Espace** : compte à rebours de 3 s, décollage, passage Terre ↔ Lune et descente freinée. Au retour, on atterrit au point de départ sur Terre (mémorisé dans la fusée).
 - **Lune** (`terracraft_geo:moon`) : régolithe gris, mers de basalte, cratères de 8 à 150 blocs avec remparts. Ciel noir, sans nuages ni pluie, on ne peut pas y dormir. **Gravité ×0,17**, chutes amorties.
-- **Oxygène** : sans casque spatial, ou casque vide, on suffoque (2 dégâts/s). Le casque contient 10 min d'air (sa barre de durabilité). Une bouteille d'oxygène (clic droit) recharge 5 min.
+- **Combinaison et oxygène** : le casque-combinaison est obligatoire pour décoller. Sans lui, ou avec sa réserve vide, on suffoque (2 dégâts/s). Il contient 10 min d'air (sa barre de durabilité). Une bouteille d'oxygène (clic droit) recharge 5 min. La plateforme orbitale et les distributeurs fournissent une bulle d'air.
 - **Recettes** : coque (fer + blocs de cuivre), moteur-fusée (fer, bloc de redstone, haut fourneau), réservoir (cuivre + seau), cône et ailerons (fer), carburant (bidon d'essence + bloc de charbon + poudre à canon), casque (fer + verre), oxygène (fer, 2 cuivres, algue). On trouve aussi des pièces dans les **bunkers**.
 - Commande admin : `/terracraft vehicule voiture|camion` fait apparaître un véhicule complet.
 

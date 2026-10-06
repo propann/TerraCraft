@@ -12,7 +12,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-/** Bouteille d'oxygène : clic droit pour recharger le casque spatial porté (5 minutes d'air). */
+/** Bouteille d'oxygène : clic droit pour recharger le casque-combinaison porté (5 minutes d'air). */
 public class OxygenTankItem extends Item {
     public static final int REFILL = 300;
 
@@ -25,7 +25,7 @@ public class OxygenTankItem extends Item {
         ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
         if (!helmet.is(ModContent.SPACE_HELMET)) {
             if (!level.isClientSide()) {
-                player.sendOverlayMessage(Component.literal("Porte d'abord un casque spatial").withStyle(ChatFormatting.GOLD));
+                player.sendOverlayMessage(Component.literal("Porte d'abord le casque-combinaison spatial").withStyle(ChatFormatting.GOLD));
             }
             return InteractionResult.FAIL;
         }

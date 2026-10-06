@@ -171,7 +171,7 @@ public final class Space {
             }
             return;
         }
-        player.sendOverlayMessage(Component.literal(suited ? "Plus d'oxygène ! Recharge ton casque." : "Pas d'air ! Il faut un casque spatial.")
+        player.sendOverlayMessage(Component.literal(suited ? "Réserve d'oxygène vide ! Recharge ton casque-combinaison." : "Pas d'air ! Il faut un casque-combinaison spatial.")
                 .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
         player.hurtServer(player.level(), player.damageSources().drown(), 2.0f);
     }
