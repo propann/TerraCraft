@@ -5,6 +5,9 @@ Cette branche `falix` contient uniquement ce que Falix doit copier à la racine 
 - `mods/` : TerraCraft et les mods serveur, sous des **noms fixes** (`terracraft-geo.jar`, `fabric-api.jar`…). Une mise à jour remplace donc le fichier au lieu d'en ajouter un second.
 - `config/openpartiesandclaims-server.toml` : claims en mode permissif.
 
+La localisation serveur OPAC reste volontairement `en_us` : la version 0.32.8 ne contient pas de
+traduction serveur française. Les messages et commandes TerraCraft sont, eux, en français.
+
 Elle est générée par `deploy/make_falix_branch.sh` depuis `main`. Ne pas la modifier à la main.
 
 ## Réglages du panel Falix (une seule fois)
