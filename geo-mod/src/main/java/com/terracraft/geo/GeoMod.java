@@ -46,6 +46,7 @@ public final class GeoMod implements ModInitializer {
 
     private static final StartPoints START_POINTS = new StartPoints();
     private static final RealSky REAL_SKY = new RealSky();
+    private static final Survival SURVIVAL = new Survival();
 
     /** Véhicule complet, plein d'essence, posé devant le joueur (tests et administration). */
     private static int spawnVehicle(CommandSourceStack source, boolean truck) throws CommandSyntaxException {
@@ -89,10 +90,15 @@ public final class GeoMod implements ModInitializer {
             }
         });
         ServerLifecycleEvents.SERVER_STARTED.register(Progression.get()::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(SURVIVAL::load);
+        ServerPlayerEvents.COPY_FROM.register(SURVIVAL::onRespawn);
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> Progression.get().save());
         ServerTickEvents.END_SERVER_TICK.register(Progression.get()::tick);
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> Progression.get().applyPerks(newPlayer));
         ServerLivingEntityEvents.AFTER_DEATH.register((entity, source) -> {
+            if (entity instanceof ServerPlayer dead) {
+                SURVIVAL.onDeath(dead);
+            }
             if (source.getEntity() instanceof ServerPlayer killer) {
                 Progression.get().onKill(entity, killer);
             }
@@ -121,6 +127,7 @@ public final class GeoMod implements ModInitializer {
             Progression.get().applyPerks(handler.player);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> START_POINTS.onLeave(handler.player));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> SURVIVAL.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> dispatcher.register(
                 Commands.literal("terracraft")
                         .then(Commands.literal("ou").executes(command -> {

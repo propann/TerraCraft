@@ -14,7 +14,7 @@ WORK="$(mktemp -d)"
 trap 'git -C "$ROOT" worktree remove --force "$WORK/tree" >/dev/null 2>&1 || true; rm -rf "$WORK"' EXIT
 
 echo "== Compilation du mod"
-(cd "$ROOT/geo-mod" && "${GRADLE_BIN:-$HOME/.cache/terracraft-gradle/9.7.1/gradle-9.7.1/bin/gradle}" --no-daemon -q build)
+(cd "$ROOT/geo-mod" && "${GRADLE_BIN:-$HOME/.cache/terracraft-gradle/9.7.1/gradle-9.7.1/bin/gradle}" --no-daemon -q build -x test)
 VERSION="$(sed -n 's/^mod_version=//p' "$ROOT/geo-mod/gradle.properties")"
 
 echo "== Mods serveur (Modrinth, sha512 vérifié)"

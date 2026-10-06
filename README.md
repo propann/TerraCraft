@@ -25,7 +25,17 @@ Le projet cible **Minecraft Java Edition sur PC** avec un serveur **Fabric modif
 Voir `geo-mod/README.md` pour l'état du mod et `docs/feuille-de-route.md` pour la suite (import OSM : routes, bâtiments, eau).
 
 
+## Joueurs : installer le jeu
+
+Voir `installer/README.md` : installeurs Windows et Linux pour le launcher officiel (Fabric + mods de la dernière release), ou import du `.mrpack` dans Prism ou Modrinth App.
+
+## Règles de survie
+
+On garde son inventaire en mourant, mais on perd 25 % de son expérience. Téléportation : `/tpa <joueur>` (puis `/tpaccept` ou `/tpdeny`), `/sethome` et `/home`, `/back` (lieu de la mort).
+
 ## Déploiement (Falix)
+
+- **Automatique** : à chaque push sur `main`, GitHub Actions compile le mod et met à jour la branche `falix` (`.github/workflows/build.yml`). Un tag `vX.Y.Z` publie une release avec le jar et le pack client.
 
 - `deploy/make_falix_branch.sh` compile le mod et met à jour la branche **`falix`**, qui ne contient que `mods/` (noms de fichiers fixes) et `config/`. Falix la copie à la racine du serveur à chaque push.
 - Réglages du panel et lignes de `server.properties` : voir `deploy/FALIX.md`.
