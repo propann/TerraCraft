@@ -128,10 +128,12 @@ public final class GeoMod implements ModInitializer {
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             START_POINTS.onJoin(handler.player);
             Progression.get().applyPerks(handler.player);
+            ServerGuide.welcome(handler.player);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> START_POINTS.onLeave(handler.player));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> SURVIVAL.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> AUCTION_HOUSE.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> ServerGuide.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> dispatcher.register(
                 Commands.literal("terracraft")
                         .then(Commands.literal("ou").executes(command -> {

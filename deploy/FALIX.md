@@ -18,6 +18,7 @@ Elle est générée par `deploy/make_falix_branch.sh` depuis `main`. Ne pas la m
 ## `server.properties` : rien d'obligatoire
 
 - Le préréglage **Défaut** (`level-type=minecraft:normal`) est remplacé par la Terre post-apocalyptique : un monde neuf est automatiquement TerraCraft. Si un monde `world/` existait avant l'installation du mod, supprime-le une fois.
+- Pour une bêta cohérente, utiliser `gamemode=survival`, `force-gamemode=true`, `difficulty=normal`, `online-mode=true` et `white-list=true`. Ouvrir la whitelist seulement après un test de connexion avec plusieurs joueurs.
 - Le mod active `allow-flight` au démarrage, pour éviter les expulsions sur la Lune, en fusée ou pendant la chute d'arrivée.
 - **Administrateurs** : `ops.json` est fourni par cette branche et réécrit à chaque déploiement. Pour ajouter un admin, modifie `deploy/ops.json` dans `main`.
 - Optionnel : `max-tick-time=300000` (plus de marge pendant les premiers téléchargements) et `view-distance=8` si le serveur n'a que 4 Go.

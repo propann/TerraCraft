@@ -39,6 +39,16 @@ Chaque joueur commence avec 1 000 crédits. `/argent` affiche le solde. Pour ven
 tiens-la en main et utilise `/hdv vendre <prix>` ; `/hdv` affiche les annonces avec des boutons
 cliquables pour acheter ou retirer. Les comptes et annonces sont persistants dans le dossier du monde.
 
+## Boucle de jeu retenue
+
+1. Choisir une ville réelle sur la carte et sécuriser un premier abri.
+2. Explorer les bâtiments, récupérer des ressources et vendre le surplus à l'hôtel des ventes.
+3. Former un groupe, revendiquer son secteur et améliorer voiture, équipement électrique et base.
+4. Fabriquer une combinaison chargée, une fusée et partir vers la Lune puis l'orbite.
+
+Chaque fonctionnalité doit renforcer cette boucle : accueil immédiat, objectifs courts, progression
+visible et commandes compréhensibles en français.
+
 ## Déploiement (Falix)
 
 - **Automatique** : à chaque push sur `main`, GitHub Actions compile le mod et met à jour la branche `falix` (`.github/workflows/build.yml`). Un tag `vX.Y.Z` publie une release avec le jar et le pack client.
