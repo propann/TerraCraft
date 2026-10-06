@@ -92,6 +92,7 @@ public final class Survival {
         if (alive) {
             return;
         }
+        Progression.get().onDeath(player);
         int total = totalExperience(oldPlayer.experienceLevel, oldPlayer.experienceProgress);
         int kept = (int) Math.floor(total * (1 - DEATH_XP_LOSS));
         player.setExperienceLevels(0);
@@ -99,7 +100,7 @@ public final class Survival {
         player.giveExperiencePoints(kept);
         if (total > 0) {
             player.sendSystemMessage(Component.literal("Tu as gardé ton inventaire mais perdu " + Math.round(DEATH_XP_LOSS * 100)
-                    + " % de ton expérience (niveau " + oldPlayer.experienceLevel + " → " + player.experienceLevel
+                    + " % de ton expérience (et 10 % de la progression de tes compétences) (niveau " + oldPlayer.experienceLevel + " → " + player.experienceLevel
                     + "). /back pour retourner où tu es mort.").withStyle(ChatFormatting.GRAY));
         }
     }

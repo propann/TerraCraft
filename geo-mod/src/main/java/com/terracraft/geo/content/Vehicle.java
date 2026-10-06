@@ -233,8 +233,11 @@ public class Vehicle extends VehicleEntity {
         }
         if (!level().isClientSide() && getControllingPassenger() != null && fuel() > 0) {
             double moved = Math.hypot(getX() - xo, getZ() - zo);
-            if (moved > 0.02) {
+            boolean saved = getControllingPassenger() instanceof ServerPlayer driver && com.terracraft.geo.Progression.get().saveFuel(driver);
+            if (moved > 0.02 && !saved) {
                 entityData.set(DATA_FUEL, fuel() - 1);
+            }
+            if (moved > 0.02) {
                 odometer += moved;
                 if (odometer >= 100 && getControllingPassenger() instanceof ServerPlayer driver) {
                     com.terracraft.geo.Progression.get().count(driver, "driven", 100, 1);

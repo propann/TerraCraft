@@ -256,6 +256,29 @@
           "type": "minecraft:item",
           "name": "terracraft_geo:rifle",
           "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:machete",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:grenade",
+          "weight": 4,
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 1,
+              "max": 3
+            }
+          }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:smg",
+          "weight": 1
         }
       ]
     }

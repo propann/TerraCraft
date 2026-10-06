@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "G": "minecraft:spyglass",
+    "W": "#minecraft:planks"
+  },
+  "pattern": [
+    " G ",
+    "III",
+    "WW "
+  ],
+  "result": {
+    "id": "terracraft_geo:sniper"
+  }
+}

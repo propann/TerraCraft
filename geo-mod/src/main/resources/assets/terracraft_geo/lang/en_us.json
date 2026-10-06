@@ -36,5 +36,10 @@
   "entity.terracraft_geo.moon_crawler": "Moon Crawler",
   "entity.terracraft_geo.lost_astronaut": "Lost Astronaut",
   "biome.terracraft_geo.orbit": "Orbit",
-  "key.terracraft_geo.sheet": "Character sheet"
+  "key.terracraft_geo.sheet": "Character sheet",
+  "item.terracraft_geo.smg": "SMG",
+  "item.terracraft_geo.sniper": "Sniper Rifle",
+  "item.terracraft_geo.grenade": "Grenade",
+  "item.terracraft_geo.machete": "Machete",
+  "entity.terracraft_geo.grenade": "Grenade"
 }

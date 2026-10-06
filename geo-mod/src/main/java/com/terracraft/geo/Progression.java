@@ -131,6 +131,81 @@ public final class Progression {
         STAT_LABELS.put("helium", "Cristaux d'hélium-3");
     }
 
+    // --- Compétences --------------------------------------------------------------------------
+
+    /** Arbres de compétences : chacun a son expérience, ses 20 niveaux et un bonus par niveau. */
+    public enum Skill {
+        COMBAT("Combat", "+2 % de dégâts, rechargement 2 % plus rapide"),
+        EXPLORATION("Exploration", "+0,5 % de vitesse, +0,1 chance au butin"),
+        MECHANICS("Mécanique", "−2 % de consommation d'essence"),
+        SPACE("Espace", "−3 % de consommation d'oxygène");
+
+        final String label;
+        final String perLevel;
+
+        Skill(String label, String perLevel) {
+            this.label = label;
+            this.perLevel = perLevel;
+        }
+    }
+
+    public static final int MAX_SKILL_LEVEL = 20;
+
+    /** Expérience totale nécessaire pour atteindre un niveau (courbe en n^1,5). */
+    static int levelFor(long xp) {
+        int level = 0;
+        while (level < MAX_SKILL_LEVEL && xp >= cumulative(level + 1)) {
+            level++;
+        }
+        return level;
+    }
+
+    /** Expérience cumulée pour atteindre le niveau donné. */
+    static long cumulative(int level) {
+        long total = 0;
+        for (int n = 1; n <= level; n++) {
+            total += Math.round(100 * Math.pow(n, 1.5));
+        }
+        return total;
+    }
+
+    public int skillLevel(ServerPlayer player, Skill skill) {
+        return levelFor(record(player).skills.getOrDefault(skill.name(), 0L));
+    }
+
+    /** Gagne de l'expérience de compétence ; annonce et applique les montées de niveau. */
+    public void train(ServerPlayer player, Skill skill, long xp) {
+        Record r = record(player);
+        int before = levelFor(r.skills.getOrDefault(skill.name(), 0L));
+        long total = r.skills.merge(skill.name(), xp, Long::sum);
+        dirty = true;
+        int after = levelFor(total);
+        if (after > before) {
+            applyPerks(player);
+            player.sendOverlayMessage(Component.literal(skill.label + " niveau " + after + " — " + skill.perLevel)
+                    .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
+            player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_LEVELUP,
+                    SoundSource.PLAYERS, 0.8f, 0.8f);
+        }
+    }
+
+    /** Mort : on perd 10 % de la progression du niveau en cours de chaque compétence. */
+    public void onDeath(ServerPlayer player) {
+        Record r = record(player);
+        for (Skill skill : Skill.values()) {
+            long xp = r.skills.getOrDefault(skill.name(), 0L);
+            int level = levelFor(xp);
+            long floor = cumulative(level);
+            r.skills.put(skill.name(), xp - Math.round((xp - floor) * 0.10));
+        }
+        dirty = true;
+    }
+
+    /** Multiplicateur de dégâts des armes à feu (compétence Combat). */
+    public double combatMultiplier(ServerPlayer player) {
+        return 1 + 0.02 * skillLevel(player, Skill.COMBAT);
+    }
+
     // --- Données par joueur ------------------------------------------------------------------
 
     static final class Record {
@@ -139,6 +214,7 @@ public final class Progression {
         Map<String, Long> stats = new HashMap<>();
         Set<String> discoveries = new LinkedHashSet<>();
         Set<String> places = new LinkedHashSet<>();
+        Map<String, Long> skills = new HashMap<>();
     }
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -198,6 +274,20 @@ public final class Progression {
         dirty = true;
         addPoints(player, points);
         switch (stat) {
+            case "zones" -> train(player, Skill.EXPLORATION, 20 * amount);
+            case "bunkers" -> train(player, Skill.EXPLORATION, 60 * amount);
+            case "caves" -> train(player, Skill.EXPLORATION, 40 * amount);
+            case "loot" -> train(player, Skill.EXPLORATION, 6 * amount);
+            case "kills" -> train(player, Skill.COMBAT, 5 * amount);
+            case "lunar_kills" -> train(player, Skill.COMBAT, 12 * amount);
+            case "vehicles" -> train(player, Skill.MECHANICS, 80 * amount);
+            case "driven" -> train(player, Skill.MECHANICS, 4 * amount / 100);
+            case "launches" -> train(player, Skill.SPACE, 100 * amount);
+            case "titanium", "helium" -> train(player, Skill.SPACE, 5 * amount);
+            default -> {
+            }
+        }
+        switch (stat) {
             case "zones" -> {
                 discover(player, "first_zone");
                 if (value >= 5) {
@@ -249,6 +339,9 @@ public final class Progression {
         if (discovery == null) {
             return;
         }
+        if (id.equals("moon") || id.equals("orbit")) {
+            train(player, Skill.SPACE, 150);
+        }
         player.sendSystemMessage(Component.literal("✦ Découverte : " + discovery.name() + "  (+" + discovery.points() + " pts)")
                 .withStyle(ChatFormatting.AQUA));
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.6f, 1.4f);
@@ -291,6 +384,7 @@ public final class Progression {
 
     /** (Ré)applique les améliorations débloquées (connexion, réapparition, nouveau palier). */
     public void applyPerks(ServerPlayer player) {
+        applySkillPerks(player);
         Record r = record(player);
         List<Perk> perks = perks();
         for (int i = 0; i < perks.size(); i++) {
@@ -309,6 +403,44 @@ public final class Progression {
                 instance.removeModifier(id);
             }
         }
+    }
+
+    /** Bonus des compétences (attributs) : dégâts, vitesse, chance. */
+    private void applySkillPerks(ServerPlayer player) {
+        int combat = skillLevel(player, Skill.COMBAT);
+        int explore = skillLevel(player, Skill.EXPLORATION);
+        skillModifier(player, Attributes.ATTACK_DAMAGE, "skill_combat", 0.02 * combat, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+        skillModifier(player, Attributes.MOVEMENT_SPEED, "skill_exploration", 0.005 * explore, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+        skillModifier(player, Attributes.LUCK, "skill_luck", 0.1 * explore, AttributeModifier.Operation.ADD_VALUE);
+    }
+
+    private static void skillModifier(ServerPlayer player, Holder<Attribute> attribute, String name, double amount,
+                                      AttributeModifier.Operation operation) {
+        AttributeInstance instance = player.getAttribute(attribute);
+        if (instance == null) {
+            return;
+        }
+        Identifier id = Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, name);
+        if (amount > 0) {
+            instance.addOrUpdateTransientModifier(new AttributeModifier(id, amount, operation));
+        } else {
+            instance.removeModifier(id);
+        }
+    }
+
+    /** Compétence Espace : chance d'économiser l'unité d'oxygène de cette seconde. */
+    public boolean saveOxygen(ServerPlayer player) {
+        return player.getRandom().nextFloat() < 0.03f * skillLevel(player, Skill.SPACE);
+    }
+
+    /** Compétence Mécanique : chance d'économiser l'essence de ce tick. */
+    public boolean saveFuel(ServerPlayer player) {
+        return player.getRandom().nextFloat() < 0.02f * skillLevel(player, Skill.MECHANICS);
+    }
+
+    /** Compétence Combat : durée de rechargement réduite. */
+    public int reloadTicks(ServerPlayer player, int base) {
+        return Math.max(5, Math.round(base * (1 - 0.02f * skillLevel(player, Skill.COMBAT))));
     }
 
     /** Palier 3 : l'oxygène dure deux fois plus longtemps. */
@@ -380,6 +512,20 @@ public final class Progression {
             perkList.add(p);
         }
         sheet.add("perks", perkList);
+        JsonArray skills = new JsonArray();
+        for (Skill skill : Skill.values()) {
+            long xp = r.skills.getOrDefault(skill.name(), 0L);
+            int level = levelFor(xp);
+            JsonObject o = new JsonObject();
+            o.addProperty("name", skill.label);
+            o.addProperty("level", level);
+            o.addProperty("xp", xp);
+            o.addProperty("from", cumulative(level));
+            o.addProperty("to", level >= MAX_SKILL_LEVEL ? -1 : cumulative(level + 1));
+            o.addProperty("bonus", skill.perLevel);
+            skills.add(o);
+        }
+        sheet.add("skills", skills);
         JsonArray stats = new JsonArray();
         STAT_LABELS.forEach((key, label) -> {
             JsonObject s = new JsonObject();

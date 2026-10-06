@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "R": "minecraft:redstone",
+    "W": "#minecraft:planks"
+  },
+  "pattern": [
+    "III",
+    "IR ",
+    "W  "
+  ],
+  "result": {
+    "id": "terracraft_geo:smg"
+  }
+}

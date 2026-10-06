@@ -36,5 +36,10 @@
   "entity.terracraft_geo.moon_crawler": "Rôdeur lunaire",
   "entity.terracraft_geo.lost_astronaut": "Astronaute perdu",
   "biome.terracraft_geo.orbit": "Orbite",
-  "key.terracraft_geo.sheet": "Fiche de personnage"
+  "key.terracraft_geo.sheet": "Fiche de personnage",
+  "item.terracraft_geo.smg": "Mitraillette",
+  "item.terracraft_geo.sniper": "Fusil de précision",
+  "item.terracraft_geo.grenade": "Grenade",
+  "item.terracraft_geo.machete": "Machette",
+  "entity.terracraft_geo.grenade": "Grenade"
 }

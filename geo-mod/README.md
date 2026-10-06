@@ -82,8 +82,18 @@ Voiture : 2 places, rapide. Camion : 4 places, plus lent, tourne moins vite. Les
 | Bidon d'essence | fer + 2 charbons |
 | Munitions ×8 | cuivre + poudre à canon |
 
-### Armes (tir instantané, consomment des munitions)
-Pistolet (6 dégâts, 40 blocs), fusil (12 dégâts, 90 blocs, lent), fusil à pompe (6 plombs de 3 dégâts, 20 blocs).
+### Armes
+Tir instantané, avec un chargeur : la barre de l'objet indique les balles restantes. Le rechargement est automatique quand le chargeur est vide ; accroupi + clic recharge à la demande. Tir à la tête ×1,75, dégâts réduits au-delà de la moitié de la portée, flash au départ du coup et recul de la visée.
+
+| Arme | Dégâts | Portée | Chargeur | Particularité |
+|---|---|---|---|---|
+| Pistolet | 6 | 40 | 12 | rapide |
+| Mitraillette | 3,5 | 30 | 30 | automatique (maintenir le clic) |
+| Fusil | 12 | 90 | 8 | précis |
+| Fusil de précision | 24 | 160 | 5 | lunette dans la recette |
+| Fusil à pompe | 6×3,5 | 20 | 6 | dispersion |
+| Grenade | explosion | lancer | — | ne détruit aucun bloc |
+| Machette | mêlée | — | — | épée en fer rapide |
 
 ### Monde (`"apocalypse": true`)
 - **Bâtiments** : coffres « ruine » (nourriture, matériaux, munitions, 40 % de chance de pièce ou d'arme), générateurs de monstres au rez-de-chaussée, zombies postés aux étages.
@@ -116,6 +126,17 @@ Conception inspirée d'Ad Astra, mais écrite pour ce mod : le code d'Ad Astra v
 - **Blocs de station** (titane) : coque ×4, plancher ×6, hublot ×4 (avec du verre), lampe ×4 (avec de la pierre lumineuse), **distributeur d'oxygène** (titane, bouteilles d'oxygène, bloc de redstone), qui donne une bulle d'air respirable de 8 blocs de rayon.
 
 ## Progression et fiche de personnage (`Progression.java`, touche **K**)
+
+**Compétences** (20 niveaux chacune, XP par action ; à la mort, on perd 10 % de la progression du niveau en cours) :
+
+| Compétence | XP | Bonus par niveau |
+|---|---|---|
+| Combat | monstres tués (5), ennemis lunaires (12) | +2 % de dégâts (armes à feu comprises), rechargement −2 % |
+| Exploration | zone (20), bunker (60), cave (40), coffre (6) | +0,5 % de vitesse, +0,1 chance au butin |
+| Mécanique | véhicule assemblé (80), 100 blocs conduits (4) | −2 % de consommation d'essence |
+| Espace | lancement (100), Lune et orbite (150), titane et hélium (5) | −3 % de consommation d'oxygène |
+
+**Rang** (paliers et récompenses) :
 - Points gagnés : nouvelle zone d'environ 10 km (+5), bunker (+25), cave (+15), coffre fouillé (+2), monstre (+1), ennemi lunaire (+3), véhicule assemblé (+20), 100 blocs en véhicule (+1), lancement de fusée (+40), titane ou hélium miné (+2), et 16 découvertes (de +5 à +80).
 - **10 paliers** (50, 150, 300, 500, 800, 1200, 1700, 2300, 3000, 4000 pts). Chacun donne une amélioration permanente et du matériel :
 

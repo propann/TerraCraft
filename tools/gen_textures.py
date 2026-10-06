@@ -194,6 +194,33 @@ def draw_gun(length, stock):
     return draw
 
 
+def draw_smg(c):
+    draw_gun(11, False)(c)
+    c.rect(6, 9, 2, 5, (60, 60, 66))          # chargeur droit
+
+
+def draw_sniper(c):
+    draw_gun(15, True)(c)
+    c.rect(5, 3, 6, 2, (40, 40, 44))          # lunette
+    c.rect(5, 3, 1, 2, (90, 140, 200))
+
+
+def draw_grenade(c):
+    for y in range(16):
+        for x in range(16):
+            if (x - 7.5) ** 2 + (y - 9) ** 2 < 22:
+                c.set(x, y, (70, 90, 60) if (x + y) % 3 else (55, 72, 48))
+    c.rect(6, 2, 4, 2, (150, 150, 155))
+    c.rect(10, 2, 3, 1, (150, 150, 155))
+
+
+def draw_machete(c):
+    for k in range(10):
+        c.rect(3 + k, 11 - k, 2, 2, (200, 205, 212))
+    c.rect(3, 11, 1, 1, (235, 238, 245))
+    c.rect(1, 12, 3, 3, (90, 60, 35))
+
+
 def draw_ammo(c):
     for x in (3, 7, 11):
         c.rect(x, 5, 3, 8, (200, 160, 60), 8)
@@ -389,6 +416,10 @@ def main():
     icon("rifle", draw_gun(15, True))
     icon("shotgun", draw_gun(13, True))
     icon("ammo", draw_ammo)
+    icon("smg", draw_smg)
+    icon("sniper", draw_sniper)
+    icon("grenade", draw_grenade)
+    icon("machete", draw_machete)
     rocket()
     icon("rocket_hull", draw_hull)
     icon("rocket_engine", draw_rocket_engine)

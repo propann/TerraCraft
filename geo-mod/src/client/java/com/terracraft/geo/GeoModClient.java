@@ -7,6 +7,7 @@ import com.terracraft.geo.client.VehicleRenderer;
 import com.terracraft.geo.content.ModContent;
 import com.terracraft.geo.content.ModMobs;
 import net.minecraft.client.renderer.entity.SpiderRenderer;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.client.renderer.entity.ZombieRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
@@ -50,6 +51,7 @@ public final class GeoModClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModContent.TRUCK, context -> new VehicleRenderer(context, true));
         ModelLayerRegistry.registerModelLayer(RocketRenderer.LAYER, RocketModel::create);
         EntityRendererRegistry.register(ModContent.ROCKET, RocketRenderer::new);
+        EntityRendererRegistry.register(ModContent.GRENADE_ENTITY, ThrownItemRenderer::new);
 
         // Ennemis lunaires : modèles vanilla, textures TerraCraft.
         Identifier crawler = Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "textures/entity/moon_crawler.png");

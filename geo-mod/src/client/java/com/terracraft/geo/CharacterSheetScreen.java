@@ -52,8 +52,31 @@ public final class CharacterSheetScreen extends Screen {
         g.text(this.font, next < 0 ? "Tous les paliers atteints" : "Prochain palier : " + next + " pts",
                 barLeft, barTop + 9, GREY, false);
 
+        // Compétences : quatre jauges (niveau et progression vers le niveau suivant).
+        int skillTop = barTop + 22;
+        if (sheet.has("skills")) {
+            JsonArray skills = sheet.getAsJsonArray("skills");
+            int cell = (w - 20) / Math.max(1, skills.size());
+            for (int i = 0; i < skills.size(); i++) {
+                JsonObject sk = skills.get(i).getAsJsonObject();
+                int sx = left + 10 + i * cell;
+                int skillLevel = sk.get("level").getAsInt();
+                long xp = sk.get("xp").getAsLong();
+                long from = sk.get("from").getAsLong();
+                long to = sk.get("to").getAsLong();
+                g.text(this.font, sk.get("name").getAsString() + " " + skillLevel, sx, skillTop, WHITE, true);
+                g.fill(sx, skillTop + 11, sx + cell - 8, skillTop + 15, 0xFF26323A);
+                double r = to < 0 ? 1 : Math.min(1, (xp - from) / (double) Math.max(1, to - from));
+                g.fill(sx, skillTop + 11, sx + (int) ((cell - 8) * r), skillTop + 15, GREEN);
+                if (mouseX >= sx && mouseX < sx + cell - 8 && mouseY >= skillTop && mouseY < skillTop + 16) {
+                    g.setTooltipForNextFrame(this.font, Component.literal(sk.get("bonus").getAsString() + " par niveau ("
+                            + (to < 0 ? "max" : (xp - from) + "/" + (to - from) + " XP") + ")"), mouseX, mouseY);
+                }
+            }
+        }
+
         int column = (w - 30) / 3;
-        int y0 = barTop + 24;
+        int y0 = skillTop + 24;
         // Colonne 1 : améliorations.
         int x = left + 10;
         g.text(this.font, "Améliorations", x, y0, GOLD, true);

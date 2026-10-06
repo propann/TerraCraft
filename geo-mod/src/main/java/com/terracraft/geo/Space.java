@@ -149,7 +149,8 @@ public final class Space {
         boolean suited = helmet.is(ModContent.SPACE_HELMET);
         if (suited && helmet.getDamageValue() < helmet.getMaxDamage() - 1) {
             // Palier « Poumons d'acier » : une unité toutes les deux secondes.
-            boolean skip = Progression.get().hasSteelLungs(player) && (player.level().getServer().getTickCount() / 20) % 2 == 0;
+            boolean skip = (Progression.get().hasSteelLungs(player) && (player.level().getServer().getTickCount() / 20) % 2 == 0)
+                    || Progression.get().saveOxygen(player);
             if (!skip) {
                 helmet.setDamageValue(helmet.getDamageValue() + 1);
             }
