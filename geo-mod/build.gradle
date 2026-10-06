@@ -28,6 +28,8 @@ dependencies {
 }
 
 processResources {
+    // Sans cette ligne, Gradle réutilise un fabric.mod.json en cache avec l'ancienne version.
+    inputs.property 'version', project.version
     filesMatching('fabric.mod.json') {
         expand 'version': project.version
     }
