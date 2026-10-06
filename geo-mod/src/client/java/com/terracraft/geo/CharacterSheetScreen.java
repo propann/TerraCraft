@@ -126,4 +126,12 @@ public final class CharacterSheetScreen extends Screen {
     public boolean isPauseScreen() {
         return false;
     }
+
+    @Override
+    public void removed() {
+        super.removed();
+        if (this.minecraft != null && this.minecraft.player != null) {
+            this.minecraft.mouseHandler.grabMouse();
+        }
+    }
 }

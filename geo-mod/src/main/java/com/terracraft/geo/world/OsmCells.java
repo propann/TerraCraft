@@ -540,24 +540,79 @@ public final class OsmCells {
             double bpm = terrain.blocksPerMetre(latitude);
             int ground = groundLevel(rings, minX, maxX, minZ, maxZ);
             MvtDecoder.Feature feature = parts.get(0).feature();
-            double metres = feature.number("render_height", 9);
-            double minMetres = feature.number("render_min_height", 0);
+            String rawType = firstString(feature, "building", "building:type", "class", "subclass", "type");
+            String type = rawType.isEmpty() ? "building" : rawType;
+            double minMetres = firstNumber(feature, 0, "render_min_height", "min_height", "building:min_height");
+            double metres = buildingHeight(feature, type, minMetres);
             int floorStep = Math.max(3, (int) Math.round(3.0 * bpm));
             int base = ground + (int) Math.round(minMetres * bpm);
             int height = Math.max(4, (int) Math.round((metres - minMetres) * bpm));
             int top = Math.min(EarthTerrain.MAX_SURFACE_Y + 2, base + height);
             double footprint = (maxX - minX) * (maxZ - minZ) / (bpm * bpm);
-            String type = BuildingStyles.guessType(metres, footprint, latitude, longitude);
-            JsonObject tags = new JsonObject();
-            String colour = parts.get(0).get("colour");
-            if (!colour.isEmpty()) {
-                tags.addProperty("building:colour", colour);
-            }
-            cell.buildings.add(BuildingStyles.style(tags, type, osmId, base, top, floorStep, latitude));
+            String styleType = BuildingStyles.normaliseType(type, metres, footprint, latitude, longitude);
+            JsonObject tags = buildingTags(feature);
+            cell.buildings.add(BuildingStyles.style(tags, styleType, osmId, base, top, floorStep, latitude));
             int id = cell.buildings.size();
             for (Shape part : parts) {
                 fillPolygon(part.parts(), i -> cell.building[i] = id);
             }
+        }
+
+        /**
+         * OpenFreeMap fournit parfois les valeurs calculées render_height, parfois les
+         * balises OSM brutes. On privilégie les données brutes et les niveaux pour éviter
+         * que toutes les maisons deviennent des blocs de 9 m identiques.
+         */
+        private double buildingHeight(MvtDecoder.Feature feature, String type, double minMetres) {
+            double explicit = firstNumber(feature, Double.NaN, "height", "building:height", "render_height");
+            double levels = firstNumber(feature, Double.NaN, "building:levels", "levels", "building:levels:aboveground");
+            double fallback = switch (type.toLowerCase(java.util.Locale.ROOT)) {
+                case "house", "detached", "semidetached_house", "terrace", "bungalow", "farm", "cabin", "hut" -> 6.5;
+                case "garage", "garages", "shed", "kiosk", "greenhouse" -> 3.5;
+                case "warehouse", "factory", "hangar", "industrial" -> 8.0;
+                case "tower", "skyscraper" -> 45.0;
+                default -> 10.0;
+            };
+            double metres = Double.isFinite(explicit) ? explicit
+                    : Double.isFinite(levels) ? Math.max(1, levels) * 3.1 : fallback;
+            if (Double.isFinite(levels) && !Double.isFinite(explicit)) {
+                metres = Math.max(metres, levels * 3.1);
+            }
+            // Évite les valeurs absurdes ou les erreurs d'unité dans une tuile distante.
+            return Math.max(minMetres + 3, Math.min(180, metres));
+        }
+
+        private static double firstNumber(MvtDecoder.Feature feature, double fallback, String... keys) {
+            for (String key : keys) {
+                double value = feature.number(key, Double.NaN);
+                if (Double.isFinite(value) && value > 0) {
+                    return value;
+                }
+            }
+            return fallback;
+        }
+
+        private static String firstString(MvtDecoder.Feature feature, String... keys) {
+            for (String key : keys) {
+                String value = feature.string(key).trim();
+                if (!value.isEmpty()) {
+                    return value;
+                }
+            }
+            return "";
+        }
+
+        private static JsonObject buildingTags(MvtDecoder.Feature feature) {
+            JsonObject tags = new JsonObject();
+            String[] keys = {"building", "building:type", "building:colour", "building:material",
+                    "colour", "material", "roof:shape", "roof:colour", "roof:material"};
+            for (String key : keys) {
+                String value = feature.string(key).trim();
+                if (!value.isEmpty()) {
+                    tags.addProperty(key, value);
+                }
+            }
+            return tags;
         }
 
         /**

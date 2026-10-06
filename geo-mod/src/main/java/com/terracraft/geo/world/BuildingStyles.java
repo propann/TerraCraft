@@ -82,6 +82,18 @@ final class BuildingStyles {
         return europe ? "apartments" : "modern";
     }
 
+    static String normaliseType(String raw, double metres, double footprint, double latitude, double longitude) {
+        String type = raw.toLowerCase(Locale.ROOT).replace('-', '_').replace(' ', '_');
+        return switch (type) {
+            case "house", "detached", "semidetached_house", "terrace", "bungalow", "farm", "cabin", "hut",
+                    "garage", "garages", "shed", "kiosk", "greenhouse", "warehouse", "factory", "hangar",
+                    "industrial", "church", "cathedral", "chapel", "mosque", "temple", "synagogue", "retail",
+                    "supermarket", "commercial", "office", "school", "university", "hospital", "public", "civic",
+                    "government", "train_station", "transportation", "tower", "modern", "apartments" -> type;
+            default -> guessType(metres, footprint, latitude, longitude);
+        };
+    }
+
     static OsmCells.Building style(JsonObject tags, String type, long osmId, int base, int top, int floorStep,
                                    double latitude) {
         int hash = (int) ((osmId * 0x9E3779B97F4A7C15L) >>> 40);

@@ -37,7 +37,9 @@ MOD_JAR="build/libs/terracraft-geo-${MOD_VERSION}.jar"
 install_into() {
   local target="$1"
   mkdir -p "$target"
-  rm -f "$target"/terracraft-geo-*.jar
+  # Le serveur Falix utilise parfois le nom fixe terracraft-geo.jar ; le supprimer
+  # aussi évite que deux copies du même mod (et deux entrypoints client) cohabitent.
+  rm -f "$target"/terracraft-geo-*.jar "$target"/terracraft-geo.jar
   cp "$MOD_JAR" "$target/"
   if [ -n "$FABRIC_API_JAR" ] && ! ls "$target"/fabric-api-*.jar >/dev/null 2>&1; then
     cp "$FABRIC_API_JAR" "$target/"

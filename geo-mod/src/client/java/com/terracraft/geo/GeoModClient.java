@@ -71,6 +71,12 @@ public final class GeoModClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null && client.player.getVehicle() instanceof Vehicle vehicle) {
                 Input keys = client.player.input.keyPresses;
+                // Le véhicule ne recevait auparavant que A/D : la souris tournait la
+                // caméra, mais jamais la voiture. En conduite, la direction regardée
+                // devient la direction du véhicule ; la rotation reste côté client,
+                // comme pour les bateaux vanilla.
+                vehicle.setYRot(client.player.getYRot());
+                vehicle.setYHeadRot(client.player.getYRot());
                 vehicle.setInput(keys.left(), keys.right(), keys.forward(), keys.backward());
             }
         });
@@ -80,6 +86,10 @@ public final class GeoModClient implements ClientModInitializer {
         String safeLabel = label.length() > StartPoints.MAX_LABEL_LENGTH
                 ? label.substring(0, StartPoints.MAX_LABEL_LENGTH) : label;
         ClientPlayNetworking.send(new StartPointPayload(latitude, longitude, safeLabel));
-        Minecraft.getInstance().gui.setScreen(null);
+        Minecraft client = Minecraft.getInstance();
+        client.gui.setScreen(null);
+        // Après un clic dans la carte, Minecraft peut laisser le curseur libre : les
+        // touches fonctionnent encore mais le joueur ne peut plus tourner la caméra.
+        client.mouseHandler.grabMouse();
     }
 }

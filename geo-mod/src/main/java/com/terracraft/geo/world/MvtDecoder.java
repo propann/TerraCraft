@@ -27,7 +27,17 @@ final class MvtDecoder {
 
         double number(String key, double fallback) {
             Object value = tags.get(key);
-            return value instanceof Number n ? n.doubleValue() : fallback;
+            if (value instanceof Number n) {
+                return n.doubleValue();
+            }
+            if (value instanceof String s) {
+                try {
+                    return Double.parseDouble(s.trim().replace(',', '.'));
+                } catch (NumberFormatException ignored) {
+                    // Certaines tuiles encodent les valeurs OSM numériques comme texte.
+                }
+            }
+            return fallback;
         }
 
         boolean bool(String key) {

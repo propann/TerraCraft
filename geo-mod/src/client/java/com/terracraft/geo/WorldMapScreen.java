@@ -47,6 +47,8 @@ public final class WorldMapScreen extends Screen {
 
     private boolean draggingMap;
     private double dragDistance;
+    private double lastDragX;
+    private double lastDragY;
 
     public WorldMapScreen(boolean required) {
         super(Component.literal("Choisir son point de départ"));
@@ -277,6 +279,8 @@ public final class WorldMapScreen extends Screen {
             setFocused(null);
             draggingMap = true;
             dragDistance = 0;
+            lastDragX = event.x();
+            lastDragY = event.y();
             return true;
         }
         return false;
@@ -285,9 +289,16 @@ public final class WorldMapScreen extends Screen {
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         if (draggingMap) {
-            centerU -= dx / worldSize();
-            centerV -= dy / worldSize();
-            dragDistance += Math.abs(dx) + Math.abs(dy);
+            // Certains mappings de souris renvoient un delta nul ou dans une autre
+            // unité d'interface. Recalcule le déplacement depuis la dernière position
+            // GUI : le glissement reste correct quelle que soit l'échelle d'affichage.
+            double moveX = event.x() - lastDragX;
+            double moveY = event.y() - lastDragY;
+            lastDragX = event.x();
+            lastDragY = event.y();
+            centerU -= moveX / worldSize();
+            centerV -= moveY / worldSize();
+            dragDistance += Math.abs(moveX) + Math.abs(moveY);
             clampView();
             return true;
         }
@@ -336,6 +347,14 @@ public final class WorldMapScreen extends Screen {
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public void removed() {
+        super.removed();
+        if (this.minecraft != null && this.minecraft.player != null) {
+            this.minecraft.mouseHandler.grabMouse();
+        }
     }
 
     // --- Actions -------------------------------------------------------------------------
