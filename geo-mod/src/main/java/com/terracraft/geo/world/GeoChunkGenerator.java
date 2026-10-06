@@ -432,6 +432,9 @@ public final class GeoChunkGenerator extends ChunkGenerator {
         BlockState wallBlock = block(building.wall());
         BlockState roofBlock = block(building.roof());
         BlockState windowBlock = block(building.window());
+        // Bandeaux horizontaux : une ligne de contraste par étage donne une façade lisible
+        // même quand les données OSM ne précisent ni matériau ni couleur.
+        BlockState facadeTrim = Blocks.POLISHED_ANDESITE.defaultBlockState();
         boolean door = wall && Math.floorMod(blockX * 31 + blockZ * 17, 11) == 0 && facesOutside(osm, blockX, blockZ);
         boolean lamp = !apocalypse && !wall && Math.floorMod(blockX, 6) == 3 && Math.floorMod(blockZ, 6) == 3;
         net.minecraft.core.Direction ladder = wall ? null : BuildingInterior.ladder(osm, blockX, blockZ);
@@ -448,7 +451,10 @@ public final class GeoChunkGenerator extends ChunkGenerator {
             boolean groundFloor = y - base < step;
             BlockState state;
             if (wall) {
-                if (door && groundFloor && level <= 2) {
+                boolean floorBand = level == step - 1 && y > base + step;
+                if (floorBand && !building.curtain()) {
+                    state = facadeTrim;
+                } else if (door && groundFloor && level <= 2) {
                     state = AIR;
                 } else if (groundFloor && building.shopFront() && level >= 1 && level < step - 1) {
                     state = windowBlock;
