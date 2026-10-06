@@ -25,6 +25,14 @@ Le client a besoin de Fabric Loader 0.19.5, de Fabric API et de ce mod. Le serve
 
 - `/terracraft ou` : latitude, longitude et altitude réelle à ta position (aussi visible dans F3).
 - `/terracraft depart` (opérateurs) : rouvrir la carte et changer de point de départ.
+- `/argent` : afficher son solde en crédits TerraCraft.
+- `/hdv` : ouvrir l'hôtel des ventes dans le chat. Tiens un objet en main puis `/hdv vendre <prix>` pour créer une annonce ; les boutons permettent d'acheter ou de retirer une annonce.
+- `/hdv page <numero>` : parcourir les pages du marché.
+- `/eco donner <joueur> <montant>` (opérateurs) : créditer un joueur pour les récompenses, événements ou tests.
+
+L'économie et les annonces sont sauvegardées côté serveur dans `<monde>/terracraft_geo/balances.json`
+et `hotel-des-ventes.json`. Les commandes de vente et d'achat sont accessibles aux joueurs ; la
+commande d'administration respecte le niveau OP standard.
 
 ## Choix techniques
 

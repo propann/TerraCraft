@@ -33,6 +33,12 @@ Voir `installer/README.md` : installeurs Windows et Linux pour le launcher offic
 
 On garde son inventaire en mourant, mais on perd 25 % de son expérience. Téléportation : `/tpa <joueur>` (puis `/tpaccept` ou `/tpdeny`), `/sethome` et `/home`, `/back` (lieu de la mort).
 
+## Économie et hôtel des ventes
+
+Chaque joueur commence avec 1 000 crédits. `/argent` affiche le solde. Pour vendre une ressource,
+tiens-la en main et utilise `/hdv vendre <prix>` ; `/hdv` affiche les annonces avec des boutons
+cliquables pour acheter ou retirer. Les comptes et annonces sont persistants dans le dossier du monde.
+
 ## Déploiement (Falix)
 
 - **Automatique** : à chaque push sur `main`, GitHub Actions compile le mod et met à jour la branche `falix` (`.github/workflows/build.yml`). Un tag `vX.Y.Z` publie une release avec le jar et le pack client.
