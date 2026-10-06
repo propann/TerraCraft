@@ -110,6 +110,16 @@ public final class Space {
         return false;
     }
 
+    /** Vrai si le joueur porte une combinaison fonctionnelle pour le décollage. */
+    public static boolean hasLifeSupport(ServerPlayer player) {
+        if (player.isCreative() || player.isSpectator()) {
+            return true;
+        }
+        ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
+        return helmet.is(ModContent.SPACE_HELMET)
+                && helmet.getDamageValue() < helmet.getMaxDamage() - 1;
+    }
+
     public static @Nullable ServerLevel moon(MinecraftServer server) {
         return server.getLevel(MOON);
     }
