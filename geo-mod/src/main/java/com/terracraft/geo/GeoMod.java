@@ -99,6 +99,13 @@ public final class GeoMod implements ModInitializer {
 
     /** Coffre du véhicule où l'on est assis, sinon du véhicule accessible le plus proche (6 blocs). */
     private static void openVehicleStorage(ServerPlayer player) {
+        if (player.getVehicle() instanceof com.terracraft.geo.content.Rocket rocket) {
+            if (!rocket.openCargo(player)) {
+                player.sendOverlayMessage(Component.literal("Cette fusée n'a pas de soute (plan « Soute », atelier de station).")
+                        .withStyle(net.minecraft.ChatFormatting.GOLD));
+            }
+            return;
+        }
         Vehicle vehicle = player.getVehicle() instanceof Vehicle riding ? riding
                 : player.level().getEntitiesOfClass(Vehicle.class, player.getBoundingBox().inflate(6)).stream()
                         .filter(candidate -> candidate.canAccess(player))
@@ -177,6 +184,15 @@ public final class GeoMod implements ModInitializer {
         PayloadTypeRegistry.serverboundPlay().register(BuyShopPayload.TYPE, BuyShopPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(PlaneCrashPayload.TYPE, PlaneCrashPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(OpenVehicleStoragePayload.TYPE, OpenVehicleStoragePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(WorkshopPayload.TYPE, WorkshopPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(InstallUpgradePayload.TYPE, InstallUpgradePayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(InstallUpgradePayload.TYPE, (payload, context) -> {
+            Plans.Plan plan = Plans.Plan.parse(payload.plan());
+            if (plan != null && GUI_RATE.allow(context.player())) {
+                Workshop.install(context.player(), plan);
+                Workshop.open(context.player());
+            }
+        });
         ServerPlayNetworking.registerGlobalReceiver(OpenVehicleStoragePayload.TYPE, (payload, context) -> {
             if (GUI_RATE.allow(context.player())) {
                 openVehicleStorage(context.player());
@@ -349,6 +365,8 @@ public final class GeoMod implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Jobs.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> REPORTS.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Stations.get().register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Plans.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Workshop.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> dispatcher.register(
                 Commands.literal("terracraft")
                         .then(Commands.literal("ou").executes(command -> {

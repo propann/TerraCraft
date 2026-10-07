@@ -122,4 +122,7 @@ Les véhicules terrestres ne deviennent pas des véhicules spatiaux par magie : 
   pose à la balise de son pilote ou d'un habitant de sa ville, sinon sur un quai construit à l'arrivée.
 - Vérifié automatiquement (`tools/scenario_test.sh`) : module, balise, vol Terre → orbite lunaire, arrivée à la
   balise, 5 doses consommées.
+- Plans de fusée (0.12.0) : débloqués en explorant (orbite → réservoir étendu ; orbite lunaire → moteur ionique ;
+  premier module → soute ; Lune + 5 titane → navigation martienne), installés à l'atelier de station sur la fusée
+  garée à côté, contre titane, hélium-3 et matériaux terrestres. Mars exige la navigation martienne.
 

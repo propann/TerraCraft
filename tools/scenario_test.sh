@@ -92,6 +92,21 @@ cmd "execute as Bob run terracraft fusee decoller" 25
 cmd "data get entity Bob Dimension" 1
 cmd "data get entity Bob Pos" 1
 cmd "data get entity @e[type=terracraft_geo:rocket,limit=1] Fuel" 1
+# Atelier de station : plans débloqués en orbite lunaire, améliorations installées sur la fusée
+cmd "execute in terracraft_geo:moon_orbit run setblock 5 151 -2 terracraft_geo:station_workshop" 1
+cmd "give Bob terracraft_geo:titanium_ingot 10"
+cmd "give Bob terracraft_geo:rocket_tank"
+cmd "give Bob terracraft_geo:helium3_shard 6"
+cmd "give Bob minecraft:chest 2"
+cmd "give Bob minecraft:iron_ingot 8"
+cmd "give Bob minecraft:redstone_block" 2
+cmd "execute as Bob run atelier installer tank"
+cmd "execute as Bob run atelier installer ion"
+cmd "execute as Bob run atelier installer cargo"
+cmd "execute as Bob run atelier installer mars_nav"
+cmd "execute as Bob at Bob run data get entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] Upgrades" 1
+cmd "execute as Bob at Bob run data merge entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] {Target:4b}" 1
+cmd "execute as Bob run terracraft fusee decoller" 2
 cmd "save-all flush" 3
 cmd "stop" 2
 # Laisser le serveur finir sa sauvegarde avant de quitter (sinon le monde reste à moitié écrit).
@@ -153,6 +168,11 @@ check('Bob has the following entity data: "terracraft_geo:moon_orbit"' in log, "
 pos = re.findall(r"Bob has the following entity data: \[([-\d.]+)d, ([-\d.]+)d, ([-\d.]+)d\]", log)
 check(bool(pos) and abs(float(pos[-1][0]) - 2.5) < 1 and abs(float(pos[-1][2]) + 2.5) < 1, "fusée posée à côté de la balise de station")
 check("Rocket has the following entity data: 3" in log, "carburant : 5 doses consommées (Terre → orbite lunaire)")
+plans = sorted(p for r in progression.values() for p in (r.get("plans") or []))
+check(plans == ["CARGO", "ION", "TANK"], f"plans débloqués par l'exploration, pas la navigation martienne (obtenu {plans})")
+check("Rocket has the following entity data: 7b" in log, "atelier : réservoir étendu, moteur ionique et soute installés")
+check(log.count("[ATELIER]") == 3, "trois installations journalisées, navigation martienne refusée")
+check("Décollage refusé" in log, "vers Mars sans navigation martienne : décollage refusé")
 check(not any("Exception" in line and "spark" not in line for line in log.splitlines()),
       "aucune exception dans le journal (hors spark)")
 sys.exit(1 if failures else 0)

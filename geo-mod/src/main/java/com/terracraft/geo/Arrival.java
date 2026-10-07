@@ -72,6 +72,8 @@ final class Arrival {
                         + "Châssis voiture : 5 fer en U.\nChâssis camion : 8 fer.",
                 "L'ESPACE\n\nFusée : coque, moteur-fusée, réservoir, cône, ailerons. 8 doses de carburant max.\n"
                         + "Coût : Terre→orbite 3, orbite→orbite lunaire 2, →Lune 1, →orbite de Mars 4-5, →Mars 2.",
+                "PLANS DE FUSÉE\n\nSe débloquent en explorant (/plans). Atelier de station : clic droit pour installer "
+                        + "réservoir étendu, moteur ionique, soute ou navigation martienne (obligatoire pour Mars).",
                 "STATIONS\n\nBalise de station : tes fusées s'y posent.\nKit de module : clic droit sur le sol "
                         + "= module pressurisé 7×5×7 avec oxygène. Raccorde-les par les portes.\n/station : tes stations.",
                 "FUSÉE : RECETTES\n\nCoque : fer + blocs de cuivre\nMoteur : fer, bloc de redstone, haut fourneau\n"

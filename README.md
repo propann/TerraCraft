@@ -30,14 +30,14 @@ pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.
 
 `/aide` liste les commandes, `/tuto` affiche l'objectif « Premiers pas » en cours, `/signaler <message>` prévient les administrateurs.
 
-## Ce qui est en place (0.11.0)
+## Ce qui est en place (0.12.0)
 
 - **Monde** : relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés, carte de départ en jeu.
 - **Survie** : inventaire conservé à la mort (−25 % d'expérience), `/sethome` `/home` `/back` `/tpa` (refusés en combat).
 - **Accueil** : parcours « Premiers pas » en 6 étapes récompensées, carnet de survie.
 - **Économie** : 1 000 crédits au départ, hôtel des ventes par catégories avec prix moyens, comptoir (`/comptoir`), missions.
 - **Équipement** : armes à chargeur, véhicules (voiture, camion, moto) avec propriétaire, coffre et partage, avion, jetpack.
-- **Espace** : fusée (carburant par trajet), orbite terrestre, orbite lunaire, Lune, Mars ; stations en kit (modules pressurisés, balise d'arrivée, `/station`) ; combinaison spatiale dessinée comme une armure.
+- **Espace** : fusée (carburant par trajet), orbite terrestre, orbite lunaire, Lune, Mars ; stations en kit (modules pressurisés, balise d'arrivée, `/station`), plans de fusée (`/plans`) et atelier de station ; combinaison spatiale dessinée comme une armure.
 - **Villes** : `/ville` (fondation, habitants, maire, trésorerie commune, retour au centre-ville, titres d'entrée).
 - **Missions** : contrats du jour, missions permanentes, métiers (`/metier`), ravitaillements militaires.
 - **Claims** : Open Parties and Claims ; cartes Xaero.

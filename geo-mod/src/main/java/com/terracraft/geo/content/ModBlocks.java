@@ -41,6 +41,9 @@ public final class ModBlocks {
     /** Balise de station : point d'arrivée des fusées de son poseur (et de sa ville). */
     public static final Block STATION_BEACON = block("station_beacon", StationBeaconBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).strength(2f).sound(SoundType.METAL).lightLevel(state -> 12));
+    /** Atelier de station : installe les améliorations des plans de fusée. */
+    public static final Block STATION_WORKSHOP = block("station_workshop", StationWorkshopBlock::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3f).sound(SoundType.METAL).lightLevel(state -> 4));
     /** Rend l'air respirable dans un rayon de 8 blocs (Lune et orbite). */
     public static final Block OXYGEN_DISTRIBUTOR = block("oxygen_distributor", Block::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).requiresCorrectToolForDrops().strength(4f, 10f)
@@ -51,7 +54,7 @@ public final class ModBlocks {
 
     public static void init() {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(output -> {
-            for (Block block : new Block[]{STATION_HULL, STATION_FLOOR, STATION_WINDOW, STATION_LIGHT, STATION_BEACON, OXYGEN_DISTRIBUTOR}) {
+            for (Block block : new Block[]{STATION_HULL, STATION_FLOOR, STATION_WINDOW, STATION_LIGHT, STATION_BEACON, STATION_WORKSHOP, OXYGEN_DISTRIBUTOR}) {
                 output.accept(block);
             }
         });

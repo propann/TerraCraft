@@ -575,6 +575,18 @@ def draw_station_module(c):
     c.rect(7, 2, 2, 2, (255, 240, 120))
 
 
+def workshop_pattern(c):
+    """Atelier de station : établi métallique, bandes orange, outils."""
+    c.rect(0, 0, 16, 3, (120, 124, 132))
+    for i in range(0, 16, 4):
+        c.rect(i, 0, 2, 3, (235, 120, 30))
+    c.rect(3, 6, 10, 2, (90, 94, 104))
+    c.rect(4, 9, 2, 5, (200, 200, 205))
+    c.rect(4, 9, 3, 1, (200, 200, 205))
+    c.rect(10, 9, 2, 5, (200, 200, 205))
+    c.rect(9, 9, 4, 2, (235, 120, 30))
+
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -622,6 +634,7 @@ def main():
     block_tex("station_light", (150, 154, 162), light_pattern)
     block_tex("oxygen_distributor", (175, 178, 186), distributor_pattern)
     block_tex("station_beacon", (150, 154, 162), beacon_pattern)
+    block_tex("station_workshop", (150, 154, 162), workshop_pattern)
     icon("station_module", draw_station_module)
     icon("titanium_ingot", lambda c: (c.rect(2, 6, 12, 5, (200, 205, 215), 8), c.rect(2, 6, 12, 1, (235, 238, 245))))
     icon("helium3_shard", lambda c: [c.rect(7 - k // 2, 2 + k, 2 + k, 1, (120, 230, 245)) for k in range(12)])

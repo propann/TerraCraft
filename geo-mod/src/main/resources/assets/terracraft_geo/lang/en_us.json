@@ -53,5 +53,6 @@
   "entity.terracraft_geo.plane": "Plane",
   "key.terracraft_geo.vehicle_storage": "Vehicle storage",
   "block.terracraft_geo.station_beacon": "Station beacon",
-  "item.terracraft_geo.station_module": "Station module kit"
+  "item.terracraft_geo.station_module": "Station module kit",
+  "block.terracraft_geo.station_workshop": "Station workshop"
 }

@@ -45,7 +45,8 @@ final class Missions {
             new Mission("supply", "Largage", "Ouvre 1 caisse de ravitaillement", "supplies", 1, 300),
             new Mission("lunar_miner", "Mineur lunaire", "Mine 5 minerais de titane", "titanium", 5, 400),
             new Mission("orbital_builder", "Bâtisseur orbital", "Pose 1 module de station dans l'espace", "modules", 1, 500),
-            new Mission("space_station", "Station spatiale", "Pose 4 modules de station", "modules", 4, 1_200));
+            new Mission("space_station", "Station spatiale", "Pose 4 modules de station", "modules", 4, 1_200),
+            new Mission("engineer", "Ingénieur spatial", "Installe 1 amélioration de fusée à l'atelier", "upgrades", 1, 400));
 
     private final Map<UUID, Set<String>> claimed = new HashMap<>();
     private Contracts contracts;

@@ -138,6 +138,7 @@ public final class Progression {
         STAT_LABELS.put("supplies", "Caisses de ravitaillement ouvertes");
         STAT_LABELS.put("listings", "Objets mis en vente");
         STAT_LABELS.put("modules", "Modules de station posés");
+        STAT_LABELS.put("upgrades", "Améliorations de fusée installées");
     }
 
     // --- Compétences --------------------------------------------------------------------------
@@ -227,6 +228,22 @@ public final class Progression {
         /** Métier choisi (nom de {@link Jobs.Job}) et date du dernier changement. */
         String job;
         long jobChanged;
+        /** Plans de fusée débloqués (noms de {@link Plans.Plan}). */
+        Set<String> plans = new LinkedHashSet<>();
+    }
+
+    boolean knowsPlan(ServerPlayer player, String plan) {
+        Set<String> plans = record(player).plans;
+        return plans != null && plans.contains(plan);
+    }
+
+    void learnPlan(ServerPlayer player, String plan) {
+        Record r = record(player);
+        if (r.plans == null) {
+            r.plans = new LinkedHashSet<>();
+        }
+        r.plans.add(plan);
+        dirty = true;
     }
 
     String jobName(ServerPlayer player) {
@@ -503,6 +520,9 @@ public final class Progression {
         }
         GeoChunkGenerator generator = StartPoints.generator(server);
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            if (!player.isSpectator()) {
+                Plans.check(player); // Plans de fusée débloqués par les découvertes et compteurs.
+            }
             if (generator == null || player.level() != server.overworld() || player.isSpectator()) {
                 continue;
             }

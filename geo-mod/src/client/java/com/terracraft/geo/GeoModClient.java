@@ -85,6 +85,8 @@ public final class GeoModClient implements ClientModInitializer {
                 context.client().gui.setScreen(new CharacterSheetScreen(payload.json())));
         ClientPlayNetworking.registerGlobalReceiver(MissionPayload.TYPE, (payload, context) ->
                 context.client().gui.setScreen(new MissionsScreen(payload.json())));
+        ClientPlayNetworking.registerGlobalReceiver(WorkshopPayload.TYPE, (payload, context) ->
+                context.client().gui.setScreen(new WorkshopScreen(payload.json())));
         ClientPlayNetworking.registerGlobalReceiver(MarketPayload.TYPE, (payload, context) ->
                 context.client().gui.setScreen(new MarketScreen(payload.json())));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

@@ -133,8 +133,8 @@ Critère : une ville est reconnaissable, les maisons restent à taille humaine e
 
 ## Phase 8 — Espace et endgame
 
-- [ ] Plans et composants de fusée débloqués par missions (Mars débloqué après la Lune : fait).
-- [ ] Ressources rares terrestres nécessaires au départ.
+- [x] Plans de fusée débloqués en explorant (`/plans`) et installés à l'atelier de station : réservoir étendu, moteur ionique, soute, navigation martienne (obligatoire pour Mars).
+- [ ] Ressources rares terrestres nécessaires au départ (titane et hélium-3 lunaires requis pour les améliorations : fait).
 - [x] Station orbitale : modules pressurisés en kit, balise d'arrivée des fusées, missions (stockage : coffres vanilla).
 - [ ] Zones lunaires, minerais, épaves et dangers spécifiques.
 - [x] Retour Terre et transport limité : carburant par trajet (réservoir de 8 doses, escales en orbite).

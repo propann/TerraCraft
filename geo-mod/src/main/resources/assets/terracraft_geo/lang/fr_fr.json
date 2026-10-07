@@ -53,5 +53,6 @@
   "entity.terracraft_geo.plane": "Avion",
   "key.terracraft_geo.vehicle_storage": "Coffre du véhicule",
   "block.terracraft_geo.station_beacon": "Balise de station",
-  "item.terracraft_geo.station_module": "Kit de module de station"
+  "item.terracraft_geo.station_module": "Kit de module de station",
+  "block.terracraft_geo.station_workshop": "Atelier de station"
 }
