@@ -40,7 +40,7 @@ Les données sont mises en cache dans `terracraft-cache/` à la racine du serveu
 
 ## Joueurs
 
-Chaque joueur importe le pack client `TerraCraft-client.mrpack` (publié dans les Releases GitHub) dans Prism Launcher : *Ajouter une instance → Importer*.
+Chaque joueur importe le pack client [`TerraCraft-client.mrpack`](https://github.com/propann/TerraCraft/releases/latest/download/TerraCraft-client.mrpack) (dernière release) dans Prism Launcher ou Modrinth App : *Ajouter une instance → Importer*. Le pack doit avoir la même version que le serveur : après chaque release, les joueurs le réimportent.
 
 ## Sauvegardes du monde
 
