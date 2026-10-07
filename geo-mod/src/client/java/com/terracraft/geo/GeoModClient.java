@@ -49,6 +49,18 @@ public final class GeoModClient implements ClientModInitializer {
                 InputConstants.KEY_J, KeyMapping.Category.GAMEPLAY));
         // Combinaison spatiale : fenêtre (le serveur ouvre le menu) et bandeau d'oxygène hors de la Terre.
         net.minecraft.client.gui.screens.MenuScreens.register(SpaceSuit.MENU, SuitScreen::new);
+        // Équipement spatial dessiné sur le joueur comme une armure (par-dessus l'armure normale).
+        com.terracraft.geo.client.SpaceSuitLayer.registerModels();
+        net.fabricmc.fabric.api.client.rendering.v1.LivingEntityRenderLayerRegistrationCallback.EVENT.register(
+                (type, renderer, helper, context) -> {
+                    if (renderer instanceof net.minecraft.client.renderer.entity.player.AvatarRenderer<?> avatar) {
+                        @SuppressWarnings("unchecked")
+                        var parent = (net.minecraft.client.renderer.entity.RenderLayerParent<
+                                net.minecraft.client.renderer.entity.state.AvatarRenderState,
+                                net.minecraft.client.model.player.PlayerModel>) (Object) avatar;
+                        helper.register(new com.terracraft.geo.client.SpaceSuitLayer(parent, context));
+                    }
+                });
         net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "oxygen"), new OxygenHud());
         // Parcours « Premiers pas » : le serveur envoie l'objectif en cours, affiché à droite.

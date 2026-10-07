@@ -7,10 +7,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTabs;
@@ -44,10 +41,15 @@ public final class ModContent {
     public static final Item NOSE_CONE = item("nose_cone", Item::new, new Item.Properties().stacksTo(1));
     public static final Item FINS = item("fins", Item::new, new Item.Properties().stacksTo(1));
     public static final Item ROCKET_FUEL = item("rocket_fuel", Item::new, new Item.Properties().stacksTo(16));
-    /** Casque spatial : la durabilité est la réserve d'oxygène (600 s). */
-    public static final Item SPACE_HELMET = item("space_helmet", Item::new, new Item.Properties()
-            .durability(600)
-            .component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).build()));
+    /**
+     * Casque spatial : la durabilité est la réserve d'oxygène (600 s). Il se porte dans la
+     * combinaison (touche J), pas dans l'emplacement tête : un casque normal reste possible dessous.
+     */
+    public static final Item SPACE_HELMET = item("space_helmet", SuitPieceItem::new, new Item.Properties().durability(600));
+    /** Combinaison : consommation d'oxygène réduite de 25 %. */
+    public static final Item SPACE_SUIT = item("space_suit", SuitPieceItem::new, new Item.Properties().stacksTo(1));
+    /** Bottes magnétiques : adhérence en orbite, pas de dégâts de chute hors de la Terre. */
+    public static final Item MAGNETIC_BOOTS = item("magnetic_boots", SuitPieceItem::new, new Item.Properties().stacksTo(1));
     public static final Item OXYGEN_TANK = item("oxygen_tank", OxygenTankItem::new, new Item.Properties().stacksTo(16));
 
     public static final Item AMMO = item("ammo", Item::new, new Item.Properties().stacksTo(64));
@@ -65,7 +67,7 @@ public final class ModContent {
     public static void init() {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output -> {
             for (Item item : new Item[]{CAR_CHASSIS, TRUCK_CHASSIS, MOTORCYCLE_CHASSIS, WHEEL, ENGINE, RADIATOR, BATTERY, TURBO, FUEL_CAN,
-                    ROCKET_HULL, ROCKET_ENGINE, ROCKET_TANK, NOSE_CONE, FINS, ROCKET_FUEL, SPACE_HELMET, OXYGEN_TANK}) {
+                    ROCKET_HULL, ROCKET_ENGINE, ROCKET_TANK, NOSE_CONE, FINS, ROCKET_FUEL, SPACE_HELMET, SPACE_SUIT, MAGNETIC_BOOTS, OXYGEN_TANK}) {
                 output.accept(item);
             }
         });

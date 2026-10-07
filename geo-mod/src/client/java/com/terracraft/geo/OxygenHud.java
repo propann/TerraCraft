@@ -5,7 +5,6 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 
 /** Bandeau d'oxygène en haut de l'écran, affiché uniquement hors de la Terre (Lune, orbite, Mars). */
@@ -20,15 +19,15 @@ final class OxygenHud implements HudElement {
                 || !player.level().dimension().identifier().getNamespace().equals(GeoMod.MOD_ID)) {
             return;
         }
-        int percent = SuitScreen.helmetPercent(player.getItemBySlot(EquipmentSlot.HEAD));
-        int tanks = SpaceSuit.reserve(player).getCount();
+        int percent = SuitScreen.helmetPercent(SpaceSuit.helmet(player));
+        int tanks = SpaceSuit.tanks(player);
         int left = (g.guiWidth() - WIDTH) / 2;
         int top = 4;
         g.fill(left, top, left + WIDTH, top + 22, 0xB0101820);
         g.outline(left, top, WIDTH, 22, SuitScreen.BORDER);
 
         if (percent < 0) {
-            g.centeredText(minecraft.font, Component.literal("⚠ Pas de casque spatial — touche J"), g.guiWidth() / 2, top + 7,
+            g.centeredText(minecraft.font, Component.literal("⚠ Pas de casque spatial — combinaison : touche J"), g.guiWidth() / 2, top + 7,
                     SuitScreen.RED);
             return;
         }

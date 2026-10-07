@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    "I I",
+    "IRI"
+  ],
+  "result": {
+    "id": "terracraft_geo:magnetic_boots",
+    "count": 1
+  }
+}

@@ -22,7 +22,7 @@
   "item.terracraft_geo.nose_cone": "Nose Cone",
   "item.terracraft_geo.fins": "Fins",
   "item.terracraft_geo.rocket_fuel": "Rocket Fuel",
-  "item.terracraft_geo.space_helmet": "Space Helmet",
+  "item.terracraft_geo.space_helmet": "Space helmet",
   "item.terracraft_geo.oxygen_tank": "Oxygen Tank",
   "entity.terracraft_geo.rocket": "Rocket",
   "biome.terracraft_geo.moon": "The Moon",
@@ -45,5 +45,7 @@
   "item.terracraft_geo.sniper": "Sniper Rifle",
   "item.terracraft_geo.grenade": "Grenade",
   "item.terracraft_geo.machete": "Machete",
-  "entity.terracraft_geo.grenade": "Grenade"
+  "entity.terracraft_geo.grenade": "Grenade",
+  "item.terracraft_geo.space_suit": "Space suit",
+  "item.terracraft_geo.magnetic_boots": "Magnetic boots"
 }

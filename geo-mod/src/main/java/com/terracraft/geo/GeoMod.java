@@ -245,6 +245,7 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(BACKUPS::load);
         ServerTickEvents.END_SERVER_TICK.register(BACKUPS::tick);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+            SpaceSuit.migrate(handler.player);
             START_POINTS.onJoin(handler.player);
             Progression.get().applyPerks(handler.player);
             ServerGuide.welcome(handler.player);

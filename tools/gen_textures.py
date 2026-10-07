@@ -397,6 +397,98 @@ def astronaut_skin(name):
     c.save(f"entity/{name}.png")
 
 
+WHITE = (232, 234, 238)
+SUIT_ORANGE = (235, 120, 30)
+VISOR = (40, 70, 120)
+
+
+def space_suit_armor():
+    """Combinaison spatiale portée (modèle d'armure 64×32) : casque, plastron, bras, bottes, jambières."""
+    c = Canvas(64, 32, 41)
+    # Casque : coque blanche, grande visière bleutée avec reflet, feux orange sur les côtés.
+    head = box(c, 0, 0, 8, 8, 8, WHITE)
+    x, y, w, h = head["front"]
+    c.rect(x + 1, y + 2, 6, 4, VISOR, 6)
+    c.rect(x + 2, y + 2, 2, 1, (150, 200, 240))
+    c.rect(x + 1, y + 6, 6, 1, (170, 172, 180))
+    for face in ("right", "left"):
+        fx, fy, fw, fh = head[face]
+        c.rect(fx + 3, fy + 3, 2, 2, SUIT_ORANGE)
+    bx, by, bw, bh = head["back"]
+    c.rect(bx + 2, by + 1, 4, 6, (190, 192, 200), 6)
+    # Plastron : panneau de commande bleu, bandes orange, sac dorsal gris au dos.
+    body = box(c, 16, 16, 8, 12, 4, WHITE)
+    x, y, w, h = body["front"]
+    c.rect(x + 2, y + 2, 4, 3, (60, 90, 160))
+    c.rect(x + 3, y + 3, 1, 1, (90, 230, 120))
+    c.rect(x + 4, y + 3, 1, 1, (230, 60, 50))
+    c.rect(x, y + 7, w, 1, SUIT_ORANGE)
+    c.rect(x, y + h - 2, w, 2, (170, 172, 180))
+    x, y, w, h = body["back"]
+    c.rect(x + 1, y + 1, w - 2, h - 3, (150, 155, 165), 8)
+    c.rect(x + 2, y + 2, 2, h - 6, (60, 120, 200))
+    c.rect(x + w - 4, y + 2, 2, h - 6, (60, 120, 200))
+    # Bras : bande orange à l'épaule, gants gris.
+    arm = box(c, 40, 16, 4, 12, 4, WHITE)
+    for face in ("right", "front", "left", "back"):
+        fx, fy, fw, fh = arm[face]
+        c.rect(fx, fy + 1, fw, 1, SUIT_ORANGE)
+        c.rect(fx, fy + fh - 3, fw, 3, (120, 124, 132), 6)
+    # Jambes de la texture « humanoid » = bottes magnétiques : seul le bas est peint.
+    for face, (fx, fy, fw, fh) in {"right": (0, 20, 4, 12), "front": (4, 20, 4, 12),
+                                    "left": (8, 20, 4, 12), "back": (12, 20, 4, 12)}.items():
+        c.rect(fx, fy + 6, fw, 6, (55, 58, 66), 6)
+        c.rect(fx, fy + 6, fw, 1, (240, 200, 40))
+        for i in range(fw):
+            if i % 2 == 0:
+                c.set(fx + i, fy + 7, (30, 30, 30))
+            else:
+                c.set(fx + i, fy + 7, (240, 200, 40))
+    c.rect(4, 16, 4, 4, (55, 58, 66))
+    c.rect(8, 16, 4, 4, (40, 42, 48))
+    c.save("entity/equipment/humanoid/space_suit.png")
+
+    # Jambières : pantalon blanc, genouillères grises, bande orange.
+    c = Canvas(64, 32, 43)
+    box(c, 16, 16, 8, 12, 4, WHITE)
+    c.rect(16, 16, 24, 4, (0, 0, 0, 0))
+    c.rect(20, 20, 8, 12, (0, 0, 0, 0))
+    c.rect(16, 20, 4, 12, (0, 0, 0, 0))
+    c.rect(28, 20, 12, 12, (0, 0, 0, 0))
+    c.rect(20, 26, 8, 6, WHITE, 10)
+    c.rect(16, 26, 4, 6, WHITE, 10)
+    c.rect(28, 26, 4, 6, WHITE, 10)
+    c.rect(32, 26, 8, 6, WHITE, 10)
+    c.rect(20, 30, 8, 1, SUIT_ORANGE)
+    leg = box(c, 0, 16, 4, 12, 4, WHITE)
+    for face in ("right", "front", "left", "back"):
+        fx, fy, fw, fh = leg[face]
+        c.rect(fx, fy + 4, fw, 2, (150, 154, 162))
+        c.rect(fx, fy + 1, fw, 1, SUIT_ORANGE)
+    c.save("entity/equipment/humanoid_leggings/space_suit.png")
+
+
+def draw_space_suit(c):
+    c.rect(3, 2, 10, 12, WHITE, 6)
+    c.rect(1, 3, 2, 8, WHITE, 6)
+    c.rect(13, 3, 2, 8, WHITE, 6)
+    c.rect(5, 4, 4, 3, (60, 90, 160))
+    c.rect(6, 5, 1, 1, (90, 230, 120))
+    c.rect(3, 8, 10, 1, SUIT_ORANGE)
+    c.rect(1, 9, 2, 2, (120, 124, 132))
+    c.rect(13, 9, 2, 2, (120, 124, 132))
+    c.rect(3, 12, 10, 2, (170, 172, 180))
+
+
+def draw_magnetic_boots(c):
+    for x0 in (2, 9):
+        c.rect(x0, 4, 5, 8, (55, 58, 66), 6)
+        c.rect(x0 - 1, 12, 7, 2, (40, 42, 48))
+        for i in range(5):
+            c.set(x0 + i, 9, (240, 200, 40) if i % 2 == 0 else (30, 30, 30))
+        c.rect(x0, 4, 5, 1, (240, 200, 40))
+
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -429,6 +521,9 @@ def main():
     icon("rocket_fuel", draw_rocket_fuel)
     icon("space_helmet", draw_helmet)
     icon("oxygen_tank", draw_oxygen)
+    icon("space_suit", draw_space_suit)
+    icon("magnetic_boots", draw_magnetic_boots)
+    space_suit_armor()
     block_tex("titanium_ore", (120, 120, 124), speckles([(200, 205, 215), (170, 180, 195)], 9))
     block_tex("helium3_crystals", (70, 160, 170), speckles([(160, 240, 250), (220, 255, 255), (40, 120, 140)], 18, 3))
     block_tex("station_hull", (175, 178, 186), hull_pattern)

@@ -135,25 +135,28 @@ public final class Space {
         boolean everySecond = server.getTickCount() % 20 == 0;
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             boolean inSpace = isSpace(player.level());
-            double gravity = player.level().dimension() == ORBIT || player.level().dimension() == MARS_ORBIT
-                    ? -0.92 : player.level().dimension() == MARS ? -0.62 : -0.83;
-            gravity(player, inSpace, gravity);
+            boolean orbit = player.level().dimension() == ORBIT || player.level().dimension() == MARS_ORBIT;
+            // Bottes magnétiques : en orbite, on colle au sol comme sur la Lune au lieu de flotter.
+            double gravity = orbit ? (SpaceSuit.hasBoots(player) ? -0.75 : -0.92)
+                    : player.level().dimension() == MARS ? -0.62 : -0.83;
+            gravity(player, inSpace, gravity, SpaceSuit.hasBoots(player) ? 1000 : 15);
             if (inSpace && everySecond && !player.isCreative() && !player.isSpectator()) {
                 breathe(player);
             }
         }
     }
 
-    private static void gravity(ServerPlayer player, boolean onMoon, double amount) {
+    private static void gravity(ServerPlayer player, boolean onMoon, double amount, double safeFall) {
         AttributeInstance gravity = player.getAttribute(Attributes.GRAVITY);
         AttributeInstance fall = player.getAttribute(Attributes.SAFE_FALL_DISTANCE);
         if (gravity == null || fall == null) {
             return;
         }
         AttributeModifier current = gravity.getModifier(MOON_GRAVITY);
-        if (onMoon && (current == null || current.amount() != amount)) {
+        AttributeModifier currentFall = fall.getModifier(MOON_FALL);
+        if (onMoon && (current == null || current.amount() != amount || currentFall == null || currentFall.amount() != safeFall)) {
             gravity.addOrUpdateTransientModifier(new AttributeModifier(MOON_GRAVITY, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
-            fall.addOrUpdateTransientModifier(new AttributeModifier(MOON_FALL, 15, AttributeModifier.Operation.ADD_VALUE));
+            fall.addOrUpdateTransientModifier(new AttributeModifier(MOON_FALL, safeFall, AttributeModifier.Operation.ADD_VALUE));
         } else if (!onMoon && gravity.hasModifier(MOON_GRAVITY)) {
             gravity.removeModifier(MOON_GRAVITY);
             fall.removeModifier(MOON_FALL);
@@ -161,24 +164,28 @@ public final class Space {
     }
 
     private static void breathe(ServerPlayer player) {
-        ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
+        ItemStack helmet = SpaceSuit.helmet(player);
         if (hasAir(player)) {
             // Bulle d'air d'un distributeur : on respire sans consommer et le casque se recharge.
-            if (helmet.is(ModContent.SPACE_HELMET) && helmet.getDamageValue() > 0) {
+            if (!helmet.isEmpty() && helmet.getDamageValue() > 0) {
                 helmet.setDamageValue(Math.max(0, helmet.getDamageValue() - SpaceSuit.DISTRIBUTOR_REFILL));
+                SpaceSuit.changed(player);
                 player.sendOverlayMessage(Component.literal("Recharge du casque au distributeur… "
                         + (100 - 100 * helmet.getDamageValue() / helmet.getMaxDamage()) + " %").withStyle(ChatFormatting.AQUA));
             }
             return;
         }
         SpaceSuit.autoRefill(player);
-        boolean suited = helmet.is(ModContent.SPACE_HELMET);
+        boolean suited = !helmet.isEmpty();
         if (suited && helmet.getDamageValue() < helmet.getMaxDamage() - 1) {
-            // Palier « Poumons d'acier » : une unité toutes les deux secondes.
-            boolean skip = (Progression.get().hasSteelLungs(player) && (player.level().getServer().getTickCount() / 20) % 2 == 0)
+            int second = player.level().getServer().getTickCount() / 20;
+            // Palier « Poumons d'acier » : une unité toutes les deux secondes ; combinaison : une seconde sur quatre gratuite.
+            boolean skip = (Progression.get().hasSteelLungs(player) && second % 2 == 0)
+                    || (SpaceSuit.hasSuit(player) && second % 4 == 1)
                     || Progression.get().saveOxygen(player);
             if (!skip) {
                 helmet.setDamageValue(helmet.getDamageValue() + 1);
+                SpaceSuit.changed(player);
             }
             int percent = 100 - 100 * helmet.getDamageValue() / helmet.getMaxDamage();
             if (percent <= 20 || player.getRandom().nextInt(5) == 0) {
@@ -187,7 +194,7 @@ public final class Space {
             }
             return;
         }
-        player.sendOverlayMessage(Component.literal(suited ? "Oxygène épuisé ! Ajoute des bouteilles dans ta combinaison (touche J)." : "Pas d'air ! Il faut un casque-combinaison spatial (touche J).")
+        player.sendOverlayMessage(Component.literal(suited ? "Oxygène épuisé ! Ajoute des bouteilles dans ta combinaison (touche J)." : "Pas d'air ! Porte un casque spatial dans ta combinaison (touche J).")
                 .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
         player.hurtServer(player.level(), player.damageSources().drown(), 2.0f);
     }

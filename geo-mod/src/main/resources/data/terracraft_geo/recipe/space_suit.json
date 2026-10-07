@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "W": "minecraft:white_wool",
+    "C": "minecraft:copper_ingot",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "W W",
+    "WCW",
+    "WIW"
+  ],
+  "result": {
+    "id": "terracraft_geo:space_suit",
+    "count": 1
+  }
+}

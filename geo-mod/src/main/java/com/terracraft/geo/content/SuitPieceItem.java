@@ -1,27 +1,22 @@
 package com.terracraft.geo.content;
 
+import com.terracraft.geo.SpaceSuit;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 
-/** Bouteille d'oxygène : 5 minutes d'air pour le casque spatial. */
-public class OxygenTankItem extends Item {
-    public static final int REFILL = 300;
-
-    public OxygenTankItem(Properties properties) {
+/** Pièce de combinaison spatiale : clic droit pour la porter (elle va dans la combinaison, touche J). */
+public class SuitPieceItem extends Item {
+    public SuitPieceItem(Properties properties) {
         super(properties);
     }
 
-    /**
-     * Clic droit : les bouteilles rejoignent les réserves de la combinaison (touche J). Si les
-     * réserves sont pleines, la bouteille recharge directement le casque spatial.
-     */
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         if (!level.isClientSide()) {
-            com.terracraft.geo.SpaceSuit.useTank(player, hand);
+            SpaceSuit.equipFromHand(player, hand);
         }
         return InteractionResult.SUCCESS;
     }
