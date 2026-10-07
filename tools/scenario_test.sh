@@ -29,7 +29,7 @@ curl -fsSL -o mods/carpet.jar "$CARPET_URL"
 trap 'rm -f "$WORK/mods/carpet.jar"; pkill -P $$ 2>/dev/null || true' EXIT
 
 : > console.in
-tail -f console.in | java -Xmx2G -jar server.jar nogui > scenario.log 2>&1 &
+tail -f console.in | java -Xmx1536M -jar server.jar nogui > scenario.log 2>&1 &
 for _ in $(seq 600); do grep -q "Done (" scenario.log && break; sleep 1; done
 grep -q "Done (" scenario.log || { echo "ÉCHEC : le serveur ne démarre pas"; tail -30 scenario.log; exit 1; }
 
@@ -84,14 +84,24 @@ cmd "execute in terracraft_geo:moon_orbit if block 3 152 4 air" 1
 cmd "execute in terracraft_geo:moon_orbit run tp Bob 0.5 151 -4.5 0 45" 2
 cmd "item replace entity Bob weapon.mainhand with terracraft_geo:station_beacon"
 cmd "player Bob use once" 2
-# Vol en fusée : Terre → orbite lunaire, arrivée à la balise de Bob (5 doses sur 8)
+# Vol 1 : depuis la Terre, l'orbite lunaire est refusée ; l'orbite terrestre avec le kit déploie la station
 cmd "tp Bob 5.5 201 5.5" 2
-cmd "summon terracraft_geo:rocket 10.5 201 10.5 {Parts:15b,Fuel:8,Target:11b}" 2
+cmd "summon terracraft_geo:rocket 10.5 201 10.5 {Parts:15b,Fuel:12,Tanks:2b,Target:11b}" 2
 cmd "ride Bob mount @e[type=terracraft_geo:rocket,limit=1,sort=nearest]" 2
+cmd "execute as Bob run terracraft fusee decoller" 2
+cmd 'execute as Bob at Bob run data merge entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] {Target:2b,Payload:[{id:"terracraft_geo:orbital_station_kit",count:1}]}' 1
+cmd "execute as Bob run terracraft fusee decoller" 25
+cmd "data get entity Bob Dimension" 1
+cmd "execute in terracraft_geo:orbit if block -18 151 6 terracraft_geo:station_workshop" 1
+cmd "execute in terracraft_geo:orbit if block -8 151 10 terracraft_geo:airlock_door" 1
+cmd "execute in terracraft_geo:orbit if block 8 150 10 terracraft_geo:station_beacon" 1
+cmd "execute in terracraft_geo:orbit if block -14 150 10 terracraft_geo:oxygen_distributor" 1
+# Vol 2 : du quai de la station vers l'orbite lunaire (balise de Bob) : 12 - 3 - 2 = 7 doses
+cmd "execute as Bob at Bob run data merge entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] {Target:11b}" 1
 cmd "execute as Bob run terracraft fusee decoller" 25
 cmd "data get entity Bob Dimension" 1
 cmd "data get entity Bob Pos" 1
-cmd "data get entity @e[type=terracraft_geo:rocket,limit=1] Fuel" 1
+cmd "execute as Bob at Bob run data get entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] Fuel" 1
 # Atelier de station : plans débloqués en orbite lunaire, améliorations installées sur la fusée
 cmd "execute in terracraft_geo:moon_orbit run setblock 5 151 -2 terracraft_geo:station_workshop" 1
 cmd "give Bob terracraft_geo:titanium_ingot 10"
@@ -164,11 +174,17 @@ check("[LARGAGE] Caisse en" in log, "caisse de ravitaillement larguée sur la pl
 check(log.count("Test passed") >= 2, "module de station : distributeur d'oxygène au centre, porte ouverte")
 check(any(s.get("modules") == 1 for s in stats), "compteur de modules de station")
 stations = json.loads((data / "stations.json").read_text())
-check(len(stations) == 1 and stations[0]["dimension"] == "terracraft_geo:moon_orbit", "balise de station enregistrée en orbite lunaire")
-check('Bob has the following entity data: "terracraft_geo:moon_orbit"' in log, "vol en fusée jusqu'à l'orbite lunaire")
+check(any(s["dimension"] == "terracraft_geo:moon_orbit" for s in stations), "balise de station enregistrée en orbite lunaire")
+check("Depuis la Terre, cap sur l'orbite terrestre" in log or log.count("Décollage refusé") >= 2,
+      "depuis la Terre, la Lune est refusée : la station orbitale d'abord")
+check('Bob has the following entity data: "terracraft_geo:orbit"' in log, "premier vol : orbite terrestre")
+check(log.count("Test passed") >= 6, "station orbitale déployée : atelier, sas, balise du quai, oxygène")
+check(any(s["dimension"] == "terracraft_geo:orbit" and s["name"].startswith("Station orbitale") for s in stations),
+      "station orbitale enregistrée au nom du pilote")
+check('Bob has the following entity data: "terracraft_geo:moon_orbit"' in log, "second vol, depuis le quai : orbite lunaire")
 pos = re.findall(r"Bob has the following entity data: \[([-\d.]+)d, ([-\d.]+)d, ([-\d.]+)d\]", log)
 check(bool(pos) and abs(float(pos[-1][0]) - 2.5) < 1 and abs(float(pos[-1][2]) + 2.5) < 1, "fusée posée à côté de la balise de station")
-check("Rocket has the following entity data: 3" in log, "carburant : 5 doses consommées (Terre → orbite lunaire)")
+check("Rocket has the following entity data: 7" in log, "carburant : fusée moyenne (12) − Terre→orbite (3) − orbite→orbite lunaire (2) = 7")
 plans = sorted(p for r in progression.values() for p in (r.get("plans") or []))
 check(plans == ["CARGO", "ION", "TANK"], f"plans débloqués par l'exploration, pas la navigation martienne (obtenu {plans})")
 check("Rocket has the following entity data: 7b" in log, "atelier : réservoir étendu, moteur ionique et soute installés")

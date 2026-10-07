@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "terracraft_geo:block/docking_clamp"
+  }
+}

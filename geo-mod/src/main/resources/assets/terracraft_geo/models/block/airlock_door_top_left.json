@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/door_top_left",
+  "textures": {
+    "bottom": "terracraft_geo:block/airlock_door_bottom",
+    "top": "terracraft_geo:block/airlock_door_top"
+  }
+}

@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.13). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.14). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -14,7 +14,7 @@ Référence de TerraCraft (version 0.13). Tout est en français ; `/aide` en don
 | `M` / `'` | Carte Xaero ; menu des claims (Open Parties and Claims) |
 | Saut maintenu en l'air | Jetpack (s'il est porté et a du carburant) |
 | Avion | `Z`/`S` gaz, `Q`/`D` tourner, `Espace` monter, `Ctrl` descendre, `Maj` sortir |
-| Fusée | `Espace` décoller ; à pied, `Maj` + clic droit main vide : changer de destination |
+| Fusée | `Espace` décoller ; à pied, `Maj` + clic droit main vide : changer de destination ; clic droit avec un réservoir : réservoir en plus, avec un kit : charge utile |
 
 ## Joueurs
 

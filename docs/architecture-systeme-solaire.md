@@ -125,4 +125,8 @@ Les véhicules terrestres ne deviennent pas des véhicules spatiaux par magie : 
 - Plans de fusée (0.12.0) : débloqués en explorant (orbite → réservoir étendu ; orbite lunaire → moteur ionique ;
   premier module → soute ; Lune + 5 titane → navigation martienne), installés à l'atelier de station sur la fusée
   garée à côté, contre titane, hélium-3 et matériaux terrestres. Mars exige la navigation martienne.
+- Station orbitale d'abord (0.14.0) : depuis la Terre, seule l'orbite terrestre est permise ; au-delà, la fusée doit
+  partir amarrée à une balise de station (16 blocs). Le kit de station orbitale (charge utile) déploie au premier vol
+  une station : salle de travail 13×13, tunnels vitrés, salle de stockage, quai 11×11 avec pinces, sas étanches.
+  Fusées : 1 réservoir = 8 doses et 1 charge utile, +4 doses et +1 charge par réservoir (4 au maximum).
 

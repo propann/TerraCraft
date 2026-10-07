@@ -37,7 +37,7 @@ EOF
 rm -f console.log
 : > console.in
 # Commandes envoyées en ajoutant des lignes à console.in.
-tail -f console.in | java -Xms512M -Xmx2G -jar server.jar nogui > console.log 2>&1 &
+tail -f console.in | java -Xms512M -Xmx1536M -jar server.jar nogui > console.log 2>&1 &
 SERVER=$!
 trap 'pkill -P $$ 2>/dev/null || true' EXIT
 

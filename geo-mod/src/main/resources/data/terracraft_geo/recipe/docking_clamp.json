@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:copper_ingot",
+    "P": "minecraft:piston"
+  },
+  "pattern": [
+    "IPI",
+    "C C"
+  ],
+  "result": {
+    "id": "terracraft_geo:docking_clamp",
+    "count": 2
+  }
+}

@@ -54,5 +54,8 @@
   "key.terracraft_geo.vehicle_storage": "Coffre du véhicule",
   "block.terracraft_geo.station_beacon": "Balise de station",
   "item.terracraft_geo.station_module": "Kit de module de station",
-  "block.terracraft_geo.station_workshop": "Atelier de station"
+  "block.terracraft_geo.station_workshop": "Atelier de station",
+  "block.terracraft_geo.airlock_door": "Sas étanche",
+  "block.terracraft_geo.docking_clamp": "Pince d'amarrage",
+  "item.terracraft_geo.orbital_station_kit": "Kit de station orbitale"
 }

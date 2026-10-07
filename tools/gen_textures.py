@@ -235,15 +235,24 @@ def rocket():
         for k in range(6, h, 9):
             c.rect(x, y + k, w, 1, (170, 170, 178))
     x, y, w, h = hull["front"]
-    for yy in range(8, 14):  # hublot
-        for xx in range(3, 9):
-            if (xx - 5.5) ** 2 + (yy - 10.5) ** 2 < 8:
-                c.set(x + xx, y + yy, (70, 120, 170))
+    for cy in (11, 23):  # deux hublots cerclés : cabine et soute
+        for yy in range(cy - 4, cy + 4):
+            for xx in range(1, 11):
+                d = (xx - 5.5) ** 2 + (yy - cy + 0.5) ** 2
+                if d < 7:
+                    c.set(x + xx, y + yy, (60, 110, 165) if (xx, yy) != (4, cy - 2) else (190, 225, 250))
+                elif d < 13:
+                    c.set(x + xx, y + yy, (120, 124, 132))
     box(c, 50, 0, 8, 12, 8, (70, 70, 76), top=(50, 50, 54))
     box(c, 50, 24, 8, 8, 8, (190, 40, 35))
     box(c, 50, 44, 4, 4, 4, (190, 40, 35))
     box(c, 0, 60, 2, 14, 6, (190, 40, 35))
     box(c, 0, 84, 13, 10, 13, (200, 120, 60))
+    booster = box(c, 80, 60, 4, 18, 4, (215, 215, 220), top=(190, 40, 35))  # propulseurs (2 ou 4 réservoirs)
+    for name in ("front", "back", "left", "right"):
+        bx, by, bw, bh = booster[name]
+        c.rect(bx, by + bh - 3, bw, 3, (70, 70, 76))
+        c.rect(bx, by + 2, bw, 1, (190, 40, 35))
     c.rust(0, 0, 48, 56, 0.02)
     c.save("entity/rocket.png")
 
@@ -632,6 +641,52 @@ def server_icon():
     write_png(ROOT.parent / "server-icon.png", 64, 64, c.px)
 
 
+def airlock_door():
+    """Sas étanche : porte métallique à hublot rond, bandes de sécurité jaunes et noires."""
+    for half in ("top", "bottom"):
+        c = Canvas(16, 16, 71 if half == "top" else 72)
+        c.rect(0, 0, 16, 16, (150, 154, 162), 8)
+        c.rect(0, 0, 16, 1, (90, 94, 104))
+        c.rect(0, 15, 16, 1, (90, 94, 104))
+        c.rect(0, 0, 1, 16, (90, 94, 104))
+        c.rect(15, 0, 1, 16, (90, 94, 104))
+        if half == "top":
+            for y in range(16):
+                for x in range(16):
+                    d = (x - 7.5) ** 2 + (y - 8) ** 2
+                    if d < 14:
+                        c.set(x, y, (60, 110, 165))
+                    elif d < 22:
+                        c.set(x, y, (100, 104, 112))
+        else:
+            for x in range(1, 15):
+                c.set(x, 12, (240, 200, 40) if (x // 2) % 2 == 0 else (30, 30, 30))
+                c.set(x, 13, (30, 30, 30) if (x // 2) % 2 == 0 else (240, 200, 40))
+            c.rect(12, 5, 2, 3, (70, 74, 84))
+        c.save(f"block/airlock_door_{half}.png")
+    icon("airlock_door", lambda c: (c.rect(4, 1, 8, 14, (150, 154, 162), 8), c.rect(6, 3, 4, 4, (60, 110, 165)),
+                                    c.rect(4, 11, 8, 1, (240, 200, 40))))
+
+
+def clamp_pattern(c):
+    """Pince d'amarrage : plaque orange à rayures, mâchoire grise."""
+    for i in range(16):
+        for j in range(16):
+            if (i + j) % 6 < 3:
+                c.set(i, j, (230, 120, 30))
+    c.rect(4, 4, 8, 8, (110, 114, 122))
+    c.rect(6, 6, 4, 4, (60, 62, 70))
+
+
+def draw_orbital_station_kit(c):
+    c.rect(1, 6, 14, 6, (120, 124, 132), 6)
+    c.rect(5, 3, 6, 10, (175, 178, 186), 6)
+    c.rect(6, 5, 4, 2, (120, 190, 230))
+    c.rect(2, 8, 2, 2, (120, 190, 230))
+    c.rect(12, 8, 2, 2, (120, 190, 230))
+    c.rect(7, 13, 2, 2, (230, 120, 30))
+
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -681,6 +736,9 @@ def main():
     block_tex("station_beacon", (150, 154, 162), beacon_pattern)
     block_tex("station_workshop", (150, 154, 162), workshop_pattern)
     server_icon()
+    airlock_door()
+    block_tex("docking_clamp", (150, 154, 162), clamp_pattern)
+    icon("orbital_station_kit", draw_orbital_station_kit)
     icon("station_module", draw_station_module)
     icon("titanium_ingot", lambda c: (c.rect(2, 6, 12, 5, (200, 205, 215), 8), c.rect(2, 6, 12, 1, (235, 238, 245))))
     icon("helium3_shard", lambda c: [c.rect(7 - k // 2, 2 + k, 2 + k, 1, (120, 230, 245)) for k in range(12)])

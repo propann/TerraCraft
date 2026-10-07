@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_block",
+    "C": "minecraft:copper_block",
+    "G": "minecraft:glass",
+    "O": "terracraft_geo:oxygen_tank",
+    "R": "minecraft:redstone_block"
+  },
+  "pattern": [
+    "ICI",
+    "GOG",
+    "IRI"
+  ],
+  "result": {
+    "id": "terracraft_geo:orbital_station_kit",
+    "count": 1
+  }
+}

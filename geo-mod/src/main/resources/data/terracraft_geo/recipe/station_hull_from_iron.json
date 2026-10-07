@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:copper_ingot"
+  },
+  "pattern": [
+    "ICI",
+    "C C",
+    "ICI"
+  ],
+  "result": {
+    "id": "terracraft_geo:station_hull",
+    "count": 4
+  }
+}

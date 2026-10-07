@@ -70,8 +70,10 @@ final class Arrival {
                         + "Batterie : cuivre, redstone, fer\nTurbo : fer, cuivre, blaze\nEssence : fer + 2 charbons",
                 "ARMES\n\nPistolet, fusil, fusil à pompe.\nMunitions ×8 : cuivre + poudre à canon.\n\n"
                         + "Châssis voiture : 5 fer en U.\nChâssis camion : 8 fer.",
-                "L'ESPACE\n\nFusée : coque, moteur-fusée, réservoir, cône, ailerons. 8 doses de carburant max.\n"
-                        + "Coût : Terre→orbite 3, orbite→orbite lunaire 2, →Lune 1, →orbite de Mars 4-5, →Mars 2.",
+                "L'ESPACE\n\nDepuis la Terre, la fusée ne va qu'en orbite. Charge un KIT DE STATION ORBITALE (clic droit sur la fusée) : "
+                        + "au premier vol, ta station se déploie (salle de travail, tunnels, quai). La Lune et Mars partent de ce quai.",
+                "FUSÉES\n\n1 réservoir : légère, 8 doses, 1 charge.\n2 : moyenne, 12 doses.\n4 : lourde, 20 doses, 4 charges.\n"
+                        + "Coût : Terre→orbite 3, →orbite lunaire 2, →Lune 1, →Mars 4-5 + 2.",
                 "PLANS DE FUSÉE\n\nSe débloquent en explorant (/plans). Atelier de station : clic droit pour installer "
                         + "réservoir étendu, moteur ionique, soute ou navigation martienne (obligatoire pour Mars).",
                 "STATIONS\n\nBalise de station : tes fusées s'y posent.\nKit de module : clic droit sur le sol "

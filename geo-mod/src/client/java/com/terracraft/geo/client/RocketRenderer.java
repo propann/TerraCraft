@@ -35,6 +35,7 @@ public class RocketRenderer extends EntityRenderer<Rocket, RocketRenderState> {
         super.extractRenderState(rocket, state, partialTicks);
         state.yRot = rocket.getYRot(partialTicks);
         state.parts = rocket.parts();
+        state.tanks = rocket.tanks();
         state.shaking = rocket.phase() == Rocket.COUNTDOWN || rocket.phase() == Rocket.ASCENT;
     }
 

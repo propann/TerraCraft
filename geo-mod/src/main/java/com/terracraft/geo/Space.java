@@ -116,7 +116,7 @@ public final class Space {
     }
 
     public static byte defaultDestination(Level level) {
-        return id(level) == EARTH ? MOON_ID : EARTH;
+        return id(level) == EARTH ? ORBIT_ID : EARTH; // Depuis la Terre : la station orbitale d'abord.
     }
 
     /** Destination suivante, en sautant le monde où l'on se trouve. */

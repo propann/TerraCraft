@@ -85,6 +85,45 @@ public final class Stations {
                 .withStyle(ChatFormatting.AQUA));
     }
 
+    /** Station déployée par un kit : enregistrée au nom du pilote, sans message de pose. */
+    public void registerBuilt(ServerPlayer owner, ServerLevel level, BlockPos pos, String name) {
+        beacons.add(new Beacon(owner.getUUID().toString(), owner.getName().getString(),
+                level.dimension().identifier().toString(), pos.getX(), pos.getY(), pos.getZ(), name));
+        save();
+    }
+
+    /**
+     * Déploie la station orbitale de départ du joueur (kit de station) : le quai est placé sous le point d'arrivée
+     * de la fusée, qui s'y pose. Renvoie la position de la balise du quai.
+     */
+    public BlockPos deployOrbital(ServerPlayer owner, ServerLevel level, double x, double z) {
+        BlockPos beacon = new BlockPos((int) Math.floor(x) - 2, Space.DOCK_Y, (int) Math.floor(z));
+        for (int cx = -2; cx <= 2; cx++) {
+            for (int cz = -1; cz <= 1; cz++) {
+                level.getChunk((beacon.getX() >> 4) + cx, (beacon.getZ() >> 4) + cz);
+            }
+        }
+        StationBuilder.buildOrbital(level, beacon);
+        registerBuilt(owner, level, beacon, "Station orbitale de " + owner.getName().getString());
+        GeoMod.LOGGER.info("[STATION] {} déploie sa station orbitale en {}", owner.getName().getString(), beacon);
+        owner.sendSystemMessage(Component.literal("✦ Station orbitale déployée : salle de travail, tunnels, stockage et quai "
+                + "d'amarrage. Tes fusées se poseront ici ; les voyages vers la Lune et au-delà partent de ce quai.")
+                .withStyle(ChatFormatting.AQUA));
+        return beacon;
+    }
+
+    /** Une balise de station se trouve-t-elle à moins de {@code radius} blocs (fusée amarrée) ? */
+    public boolean dockedNear(ServerLevel level, BlockPos pos, int radius) {
+        String dimension = level.dimension().identifier().toString();
+        return beacons.stream().anyMatch(b -> b.dimension().equals(dimension) && b.pos().distSqr(pos) <= (double) radius * radius);
+    }
+
+    /** Le joueur a-t-il déjà une station dans ce monde ? */
+    public boolean hasStation(ServerPlayer owner, ServerLevel level) {
+        String dimension = level.dimension().identifier().toString();
+        return beacons.stream().anyMatch(b -> b.dimension().equals(dimension) && b.owner().equals(owner.getUUID().toString()));
+    }
+
     public void removed(ServerLevel level, BlockPos pos) {
         String dimension = level.dimension().identifier().toString();
         if (beacons.removeIf(b -> b.dimension().equals(dimension) && b.pos().equals(pos))) {

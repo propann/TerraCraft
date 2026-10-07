@@ -15,6 +15,7 @@ public class RocketModel extends EntityModel<RocketRenderState> {
     private final ModelPart tank;
     private final ModelPart nose;
     private final ModelPart fins;
+    private final ModelPart[] boosters = new ModelPart[4];
 
     public RocketModel(ModelPart root) {
         super(root);
@@ -22,6 +23,9 @@ public class RocketModel extends EntityModel<RocketRenderState> {
         tank = root.getChild("tank");
         nose = root.getChild("nose");
         fins = root.getChild("fins");
+        for (int i = 0; i < boosters.length; i++) {
+            boosters[i] = root.getChild("booster_" + i);
+        }
     }
 
     @Override
@@ -31,6 +35,11 @@ public class RocketModel extends EntityModel<RocketRenderState> {
         tank.visible = (state.parts & Rocket.TANK) != 0;
         nose.visible = (state.parts & Rocket.NOSE) != 0;
         fins.visible = (state.parts & Rocket.FINS) != 0;
+        // 1 réservoir : aucun propulseur ; 2 : est et ouest ; 3 : + nord ; 4 : les quatre.
+        int shown = state.tanks >= 2 ? state.tanks : 0;
+        for (int i = 0; i < boosters.length; i++) {
+            boosters[i].visible = i < shown;
+        }
     }
 
     public static LayerDefinition create() {
@@ -47,6 +56,11 @@ public class RocketModel extends EntityModel<RocketRenderState> {
                 .texOffs(0, 60).addBox(-1, -22, -12, 2, 14, 6)
                 .texOffs(0, 60).addBox(6, -22, -1, 6, 14, 2)
                 .texOffs(0, 60).addBox(-12, -22, -1, 6, 14, 2), PartPose.ZERO);
+        int[][] offsets = {{10, 0}, {-10, 0}, {0, 10}, {0, -10}};
+        for (int i = 0; i < offsets.length; i++) {
+            root.addOrReplaceChild("booster_" + i, CubeListBuilder.create().texOffs(80, 60).addBox(-2, -26, -2, 4, 18, 4),
+                    PartPose.offset(offsets[i][0], 0, offsets[i][1]));
+        }
         return LayerDefinition.create(mesh, 128, 128);
     }
 }

@@ -62,6 +62,11 @@ public class Rocket extends VehicleEntity {
     private static final EntityDataAccessor<Byte> DATA_PARTS = SynchedEntityData.defineId(Rocket.class, EntityDataSerializers.BYTE);
     /** Améliorations installées à l'atelier de station (bits de {@link com.terracraft.geo.Plans.Plan#flag()}). */
     private static final EntityDataAccessor<Byte> DATA_UPGRADES = SynchedEntityData.defineId(Rocket.class, EntityDataSerializers.BYTE);
+    /** Nombre de réservoirs montés (1 à 4) : capacité de carburant et de charges utiles, propulseurs visibles. */
+    private static final EntityDataAccessor<Byte> DATA_TANKS = SynchedEntityData.defineId(Rocket.class, EntityDataSerializers.BYTE);
+    public static final int MAX_TANKS = 4;
+    /** Charges utiles transportées (kits de station, de base, rover) : une par réservoir. */
+    private final List<ItemStack> payload = new ArrayList<>();
     /** Soute (amélioration « Soute ») : 27 cases, sauvegardées avec la fusée. */
     private final net.minecraft.world.SimpleContainer cargo = new net.minecraft.world.SimpleContainer(27);
     private static final EntityDataAccessor<Integer> DATA_FUEL = SynchedEntityData.defineId(Rocket.class, EntityDataSerializers.INT);
@@ -83,6 +88,7 @@ public class Rocket extends VehicleEntity {
         super.defineSynchedData(entityData);
         entityData.define(DATA_PARTS, (byte) 0);
         entityData.define(DATA_UPGRADES, (byte) 0);
+        entityData.define(DATA_TANKS, (byte) 1);
         entityData.define(DATA_FUEL, 0);
         entityData.define(DATA_PHASE, IDLE);
         entityData.define(DATA_TARGET, (byte) -1);
@@ -108,8 +114,40 @@ public class Rocket extends VehicleEntity {
         entityData.set(DATA_UPGRADES, (byte) (entityData.get(DATA_UPGRADES) | plan.flag()));
     }
 
+    public int tanks() {
+        return has(TANK) ? Math.max(1, entityData.get(DATA_TANKS)) : 0;
+    }
+
+    /** Capacité : 8 doses avec 1 réservoir, +4 par réservoir supplémentaire, +4 avec le plan « réservoir étendu ». */
     public int maxFuel() {
-        return hasUpgrade(com.terracraft.geo.Plans.Plan.TANK) ? EXTENDED_FUEL : MAX_FUEL;
+        int base = MAX_FUEL + 4 * Math.max(0, tanks() - 1);
+        return hasUpgrade(com.terracraft.geo.Plans.Plan.TANK) ? base + (EXTENDED_FUEL - MAX_FUEL) : base;
+    }
+
+    public String tierName() {
+        return switch (tanks()) {
+            case 0, 1 -> "Fusée légère";
+            case 2 -> "Fusée moyenne";
+            case 3 -> "Fusée renforcée";
+            default -> "Fusée lourde";
+        };
+    }
+
+    public static boolean isPayload(ItemStack stack) {
+        return stack.is(ModContent.ORBITAL_STATION_KIT);
+    }
+
+    public boolean hasPayload(Item item) {
+        return payload.stream().anyMatch(stack -> stack.is(item));
+    }
+
+    private void removePayload(Item item) {
+        for (int i = 0; i < payload.size(); i++) {
+            if (payload.get(i).is(item)) {
+                payload.remove(i);
+                return;
+            }
+        }
     }
 
     /** Soute : ouverte par la touche V (assis dans la fusée ou à côté). */
@@ -151,6 +189,10 @@ public class Rocket extends VehicleEntity {
                 if (part != 0 && !has(part)) {
                     entityData.set(DATA_PARTS, (byte) (parts() | part));
                     used = true;
+                } else if (part == TANK && tanks() < MAX_TANKS) {
+                    // Réservoir supplémentaire : fusée moyenne (2), renforcée (3), lourde (4).
+                    entityData.set(DATA_TANKS, (byte) (tanks() + 1));
+                    used = true;
                 } else if (stack.is(ModContent.ROCKET_FUEL) && fuel() < maxFuel()) {
                     entityData.set(DATA_FUEL, fuel() + 1);
                     used = true;
@@ -160,6 +202,21 @@ public class Rocket extends VehicleEntity {
                     level().playSound(null, getX(), getY(), getZ(), SoundEvents.ANVIL_USE, SoundSource.NEUTRAL, 0.6f, 0.9f);
                 }
                 player.sendOverlayMessage(status());
+            }
+            return InteractionResult.SUCCESS;
+        }
+        if (isPayload(stack)) {
+            if (!level().isClientSide()) {
+                if (payload.size() >= Math.max(1, tanks())) {
+                    player.sendOverlayMessage(Component.literal("Plus de place : une charge utile par réservoir (ajoute des réservoirs).")
+                            .withStyle(ChatFormatting.RED));
+                } else {
+                    payload.add(stack.copyWithCount(1));
+                    stack.consume(1, player);
+                    level().playSound(null, getX(), getY(), getZ(), SoundEvents.ARMOR_EQUIP_IRON.value(), SoundSource.NEUTRAL, 0.8f, 0.8f);
+                    player.sendOverlayMessage(Component.literal("Charge utile chargée : " + stack.getHoverName().getString())
+                            .withStyle(ChatFormatting.AQUA));
+                }
             }
             return InteractionResult.SUCCESS;
         }
@@ -204,8 +261,11 @@ public class Rocket extends VehicleEntity {
             return Component.literal("Il manque : " + String.join(", ", missing)).withStyle(ChatFormatting.GOLD);
         }
         int cost = cost();
-        return Component.literal("Carburant " + fuel() + "/" + maxFuel() + " · " + Space.name(target()) + " : " + cost + " dose(s)"
-                        + (fuel() >= cost ? " — prête" : cost > maxFuel() ? " — trop loin, fais escale en orbite" : ""))
+        String cargo = payload.isEmpty() ? "" : " · charge : " + payload.stream().map(i -> i.getHoverName().getString())
+                .reduce((a, b) -> a + ", " + b).orElse("");
+        return Component.literal(tierName() + " · carburant " + fuel() + "/" + maxFuel() + " · " + Space.name(target()) + " : "
+                        + cost + " dose(s)" + cargo
+                        + (fuel() >= cost ? " — prête" : cost > maxFuel() ? " — trop loin, fais escale" : ""))
                 .withStyle(fuel() >= cost ? ChatFormatting.GREEN : ChatFormatting.YELLOW);
     }
 
@@ -248,6 +308,29 @@ public class Rocket extends VehicleEntity {
     }
 
     /**
+     * Règles de navigation : depuis la Terre on ne va qu'en orbite terrestre (la station orbitale est la porte de
+     * l'espace) ; pour aller plus loin, la fusée doit partir amarrée à une station ou une base. Rentrer sur Terre ou en
+     * orbite terrestre reste toujours possible. Renvoie le problème, ou null si la route est permise.
+     */
+    private String routeProblem(ServerPlayer player) {
+        if (player.isCreative() || !(level() instanceof ServerLevel server)) {
+            return null;
+        }
+        byte from = Space.id(level());
+        byte to = target();
+        if (to == Space.EARTH || to == Space.ORBIT_ID) {
+            return null;
+        }
+        if (from == Space.EARTH) {
+            return "Depuis la Terre, cap sur l'orbite terrestre : construis d'abord ta station orbitale (kit de station).";
+        }
+        if (!com.terracraft.geo.Stations.get().dockedNear(server, blockPosition(), 16)) {
+            return "Les voyages lointains partent d'une station : amarre la fusée à une balise de station.";
+        }
+        return null;
+    }
+
+    /**
      * Demande de décollage du pilote (touche Espace, ou commande d'administration) : mêmes
      * vérifications dans les deux cas. Renvoie vrai si le compte à rebours démarre.
      */
@@ -258,6 +341,13 @@ public class Rocket extends VehicleEntity {
         if (fuel() < cost()) {
             if (explain) {
                 player.sendOverlayMessage(status());
+            }
+            return false;
+        }
+        String route = routeProblem(player);
+        if (route != null) {
+            if (explain) {
+                player.sendOverlayMessage(Component.literal(route).withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
             }
             return false;
         }
@@ -332,6 +422,13 @@ public class Rocket extends VehicleEntity {
         double x = home ? earthX : getX();
         double z = home ? earthZ : getZ();
         double y;
+        if (destination == Space.ORBIT_ID && hasPayload(ModContent.ORBITAL_STATION_KIT)
+                && getFirstPassenger() instanceof ServerPlayer builder
+                && !com.terracraft.geo.Stations.get().hasStation(builder, target)) {
+            // Premier vol avec le kit : la station orbitale se déploie autour du point d'arrivée.
+            com.terracraft.geo.Stations.get().deployOrbital(builder, target, x, z);
+            removePayload(ModContent.ORBITAL_STATION_KIT);
+        }
         BlockPos station = getFirstPassenger() instanceof ServerPlayer pilot
                 ? com.terracraft.geo.Stations.get().landing(pilot, target) : null;
         if (station != null) {
@@ -444,6 +541,13 @@ public class Rocket extends VehicleEntity {
         if (fuel() > 0) {
             spawnAtLocation(level, new ItemStack(ModContent.ROCKET_FUEL, fuel()));
         }
+        if (tanks() > 1) {
+            spawnAtLocation(level, new ItemStack(ModContent.ROCKET_TANK, tanks() - 1));
+        }
+        for (ItemStack item : payload) {
+            spawnAtLocation(level, item);
+        }
+        payload.clear();
         for (ItemStack item : cargo.removeAllItems()) {
             if (!item.isEmpty()) {
                 spawnAtLocation(level, item);
@@ -455,6 +559,9 @@ public class Rocket extends VehicleEntity {
     protected void addAdditionalSaveData(ValueOutput output) {
         output.putByte("Parts", (byte) parts());
         output.putByte("Upgrades", entityData.get(DATA_UPGRADES));
+        output.putByte("Tanks", entityData.get(DATA_TANKS));
+        var payloadList = output.list("Payload", ItemStack.CODEC);
+        payload.forEach(payloadList::add);
         cargo.storeAsItemList(output.list("Cargo", ItemStack.CODEC));
         output.putInt("Fuel", fuel());
         output.putByte("Phase", phase());
@@ -470,6 +577,9 @@ public class Rocket extends VehicleEntity {
     protected void readAdditionalSaveData(ValueInput input) {
         entityData.set(DATA_PARTS, input.getByteOr("Parts", (byte) 0));
         entityData.set(DATA_UPGRADES, input.getByteOr("Upgrades", (byte) 0));
+        entityData.set(DATA_TANKS, input.getByteOr("Tanks", (byte) 1));
+        payload.clear();
+        input.listOrEmpty("Payload", ItemStack.CODEC).forEach(payload::add);
         cargo.fromItemList(input.listOrEmpty("Cargo", ItemStack.CODEC));
         entityData.set(DATA_FUEL, input.getIntOr("Fuel", 0));
         entityData.set(DATA_PHASE, input.getByteOr("Phase", IDLE));

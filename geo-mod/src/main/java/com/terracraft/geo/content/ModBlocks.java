@@ -41,6 +41,13 @@ public final class ModBlocks {
     /** Balise de station : point d'arrivée des fusées de son poseur (et de sa ville). */
     public static final Block STATION_BEACON = block("station_beacon", StationBeaconBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).strength(2f).sound(SoundType.METAL).lightLevel(state -> 12));
+    /** Sas étanche : porte de station qui s'ouvre à la main (relie salles, tunnels et quai). */
+    public static final Block AIRLOCK_DOOR = block("airlock_door", p -> new net.minecraft.world.level.block.DoorBlock(
+                    net.minecraft.world.level.block.state.properties.BlockSetType.COPPER, p),
+            BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3f).sound(SoundType.METAL).noOcclusion());
+    /** Pince d'amarrage : repère le quai où se posent les fusées. */
+    public static final Block DOCKING_CLAMP = block("docking_clamp", Block::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_ORANGE).strength(3f).sound(SoundType.METAL).lightLevel(state -> 7));
     /** Atelier de station : installe les améliorations des plans de fusée. */
     public static final Block STATION_WORKSHOP = block("station_workshop", StationWorkshopBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3f).sound(SoundType.METAL).lightLevel(state -> 4));
@@ -54,7 +61,7 @@ public final class ModBlocks {
 
     public static void init() {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(output -> {
-            for (Block block : new Block[]{STATION_HULL, STATION_FLOOR, STATION_WINDOW, STATION_LIGHT, STATION_BEACON, STATION_WORKSHOP, OXYGEN_DISTRIBUTOR}) {
+            for (Block block : new Block[]{STATION_HULL, STATION_FLOOR, STATION_WINDOW, STATION_LIGHT, STATION_BEACON, STATION_WORKSHOP, AIRLOCK_DOOR, DOCKING_CLAMP, OXYGEN_DISTRIBUTOR}) {
                 output.accept(block);
             }
         });
