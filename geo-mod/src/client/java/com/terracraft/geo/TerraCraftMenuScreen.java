@@ -55,10 +55,14 @@ public final class TerraCraftMenuScreen extends Screen {
         })
                 .bounds(right, top + 60, buttonWidth, 24).build());
 
+        addRenderableWidget(Button.builder(Component.literal("Combinaison spatiale  [J]"), b -> {
+            onClose();
+            GeoModClient.openSuit(minecraft);
+        }).bounds(left + 10, top + 90, buttonWidth, 24).build());
         addRenderableWidget(Button.builder(Component.literal("Guide"), b -> runCommand("aide"))
-                .bounds(left + 10, top + 90, buttonWidth, 24).build());
-        addRenderableWidget(Button.builder(Component.literal("Fermer"), b -> onClose())
                 .bounds(right, top + 90, buttonWidth, 24).build());
+        addRenderableWidget(Button.builder(Component.literal("Fermer"), b -> onClose())
+                .bounds(left + 10 + (buttonWidth + 5) / 2, top + 120, buttonWidth, 24).build());
     }
 
     private void runCommand(String command) {
@@ -79,7 +83,7 @@ public final class TerraCraftMenuScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
         extractTransparentBackground(g);
         int panelWidth = Math.min(460, width - 24);
-        int panelHeight = 178;
+        int panelHeight = 208;
         int left = (width - panelWidth) / 2;
         int top = Math.max(55, (height - 190) / 2);
         g.fill(left, top - 38, left + panelWidth, top + panelHeight, PANEL);
@@ -87,7 +91,7 @@ public final class TerraCraftMenuScreen extends Screen {
         g.centeredText(font, Component.literal("TERRACRAFT"), width / 2, top - 27, GOLD);
         g.centeredText(font, Component.literal("Terre réelle  ·  Survie  ·  Exploration  ·  Espace"), width / 2,
                 top - 14, GREY);
-        g.centeredText(font, Component.literal("Touche O pour ouvrir ce menu"), width / 2, top + 121, GREY);
+        g.centeredText(font, Component.literal("Touche O pour ouvrir ce menu"), width / 2, top + 152, GREY);
         super.extractRenderState(g, mouseX, mouseY, delta);
     }
 

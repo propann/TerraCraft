@@ -124,9 +124,7 @@ public final class Space {
         if (player.isCreative() || player.isSpectator()) {
             return true;
         }
-        ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
-        return helmet.is(ModContent.SPACE_HELMET)
-                && helmet.getDamageValue() < helmet.getMaxDamage() - 1;
+        return SpaceSuit.hasAirSupply(player);
     }
 
     public static @Nullable ServerLevel moon(MinecraftServer server) {
@@ -163,10 +161,17 @@ public final class Space {
     }
 
     private static void breathe(ServerPlayer player) {
-        if (hasAir(player)) {
-            return; // Bulle d'air d'un distributeur : on respire sans consommer.
-        }
         ItemStack helmet = player.getItemBySlot(EquipmentSlot.HEAD);
+        if (hasAir(player)) {
+            // Bulle d'air d'un distributeur : on respire sans consommer et le casque se recharge.
+            if (helmet.is(ModContent.SPACE_HELMET) && helmet.getDamageValue() > 0) {
+                helmet.setDamageValue(Math.max(0, helmet.getDamageValue() - SpaceSuit.DISTRIBUTOR_REFILL));
+                player.sendOverlayMessage(Component.literal("Recharge du casque au distributeur… "
+                        + (100 - 100 * helmet.getDamageValue() / helmet.getMaxDamage()) + " %").withStyle(ChatFormatting.AQUA));
+            }
+            return;
+        }
+        SpaceSuit.autoRefill(player);
         boolean suited = helmet.is(ModContent.SPACE_HELMET);
         if (suited && helmet.getDamageValue() < helmet.getMaxDamage() - 1) {
             // Palier « Poumons d'acier » : une unité toutes les deux secondes.
@@ -182,7 +187,7 @@ public final class Space {
             }
             return;
         }
-        player.sendOverlayMessage(Component.literal(suited ? "Réserve d'oxygène vide ! Recharge ton casque-combinaison." : "Pas d'air ! Il faut un casque-combinaison spatial.")
+        player.sendOverlayMessage(Component.literal(suited ? "Oxygène épuisé ! Ajoute des bouteilles dans ta combinaison (touche J)." : "Pas d'air ! Il faut un casque-combinaison spatial (touche J).")
                 .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
         player.hurtServer(player.level(), player.damageSources().drown(), 2.0f);
     }

@@ -124,7 +124,9 @@ public final class GeoMod implements ModInitializer {
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR, Identifier.fromNamespaceAndPath(MOD_ID, "moon"), MoonChunkGenerator.CODEC);
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR, Identifier.fromNamespaceAndPath(MOD_ID, "mars"), MarsChunkGenerator.CODEC);
 
+        SpaceSuit.register();
         PayloadTypeRegistry.serverboundPlay().register(StartPointPayload.TYPE, StartPointPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(OpenSuitPayload.TYPE, OpenSuitPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(OpenMapPayload.TYPE, OpenMapPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(SheetPayload.TYPE, SheetPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(MissionPayload.TYPE, MissionPayload.CODEC);
@@ -140,6 +142,11 @@ public final class GeoMod implements ModInitializer {
         ServerPlayNetworking.registerGlobalReceiver(RequestSheetPayload.TYPE, (payload, context) -> {
             if (GUI_RATE.allow(context.player())) {
                 Progression.get().sendSheet(context.player());
+            }
+        });
+        ServerPlayNetworking.registerGlobalReceiver(OpenSuitPayload.TYPE, (payload, context) -> {
+            if (GUI_RATE.allow(context.player()) && !context.player().isSpectator()) {
+                SpaceSuit.open(context.player());
             }
         });
         ServerPlayNetworking.registerGlobalReceiver(RequestMissionsPayload.TYPE, (payload, context) -> {

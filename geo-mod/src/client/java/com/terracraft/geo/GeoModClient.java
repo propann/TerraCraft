@@ -28,6 +28,12 @@ public final class GeoModClient implements ClientModInitializer {
     private static final int SNIPER_FOV = 22;
     private static Integer fovBeforeSniper = null;
 
+    static void openSuit(Minecraft client) {
+        if (client.player != null && ClientPlayNetworking.canSend(OpenSuitPayload.TYPE)) {
+            ClientPlayNetworking.send(OpenSuitPayload.INSTANCE);
+        }
+    }
+
     @Override
     public void onInitializeClient() {
         // Le serveur décide quand ouvrir la carte (premier choix ou /terracraft depart).
@@ -39,6 +45,12 @@ public final class GeoModClient implements ClientModInitializer {
                 InputConstants.KEY_K, KeyMapping.Category.GAMEPLAY));
         KeyMapping menuKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.terracraft_geo.menu",
                 InputConstants.KEY_O, KeyMapping.Category.GAMEPLAY));
+        KeyMapping suitKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.terracraft_geo.suit",
+                InputConstants.KEY_J, KeyMapping.Category.GAMEPLAY));
+        // Combinaison spatiale : fenêtre (le serveur ouvre le menu) et bandeau d'oxygène hors de la Terre.
+        net.minecraft.client.gui.screens.MenuScreens.register(SpaceSuit.MENU, SuitScreen::new);
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
+                Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "oxygen"), new OxygenHud());
         ClientPlayNetworking.registerGlobalReceiver(SheetPayload.TYPE, (payload, context) ->
                 context.client().gui.setScreen(new CharacterSheetScreen(payload.json())));
         ClientPlayNetworking.registerGlobalReceiver(MissionPayload.TYPE, (payload, context) ->
@@ -50,6 +62,9 @@ public final class GeoModClient implements ClientModInitializer {
                 if (client.player != null && ClientPlayNetworking.canSend(RequestSheetPayload.TYPE)) {
                     ClientPlayNetworking.send(RequestSheetPayload.INSTANCE);
                 }
+            }
+            while (suitKey.consumeClick()) {
+                openSuit(client);
             }
             while (menuKey.consumeClick()) {
                 if (client.player != null) {
