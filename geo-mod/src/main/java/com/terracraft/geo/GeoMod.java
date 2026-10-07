@@ -126,6 +126,13 @@ public final class GeoMod implements ModInitializer {
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR, Identifier.fromNamespaceAndPath(MOD_ID, "mars"), MarsChunkGenerator.CODEC);
 
         SpaceSuit.register();
+        // Charge tout de suite la classe modifiée par nos mixins : un mixin cassé fait échouer
+        // le démarrage (et donc le test automatique), au lieu de planter à la première connexion.
+        try {
+            Class.forName("net.minecraft.world.inventory.InventoryMenu", false, GeoMod.class.getClassLoader());
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("InventoryMenu introuvable", e);
+        }
         PayloadTypeRegistry.serverboundPlay().register(StartPointPayload.TYPE, StartPointPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(OpenSuitPayload.TYPE, OpenSuitPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(OpenMapPayload.TYPE, OpenMapPayload.CODEC);
@@ -139,6 +146,8 @@ public final class GeoMod implements ModInitializer {
         PayloadTypeRegistry.serverboundPlay().register(RequestMarketPayload.TYPE, RequestMarketPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(BuyListingPayload.TYPE, BuyListingPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RemoveListingPayload.TYPE, RemoveListingPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(SellPayload.TYPE, SellPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(BuyShopPayload.TYPE, BuyShopPayload.CODEC);
         // Les écrans envoient ces paquets sur un clic : au-delà de quelques par seconde, c'est un
         // client modifié qui inonde le serveur (chaque achat écrit sur le disque).
         ServerPlayNetworking.registerGlobalReceiver(RequestSheetPayload.TYPE, (payload, context) -> {
@@ -163,12 +172,24 @@ public final class GeoMod implements ModInitializer {
         });
         ServerPlayNetworking.registerGlobalReceiver(RequestMarketPayload.TYPE, (payload, context) -> {
             if (GUI_RATE.allow(context.player())) {
-                AUCTION_HOUSE.sendMarket(context.player(), payload.page());
+                AUCTION_HOUSE.sendMarket(context.player(), payload.page(), payload.category());
             }
         });
         ServerPlayNetworking.registerGlobalReceiver(BuyListingPayload.TYPE, (payload, context) -> {
             if (GUI_RATE.allow(context.player())) {
                 AUCTION_HOUSE.buyFromClient(context.player(), payload.id());
+                AUCTION_HOUSE.sendMarket(context.player());
+            }
+        });
+        ServerPlayNetworking.registerGlobalReceiver(SellPayload.TYPE, (payload, context) -> {
+            if (GUI_RATE.allow(context.player())) {
+                AUCTION_HOUSE.sellFromClient(context.player(), payload.price());
+                AUCTION_HOUSE.sendMarket(context.player());
+            }
+        });
+        ServerPlayNetworking.registerGlobalReceiver(BuyShopPayload.TYPE, (payload, context) -> {
+            if (GUI_RATE.allow(context.player())) {
+                AUCTION_HOUSE.buyShopFromClient(context.player(), payload.index());
                 AUCTION_HOUSE.sendMarket(context.player());
             }
         });
@@ -255,6 +276,7 @@ public final class GeoMod implements ModInitializer {
             GUI_RATE.forget(handler.player);
             ANTI_FLY.forget(handler.player);
             Tutorial.get().onLeave(handler.player);
+            AUCTION_HOUSE.onLeave(handler.player);
             SURVIVAL.onLeave(handler.player);
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> SURVIVAL.register(dispatcher));

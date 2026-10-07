@@ -34,7 +34,7 @@ import java.util.UUID;
 /** Économie légère et hôtel des ventes persistant, sans dépendance client supplémentaire. */
 public final class AuctionHouse {
     private static final long STARTING_BALANCE = 1_000;
-    private static final int PAGE_SIZE = 8;
+    private static final int PAGE_SIZE = 6;
     private static final int MAX_LISTINGS_PER_PLAYER = 12;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -51,6 +51,7 @@ public final class AuctionHouse {
     private Path listingFile;
     private long nextId = 1;
     private MinecraftServer server;
+    private final Economy economy = new Economy();
 
     void load(MinecraftServer server) {
         this.server = server;
@@ -59,6 +60,7 @@ public final class AuctionHouse {
         listingFile = root.resolve("hotel-des-ventes.json");
         balances.clear();
         listings.clear();
+        economy.load(server);
         Map<String, Long> storedBalances = JsonStore.load(balanceFile,
                 json -> GSON.fromJson(json, new TypeToken<Map<String, Long>>() { }.getType()));
         if (storedBalances != null) {
@@ -83,6 +85,7 @@ public final class AuctionHouse {
             balances.forEach((uuid, amount) -> storedBalances.put(uuid.toString(), amount));
             JsonStore.write(balanceFile, GSON.toJson(storedBalances));
             JsonStore.write(listingFile, GSON.toJson(new ArrayList<>(listings.values())));
+            economy.save();
         } catch (IOException e) {
             GeoMod.LOGGER.error("Impossible d'enregistrer l'économie TerraCraft", e);
         }
@@ -109,11 +112,18 @@ public final class AuctionHouse {
                                 .then(Commands.argument("montant", IntegerArgumentType.integer(1, 1_000_000_000))
                                         .executes(c -> give(c.getSource(),
                                                 net.minecraft.commands.arguments.EntityArgument.getPlayer(c, "joueur"),
-                                                IntegerArgumentType.getInteger(c, "montant")))))));
+                                                IntegerArgumentType.getInteger(c, "montant"))))))
+                .then(Commands.literal("stats").executes(c -> stats(c.getSource()))));
+        dispatcher.register(Commands.literal("comptoir").executes(c -> showShop(c.getSource().getPlayerOrException()))
+                .then(Commands.argument("offre", IntegerArgumentType.integer(1, Economy.SHOP.size()))
+                        .executes(c -> buyShop(c.getSource().getPlayerOrException(), IntegerArgumentType.getInteger(c, "offre") - 1))));
     }
 
     private long balanceOf(UUID uuid) {
-        return balances.computeIfAbsent(uuid, ignored -> STARTING_BALANCE);
+        return balances.computeIfAbsent(uuid, ignored -> {
+            economy.created("depart", STARTING_BALANCE);
+            return STARTING_BALANCE;
+        });
     }
 
     void credit(ServerPlayer player, long amount, String reason) {
@@ -121,6 +131,7 @@ public final class AuctionHouse {
             return;
         }
         balances.put(player.getUUID(), balanceOf(player.getUUID()) + amount);
+        economy.created("recompenses", amount);
         save();
         player.sendSystemMessage(Component.literal("✦ +" + amount + " crédits — " + reason)
                 .withStyle(ChatFormatting.GREEN));
@@ -179,6 +190,12 @@ public final class AuctionHouse {
             player.sendSystemMessage(Component.literal("Tu as atteint la limite de " + MAX_LISTINGS_PER_PLAYER + " annonces.").withStyle(ChatFormatting.RED));
             return 0;
         }
+        long fee = Economy.listingFee(price);
+        if (balanceOf(player.getUUID()) < fee) {
+            player.sendSystemMessage(Component.literal("Il te faut " + fee + " crédits pour les frais de mise en vente (2 %).")
+                    .withStyle(ChatFormatting.RED));
+            return 0;
+        }
         String itemId = BuiltInRegistries.ITEM.getKey(held.getItem()).toString();
         int amount = held.getCount();
         String encoded = encode(held);
@@ -187,13 +204,15 @@ public final class AuctionHouse {
             return 0;
         }
         held.setCount(0);
+        balances.put(player.getUUID(), balanceOf(player.getUUID()) - fee);
+        economy.destroyed("frais_hdv", fee);
         Listing listing = new Listing(nextId++, player.getUUID(), player.getName().getString(), itemId, amount, price, encoded);
         listings.put(listing.id(), listing);
         save();
         GeoMod.LOGGER.info("[HDV] {} met en vente #{} : {} x{} pour {} crédits",
                 player.getName().getString(), listing.id(), itemId, amount, price);
         player.sendSystemMessage(Component.literal("Annonce #" + listing.id() + " créée : " + displayName(itemId) + " x" + amount
-                + " pour " + price + " crédits.").withStyle(ChatFormatting.GREEN));
+                + " pour " + price + " crédits (frais : " + fee + ").").withStyle(ChatFormatting.GREEN));
         return 1;
     }
 
@@ -226,6 +245,7 @@ public final class AuctionHouse {
         balances.put(listing.seller(), balanceOf(listing.seller()) + listing.price());
         listings.remove(id);
         give(buyer, item);
+        economy.recordSale(listing.itemId(), listing.count(), listing.price());
         save();
         GeoMod.LOGGER.info("[HDV] {} achète #{} ({} x{}) à {} pour {} crédits", buyer.getName().getString(), id,
                 listing.itemId(), listing.count(), listing.sellerName(), listing.price());
@@ -247,31 +267,162 @@ public final class AuctionHouse {
         remove(player, id);
     }
 
-    void sendMarket(ServerPlayer player) {
-        sendMarket(player, 1);
+    /** Dernière vue (page, catégorie) de chaque joueur : un achat ne le renvoie pas à la page 1. */
+    private final Map<UUID, Object[]> views = new HashMap<>();
+
+    void onLeave(ServerPlayer player) {
+        views.remove(player.getUUID());
     }
 
-    void sendMarket(ServerPlayer player, int page) {
+    void sendMarket(ServerPlayer player) {
+        Object[] view = views.getOrDefault(player.getUUID(), new Object[]{1, "TOUT"});
+        sendMarket(player, (int) view[0], (String) view[1]);
+    }
+
+    void sellFromClient(ServerPlayer player, long price) {
+        if (price >= 1 && price <= 1_000_000_000) {
+            sell(player, price);
+        }
+    }
+
+    void buyShopFromClient(ServerPlayer player, int index) {
+        if (index >= 0 && index < Economy.SHOP.size()) {
+            buyShop(player, index);
+        }
+    }
+
+    /** Écran de l'hôtel des ventes : annonces filtrées, prix moyens, comptoir et objet en main. */
+    void sendMarket(ServerPlayer player, int page, String categoryName) {
         Tutorial.get().mark(player, "market");
+        Economy.Category category = Economy.Category.parse(categoryName);
+        views.put(player.getUUID(), new Object[]{page, category.name()});
         com.google.gson.JsonObject root = new com.google.gson.JsonObject();
         root.addProperty("balance", balanceOf(player.getUUID()));
-        int pages = Math.max(1, (listings.size() + PAGE_SIZE - 1) / PAGE_SIZE);
+        root.addProperty("category", category.name());
+        root.addProperty("feePerMille", Economy.LISTING_FEE_PER_MILLE);
+
+        Map<Economy.Category, Integer> counts = new java.util.EnumMap<>(Economy.Category.class);
+        List<Listing> shown = new ArrayList<>();
+        for (Listing listing : listings.values()) {
+            Economy.Category of = Economy.categoryOf(sample(listing));
+            counts.merge(of, 1, Integer::sum);
+            if (category == Economy.Category.TOUT || category == of) {
+                shown.add(listing);
+            }
+        }
+        com.google.gson.JsonArray categories = new com.google.gson.JsonArray();
+        for (Economy.Category c : Economy.Category.values()) {
+            com.google.gson.JsonObject o = new com.google.gson.JsonObject();
+            o.addProperty("key", c.name());
+            o.addProperty("label", c.label);
+            o.addProperty("count", c == Economy.Category.TOUT ? listings.size() : counts.getOrDefault(c, 0));
+            categories.add(o);
+        }
+        root.add("categories", categories);
+
+        int pages = Math.max(1, (shown.size() + PAGE_SIZE - 1) / PAGE_SIZE);
         page = Math.max(1, Math.min(page, pages));
         root.addProperty("page", page);
         root.addProperty("pages", pages);
         com.google.gson.JsonArray rows = new com.google.gson.JsonArray();
-        listings.values().stream().skip((long) (page - 1) * PAGE_SIZE).limit(PAGE_SIZE).forEach(listing -> {
+        shown.stream().skip((long) (page - 1) * PAGE_SIZE).limit(PAGE_SIZE).forEach(listing -> {
             com.google.gson.JsonObject row = new com.google.gson.JsonObject();
             row.addProperty("id", listing.id());
             row.addProperty("item", displayName(listing.itemId()));
+            row.addProperty("itemId", listing.itemId());
             row.addProperty("count", listing.count());
             row.addProperty("price", listing.price());
             row.addProperty("seller", listing.sellerName());
             row.addProperty("own", listing.seller().equals(player.getUUID()));
+            row.addProperty("average", economy.averageUnitPrice(listing.itemId()));
             rows.add(row);
         });
         root.add("listings", rows);
+
+        com.google.gson.JsonArray shop = new com.google.gson.JsonArray();
+        for (int i = 0; i < Economy.SHOP.size(); i++) {
+            Economy.Offer offer = Economy.SHOP.get(i);
+            com.google.gson.JsonObject o = new com.google.gson.JsonObject();
+            o.addProperty("index", i);
+            o.addProperty("label", offer.label());
+            o.addProperty("itemId", BuiltInRegistries.ITEM.getKey(offer.item().get()).toString());
+            o.addProperty("count", offer.count());
+            o.addProperty("price", offer.price());
+            shop.add(o);
+        }
+        root.add("shop", shop);
+
+        ItemStack held = player.getMainHandItem();
+        if (!held.isEmpty()) {
+            String heldId = BuiltInRegistries.ITEM.getKey(held.getItem()).toString();
+            root.addProperty("held", held.getHoverName().getString());
+            root.addProperty("heldId", heldId);
+            root.addProperty("heldCount", held.getCount());
+            root.addProperty("heldAverage", economy.averageUnitPrice(heldId));
+        }
         net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player, new MarketPayload(GSON.toJson(root)));
+    }
+
+    /** Objet type d'une annonce, pour sa catégorie (sans décoder tous ses composants). */
+    private static ItemStack sample(Listing listing) {
+        try {
+            return new ItemStack(BuiltInRegistries.ITEM.getValue(Identifier.parse(listing.itemId())));
+        } catch (RuntimeException e) {
+            return ItemStack.EMPTY;
+        }
+    }
+
+    // --- Comptoir du serveur -------------------------------------------------------------------
+
+    private int showShop(ServerPlayer player) {
+        player.sendSystemMessage(Component.literal("✦ Comptoir TerraCraft · solde " + balanceOf(player.getUUID()) + " crédits")
+                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+        for (int i = 0; i < Economy.SHOP.size(); i++) {
+            Economy.Offer offer = Economy.SHOP.get(i);
+            int number = i + 1;
+            player.sendSystemMessage(Component.literal("[Acheter] ").withStyle(style -> style.withColor(ChatFormatting.GREEN)
+                            .withClickEvent(new ClickEvent.RunCommand("/comptoir " + number)))
+                    .append(Component.literal(offer.label() + " x" + offer.count() + " — " + offer.price() + " crédits")
+                            .withStyle(ChatFormatting.WHITE)));
+        }
+        return 1;
+    }
+
+    private int buyShop(ServerPlayer player, int index) {
+        Economy.Offer offer = Economy.SHOP.get(index);
+        if (balanceOf(player.getUUID()) < offer.price()) {
+            player.sendSystemMessage(Component.literal("Solde insuffisant : il te faut " + offer.price() + " crédits.").withStyle(ChatFormatting.RED));
+            return 0;
+        }
+        ItemStack stack = offer.stack();
+        if (!hasRoom(player, stack)) {
+            player.sendSystemMessage(Component.literal("Ton inventaire est plein.").withStyle(ChatFormatting.RED));
+            return 0;
+        }
+        balances.put(player.getUUID(), balanceOf(player.getUUID()) - offer.price());
+        economy.destroyed("comptoir", offer.price());
+        give(player, stack);
+        save();
+        GeoMod.LOGGER.info("[ECO] {} achète au comptoir : {} x{} pour {} crédits", player.getName().getString(),
+                offer.label(), offer.count(), offer.price());
+        player.sendSystemMessage(Component.literal("Comptoir : " + offer.label() + " x" + offer.count() + " pour "
+                + offer.price() + " crédits.").withStyle(ChatFormatting.GREEN));
+        return 1;
+    }
+
+    // --- Journal économique (opérateurs) -------------------------------------------------------
+
+    private int stats(CommandSourceStack source) {
+        long circulation = balances.values().stream().mapToLong(Long::longValue).sum();
+        long created = economy.createdTotals().values().stream().mapToLong(Long::longValue).sum();
+        long destroyed = economy.destroyedTotals().values().stream().mapToLong(Long::longValue).sum();
+        long listed = listings.values().stream().mapToLong(Listing::price).sum();
+        source.sendSuccess(() -> Component.literal("✦ Économie TerraCraft").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
+        source.sendSuccess(() -> Component.literal("Comptes : " + balances.size() + " · en circulation : " + circulation + " crédits"), false);
+        source.sendSuccess(() -> Component.literal("Créés : " + created + " " + economy.createdTotals()).withStyle(ChatFormatting.GREEN), false);
+        source.sendSuccess(() -> Component.literal("Détruits : " + destroyed + " " + economy.destroyedTotals()).withStyle(ChatFormatting.RED), false);
+        source.sendSuccess(() -> Component.literal("Annonces : " + listings.size() + " pour " + listed + " crédits demandés"), false);
+        return 1;
     }
 
     private int remove(ServerPlayer player, long id) {
@@ -295,6 +446,7 @@ public final class AuctionHouse {
 
     private int give(CommandSourceStack source, ServerPlayer target, long amount) {
         balances.put(target.getUUID(), balanceOf(target.getUUID()) + amount);
+        economy.created("admin", amount);
         save();
         GeoMod.LOGGER.info("[ECO] {} donne {} crédits à {}", source.getTextName(), amount, target.getName().getString());
         target.sendSystemMessage(Component.literal("Tu reçois " + amount + " crédits.").withStyle(ChatFormatting.GOLD));
