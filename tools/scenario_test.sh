@@ -72,6 +72,29 @@ cmd "execute as Alice run terracraft contamination" 1
 cmd "execute as Alice run terracraft contamination aller" 8
 cmd "effect clear Alice minecraft:poison" 1
 cmd "tp Alice 0 201 0" 2
+# PvE par défaut : Alice ne peut pas blesser Bob ; dans une zone PvP, si
+cmd "tp Bob 3 201 3" 2
+cmd "damage Bob 2 minecraft:player_attack by Alice" 1
+cmd "execute as Alice at Alice run pvp creer 30 Arene de test" 1
+cmd "damage Bob 2 minecraft:player_attack by Alice" 1
+cmd "execute as Alice run pvp supprimer Arene de test" 1
+cmd "effect give Bob minecraft:instant_health 1 3 true" 1
+# Vague nocturne forcée sur Bourg Neuf : trois vagues repoussées, récompense à la trésorerie
+cmd "effect give Alice minecraft:resistance 300 255 true" 1
+cmd "effect give Bob minecraft:resistance 300 255 true" 1
+cmd "execute as Alice run terracraft vague" 13
+cmd "kill @e[type=minecraft:zombie]" 0
+cmd "kill @e[type=#minecraft:skeletons]" 0
+cmd "kill @e[type=minecraft:spider]" 0
+cmd "kill @e[type=minecraft:vindicator]" 3
+cmd "kill @e[type=minecraft:zombie]" 0
+cmd "kill @e[type=#minecraft:skeletons]" 0
+cmd "kill @e[type=minecraft:spider]" 0
+cmd "kill @e[type=minecraft:vindicator]" 3
+cmd "kill @e[type=minecraft:zombie]" 0
+cmd "kill @e[type=#minecraft:skeletons]" 0
+cmd "kill @e[type=minecraft:spider]" 0
+cmd "kill @e[type=minecraft:vindicator]" 3
 cmd "execute as Bob run missions" 1
 # Combinaison spatiale (clic droit avec chaque pièce)
 cmd "item replace entity Bob weapon.mainhand with terracraft_geo:space_helmet"
@@ -194,21 +217,24 @@ def check(condition, message):
         failures.append(message)
 
 towns = json.loads((data / "villes.json").read_text())
+eco_created = json.loads((data / "economie.json").read_text())["created"]
 check(len(towns) == 1 and towns[0]["name"] == "Bourg Neuf", "ville fondée")
 check(len(towns[0]["members"]) == 2, "Bob a rejoint la ville")
-check(towns[0]["treasury"] == 150, "trésorerie = 200 déposés - 50 payés")
+check(towns[0]["treasury"] == 150 + eco_created.get("vague_nocturne", 0), "trésorerie = 200 déposés - 50 payés (+ récompense de vague)")
 balances = sorted(json.loads((data / "balances.json").read_text()).values())
 check(balances == [400, 888], f"soldes Alice 400 / Bob 888 (obtenu {balances})")
 eco = json.loads((data / "economie.json").read_text())
 created, destroyed = sum(eco["created"].values()), sum(eco["destroyed"].values())
-check(created == sum(balances) + 150 + destroyed, "aucun crédit perdu ni créé : créés = comptes + trésorerie + détruits")
+check(created == sum(balances) + towns[0]["treasury"] + destroyed, "aucun crédit perdu ni créé : créés = comptes + trésorerie + détruits")
 check(eco["destroyed"].get("frais_hdv") == 2 and eco["destroyed"].get("comptoir") == 60, "frais de 2 % et comptoir")
 check(re.search(r"Teleported Bob|Bienvenue au centre", log) is not None or "ville tp" in log, "retour au centre-ville")
 suit = re.findall(r'"terracraft_geo:space_suit": \[(.*?)\]\}', log)
 check(bool(suit) and "space_helmet" in suit[-1] and "jetpack" in suit[-1] and "oxygen_tank" in suit[-1],
       "casque, bouteilles et jetpack portés par clic droit")
 check(bool(suit) and '"minecraft:damage"' in suit[-1], "le casque consomme de l'oxygène sur la Lune")
-check(re.search(r"Bob has the following entity data: 20\.0f", log) is not None, "Bob respire (aucun dégât)")
+health = [float(h) for h in re.findall(r"Bob has the following entity data: (\d+\.\d+)f", log)]
+# Santé pleine (20, ou plus si un palier a ajouté des cœurs) : l'oxygène a protégé Bob sur la Lune.
+check(bool(health) and health[0] >= 20, f"Bob respire (aucun dégât, santé {health[:1]})")
 progression = json.loads((data / "progression.json").read_text())
 jobs = sorted(r.get("job") or "" for r in progression.values())
 check(jobs == ["MECANICIEN", "PILOTE"], f"métiers enregistrés (obtenu {jobs})")
@@ -265,6 +291,13 @@ check("Zone contaminée la plus proche" in log, "zones contaminées : zone la pl
 check("Removed effect Poison from Alice" in log or "Removed effect Poison from [Bourg Neuf] Alice" in log,
       "zone contaminée : poison sans casque ni combinaison")
 check(any("contamination" in r.get("discoveries", []) for r in progress.values()), "découverte « Compteur Geiger »")
+
+damages = re.findall(r"(Applied 2\.0 damage to Bob|Target is invulnerable to the given damage type)", log)
+check(damages[:2] == ["Target is invulnerable to the given damage type", "Applied 2.0 damage to Bob"],
+      f"PvE par défaut, PvP dans une zone déclarée (obtenu {damages[:2]})")
+check("[VAGUE] Bourg Neuf : vague 3/3" in log, "vague nocturne : trois vagues lancées sur Bourg Neuf")
+check("ville défendue" in log and eco_created.get("vague_nocturne") == 250, "vague nocturne repoussée : 250 crédits pour la trésorerie")
+check(any("rampart" in r.get("discoveries", []) for r in progress.values()), "découverte « Rempart »")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

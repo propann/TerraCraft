@@ -159,6 +159,21 @@ final class Towns {
         return TEAM_PREFIX + key(town.name).replaceAll("[^a-z0-9_.-]", "_");
     }
 
+    /** Toutes les villes (vagues nocturnes). */
+    java.util.Collection<Town> all() {
+        return java.util.List.copyOf(towns.values());
+    }
+
+    /** Récompense versée à la trésorerie : crédits créés, déclarés à l'économie (/eco stats reste juste). */
+    void reward(Town town, long amount, String source) {
+        if (amount <= 0) {
+            return;
+        }
+        bank.createCredits(source, amount);
+        town.treasury += amount;
+        save();
+    }
+
     Town townOf(UUID player) {
         for (Town town : towns.values()) {
             if (town.members.contains(player)) {
@@ -556,7 +571,7 @@ final class Towns {
                 player.getYRot());
     }
 
-    private void tellMembers(Town town, Component message) {
+    void tellMembers(Town town, Component message) {
         if (server == null) {
             return;
         }

@@ -89,9 +89,11 @@ génération ni perte d'objet.
       armée (zombies et squelettes casqués, pillards), annonce et fumée.
 - [x] **Zones contaminées** fixes (18 % des carrés de 1 024 blocs, rayon 40 à 110) : poison et faim sans casque et
       combinaison, wither au cœur, compteur à l'approche, cache de matériel au centre (une par zone).
-- [ ] **Vague nocturne sur une ville** : intention — une nuit sur sept, des vagues de monstres convergent vers le centre
-      d'une ville dont des habitants sont en ligne ; récompense versée à la trésorerie si la ville tient.
-- [ ] **Zones PvP explicites** (affichées à l'entrée) et PvE partout ailleurs ; primes seulement en zone PvP.
+- [x] **Vague nocturne sur une ville** : une chance sur sept à la tombée de la nuit pour chaque ville défendue (un
+      habitant à moins de 64 blocs du centre) ; trois vagues convergent vers le centre ; 70 % repoussés avant l'aube :
+      100 + 50 crédits par vague pour la trésorerie, découverte « Rempart ».
+- [x] **Zones PvP explicites** : PvE partout, PvP seulement dans les cercles déclarés (`/pvp creer <rayon> <nom>`),
+      titre à l'entrée et à la sortie. Reste : primes en zone PvP.
 - [ ] **Boss rares** dans les bunkers profonds, avec butin unique.
 - [ ] **Textures et icônes** des armes et pièces à reprendre (cohérence visuelle).
 

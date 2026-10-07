@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.22", "Vagues nocturnes sur les villes, PvE partout et PvP seulement dans les zones affichées (/pvp)"),
             new Change("0.21", "Convois militaires en panne à attaquer, zones contaminées (combinaison requise)"),
             new Change("0.20", "Confirmation avant de fonder ou dissoudre une ville, ou de vendre à prix cassé"),
             new Change("0.19", "Jour et nuit normaux, barres de vie, chat et menu O refaits, villes affichées devant le pseudo"),

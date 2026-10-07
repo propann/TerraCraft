@@ -146,6 +146,12 @@ public final class AuctionHouse {
         return true;
     }
 
+    /** Création monétaire hors des comptes (récompense versée à une trésorerie de ville). */
+    void createCredits(String source, long amount) {
+        economy.created(source, amount);
+        save();
+    }
+
     /** Verse des crédits venant d'une trésorerie (pas de création monétaire). */
     void deposit(UUID uuid, long amount) {
         if (amount > 0) {

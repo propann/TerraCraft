@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.21). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.22). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -39,6 +39,7 @@ Référence de TerraCraft (version 0.21). Tout est en français ; `/aide` en don
 | `/atelier installer <plan>` | Installer une amélioration sur la fusée garée près d'un atelier de station |
 | `/terracraft ou` | Latitude, longitude et altitude réelles de sa position |
 | `/terracraft vehicule partager|retirer <joueur>`, `liberer` | Partage et propriété de son véhicule |
+| `/pvp` | Règle de combat : PvE partout, liste des zones PvP |
 | `/confirmer`, `/annuler` | Valider ou abandonner une action coûteuse en attente (boutons cliquables dans le chat, 30 s) |
 | `/signaler <message>` | Signaler un bug ou une perte d'objet aux administrateurs (un par minute) |
 
@@ -50,6 +51,8 @@ Référence de TerraCraft (version 0.21). Tout est en français ; `/aide` en don
 | `/eco stats` | Crédits créés, détruits, en circulation et dans les trésoreries des villes |
 | `/terracraft sauvegarde [liste]` | Sauvegarde immédiate du monde ; liste des archives (`backups/`) |
 | `/terracraft largage` | Ravitaillement militaire près de soi |
+| `/pvp creer <rayon> <nom>`, `/pvp supprimer <nom>` | Déclarer ou retirer une zone PvP centrée sur soi |
+| `/terracraft vague` | Vague nocturne immédiate sur sa ville (s'arrête au bout de 10 min) |
 | `/terracraft convoi` | Convoi militaire en panne près de soi |
 | `/terracraft contamination [aller]` | Zone contaminée la plus proche (et s'y rendre) |
 | `/terracraft fusee decoller` | Lancer la fusée où l'on est assis (mêmes vérifications que la touche Espace) |
@@ -61,9 +64,9 @@ Référence de TerraCraft (version 0.21). Tout est en français ; `/aide` en don
 
 ## Journal de la console
 
-Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`,
+Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`,
 `[STATION]`, `[ATELIER]`, `[NAV]`, `[METEORES]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
 
 Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,
 `hotel-des-ventes.json`, `economie.json`, `missions.json`, `contrats.json`, `progression.json`, `homes.json`,
-`start_points.json`, `tutorial.json`, `villes.json`, `stations.json`, `signalements.json`, `contamination.json`.
+`start_points.json`, `tutorial.json`, `villes.json`, `stations.json`, `signalements.json`, `contamination.json`, `pvp-zones.json`.

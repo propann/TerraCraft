@@ -19,14 +19,14 @@ Launcher Minecraft officiel : installeurs Windows et Linux dans [`installer/`](i
 main : dossier [`mods/`](mods/LISEZMOI.md). **Le pack doit avoir la même version que le serveur** : après une mise à
 jour, réimporte-le. Toutes les versions : [Releases](https://github.com/propann/TerraCraft/releases).
 
-## Ce qui est en place (0.21.0)
+## Ce qui est en place (0.22.0)
 
 - **Monde** : relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés, carte de départ en jeu.
 - **Survie** : inventaire conservé à la mort (−25 % d'expérience), `/sethome` `/home` `/back` `/tpa` (refusés en combat).
 - **Accueil** : carte de départ, parcours « Premiers pas » récompensé, carnet de survie, accueil des habitués avec les nouveautés, liste des joueurs et des serveurs soignées.
 - **Économie** : 1 000 crédits au départ, hôtel des ventes par catégories avec prix moyens, comptoir (`/comptoir`), missions.
 - **Équipement** : armes à chargeur, véhicules (voiture, camion, moto) avec propriétaire, coffre et partage, avion, jetpack.
-- **Espace** : station orbitale d'abord (kit déployé au premier vol), bases lunaire et martienne en kit, rover lunaire, sous-sol lunaire (cavernes, sanctuaires et pyramides extraterrestres), carte des étoiles, dangers lunaires (micrométéorites, nuit lunaire), barres de vie, chat et menu soignés, convois militaires et zones contaminées, fusées à 1-4 réservoirs, orbite lunaire, Lune, Mars ; stations en kit (modules pressurisés, balise d'arrivée, `/station`), plans de fusée (`/plans`) et atelier de station ; combinaison spatiale dessinée comme une armure.
+- **Espace** : station orbitale d'abord (kit déployé au premier vol), bases lunaire et martienne en kit, rover lunaire, sous-sol lunaire (cavernes, sanctuaires et pyramides extraterrestres), carte des étoiles, dangers lunaires (micrométéorites, nuit lunaire), barres de vie, chat et menu soignés, convois militaires, zones contaminées, vagues nocturnes, PvE avec zones PvP, fusées à 1-4 réservoirs, orbite lunaire, Lune, Mars ; stations en kit (modules pressurisés, balise d'arrivée, `/station`), plans de fusée (`/plans`) et atelier de station ; combinaison spatiale dessinée comme une armure.
 - **Villes** : `/ville` (fondation, habitants, maire, trésorerie commune, retour au centre-ville, titres d'entrée).
 - **Missions** : contrats du jour, missions permanentes, métiers (`/metier`), ravitaillements militaires.
 - **Claims** : Open Parties and Claims ; cartes Xaero.

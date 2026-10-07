@@ -83,6 +83,9 @@ final class Arrival {
                 "DANGERS SUR TERRE\n\nCONVOI MILITAIRE : un camion en panne, annoncé à tous, gardé par une escorte armée. "
                         + "Caisse de matériel à côté ; le camion (une roue à remplacer) revient au premier qui le prend.\n"
                         + "☢ ZONE CONTAMINÉE : poison sans casque et combinaison spatiaux (J). Une cache t'attend au cœur.",
+                "VILLES ET COMBAT\n\nPvE partout : les joueurs ne peuvent se battre que dans les ZONES PVP (titre rouge, /pvp).\n"
+                        + "VAGUE NOCTURNE : certaines nuits, des hordes attaquent une ville dont un habitant est présent. Tenez jusqu'à "
+                        + "l'aube : la trésorerie est récompensée.",
                 "DANGERS LUNAIRES\n\nPLUIE DE MICROMÉTÉORITES : annoncée 30 s avant, elle dure une minute. Mets-toi sous un toit "
                         + "(base, module, grotte, cabine de fusée). Les impacts laissent parfois des fragments.\nLa NUIT LUNAIRE, les rôdeurs sont plus rapides et plus forts.",
                 "STATIONS\n\nBalise de station : tes fusées s'y posent.\nKit de module : clic droit sur le sol "

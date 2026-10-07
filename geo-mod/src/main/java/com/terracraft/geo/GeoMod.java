@@ -62,6 +62,8 @@ public final class GeoMod implements ModInitializer {
     private static final AntiFly ANTI_FLY = new AntiFly();
     private static final Backups BACKUPS = new Backups();
     private static final Towns TOWNS = new Towns(AUCTION_HOUSE);
+    private static final NightRaids RAIDS = new NightRaids(TOWNS);
+    private static final PvpZones PVP = new PvpZones();
     private static final Contracts CONTRACTS = new Contracts(AUCTION_HOUSE);
     private static final Claims CLAIMS = new Claims();
     private static final SupplyDrops SUPPLY = new SupplyDrops();
@@ -281,6 +283,11 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(AUCTION_HOUSE::load);
         ServerLifecycleEvents.SERVER_STARTED.register(MISSIONS::load);
         ServerLifecycleEvents.SERVER_STARTED.register(CONTAMINATION::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(PVP::load);
+        ServerTickEvents.END_SERVER_TICK.register(RAIDS::tick);
+        ServerTickEvents.END_SERVER_TICK.register(PVP::tick);
+        ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> PVP.allowDamage(entity, source));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> PVP.register(dispatcher));
         ServerTickEvents.END_SERVER_TICK.register(CONVOYS::tick);
         ServerTickEvents.END_SERVER_TICK.register(CONTAMINATION::tick);
         Tutorial.get().wire(SURVIVAL, MISSIONS, AUCTION_HOUSE, START_POINTS);
@@ -368,6 +375,7 @@ public final class GeoMod implements ModInitializer {
             Tutorial.get().onLeave(handler.player);
             AUCTION_HOUSE.onLeave(handler.player);
             TOWNS.onLeave(handler.player);
+            PVP.onLeave(handler.player);
             CLAIMS.onLeave(handler.player);
             REPORTS.onLeave(handler.player);
             SURVIVAL.onLeave(handler.player);
@@ -442,6 +450,15 @@ public final class GeoMod implements ModInitializer {
                                     var pos = SUPPLY.drop(command.getSource().getServer(), near);
                                     if (pos == null) {
                                         command.getSource().sendFailure(Component.literal("Aucun endroit chargé ne convient (joueur sur Terre requis)."));
+                                        return 0;
+                                    }
+                                    return 1;
+                                }))
+                        .then(Commands.literal("vague")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> {
+                                    if (!RAIDS.startNow(command.getSource().getPlayerOrException())) {
+                                        command.getSource().sendFailure(Component.literal("Il faut être habitant d'une ville sans vague en cours."));
                                         return 0;
                                     }
                                     return 1;
