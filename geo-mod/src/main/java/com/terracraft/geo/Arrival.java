@@ -74,8 +74,10 @@ final class Arrival {
                         + "cône, ailerons.\n3. 4 carburants de fusée.\n4. Monte, appuie sur Espace.",
                 "FUSÉE : RECETTES\n\nCoque : fer + blocs de cuivre\nMoteur : fer, bloc de redstone, haut fourneau\n"
                         + "Réservoir : cuivre + seau\nCône, ailerons : fer\nCarburant : essence + bloc de charbon + poudre",
-                "LA LUNE\n\nGravité 1/6. Pas d'air !\nCasque spatial : fer + verre. Sa barre = ton oxygène (10 min).\n"
-                        + "Bouteille d'oxygène (fer, cuivre, algue) : clic droit pour recharger.\n\n/terracraft ou : position réelle.");
+                "LA LUNE\n\nGravité 1/6. Pas d'air !\nTouche J : combinaison spatiale. Pose le casque (fer + verre) "
+                        + "et jusqu'à 16 bouteilles d'oxygène (fer, cuivre, algue).\nUne bouteille se branche seule à 50 %.",
+                "TOUCHES\n\nO : menu TerraCraft\nJ : combinaison spatiale\nK : fiche de personnage\nM : carte et claims\n"
+                        + "' : menu des claims\n\n/tuto : premiers pas\n/terracraft ou : position réelle");
         List<Filterable<Component>> content = pages.stream().map(p -> Filterable.passThrough((Component) Component.literal(p))).toList();
         ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
         book.set(DataComponents.WRITTEN_BOOK_CONTENT,

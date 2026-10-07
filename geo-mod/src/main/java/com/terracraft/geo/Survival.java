@@ -75,6 +75,10 @@ public final class Survival {
         }
     }
 
+    boolean hasHome(ServerPlayer player) {
+        return homes.containsKey(player.getUUID());
+    }
+
     // --- Mort ---------------------------------------------------------------------------------
 
     void onDeath(ServerPlayer player) {

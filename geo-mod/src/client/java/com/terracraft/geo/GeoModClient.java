@@ -51,6 +51,12 @@ public final class GeoModClient implements ClientModInitializer {
         net.minecraft.client.gui.screens.MenuScreens.register(SpaceSuit.MENU, SuitScreen::new);
         net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "oxygen"), new OxygenHud());
+        // Parcours « Premiers pas » : le serveur envoie l'objectif en cours, affiché à droite.
+        ClientPlayNetworking.registerGlobalReceiver(TutorialPayload.TYPE, (payload, context) -> TutorialHud.update(payload));
+        net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
+                TutorialHud.clear());
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
+                Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "tutorial"), new TutorialHud());
         ClientPlayNetworking.registerGlobalReceiver(SheetPayload.TYPE, (payload, context) ->
                 context.client().gui.setScreen(new CharacterSheetScreen(payload.json())));
         ClientPlayNetworking.registerGlobalReceiver(MissionPayload.TYPE, (payload, context) ->

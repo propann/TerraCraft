@@ -113,6 +113,7 @@ public final class Progression {
             new Discovery("first_launch", "Décollage — premier lancement de fusée", 50),
             new Discovery("moon", "Un petit pas — marcher sur la Lune", 80),
             new Discovery("orbit", "En orbite — atteindre l'orbite", 80),
+            new Discovery("mars", "Planète rouge — atteindre Mars", 120),
             new Discovery("titanium", "Métal lunaire — miner du titane", 20),
             new Discovery("helium", "Hélium-3 — récolter des cristaux", 20),
             new Discovery("lunar_hunter", "Chasseur lunaire — 10 ennemis lunaires", 50));
@@ -351,7 +352,7 @@ public final class Progression {
         if (discovery == null) {
             return;
         }
-        if (id.equals("moon") || id.equals("orbit")) {
+        if (id.equals("moon") || id.equals("orbit") || id.equals("mars")) {
             train(player, Skill.SPACE, 150);
         }
         player.sendSystemMessage(Component.literal("✦ Découverte : " + discovery.name() + "  (+" + discovery.points() + " pts)")
@@ -524,6 +525,7 @@ public final class Progression {
     // --- Fiche envoyée au client ---------------------------------------------------------------
 
     void sendSheet(ServerPlayer player) {
+        Tutorial.get().mark(player, "sheet");
         Record r = record(player);
         JsonObject sheet = new JsonObject();
         sheet.addProperty("name", player.getName().getString());

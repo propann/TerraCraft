@@ -133,6 +133,7 @@ public final class AuctionHouse {
     }
 
     private int show(ServerPlayer player, int page) {
+        Tutorial.get().mark(player, "market");
         List<Listing> all = new ArrayList<>(listings.values());
         int pages = Math.max(1, (all.size() + PAGE_SIZE - 1) / PAGE_SIZE);
         page = Math.max(1, Math.min(page, pages));
@@ -251,6 +252,7 @@ public final class AuctionHouse {
     }
 
     void sendMarket(ServerPlayer player, int page) {
+        Tutorial.get().mark(player, "market");
         com.google.gson.JsonObject root = new com.google.gson.JsonObject();
         root.addProperty("balance", balanceOf(player.getUUID()));
         int pages = Math.max(1, (listings.size() + PAGE_SIZE - 1) / PAGE_SIZE);

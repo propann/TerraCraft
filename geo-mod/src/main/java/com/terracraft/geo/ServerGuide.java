@@ -48,8 +48,11 @@ final class ServerGuide {
                 .withStyle(ChatFormatting.GRAY));
         player.sendSystemMessage(Component.literal("Véhicule partagé : /terracraft vehicule partager <joueur> · retirer <joueur> · liberer")
                 .withStyle(ChatFormatting.GRAY));
-        player.sendSystemMessage(Component.literal("Espace : fusée · Lune : casque-combinaison chargé · K : fiche de personnage")
+        player.sendSystemMessage(Component.literal("Touches : O menu · J combinaison spatiale · K fiche · M carte et claims")
+                .withStyle(ChatFormatting.AQUA));
+        player.sendSystemMessage(Component.literal("Espace : fusée, casque spatial et bouteilles d'oxygène dans la combinaison (J)")
                 .withStyle(ChatFormatting.GRAY));
+        line(player, "[Premiers pas]", "/tuto", "Revoir ton objectif en cours");
         return 1;
     }
 

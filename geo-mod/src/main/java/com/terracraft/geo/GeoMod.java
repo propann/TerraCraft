@@ -131,6 +131,7 @@ public final class GeoMod implements ModInitializer {
         PayloadTypeRegistry.clientboundPlay().register(SheetPayload.TYPE, SheetPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(MissionPayload.TYPE, MissionPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(MarketPayload.TYPE, MarketPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(TutorialPayload.TYPE, TutorialPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RequestSheetPayload.TYPE, RequestSheetPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RequestMissionsPayload.TYPE, RequestMissionsPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(ClaimMissionPayload.TYPE, ClaimMissionPayload.CODEC);
@@ -191,6 +192,9 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(SURVIVAL::load);
         ServerLifecycleEvents.SERVER_STARTED.register(AUCTION_HOUSE::load);
         ServerLifecycleEvents.SERVER_STARTED.register(MISSIONS::load);
+        Tutorial.get().wire(SURVIVAL, MISSIONS, AUCTION_HOUSE, START_POINTS);
+        ServerLifecycleEvents.SERVER_STARTED.register(Tutorial.get()::load);
+        ServerTickEvents.END_SERVER_TICK.register(Tutorial.get()::tick);
         ServerPlayerEvents.COPY_FROM.register(SURVIVAL::onRespawn);
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> Progression.get().save());
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> AUCTION_HOUSE.save());
@@ -246,12 +250,14 @@ public final class GeoMod implements ModInitializer {
             START_POINTS.onLeave(handler.player);
             GUI_RATE.forget(handler.player);
             ANTI_FLY.forget(handler.player);
+            Tutorial.get().onLeave(handler.player);
             SURVIVAL.onLeave(handler.player);
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> SURVIVAL.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> AUCTION_HOUSE.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> MISSIONS.register(dispatcher, AUCTION_HOUSE));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> ServerGuide.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Tutorial.get().register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> dispatcher.register(
                 Commands.literal("terracraft")
                         .then(Commands.literal("ou").executes(command -> {

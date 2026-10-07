@@ -48,8 +48,8 @@ Critère de sortie : 30 minutes de jeu à plusieurs sans crash, blocage de gén�
 
 - [x] Créer un menu TerraCraft principal : Carte, Claims, Missions, Argent, Hôtel des ventes, Fiche joueur et Guide.
 - [ ] Garder `/aide` comme solution de secours avec les mêmes informations.
-- [ ] Ajouter un tutoriel : choisir un point, trouver un abri, récupérer des pièces, poser un claim.
-- [ ] Afficher clairement les touches `M`, `'`, `K`, `O`, zoom sniper et conduite.
+- [x] Ajouter un tutoriel : parcours « Premiers pas » en 6 étapes (/tuto), affiché à droite de l'écran.
+- [x] Afficher clairement les touches `M`, `'`, `K`, `O`, `J` (carnet de survie, /aide, tutoriel).
 - [ ] Uniformiser couleurs, icônes et textes français.
 - [ ] Ajouter confirmations et messages d'erreur compréhensibles.
 
