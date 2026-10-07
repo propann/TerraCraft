@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.19", "Jour et nuit normaux, barres de vie, chat et menu O refaits, villes affichées devant le pseudo"),
             new Change("0.18", "Dangers lunaires : pluies de micrométéorites (abrite-toi), rôdeurs plus forts la nuit"),
             new Change("0.17", "Carte des étoiles : destinations, coûts et obstacles (Maj + clic droit sur la fusée, menu O)"),
             new Change("0.16", "Sous-sol lunaire : cavernes géantes, sanctuaires et pyramides extraterrestres"),
@@ -96,6 +97,7 @@ final class Welcome {
         if (server.getTickCount() % 100 != 0) {
             return;
         }
+        towns.syncTeams(server);
         int online = server.getPlayerList().getPlayerCount();
         Component header = Component.literal("\n").append(Component.literal("TerraCraft").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
                 .append(Component.literal("\nla Terre réelle après la chute\n").withStyle(ChatFormatting.GRAY));
@@ -111,6 +113,7 @@ final class Welcome {
     // --- Accueil -----------------------------------------------------------------------------
 
     void onJoin(ServerPlayer player) {
+        towns.syncTeams(player.level().getServer());
         boolean returning = startPoints.choice(player.getUUID()) != null;
         String version = GeoMod.version();
         String lastSeen = Progression.get().lastVersion(player);

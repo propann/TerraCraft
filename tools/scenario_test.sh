@@ -146,6 +146,11 @@ cmd "execute at Bob if block ~ ~-1 ~ terracraft_geo:alien_stone run say SANCTUAI
 cmd "execute as Bob run terracraft sanctuaire" 0
 cmd "execute at Bob if block ~4 ~2 ~ minecraft:ladder run say SANCTUAIRE_ECHELLE" 1
 cmd "execute at Bob if entity @e[type=terracraft_geo:lost_astronaut,distance=..40] run say SANCTUAIRE_GARDIENS" 1
+# Visuel : équipes de ville (préfixe) et cycle jour/nuit à vitesse normale (~100 ticks en 5 s)
+cmd "team list" 1
+cmd "team list tc_bourg_neuf" 1
+cmd "time query time" 5
+cmd "time query time" 1
 python3 "$ROOT/tools/ping_server.py" localhost 25599 > ping.json 2>&1 || true
 cmd "save-all flush" 3
 cmd "stop" 2
@@ -234,6 +239,10 @@ check("[METEORES] pluie annoncée dans 5 s" in log and "[METEORES] pluie de micr
 check("[METEORES] Bob touché à découvert" in log, "micrométéorites : un joueur à découvert est touché")
 abri = log.split("ABRI_DEBUT")[-1].split("ABRI_FIN")[0] if "ABRI_DEBUT" in log else "?"
 check(abri != "?" and "Bob touché" not in abri, "micrométéorites : un toit au-dessus de la tête protège")
+check("Team [Bourg Neuf] has 2 member(s): Alice, Bob" in log, "équipe de ville « Bourg Neuf » avec Alice et Bob (préfixe)")
+times = [int(t) for t in re.findall(r"Clock minecraft:overworld is at (\d+) tick", log)][-2:]
+check(len(times) == 2 and 60 <= (times[1] - times[0]) % 24000 <= 200,
+      f"jour/nuit à vitesse normale : {times[1] - times[0] if len(times) == 2 else '?'} ticks en 5 s")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

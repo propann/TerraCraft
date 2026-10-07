@@ -65,5 +65,11 @@
   "block.terracraft_geo.alien_stone": "Alien stone",
   "block.terracraft_geo.alien_glyph": "Alien glyph",
   "block.terracraft_geo.lunar_crystal": "Lunar crystal",
-  "item.terracraft_geo.alien_artifact": "Alien artifact"
+  "item.terracraft_geo.alien_artifact": "Alien artifact",
+  "chat.type.text": "%s §8»§r %s",
+  "chat.type.announcement": "§6[%s]§r %s",
+  "chat.type.team.text": "%s §8[§7%s§8] »§r %s",
+  "multiplayer.player.joined": "§a➜ §f%s §7joined TerraCraft",
+  "multiplayer.player.joined.renamed": "§a➜ §f%s §7(formerly %s) joined TerraCraft",
+  "multiplayer.player.left": "§c← §7%s left the server"
 }

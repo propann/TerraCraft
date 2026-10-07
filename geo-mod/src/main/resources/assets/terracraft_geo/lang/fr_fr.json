@@ -65,5 +65,11 @@
   "block.terracraft_geo.alien_stone": "Pierre extraterrestre",
   "block.terracraft_geo.alien_glyph": "Glyphe extraterrestre",
   "block.terracraft_geo.lunar_crystal": "Cristal lunaire",
-  "item.terracraft_geo.alien_artifact": "Artefact extraterrestre"
+  "item.terracraft_geo.alien_artifact": "Artefact extraterrestre",
+  "chat.type.text": "%s §8»§r %s",
+  "chat.type.announcement": "§6[%s]§r %s",
+  "chat.type.team.text": "%s §8[§7%s§8] »§r %s",
+  "multiplayer.player.joined": "§a➜ §f%s §7a rejoint TerraCraft",
+  "multiplayer.player.joined.renamed": "§a➜ §f%s §7(anciennement %s) a rejoint TerraCraft",
+  "multiplayer.player.left": "§c← §7%s a quitté le serveur"
 }

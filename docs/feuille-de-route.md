@@ -35,8 +35,11 @@ génération ni perte d'objet.
 - [x] Parcours « Premiers pas » (6 étapes récompensées).
 - [x] Accueil des habitués : titre, solde, contrats, ville, métier, nouveautés depuis la dernière visite.
 - [x] Liste des serveurs (MOTD avec version, icône) et liste des joueurs (Tab).
-- [ ] **Uniformiser l'interface** : une seule palette (celle de la combinaison), mêmes en-têtes et boutons pour tous
-      les écrans ; reprendre la fiche `K` et la carte de départ dans ce style.
+- [x] **Visuel** : menu `O` en tuiles avec icônes, barres de vie au-dessus des ennemis et des animaux blessés ou
+      visés, chat `Pseudo » message`, arrivées et départs lisibles, ville en préfixe coloré (chat, Tab, au-dessus
+      de la tête), jour et nuit au rythme normal de Minecraft (la météo reste réelle).
+- [~] **Uniformiser l'interface** : carte des étoiles, atelier et menu `O` ont la palette de la combinaison ; reste
+      à reprendre la fiche `K`, les missions, le marché et la carte de départ dans ce style.
 - [ ] **Confirmations** avant les actions coûteuses (fonder une ville, vendre très en dessous du prix moyen, quitter
       une ville en tant que maire) et messages d'erreur qui disent quoi faire ensuite.
 - [ ] **Écran « Mon personnage » unifié** (fiche, métier, plans, stations) au lieu de commandes éparses.

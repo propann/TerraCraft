@@ -8,7 +8,6 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.clock.ServerClockManager;
 import net.minecraft.world.clock.WorldClock;
 import net.minecraft.world.clock.WorldClocks;
 
@@ -17,21 +16,20 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Comparator;
 import java.util.Locale;
 
 /**
- * Ciel réel : l'heure du jour suit l'heure solaire locale et la météo suit Open-Meteo, à la
- * position d'un joueur de référence (le premier connecté par ordre alphabétique : un seul
- * ciel est partagé par tout le serveur).
+ * Ciel réel : la météo suit Open-Meteo à la position d'un joueur de référence (le premier connecté par ordre
+ * alphabétique : un seul ciel est partagé par tout le serveur). La météo est réappliquée avant que le cycle vanilla
+ * ne la change.
  *
- * <p>L'horloge vanilla tourne à 1/72 de sa vitesse (une journée Minecraft = 24 h) et elle est
- * recalée régulièrement. La météo est réappliquée avant que le cycle vanilla ne la change.
+ * <p>Le jour et la nuit suivent le cycle normal de Minecraft (20 minutes). Jusqu'à la 0.18, l'horloge suivait l'heure
+ * solaire réelle à 1/72 de sa vitesse : des nuits de 12 heures. La vitesse ralentie étant enregistrée dans le monde,
+ * elle est remise à la normale à chaque passage.
  */
 final class RealSky {
-    /** 24 000 ticks par 86 400 s réelles, au lieu de 20 ticks par seconde. */
-    private static final float REAL_TIME_RATE = 1f / 72f;
+    private static final float NORMAL_RATE = 1f;
     private static final int SYNC_TICKS = 20 * 60;
     private static final long WEATHER_REFRESH_MS = 10 * 60 * 1000;
     /** Durée appliquée à chaque mise à jour météo (plus longue que l'intervalle de rafraîchissement). */
@@ -57,24 +55,15 @@ final class RealSky {
         double scale = generator.terrain().scale();
         double latitude = WebMercator.latitudeAt(reference.getZ(), scale);
         double longitude = WebMercator.longitudeAt(reference.getX(), scale);
-        syncClock(server, longitude);
+        normalClock(server);
         syncWeather(server, latitude, longitude);
     }
 
-    private static void syncClock(MinecraftServer server, double longitude) {
+    /** Cycle normal : annule l'ancienne horloge à l'heure solaire réelle, ralentie 72 fois. */
+    private static void normalClock(MinecraftServer server) {
         Holder<WorldClock> clock = server.registryAccess().lookupOrThrow(Registries.WORLD_CLOCK)
                 .getOrThrow(WorldClocks.OVERWORLD);
-        ServerClockManager clocks = server.clockManager();
-        // Heure solaire locale (sans fuseau ni heure d'été) : midi = soleil au plus haut.
-        double utcHours = (Instant.now().getEpochSecond() % 86_400) / 3600.0;
-        double solarHours = ((utcHours + longitude / 15.0) % 24 + 24) % 24;
-        long dayTicks = (long) (((solarHours - 6 + 24) % 24) * 1000);
-        long total = clocks.getInstance(clock).totalTicks();
-        long target = Math.floorDiv(total, 24_000L) * 24_000L + dayTicks;
-        if (Math.abs(target - total) > 20) {
-            clocks.setTotalTicks(clock, target);
-        }
-        clocks.setRate(clock, REAL_TIME_RATE);
+        server.clockManager().setRate(clock, NORMAL_RATE);
     }
 
     private void syncWeather(MinecraftServer server, double latitude, double longitude) {

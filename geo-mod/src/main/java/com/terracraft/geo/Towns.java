@@ -99,6 +99,66 @@ final class Towns {
         return name.toLowerCase(Locale.ROOT);
     }
 
+    /** Couleurs des villes (préfixe et pseudo), choisies d'après le nom : stables d'une session à l'autre. */
+    private static final net.minecraft.world.scores.TeamColor[] TEAM_COLORS = {
+            net.minecraft.world.scores.TeamColor.GOLD, net.minecraft.world.scores.TeamColor.AQUA,
+            net.minecraft.world.scores.TeamColor.GREEN, net.minecraft.world.scores.TeamColor.LIGHT_PURPLE,
+            net.minecraft.world.scores.TeamColor.YELLOW, net.minecraft.world.scores.TeamColor.BLUE,
+            net.minecraft.world.scores.TeamColor.RED, net.minecraft.world.scores.TeamColor.DARK_AQUA};
+    private static final String TEAM_PREFIX = "tc_";
+
+    /**
+     * Équipes de ville : « [Ville] » coloré devant le pseudo, dans le chat, la liste Tab et au-dessus de la tête.
+     * Seules les équipes du mod ({@code tc_…}) sont gérées ; un joueur placé dans une autre équipe par un
+     * administrateur n'est pas touché. Les équipes de villes disparues ou vides sont supprimées.
+     */
+    void syncTeams(net.minecraft.server.MinecraftServer server) {
+        net.minecraft.world.scores.Scoreboard scoreboard = server.getScoreboard();
+        java.util.Set<String> used = new java.util.HashSet<>();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            String name = player.getScoreboardName();
+            net.minecraft.world.scores.PlayerTeam current = scoreboard.getPlayersTeam(name);
+            if (current != null && !current.getName().startsWith(TEAM_PREFIX)) {
+                continue;
+            }
+            Town town = townOf(player.getUUID());
+            String wanted = town == null ? null : teamName(town);
+            if (current != null && !current.getName().equals(wanted)) {
+                scoreboard.removePlayerFromTeam(name, current);
+            }
+            if (wanted == null) {
+                continue;
+            }
+            used.add(wanted);
+            net.minecraft.world.scores.PlayerTeam team = scoreboard.getPlayerTeam(wanted);
+            if (team == null) {
+                team = scoreboard.addPlayerTeam(wanted);
+            }
+            net.minecraft.world.scores.TeamColor colour = TEAM_COLORS[Math.floorMod(key(town.name).hashCode(), TEAM_COLORS.length)];
+            Component prefix = Component.literal("[" + town.name + "] ").withStyle(style -> style.withColor(colour.textColor()));
+            if (!prefix.equals(team.getPlayerPrefix())) {
+                team.setDisplayName(Component.literal(town.name));
+                team.setPlayerPrefix(prefix);
+                team.setColor(java.util.Optional.of(colour));
+            }
+            if (current == null || !current.getName().equals(wanted)) {
+                scoreboard.addPlayerToTeam(name, team);
+            }
+        }
+        for (net.minecraft.world.scores.PlayerTeam team : java.util.List.copyOf(scoreboard.getPlayerTeams())) {
+            if (team.getName().startsWith(TEAM_PREFIX) && !used.contains(team.getName())) {
+                boolean stillTown = towns.values().stream().anyMatch(t -> teamName(t).equals(team.getName()));
+                if (!stillTown || team.getPlayers().isEmpty()) {
+                    scoreboard.removePlayerTeam(team);
+                }
+            }
+        }
+    }
+
+    private static String teamName(Town town) {
+        return TEAM_PREFIX + key(town.name).replaceAll("[^a-z0-9_.-]", "_");
+    }
+
     Town townOf(UUID player) {
         for (Town town : towns.values()) {
             if (town.members.contains(player)) {
