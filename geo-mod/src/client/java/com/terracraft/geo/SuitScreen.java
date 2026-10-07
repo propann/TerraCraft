@@ -15,17 +15,17 @@ import net.minecraft.world.item.ItemStack;
  * réserves d'oxygène, avec l'aperçu du joueur équipé, la jauge d'oxygène et l'autonomie.
  */
 public final class SuitScreen extends AbstractContainerScreen<SpaceSuit.Menu> {
-    static final int PANEL = 0xF0121A24;
-    static final int HEADER_TOP = 0xFF1E3442;
-    static final int HEADER_BOTTOM = 0xFF142430;
-    static final int BORDER = 0xFF3D5A6C;
-    static final int SLOT_BG = 0xFF0B1118;
-    static final int SLOT_EDGE = 0xFF2C4252;
-    static final int CYAN = 0xFF4FD6FF;
-    static final int GOLD = 0xFFFFC94A;
-    static final int RED = 0xFFFF5555;
-    static final int TEXT = 0xFFDDE6EC;
-    static final int GREY = 0xFF8A9AA5;
+    public static final int PANEL = 0xF0121A24;
+    public static final int HEADER_TOP = 0xFF1E3442;
+    public static final int HEADER_BOTTOM = 0xFF142430;
+    public static final int BORDER = 0xFF3D5A6C;
+    public static final int SLOT_BG = 0xFF0B1118;
+    public static final int SLOT_EDGE = 0xFF2C4252;
+    public static final int CYAN = 0xFF4FD6FF;
+    public static final int GOLD = 0xFFFFC94A;
+    public static final int RED = 0xFFFF5555;
+    public static final int TEXT = 0xFFDDE6EC;
+    public static final int GREY = 0xFF8A9AA5;
 
     private static final String[] LABELS = {"Casque", "Combinaison", "Bottes"};
     private static final int GAUGE_X = 112;
@@ -77,7 +77,7 @@ public final class SuitScreen extends AbstractContainerScreen<SpaceSuit.Menu> {
         }
     }
 
-    private static ItemStack ghost(int slot) {
+    public static ItemStack ghost(int slot) {
         return new ItemStack(switch (slot) {
             case SpaceSuit.HELMET -> ModContent.SPACE_HELMET;
             case SpaceSuit.SUIT -> ModContent.SPACE_SUIT;

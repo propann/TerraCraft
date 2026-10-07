@@ -132,7 +132,7 @@ public final class SpaceSuit {
     }
 
     /** Emplacement acceptant cet objet, ou -1. */
-    static int slotFor(ItemStack stack) {
+    public static int slotFor(ItemStack stack) {
         Item item = stack.getItem();
         if (item == ModContent.SPACE_HELMET) {
             return HELMET;
@@ -146,7 +146,7 @@ public final class SpaceSuit {
         return item == ModContent.OXYGEN_TANK ? TANK_A : -1;
     }
 
-    static boolean accepts(int slot, ItemStack stack) {
+    public static boolean accepts(int slot, ItemStack stack) {
         int wanted = slotFor(stack);
         return wanted == slot || wanted == TANK_A && slot == TANK_B;
     }
@@ -271,6 +271,11 @@ public final class SpaceSuit {
         }
     }
 
+    /** Vue « inventaire » de la combinaison d'un joueur (emplacements 0 à 4). */
+    public static Container container(Player player) {
+        return new EquipmentContainer(player);
+    }
+
     static void open(ServerPlayer player) {
         player.openMenu(new SimpleMenuProvider((id, inventory, owner) -> new Menu(id, inventory, new EquipmentContainer(owner)),
                 Component.literal("Combinaison spatiale")));
@@ -363,18 +368,7 @@ public final class SpaceSuit {
         Menu(int id, Inventory inventory, Container equipment) {
             super(MENU, id);
             for (int i = 0; i < SIZE; i++) {
-                int slot = i;
-                addSlot(new Slot(equipment, i, POSITIONS[i][0], POSITIONS[i][1]) {
-                    @Override
-                    public boolean mayPlace(ItemStack stack) {
-                        return accepts(slot, stack);
-                    }
-
-                    @Override
-                    public int getMaxStackSize() {
-                        return slot >= TANK_A ? 16 : 1;
-                    }
-                });
+                addSlot(new SpaceSuitSlot(equipment, i, POSITIONS[i][0], POSITIONS[i][1]));
             }
             addStandardInventorySlots(inventory, 8, INVENTORY_Y);
         }
