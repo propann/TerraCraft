@@ -77,6 +77,8 @@ final class Arrival {
                 "LA LUNE\n\nGravité 1/6. Pas d'air !\nTouche J : combinaison spatiale.\n• Casque (fer + verre) : obligatoire\n"
                         + "• Combinaison (laine, cuivre, fer) : −25 % d'O₂\n• Bottes magnétiques (fer, redstone)\n"
                         + "• 2 réserves de bouteilles, branchées seules à 50 %.",
+                "JETPACK\n\nModule dorsal de la combinaison (touche J).\nFer, batterie, redstone, 2 bidons.\n\n"
+                        + "Maintiens SAUT en l'air pour monter.\n30 s de poussée ; clic droit avec un bidon d'essence pour le recharger.",
                 "TOUCHES\n\nO : menu TerraCraft\nJ : combinaison spatiale\nK : fiche de personnage\nM : carte et claims\n"
                         + "' : menu des claims\n\n/tuto : premiers pas\n/terracraft ou : position réelle");
         List<Filterable<Component>> content = pages.stream().map(p -> Filterable.passThrough((Component) Component.literal(p))).toList();

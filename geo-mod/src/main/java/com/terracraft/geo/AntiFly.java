@@ -111,6 +111,9 @@ final class AntiFly {
         if (player.isPassenger() && subject == player) {
             return true;
         }
+        if (SpaceSuit.hasJetpackFuel(player) && player.getLastClientInput().jump()) {
+            return true; // Jetpack en marche (carburant limité, décompté par le serveur).
+        }
         if (Space.isSpace(player.level())) {
             return true; // Gravité réduite : les sauts durent légitimement plusieurs secondes.
         }

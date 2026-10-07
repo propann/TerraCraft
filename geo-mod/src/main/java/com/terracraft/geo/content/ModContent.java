@@ -30,7 +30,8 @@ public final class ModContent {
     public static final Item RADIATOR = item("radiator", Item::new, new Item.Properties().stacksTo(4));
     public static final Item BATTERY = item("battery", Item::new, new Item.Properties().stacksTo(4));
     public static final Item TURBO = item("turbo", Item::new, new Item.Properties().stacksTo(4));
-    public static final Item FUEL_CAN = item("fuel_can", Item::new, new Item.Properties().stacksTo(8));
+    /** Bidon d'essence : véhicules (clic droit sur le véhicule) et jetpack porté (clic droit dans le vide). */
+    public static final Item FUEL_CAN = item("fuel_can", FuelCanItem::new, new Item.Properties().stacksTo(8));
     public static final Item CAR_CHASSIS = item("car_chassis", p -> new ChassisItem(() -> CAR, p), new Item.Properties().stacksTo(1));
     public static final Item TRUCK_CHASSIS = item("truck_chassis", p -> new ChassisItem(() -> TRUCK, p), new Item.Properties().stacksTo(1));
     public static final Item MOTORCYCLE_CHASSIS = item("motorcycle_chassis", p -> new ChassisItem(() -> MOTORCYCLE, p), new Item.Properties().stacksTo(1));
@@ -50,6 +51,8 @@ public final class ModContent {
     public static final Item SPACE_SUIT = item("space_suit", SuitPieceItem::new, new Item.Properties().stacksTo(1));
     /** Bottes magnétiques : adhérence en orbite, pas de dégâts de chute hors de la Terre. */
     public static final Item MAGNETIC_BOOTS = item("magnetic_boots", SuitPieceItem::new, new Item.Properties().stacksTo(1));
+    /** Jetpack : la durabilité est le carburant (600 ticks = 30 s de poussée). */
+    public static final Item JETPACK = item("jetpack", SuitPieceItem::new, new Item.Properties().durability(600));
     public static final Item OXYGEN_TANK = item("oxygen_tank", OxygenTankItem::new, new Item.Properties().stacksTo(16));
 
     public static final Item AMMO = item("ammo", Item::new, new Item.Properties().stacksTo(64));
@@ -67,7 +70,7 @@ public final class ModContent {
     public static void init() {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output -> {
             for (Item item : new Item[]{CAR_CHASSIS, TRUCK_CHASSIS, MOTORCYCLE_CHASSIS, WHEEL, ENGINE, RADIATOR, BATTERY, TURBO, FUEL_CAN,
-                    ROCKET_HULL, ROCKET_ENGINE, ROCKET_TANK, NOSE_CONE, FINS, ROCKET_FUEL, SPACE_HELMET, SPACE_SUIT, MAGNETIC_BOOTS, OXYGEN_TANK}) {
+                    ROCKET_HULL, ROCKET_ENGINE, ROCKET_TANK, NOSE_CONE, FINS, ROCKET_FUEL, SPACE_HELMET, SPACE_SUIT, MAGNETIC_BOOTS, JETPACK, OXYGEN_TANK}) {
                 output.accept(item);
             }
         });

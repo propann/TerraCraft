@@ -39,7 +39,8 @@ import java.util.List;
  *   <li>casque spatial — obligatoire pour respirer hors de la Terre ;</li>
  *   <li>combinaison — consommation d'oxygène réduite de 25 % ;</li>
  *   <li>bottes magnétiques — adhérence en orbite, pas de dégâts de chute dans l'espace ;</li>
- *   <li>deux réserves de bouteilles d'oxygène qui se branchent seules quand le casque est à moitié vide.</li>
+ *   <li>deux réserves de bouteilles d'oxygène qui se branchent seules quand le casque est à moitié vide ;</li>
+ *   <li>module dorsal — jetpack (poussée en maintenant saut, recharge au bidon d'essence).</li>
  * </ul>
  * L'équipement est dessiné sur le joueur comme une armure, par-dessus l'armure normale.
  */
@@ -49,7 +50,9 @@ public final class SpaceSuit {
     public static final int BOOTS = 2;
     public static final int TANK_A = 3;
     public static final int TANK_B = 4;
-    public static final int SIZE = 5;
+    /** Module dorsal : jetpack. */
+    public static final int BACK = 5;
+    public static final int SIZE = 6;
 
     /** Le casque se recharge automatiquement quand il reste moins de cette part d'oxygène. */
     private static final double AUTO_REFILL_BELOW = 0.5;
@@ -110,6 +113,18 @@ public final class SpaceSuit {
         }
     }
 
+    /** Jetpack porté (instance réelle), ou vide. */
+    public static ItemStack jetpack(Player player) {
+        ItemStack jetpack = get(player, BACK);
+        return jetpack.is(ModContent.JETPACK) ? jetpack : ItemStack.EMPTY;
+    }
+
+    /** Jetpack porté avec du carburant. */
+    public static boolean hasJetpackFuel(Player player) {
+        ItemStack jetpack = jetpack(player);
+        return !jetpack.isEmpty() && jetpack.getDamageValue() < jetpack.getMaxDamage() - 1;
+    }
+
     public static ItemStack helmet(Player player) {
         ItemStack helmet = get(player, HELMET);
         return helmet.is(ModContent.SPACE_HELMET) ? helmet : ItemStack.EMPTY;
@@ -143,6 +158,9 @@ public final class SpaceSuit {
         if (item == ModContent.MAGNETIC_BOOTS) {
             return BOOTS;
         }
+        if (item == ModContent.JETPACK) {
+            return BACK;
+        }
         return item == ModContent.OXYGEN_TANK ? TANK_A : -1;
     }
 
@@ -155,7 +173,7 @@ public final class SpaceSuit {
     public static boolean equipFromHand(Player player, InteractionHand hand) {
         ItemStack held = player.getItemInHand(hand);
         int slot = slotFor(held);
-        if (slot < 0 || slot >= TANK_A) {
+        if (slot < 0 || slot == TANK_A) {
             return false;
         }
         ItemStack previous = get(player, slot);
@@ -352,11 +370,11 @@ public final class SpaceSuit {
 
     // --- Menu ----------------------------------------------------------------------------------
 
-    /** Emplacements : 0-4 = combinaison, 5-31 = inventaire, 32-40 = barre rapide. */
+    /** Emplacements : 0-5 = combinaison, 6-32 = inventaire, 33-41 = barre rapide. */
     public static final class Menu extends AbstractContainerMenu {
         /** Positions des emplacements de la combinaison dans la fenêtre. */
-        public static final int[][] POSITIONS = {{68, 20}, {68, 41}, {68, 62}, {68, 84}, {88, 84}};
-        public static final int INVENTORY_Y = 114;
+        public static final int[][] POSITIONS = {{68, 18}, {68, 38}, {68, 58}, {132, 18}, {152, 18}, {68, 78}};
+        public static final int INVENTORY_Y = 118;
         private static final int INVENTORY_END = SIZE + 27;
         private static final int HOTBAR_END = INVENTORY_END + 9;
 
@@ -388,7 +406,7 @@ public final class SpaceSuit {
             } else {
                 int target = slotFor(stack);
                 boolean moved = false;
-                if (target >= TANK_A) {
+                if (target == TANK_A) {
                     moved = moveItemStackTo(stack, TANK_A, TANK_B + 1, false);
                 } else if (target >= 0 && !slots.get(target).hasItem()) {
                     moved = moveItemStackTo(stack, target, target + 1, false);

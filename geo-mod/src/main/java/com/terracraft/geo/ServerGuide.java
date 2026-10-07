@@ -50,7 +50,7 @@ final class ServerGuide {
                 .withStyle(ChatFormatting.GRAY));
         player.sendSystemMessage(Component.literal("Touches : O menu · J combinaison spatiale · K fiche · M carte et claims")
                 .withStyle(ChatFormatting.AQUA));
-        player.sendSystemMessage(Component.literal("Espace (touche J) : casque spatial, combinaison, bottes magnétiques et 2 réserves de bouteilles d'oxygène")
+        player.sendSystemMessage(Component.literal("Combinaison (touche J ou panneau de l'inventaire E) : casque spatial, combinaison, bottes, jetpack, 2 réserves d'O₂")
                 .withStyle(ChatFormatting.GRAY));
         line(player, "[Premiers pas]", "/tuto", "Revoir ton objectif en cours");
         return 1;

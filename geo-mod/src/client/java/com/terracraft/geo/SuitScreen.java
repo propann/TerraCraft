@@ -29,11 +29,11 @@ public final class SuitScreen extends AbstractContainerScreen<SpaceSuit.Menu> {
 
     private static final String[] LABELS = {"Casque", "Combinaison", "Bottes"};
     private static final int GAUGE_X = 112;
-    private static final int GAUGE_Y = 95;
+    private static final int GAUGE_Y = 104;
     private static final int GAUGE_WIDTH = 56;
 
     public SuitScreen(SpaceSuit.Menu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, 176, 196);
+        super(menu, inventory, title, 176, 200);
         inventoryLabelY = SpaceSuit.Menu.INVENTORY_Y - 11;
     }
 
@@ -55,7 +55,7 @@ public final class SuitScreen extends AbstractContainerScreen<SpaceSuit.Menu> {
         }
 
         // Cadre « réserves d'oxygène ».
-        g.outline(x + 65, y + 81, 42, 22, SLOT_EDGE);
+        g.outline(x + 129, y + 15, 42, 22, SLOT_EDGE);
 
         for (Slot slot : menu.slots) {
             boolean suitSlot = slot.index < SpaceSuit.SIZE;
@@ -82,6 +82,7 @@ public final class SuitScreen extends AbstractContainerScreen<SpaceSuit.Menu> {
             case SpaceSuit.HELMET -> ModContent.SPACE_HELMET;
             case SpaceSuit.SUIT -> ModContent.SPACE_SUIT;
             case SpaceSuit.BOOTS -> ModContent.MAGNETIC_BOOTS;
+            case SpaceSuit.BACK -> ModContent.JETPACK;
             default -> ModContent.OXYGEN_TANK;
         });
     }
@@ -95,6 +96,11 @@ public final class SuitScreen extends AbstractContainerScreen<SpaceSuit.Menu> {
             boolean worn = player != null && !SpaceSuit.get(player, i).isEmpty();
             g.text(font, Component.literal(LABELS[i]), pos[0] + 20, pos[1] + 4, worn ? CYAN : GREY, false);
         }
+        int[] back = SpaceSuit.Menu.POSITIONS[SpaceSuit.BACK];
+        ItemStack jetpack = player == null ? ItemStack.EMPTY : SpaceSuit.jetpack(player);
+        g.text(font, Component.literal(jetpack.isEmpty() ? "Jetpack"
+                        : "Jetpack " + (100 - 100 * jetpack.getDamageValue() / jetpack.getMaxDamage()) + "%"),
+                back[0] + 20, back[1] + 4, jetpack.isEmpty() ? GREY : CYAN, false);
 
         int percent = helmetPercent();
         g.text(font, Component.literal(percent < 0 ? "O₂ —" : "O₂ " + percent + " %"), GAUGE_X, GAUGE_Y - 11,

@@ -19,9 +19,9 @@ public abstract class InventoryScreenMixin {
         AbstractContainerScreenAccessor accessor = (AbstractContainerScreenAccessor) this;
         int x = accessor.terracraft$leftPos();
         int y = accessor.terracraft$topPos();
-        g.fill(x + 178, y + 4, x + 204, y + 108, SuitScreen.PANEL);
-        g.outline(x + 178, y + 4, 26, 104, SuitScreen.BORDER);
-        g.fill(x + 181, y + 66, x + 201, y + 67, SuitScreen.SLOT_EDGE);
+        g.fill(x + 178, y + 4, x + 204, y + 126, SuitScreen.PANEL);
+        g.outline(x + 178, y + 4, 26, 122, SuitScreen.BORDER);
+        g.fill(x + 181, y + 84, x + 201, y + 85, SuitScreen.SLOT_EDGE);
         for (Slot slot : screen.getMenu().slots) {
             if (slot instanceof SpaceSuitSlot suit) {
                 g.fill(x + slot.x - 1, y + slot.y - 1, x + slot.x + 17, y + slot.y + 17, 0x804FD6FF);

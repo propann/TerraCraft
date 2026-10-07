@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class AbstractContainerScreenMixin {
     @Inject(method = "hasClickedOutside", at = @At("HEAD"), cancellable = true)
     private void terracraft$suitPanelIsInside(double mx, double my, int xo, int yo, CallbackInfoReturnable<Boolean> cir) {
-        if ((Object) this instanceof InventoryScreen && mx >= xo + 176 && mx < xo + 206 && my >= yo + 2 && my < yo + 110) {
+        if ((Object) this instanceof InventoryScreen && mx >= xo + 176 && mx < xo + 206 && my >= yo + 2 && my < yo + 128) {
             cir.setReturnValue(false);
         }
     }

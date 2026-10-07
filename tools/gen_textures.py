@@ -489,6 +489,32 @@ def draw_magnetic_boots(c):
         c.rect(x0, 4, 5, 1, (240, 200, 40))
 
 
+def jetpack_armor():
+    """Jetpack porté : seulement le dos et les côtés du torse (modèle d'armure élargi)."""
+    c = Canvas(64, 32, 47)
+    # Torse : face arrière en (32, 20) 8×12, côtés en (16, 20) et (28, 20) 4×12.
+    for x0 in (32, 37):
+        c.rect(x0, 20, 3, 10, (120, 126, 136), 6)          # deux réservoirs
+        c.rect(x0, 21, 3, 1, SUIT_ORANGE)
+        c.rect(x0, 30, 3, 2, (60, 62, 70))                 # tuyères
+        c.set(x0 + 1, 31, (255, 160, 40))
+    c.rect(35, 22, 2, 6, (70, 74, 84))                     # bloc central
+    c.rect(35, 24, 2, 1, (90, 230, 120))
+    for x0 in (16, 28):                                    # sangles sur les côtés
+        c.rect(x0 + 1, 20, 2, 12, (70, 74, 84))
+    c.save("entity/equipment/humanoid/jetpack.png")
+
+
+def draw_jetpack(c):
+    for x0 in (3, 9):
+        c.rect(x0, 2, 4, 10, (120, 126, 136), 6)
+        c.rect(x0, 3, 4, 1, SUIT_ORANGE)
+        c.rect(x0, 12, 4, 2, (60, 62, 70))
+        c.rect(x0 + 1, 14, 2, 1, (255, 160, 40))
+    c.rect(7, 4, 2, 6, (70, 74, 84))
+    c.set(7, 6, (90, 230, 120))
+
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -524,6 +550,8 @@ def main():
     icon("space_suit", draw_space_suit)
     icon("magnetic_boots", draw_magnetic_boots)
     space_suit_armor()
+    icon("jetpack", draw_jetpack)
+    jetpack_armor()
     block_tex("titanium_ore", (120, 120, 124), speckles([(200, 205, 215), (170, 180, 195)], 9))
     block_tex("helium3_crystals", (70, 160, 170), speckles([(160, 240, 250), (220, 255, 255), (40, 120, 140)], 18, 3))
     block_tex("station_hull", (175, 178, 186), hull_pattern)

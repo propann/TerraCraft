@@ -36,13 +36,21 @@ public final class SpaceSuitLayer extends RenderLayer<AvatarRenderState, PlayerM
             new ModelLayerLocation(ID, "head"), new ModelLayerLocation(ID, "chest"),
             new ModelLayerLocation(ID, "legs"), new ModelLayerLocation(ID, "feet"));
     private static final ResourceKey<EquipmentAsset> ASSET = ResourceKey.create(EquipmentAssets.ROOT_ID, ID);
+    /** Jetpack : dessiné sur un modèle encore plus large, par-dessus la combinaison. */
+    private static final Identifier JETPACK_ID = Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "jetpack");
+    private static final ArmorModelSet<ModelLayerLocation> JETPACK_LAYERS = new ArmorModelSet<>(
+            new ModelLayerLocation(JETPACK_ID, "head"), new ModelLayerLocation(JETPACK_ID, "chest"),
+            new ModelLayerLocation(JETPACK_ID, "legs"), new ModelLayerLocation(JETPACK_ID, "feet"));
+    private static final ResourceKey<EquipmentAsset> JETPACK_ASSET = ResourceKey.create(EquipmentAssets.ROOT_ID, JETPACK_ID);
 
     private final ArmorModelSet<PlayerModel> models;
+    private final ArmorModelSet<PlayerModel> jetpackModels;
     private final EquipmentLayerRenderer equipment;
 
     public SpaceSuitLayer(RenderLayerParent<AvatarRenderState, PlayerModel> parent, EntityRendererProvider.Context context) {
         super(parent);
         this.models = ArmorModelSet.bake(LAYERS, context.getModelSet(), part -> new PlayerModel(part, false));
+        this.jetpackModels = ArmorModelSet.bake(JETPACK_LAYERS, context.getModelSet(), part -> new PlayerModel(part, false));
         this.equipment = context.getEquipmentRenderer();
     }
 
@@ -50,6 +58,9 @@ public final class SpaceSuitLayer extends RenderLayer<AvatarRenderState, PlayerM
     public static void registerModels() {
         ModelLayerRegistry.registerArmorModelLayers(LAYERS, () -> PlayerModel
                 .createArmorMeshSet(new CubeDeformation(0.75f), new CubeDeformation(1.3f))
+                .map(mesh -> LayerDefinition.create(mesh, 64, 32)));
+        ModelLayerRegistry.registerArmorModelLayers(JETPACK_LAYERS, () -> PlayerModel
+                .createArmorMeshSet(new CubeDeformation(0.75f), new CubeDeformation(1.8f))
                 .map(mesh -> LayerDefinition.create(mesh, 64, 32)));
     }
 
@@ -68,6 +79,11 @@ public final class SpaceSuitLayer extends RenderLayer<AvatarRenderState, PlayerM
         piece(suit, EquipmentSlot.LEGS, EquipmentClientInfo.LayerType.HUMANOID_LEGGINGS, poseStack, collector, light, state);
         piece(SpaceSuit.get(player, SpaceSuit.BOOTS), EquipmentSlot.FEET, EquipmentClientInfo.LayerType.HUMANOID,
                 poseStack, collector, light, state);
+        ItemStack jetpack = SpaceSuit.jetpack(player);
+        if (!jetpack.isEmpty()) {
+            equipment.renderLayers(EquipmentClientInfo.LayerType.HUMANOID, JETPACK_ASSET, jetpackModels.get(EquipmentSlot.CHEST),
+                    state, jetpack, poseStack, collector, light, state.outlineColor);
+        }
     }
 
     private void piece(ItemStack stack, EquipmentSlot slot, EquipmentClientInfo.LayerType type, PoseStack poseStack,

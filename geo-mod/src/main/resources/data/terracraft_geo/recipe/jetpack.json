@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "B": "terracraft_geo:battery",
+    "F": "terracraft_geo:fuel_can",
+    "R": "minecraft:redstone"
+  },
+  "pattern": [
+    "I I",
+    "IBI",
+    "FRF"
+  ],
+  "result": {
+    "id": "terracraft_geo:jetpack",
+    "count": 1
+  }
+}

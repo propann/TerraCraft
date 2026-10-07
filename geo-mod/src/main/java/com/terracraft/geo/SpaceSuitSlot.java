@@ -24,6 +24,6 @@ public final class SpaceSuitSlot extends Slot {
 
     @Override
     public int getMaxStackSize() {
-        return suitSlot >= SpaceSuit.TANK_A ? 16 : 1;
+        return suitSlot == SpaceSuit.TANK_A || suitSlot == SpaceSuit.TANK_B ? 16 : 1;
     }
 }

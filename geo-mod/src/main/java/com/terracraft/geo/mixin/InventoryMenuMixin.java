@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Ajoute les cinq emplacements de la combinaison spatiale à l'inventaire du joueur (touche E),
+ * Ajoute les six emplacements de la combinaison spatiale à l'inventaire du joueur (touche E),
  * dans un panneau à droite. Ils sont ajoutés après les 46 emplacements vanilla : les numéros
  * existants ne changent pas. Shift-clic range une pièce spatiale directement dans la combinaison.
  */
@@ -24,7 +24,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class InventoryMenuMixin {
     /** Position du panneau, relative à l'inventaire vanilla (176 × 166). */
     @Unique
-    private static final int[][] TERRACRAFT_POSITIONS = {{183, 10}, {183, 28}, {183, 46}, {183, 70}, {183, 88}};
+    private static final int[][] TERRACRAFT_POSITIONS = {{183, 10}, {183, 28}, {183, 46}, {183, 88}, {183, 106}, {183, 64}};
     /** Fin des emplacements « inventaire + barre rapide » de l'inventaire vanilla (exclue). */
     @Unique
     private static final int TERRACRAFT_INVENTORY_END = 45;
@@ -63,7 +63,7 @@ public abstract class InventoryMenuMixin {
         } else if (index >= 9 && index < TERRACRAFT_INVENTORY_END && SpaceSuit.slotFor(stack) >= 0) {
             int target = SpaceSuit.slotFor(stack);
             int first = terracraft$firstSuitSlot;
-            if (target >= SpaceSuit.TANK_A) {
+            if (target == SpaceSuit.TANK_A) {
                 moved = menu.terracraft$moveItemStackTo(stack, first + SpaceSuit.TANK_A, first + SpaceSuit.TANK_B + 1, false);
             } else {
                 moved = !self.slots.get(first + target).hasItem()

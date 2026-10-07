@@ -262,6 +262,7 @@ public final class GeoMod implements ModInitializer {
         });
         ServerTickEvents.END_SERVER_TICK.register(REAL_SKY::tick);
         ServerTickEvents.END_SERVER_TICK.register(Space::tick);
+        ServerTickEvents.END_SERVER_TICK.register(Jetpack::tick);
         ServerTickEvents.END_SERVER_TICK.register(ANTI_FLY::tick);
         ServerLifecycleEvents.SERVER_STARTED.register(BACKUPS::load);
         ServerTickEvents.END_SERVER_TICK.register(BACKUPS::tick);

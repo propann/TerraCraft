@@ -63,6 +63,8 @@ public final class GeoModClient implements ClientModInitializer {
                 });
         net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "oxygen"), new OxygenHud());
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
+                Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "jetpack"), new JetpackHud());
         // Parcours « Premiers pas » : le serveur envoie l'objectif en cours, affiché à droite.
         ClientPlayNetworking.registerGlobalReceiver(TutorialPayload.TYPE, (payload, context) -> TutorialHud.update(payload));
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
@@ -80,6 +82,11 @@ public final class GeoModClient implements ClientModInitializer {
                 if (client.player != null && ClientPlayNetworking.canSend(RequestSheetPayload.TYPE)) {
                     ClientPlayNetworking.send(RequestSheetPayload.INSTANCE);
                 }
+            }
+            // Jetpack : poussée appliquée côté client (le serveur décompte le carburant).
+            if (client.player != null && client.gui.screen() == null
+                    && Jetpack.canThrust(client.player, client.options.keyJump.isDown())) {
+                client.player.setDeltaMovement(Jetpack.thrust(client.player.getDeltaMovement()));
             }
             while (suitKey.consumeClick()) {
                 openSuit(client);
