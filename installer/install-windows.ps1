@@ -37,6 +37,15 @@ foreach ($file in $index.files) {
     if ($hash -ne $file.hashes.sha512) { throw "Somme de contrôle invalide : $($file.path)" }
     Write-Host "  installé $($file.path)"
 }
+# Liste Multijoueur : posée seulement si le joueur n'en a pas encore (on n'écrase jamais la sienne).
+$Servers = "$Work\pack\overrides\servers.dat"
+if (Test-Path $Servers) {
+    if (-not (Test-Path "$Mc\servers.dat")) {
+        Copy-Item $Servers "$Mc\servers.dat"
+        Write-Host "Serveur TerraCraft ajouté à la liste Multijoueur."
+    }
+    Remove-Item $Servers
+}
 Copy-Item "$Work\pack\overrides\*" $Mc -Recurse -Force
 Remove-Item $Work -Recurse -Force
 Write-Host ""

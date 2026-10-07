@@ -7,9 +7,9 @@ publiée (voir `LICENCES.md`).
 2. Dans ce dossier, lance `telecharger-restants.sh` (Linux / macOS) ou `telecharger-restants.ps1` (Windows) : il
    ajoute les deux cartes Xaero, que leur licence interdit de republier ici.
 3. Copie tous les `.jar` dans le dossier `mods` de ton Minecraft (`%APPDATA%\.minecraft\mods` sous Windows,
-   `~/.minecraft/mods` sous Linux) après avoir mis de côté les anciens.
+   `~/.minecraft/mods` sous Linux) après avoir mis de côté les anciens, puis ajoute le serveur `terre1.falixsrv.me`.
 
-Plus simple : le pack `TerraCraft-client.mrpack` (Prism Launcher, Modrinth App) ou l'installeur du dossier
+Plus simple : le pack [`TerraCraft-client.mrpack`](../TerraCraft-client.mrpack) à la racine du dépôt (Prism Launcher, Modrinth App) ou l'installeur du dossier
 `installer/` font tout cela d'un coup, shader compris.
 
 Ce dossier est régénéré à chaque version par `python3 tools/sync_client_mods.py`.

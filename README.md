@@ -8,31 +8,18 @@ on commerce, on répare des véhicules… et on part vers la Lune, l'orbite puis
 
 ## Jouer sur le serveur
 
-1. Télécharge le pack client : **[TerraCraft-client.mrpack](https://github.com/propann/TerraCraft/releases/latest/download/TerraCraft-client.mrpack)**
-   (ce lien donne toujours la dernière version).
+**Adresse : `terre1.falixsrv.me`** — guide complet : **[REJOINDRE.md](REJOINDRE.md)**.
+
+1. Télécharge le pack **[TerraCraft-client.mrpack](https://github.com/propann/TerraCraft/raw/main/TerraCraft-client.mrpack)**
+   (dans ce dépôt, toujours à jour).
 2. Dans **Prism Launcher** ou **Modrinth App** : *Ajouter une instance → Importer* → choisis le fichier.
-3. Lance l'instance et connecte-toi au serveur.
+3. Lance l'instance → **Multijoueur** : le serveur TerraCraft est déjà dans la liste.
 
-Launcher Minecraft officiel : installeurs Windows et Linux dans [`installer/`](installer/README.md).
-Installation à la main : tous les mods du client sont dans le dossier [`mods/`](mods/LISEZMOI.md)
-(lancer `telecharger-restants` pour les deux cartes Xaero, que leur licence interdit de republier ici).
+Launcher Minecraft officiel : installeurs Windows et Linux dans [`installer/`](installer/README.md). Installation à la
+main : dossier [`mods/`](mods/LISEZMOI.md). **Le pack doit avoir la même version que le serveur** : après une mise à
+jour, réimporte-le. Toutes les versions : [Releases](https://github.com/propann/TerraCraft/releases).
 
-**Le pack doit avoir la même version que le serveur.** Après une mise à jour du serveur, réimporte le
-pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.com/propann/TerraCraft/releases).
-
-### Touches et commandes
-
-| Touche | Rôle |
-|---|---|
-| `O` | Menu TerraCraft (carte, hôtel des ventes, missions, fiche, combinaison…) |
-| `J` | Combinaison spatiale (aussi dans l'inventaire `E`) : casque, combinaison, bottes, jetpack, oxygène |
-| `V` | Coffre du véhicule (assis dedans ou à moins de 6 blocs) |
-| `K` | Fiche de personnage : paliers, compétences, découvertes |
-| `M` / `'` | Carte Xaero et claims |
-
-`/aide` liste les commandes, `/tuto` affiche l'objectif « Premiers pas » en cours, `/signaler <message>` prévient les administrateurs.
-
-## Ce qui est en place (0.18.0)
+## Ce qui est en place (0.18.1)
 
 - **Monde** : relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés, carte de départ en jeu.
 - **Survie** : inventaire conservé à la mort (−25 % d'expérience), `/sethome` `/home` `/back` `/tpa` (refusés en combat).

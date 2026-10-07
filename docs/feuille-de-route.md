@@ -143,6 +143,6 @@ génération ni perte d'objet.
 
 - `tools/scenario_test.sh` passe (il inclut le test de démarrage).
 - Le pack client est publié si le client change (nouveaux objets, écrans, paquets).
-- Après la release : `python3 tools/sync_client_mods.py` met à jour le dossier `mods/` du dépôt, puis commit.
+- Après la release : `python3 tools/sync_client_mods.py` met à jour `mods/` et `TerraCraft-client.mrpack` du dépôt, puis commit.
 - `docs/avancement.md` et cette feuille de route sont à jour.
 - Aucun système ne supprime silencieusement un objet, un crédit, une ville, une station ou un véhicule.

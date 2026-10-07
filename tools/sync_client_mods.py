@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Reconstruit le dossier mods/ du dépôt à partir du pack client publié (TerraCraft-client.mrpack).
+"""Reconstruit le dossier mods/ du dépôt à partir du pack client publié (TerraCraft-client.mrpack), et dépose une
+copie du pack à la racine du dépôt (TerraCraft-client.mrpack) pour l'importer directement dans Prism ou Modrinth App.
 
 Les mods dont la licence permet la redistribution sont copiés dans mods/ (empreinte SHA-512 vérifiée). Ceux qui
 l'interdisent (Xaero : tous droits réservés) ne sont pas republiés : les scripts mods/telecharger-restants.* les
@@ -63,6 +64,7 @@ def main():
         with zipfile.ZipFile(pack) as archive:
             index = json.loads(archive.read("modrinth.index.json"))
             ours = archive.read("overrides/mods/terracraft-geo.jar")
+    (ROOT / "TerraCraft-client.mrpack").write_bytes(data)
     OUT.mkdir(exist_ok=True)
     for old in OUT.glob("*.jar"):
         old.unlink()

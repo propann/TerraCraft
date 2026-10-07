@@ -48,6 +48,15 @@ for f in index["files"]:
     open(f"{root}/{f['path']}", "wb").write(data)
     print("  installé", f["path"])
 PY
+# Liste Multijoueur : posée seulement si le joueur n'en a pas encore (on n'écrase jamais la sienne).
+if [ -f "$WORK/pack/overrides/servers.dat" ]; then
+  if [ ! -f "$MC/servers.dat" ]; then
+    cp "$WORK/pack/overrides/servers.dat" "$MC/servers.dat"
+    echo "Serveur TerraCraft ajouté à la liste Multijoueur."
+  fi
+  rm "$WORK/pack/overrides/servers.dat"
+fi
 cp -r "$WORK/pack/overrides/." "$MC/"
 echo
-echo "TerraCraft est installé. Dans le launcher Minecraft, choisis le profil « fabric-loader-26.3 » puis connecte-toi au serveur."
+echo "TerraCraft est installé. Dans le launcher Minecraft, choisis le profil « fabric-loader-26.3 »,"
+echo "puis Multijoueur → serveur TerraCraft (adresse : terre1.falixsrv.me)."
