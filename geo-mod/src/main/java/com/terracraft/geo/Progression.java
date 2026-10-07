@@ -35,7 +35,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -44,6 +43,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Progression du survivant : chaque découverte rapporte des points ; 10 paliers débloquent
@@ -224,6 +227,17 @@ public final class Progression {
     private MinecraftServer server;
     private Path file;
     private boolean dirty;
+    /**
+     * Recherche des bunkers et caves hors du thread serveur : elle lit les données OSM et le
+     * relief, qui peuvent devoir être téléchargés. Sur le thread principal, cela figeait tout le
+     * serveur le temps du téléchargement.
+     */
+    private final ExecutorService locator = Executors.newSingleThreadExecutor(runnable -> {
+        Thread thread = new Thread(runnable, "TerraCraft-decouvertes");
+        thread.setDaemon(true);
+        return thread;
+    });
+    private final Set<UUID> locating = ConcurrentHashMap.newKeySet();
 
     public static Progression get() {
         return INSTANCE;
@@ -233,16 +247,10 @@ public final class Progression {
         this.server = server;
         this.file = server.getWorldPath(LevelResource.ROOT).resolve(GeoMod.MOD_ID).resolve("progression.json");
         records.clear();
-        if (Files.isRegularFile(file)) {
-            try {
-                Map<String, Record> stored = GSON.fromJson(Files.readString(file), new TypeToken<Map<String, Record>>() {
-                }.getType());
-                if (stored != null) {
-                    stored.forEach((uuid, record) -> records.put(UUID.fromString(uuid), record));
-                }
-            } catch (IOException | RuntimeException e) {
-                GeoMod.LOGGER.error("Impossible de lire {}", file, e);
-            }
+        Map<String, Record> stored = JsonStore.load(file,
+                json -> GSON.fromJson(json, new TypeToken<Map<String, Record>>() { }.getType()));
+        if (stored != null) {
+            stored.forEach((uuid, record) -> records.put(UUID.fromString(uuid), record));
         }
     }
 
@@ -253,8 +261,7 @@ public final class Progression {
         Map<String, Record> stored = new HashMap<>();
         records.forEach((uuid, record) -> stored.put(uuid.toString(), record));
         try {
-            Files.createDirectories(file.getParent());
-            Files.writeString(file, GSON.toJson(stored));
+            JsonStore.write(file, GSON.toJson(stored));
             dirty = false;
         } catch (IOException e) {
             GeoMod.LOGGER.error("Impossible d'écrire {}", file, e);
@@ -473,17 +480,37 @@ public final class Progression {
             if (r.places.add(zone)) {
                 count(player, "zones", 1, 5);
             }
-            String place = Wasteland.locate(generator.terrain(), player.getBlockX(), player.getBlockY(), player.getBlockZ());
-            if (place != null && r.places.add(place)) {
-                boolean bunker = place.startsWith("bunker");
-                player.sendOverlayMessage(Component.literal(bunker ? "Bunker découvert !" : "Cave à monstres découverte !")
-                        .withStyle(ChatFormatting.RED));
-                count(player, bunker ? "bunkers" : "caves", 1, bunker ? 25 : 15);
-            }
+            locateAsync(server, generator, player);
         }
         if (server.getTickCount() % 1200 == 0) {
             save();
         }
+    }
+
+    private void locateAsync(MinecraftServer server, GeoChunkGenerator generator, ServerPlayer player) {
+        UUID uuid = player.getUUID();
+        if (!locating.add(uuid)) {
+            return; // Recherche précédente pas encore terminée.
+        }
+        int x = player.getBlockX();
+        int y = player.getBlockY();
+        int z = player.getBlockZ();
+        CompletableFuture.supplyAsync(() -> Wasteland.locate(generator.terrain(), x, y, z), locator)
+                .whenComplete((place, error) -> server.execute(() -> {
+                    locating.remove(uuid);
+                    if (error != null) {
+                        GeoMod.LOGGER.debug("Recherche de découverte impossible en {}, {}, {}", x, y, z, error);
+                        return;
+                    }
+                    ServerPlayer online = server.getPlayerList().getPlayer(uuid);
+                    if (place == null || online == null || !record(online).places.add(place)) {
+                        return;
+                    }
+                    boolean bunker = place.startsWith("bunker");
+                    online.sendOverlayMessage(Component.literal(bunker ? "Bunker découvert !" : "Cave à monstres découverte !")
+                            .withStyle(ChatFormatting.RED));
+                    count(online, bunker ? "bunkers" : "caves", 1, bunker ? 25 : 15);
+                }));
     }
 
     void onKill(LivingEntity victim, ServerPlayer killer) {

@@ -24,7 +24,6 @@ import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,22 +50,18 @@ public final class Survival {
     private final Map<UUID, Place> homes = new HashMap<>();
     private final Map<UUID, Place> deaths = new HashMap<>();
     private final Map<UUID, Request> requests = new HashMap<>();
+    /** Une demande /tpa toutes les 10 s par joueur : pas de spam de sons et de messages. */
+    private final RateLimit tpaRate = new RateLimit(10_000);
     private Path file;
 
     void load(MinecraftServer server) {
         server.getGameRules().set(GameRules.KEEP_INVENTORY, true, server);
         file = server.getWorldPath(LevelResource.ROOT).resolve(GeoMod.MOD_ID).resolve("homes.json");
         homes.clear();
-        if (Files.isRegularFile(file)) {
-            try {
-                Map<String, Place> stored = GSON.fromJson(Files.readString(file), new TypeToken<Map<String, Place>>() {
-                }.getType());
-                if (stored != null) {
-                    stored.forEach((uuid, place) -> homes.put(UUID.fromString(uuid), place));
-                }
-            } catch (IOException | RuntimeException e) {
-                GeoMod.LOGGER.error("Impossible de lire {}", file, e);
-            }
+        Map<String, Place> stored = JsonStore.load(file,
+                json -> GSON.fromJson(json, new TypeToken<Map<String, Place>>() { }.getType()));
+        if (stored != null) {
+            stored.forEach((uuid, place) -> homes.put(UUID.fromString(uuid), place));
         }
     }
 
@@ -74,8 +69,7 @@ public final class Survival {
         Map<String, Place> stored = new HashMap<>();
         homes.forEach((uuid, place) -> stored.put(uuid.toString(), place));
         try {
-            Files.createDirectories(file.getParent());
-            Files.writeString(file, GSON.toJson(stored));
+            JsonStore.write(file, GSON.toJson(stored));
         } catch (IOException e) {
             GeoMod.LOGGER.error("Impossible d'écrire {}", file, e);
         }
@@ -139,12 +133,34 @@ public final class Survival {
         }));
         dispatcher.register(Commands.literal("home").executes(c -> {
             ServerPlayer player = c.getSource().getPlayerOrException();
+            if (inCombat(player)) {
+                return 0;
+            }
             return go(player, homes.get(player.getUUID()), "Pas encore de maison : /sethome là où tu veux revenir.", "Bienvenue chez toi.");
         }));
         dispatcher.register(Commands.literal("back").executes(c -> {
             ServerPlayer player = c.getSource().getPlayerOrException();
+            if (inCombat(player)) {
+                return 0;
+            }
             return go(player, deaths.get(player.getUUID()), "Aucun lieu de mort enregistré.", "Retour au lieu de ta mort.");
         }));
+    }
+
+    void onLeave(ServerPlayer player) {
+        requests.remove(player.getUUID());
+        requests.values().removeIf(request -> request.from().equals(player.getUUID()));
+        tpaRate.forget(player);
+    }
+
+    /** Blessé par une créature ou un joueur dans les 5 dernières secondes. */
+    private static boolean inCombat(ServerPlayer player) {
+        if (player.getLastHurtByMob() == null) {
+            return false;
+        }
+        player.sendSystemMessage(Component.literal("Impossible en plein combat : attends quelques secondes sans être touché.")
+                .withStyle(ChatFormatting.RED));
+        return true;
     }
 
     private int request(ServerPlayer from, ServerPlayer to) {
@@ -152,6 +168,13 @@ public final class Survival {
             from.sendSystemMessage(Component.literal("Tu ne peux pas te téléporter à toi-même.").withStyle(ChatFormatting.RED));
             return 0;
         }
+        long wait = tpaRate.remainingMs(from);
+        if (wait > 0) {
+            from.sendSystemMessage(Component.literal("Attends " + (wait + 999) / 1000 + " s avant une nouvelle demande.")
+                    .withStyle(ChatFormatting.RED));
+            return 0;
+        }
+        tpaRate.mark(from);
         requests.put(to.getUUID(), new Request(from.getUUID(), System.currentTimeMillis()));
         from.sendSystemMessage(Component.literal("Demande envoyée à " + to.getName().getString() + " (60 s).").withStyle(ChatFormatting.GRAY));
         to.sendSystemMessage(Component.literal(from.getName().getString() + " veut se téléporter à toi. ").withStyle(ChatFormatting.GOLD)
@@ -175,6 +198,11 @@ public final class Survival {
             from.sendSystemMessage(Component.literal(target.getName().getString() + " a refusé ta demande.").withStyle(ChatFormatting.RED));
             target.sendSystemMessage(Component.literal("Demande refusée.").withStyle(ChatFormatting.GRAY));
             return 1;
+        }
+        if (inCombat(from)) {
+            target.sendSystemMessage(Component.literal(from.getName().getString() + " est en combat : téléportation annulée.")
+                    .withStyle(ChatFormatting.RED));
+            return 0;
         }
         go(from, here(target), "", "Téléporté à " + target.getName().getString() + ".");
         target.sendSystemMessage(Component.literal(from.getName().getString() + " t'a rejoint.").withStyle(ChatFormatting.GREEN));

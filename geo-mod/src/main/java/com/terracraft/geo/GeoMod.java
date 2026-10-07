@@ -52,6 +52,13 @@ public final class GeoMod implements ModInitializer {
     private static final AuctionHouse AUCTION_HOUSE = new AuctionHouse();
     private static final Missions MISSIONS = new Missions();
 
+    private static final RateLimit GUI_RATE = new RateLimit(150);
+
+    private record PendingLoot(ServerPlayer player, net.minecraft.core.BlockPos pos) {
+    }
+
+    private static final java.util.List<PendingLoot> PENDING_LOOT = new java.util.ArrayList<>();
+
     /** Véhicule complet, plein d'essence, posé devant le joueur (tests et administration). */
     private static int spawnVehicle(CommandSourceStack source, Vehicle.Kind kind) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
@@ -127,21 +134,39 @@ public final class GeoMod implements ModInitializer {
         PayloadTypeRegistry.serverboundPlay().register(RequestMarketPayload.TYPE, RequestMarketPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(BuyListingPayload.TYPE, BuyListingPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RemoveListingPayload.TYPE, RemoveListingPayload.CODEC);
-        ServerPlayNetworking.registerGlobalReceiver(RequestSheetPayload.TYPE, (payload, context) ->
-                Progression.get().sendSheet(context.player()));
-        ServerPlayNetworking.registerGlobalReceiver(RequestMissionsPayload.TYPE, (payload, context) ->
-                MISSIONS.send(context.player()));
-        ServerPlayNetworking.registerGlobalReceiver(ClaimMissionPayload.TYPE, (payload, context) ->
-                MISSIONS.claimFromClient(context.player(), payload.id(), AUCTION_HOUSE));
-        ServerPlayNetworking.registerGlobalReceiver(RequestMarketPayload.TYPE, (payload, context) ->
-                AUCTION_HOUSE.sendMarket(context.player(), payload.page()));
+        // Les écrans envoient ces paquets sur un clic : au-delà de quelques par seconde, c'est un
+        // client modifié qui inonde le serveur (chaque achat écrit sur le disque).
+        ServerPlayNetworking.registerGlobalReceiver(RequestSheetPayload.TYPE, (payload, context) -> {
+            if (GUI_RATE.allow(context.player())) {
+                Progression.get().sendSheet(context.player());
+            }
+        });
+        ServerPlayNetworking.registerGlobalReceiver(RequestMissionsPayload.TYPE, (payload, context) -> {
+            if (GUI_RATE.allow(context.player())) {
+                MISSIONS.send(context.player());
+            }
+        });
+        ServerPlayNetworking.registerGlobalReceiver(ClaimMissionPayload.TYPE, (payload, context) -> {
+            if (GUI_RATE.allow(context.player())) {
+                MISSIONS.claimFromClient(context.player(), payload.id(), AUCTION_HOUSE);
+            }
+        });
+        ServerPlayNetworking.registerGlobalReceiver(RequestMarketPayload.TYPE, (payload, context) -> {
+            if (GUI_RATE.allow(context.player())) {
+                AUCTION_HOUSE.sendMarket(context.player(), payload.page());
+            }
+        });
         ServerPlayNetworking.registerGlobalReceiver(BuyListingPayload.TYPE, (payload, context) -> {
-            AUCTION_HOUSE.buyFromClient(context.player(), payload.id());
-            AUCTION_HOUSE.sendMarket(context.player());
+            if (GUI_RATE.allow(context.player())) {
+                AUCTION_HOUSE.buyFromClient(context.player(), payload.id());
+                AUCTION_HOUSE.sendMarket(context.player());
+            }
         });
         ServerPlayNetworking.registerGlobalReceiver(RemoveListingPayload.TYPE, (payload, context) -> {
-            AUCTION_HOUSE.removeFromClient(context.player(), payload.id());
-            AUCTION_HOUSE.sendMarket(context.player());
+            if (GUI_RATE.allow(context.player())) {
+                AUCTION_HOUSE.removeFromClient(context.player(), payload.id());
+                AUCTION_HOUSE.sendMarket(context.player());
+            }
         });
         ServerPlayNetworking.registerGlobalReceiver(StartPointPayload.TYPE, (payload, context) ->
                 START_POINTS.onChoice(context.player(), payload));
@@ -182,12 +207,24 @@ public final class GeoMod implements ModInitializer {
             }
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
-            // Coffre jamais ouvert (table de butin encore présente) : compte comme fouillé.
+            // Coffre jamais ouvert (table de butin encore présente) : on vérifie à la fin du tick
+            // que le butin a réellement été généré. Un clic refusé (claim, spectateur, accroupi
+            // avec un bloc) ne compte donc pas, et un même coffre ne compte qu'une fois.
             if (player instanceof ServerPlayer serverPlayer && level.getBlockEntity(hit.getBlockPos()) instanceof RandomizableContainer container
                     && container.getLootTable() != null) {
-                Progression.get().count(serverPlayer, "loot", 1, 2);
+                PENDING_LOOT.add(new PendingLoot(serverPlayer, hit.getBlockPos().immutable()));
             }
             return InteractionResult.PASS;
+        });
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            for (PendingLoot pending : PENDING_LOOT) {
+                if (!pending.player().isRemoved()
+                        && pending.player().level().getBlockEntity(pending.pos()) instanceof RandomizableContainer container
+                        && container.getLootTable() == null) {
+                    Progression.get().count(pending.player(), "loot", 1, 2);
+                }
+            }
+            PENDING_LOOT.clear();
         });
         ServerTickEvents.END_SERVER_TICK.register(REAL_SKY::tick);
         ServerTickEvents.END_SERVER_TICK.register(Space::tick);
@@ -196,7 +233,11 @@ public final class GeoMod implements ModInitializer {
             Progression.get().applyPerks(handler.player);
             ServerGuide.welcome(handler.player);
         });
-        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> START_POINTS.onLeave(handler.player));
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
+            START_POINTS.onLeave(handler.player);
+            GUI_RATE.forget(handler.player);
+            SURVIVAL.onLeave(handler.player);
+        });
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> SURVIVAL.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> AUCTION_HOUSE.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> MISSIONS.register(dispatcher, AUCTION_HOUSE));

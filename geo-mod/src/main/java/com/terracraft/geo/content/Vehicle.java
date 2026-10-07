@@ -25,6 +25,9 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
@@ -80,7 +83,15 @@ public class Vehicle extends VehicleEntity implements Container {
     private static final EntityDataAccessor<Byte> DATA_WHEELS = SynchedEntityData.defineId(Vehicle.class, EntityDataSerializers.BYTE);
     private static final EntityDataAccessor<Integer> DATA_FUEL = SynchedEntityData.defineId(Vehicle.class, EntityDataSerializers.INT);
 
+    /** Marque posée sur un châssis issu d'un véhicule déjà assemblé une fois. */
+    public static final String ASSEMBLED_TAG = "terracraft_assembled";
+
     private final Kind kind;
+    /**
+     * Déjà assemblé une fois : remonter un véhicule démonté ne rapporte plus de progression
+     * (sinon démonter/remonter en boucle donnait XP, points et récompenses de palier à l'infini).
+     */
+    private boolean assembled;
     private UUID owner;
     private final Set<UUID> trusted = new HashSet<>();
     private final SimpleContainer storage;
@@ -163,18 +174,30 @@ public class Vehicle extends VehicleEntity implements Container {
             }
             return InteractionResult.SUCCESS;
         }
-        // Démontage rapide : main vide + Shift-clic droit rend tout le véhicule
-        // remontable immédiatement, y compris le carburant restant.
+        // Coffre : main vide + Shift-clic droit.
         if (player.isSecondaryUseActive() && stack.isEmpty()) {
             if (!level().isClientSide() && player instanceof ServerPlayer serverPlayer) {
                 serverPlayer.openMenu(new SimpleMenuProvider((id, inventory, menuPlayer) ->
                                 kind == Kind.TRUCK ? ChestMenu.sixRows(id, inventory, this)
                                         : ChestMenu.threeRows(id, inventory, this),
-                        Component.literal(kind == Kind.TRUCK ? "Coffre du camion" : "Coffre de la voiture")));
+                        Component.literal(switch (kind) {
+                            case TRUCK -> "Coffre du camion";
+                            case MOTORCYCLE -> "Sacoches de la moto";
+                            default -> "Coffre de la voiture";
+                        })));
             }
             return InteractionResult.SUCCESS;
         }
+        // Démontage : Shift-clic droit avec un châssis du même type en main ; tout est rendu,
+        // y compris le carburant restant et le contenu du coffre.
         if (player.isSecondaryUseActive() && isMatchingChassis(item)) {
+            if (owner != null && !isOwnedBy(player)) {
+                if (!level().isClientSide()) {
+                    player.sendOverlayMessage(Component.literal("Seul le propriétaire peut démonter ce véhicule.")
+                            .withStyle(ChatFormatting.RED));
+                }
+                return InteractionResult.SUCCESS;
+            }
             if (!level().isClientSide() && level() instanceof ServerLevel server) {
                 dismantle(server, player);
             }
@@ -216,9 +239,12 @@ public class Vehicle extends VehicleEntity implements Container {
             entityData.set(DATA_PARTS, (byte) (parts() | part));
             used = true;
         }
-        if (used && isComplete() && item != ModContent.FUEL_CAN && player instanceof ServerPlayer builder) {
-            // Dernière pièce montée : le véhicule est complet.
-            com.terracraft.geo.Progression.get().count(builder, "vehicles", 1, 20);
+        if (used && isComplete() && item != ModContent.FUEL_CAN && !assembled) {
+            // Dernière pièce montée : le véhicule est complet (compté une seule fois par véhicule).
+            assembled = true;
+            if (player instanceof ServerPlayer builder) {
+                com.terracraft.geo.Progression.get().count(builder, "vehicles", 1, 20);
+            }
         }
         if (used) {
             stack.consume(1, player);
@@ -234,7 +260,7 @@ public class Vehicle extends VehicleEntity implements Container {
         // Le démontage est une récupération volontaire : on essaie d'abord
         // d'ajouter chaque élément à l'inventaire, puis on ne jette au sol que
         // le surplus si l'inventaire est plein.
-        recover(level, player, new ItemStack(getDropItem()));
+        recover(level, player, chassis());
         if (wheels() > 0) {
             recover(level, player, new ItemStack(ModContent.WHEEL, wheels()));
         }
@@ -260,6 +286,20 @@ public class Vehicle extends VehicleEntity implements Container {
         if (!player.getInventory().add(stack) && !stack.isEmpty()) {
             spawnAtLocation(level, stack);
         }
+    }
+
+    /** Châssis rendu au démontage ou à la destruction, marqué s'il a déjà servi. */
+    private ItemStack chassis() {
+        ItemStack stack = new ItemStack(getDropItem());
+        if (assembled || isComplete()) {
+            CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putBoolean(ASSEMBLED_TAG, true));
+        }
+        return stack;
+    }
+
+    /** Véhicule posé avec un châssis déjà utilisé. */
+    public void markAssembled() {
+        assembled = true;
     }
 
     private boolean isMatchingChassis(Item item) {
@@ -330,8 +370,7 @@ public class Vehicle extends VehicleEntity implements Container {
 
     @Override
     public boolean stillValid(Player player) {
-        return !isRemoved() && owner != null && canAccess(player)
-                && player.distanceToSqr(this) <= 64;
+        return !isRemoved() && canAccess(player) && player.distanceToSqr(this) <= 64;
     }
 
     @Override
@@ -342,7 +381,7 @@ public class Vehicle extends VehicleEntity implements Container {
     /** « Il manque : 2 roues, radiateur » ou « Prêt — essence 75 % ». */
     public Component status() {
         List<String> missing = new ArrayList<>();
-        if (wheels() < 4) {
+        if (wheels() < kind.requiredWheels) {
             missing.add((kind.requiredWheels - wheels()) + (kind.requiredWheels - wheels() > 1 ? " roues" : " roue"));
         }
         if (!has(ENGINE)) {
@@ -513,7 +552,11 @@ public class Vehicle extends VehicleEntity implements Container {
     /** Casser le véhicule rend le châssis et les pièces montées. */
     @Override
     protected void destroy(ServerLevel level, DamageSource source) {
-        super.destroy(level, source);
+        kill(level);
+        if (!level.getGameRules().get(GameRules.ENTITY_DROPS)) {
+            return;
+        }
+        spawnAtLocation(level, chassis());
         if (wheels() > 0) {
             spawnAtLocation(level, new ItemStack(ModContent.WHEEL, wheels()));
         }
@@ -534,6 +577,7 @@ public class Vehicle extends VehicleEntity implements Container {
         output.putByte("Parts", (byte) parts());
         output.putByte("Wheels", (byte) wheels());
         output.putInt("Fuel", fuel());
+        output.putBoolean("Assembled", assembled);
         if (owner != null) {
             output.putString("Owner", owner.toString());
         }
@@ -546,6 +590,8 @@ public class Vehicle extends VehicleEntity implements Container {
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         setParts(input.getByteOr("Parts", (byte) 0), input.getByteOr("Wheels", (byte) 0), input.getIntOr("Fuel", 0));
+        // Véhicules sauvegardés avant ce champ : complets = déjà comptés.
+        assembled = input.getBooleanOr("Assembled", isComplete());
         owner = input.getString("Owner").flatMap(Vehicle::parseUuid).orElse(null);
         trusted.clear();
         for (String value : input.getStringOr("Trusted", "").split(",")) {

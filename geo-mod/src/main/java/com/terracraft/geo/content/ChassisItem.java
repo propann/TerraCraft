@@ -1,6 +1,8 @@
 package com.terracraft.geo.content;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -39,6 +41,10 @@ public class ChassisItem extends Item {
         vehicle.snapTo(at.x, at.y, at.z, player.getYRot(), 0);
         if (!level.noCollision(vehicle, vehicle.getBoundingBox())) {
             return InteractionResult.FAIL;
+        }
+        if (vehicle instanceof Vehicle car && stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY)
+                .copyTag().getBooleanOr(Vehicle.ASSEMBLED_TAG, false)) {
+            car.markAssembled();
         }
         if (!level.isClientSide()) {
             level.addFreshEntity(vehicle);

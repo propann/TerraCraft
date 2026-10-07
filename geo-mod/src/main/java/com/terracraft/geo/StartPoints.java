@@ -23,7 +23,6 @@ import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,16 +67,10 @@ public final class StartPoints {
         choices.clear();
         invited.clear();
         preparing.clear();
-        if (Files.isRegularFile(file)) {
-            try {
-                Map<String, Choice> stored = GSON.fromJson(Files.readString(file), new TypeToken<Map<String, Choice>>() {
-                }.getType());
-                if (stored != null) {
-                    stored.forEach((uuid, choice) -> choices.put(UUID.fromString(uuid), choice));
-                }
-            } catch (IOException | RuntimeException e) {
-                GeoMod.LOGGER.error("Impossible de lire {}", file, e);
-            }
+        Map<String, Choice> stored = JsonStore.load(file,
+                json -> GSON.fromJson(json, new TypeToken<Map<String, Choice>>() { }.getType()));
+        if (stored != null) {
+            stored.forEach((uuid, choice) -> choices.put(UUID.fromString(uuid), choice));
         }
     }
 
@@ -85,8 +78,7 @@ public final class StartPoints {
         Map<String, Choice> stored = new HashMap<>();
         choices.forEach((uuid, choice) -> stored.put(uuid.toString(), choice));
         try {
-            Files.createDirectories(file.getParent());
-            Files.writeString(file, GSON.toJson(stored));
+            JsonStore.write(file, GSON.toJson(stored));
         } catch (IOException e) {
             GeoMod.LOGGER.error("Impossible d'écrire {}", file, e);
         }

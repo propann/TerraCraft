@@ -16,7 +16,6 @@ import net.minecraft.world.level.storage.LevelResource;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,17 +46,10 @@ final class Missions {
     void load(MinecraftServer server) {
         file = server.getWorldPath(LevelResource.ROOT).resolve(GeoMod.MOD_ID).resolve("missions.json");
         claimed.clear();
-        if (!Files.isRegularFile(file)) {
-            return;
-        }
-        try {
-            Map<String, Set<String>> stored = gson.fromJson(Files.readString(file),
-                    new TypeToken<Map<String, Set<String>>>() { }.getType());
-            if (stored != null) {
-                stored.forEach((uuid, ids) -> claimed.put(UUID.fromString(uuid), new HashSet<>(ids)));
-            }
-        } catch (IOException | RuntimeException e) {
-            GeoMod.LOGGER.error("Impossible de lire {}", file, e);
+        Map<String, Set<String>> stored = JsonStore.load(file,
+                json -> gson.fromJson(json, new TypeToken<Map<String, Set<String>>>() { }.getType()));
+        if (stored != null) {
+            stored.forEach((uuid, ids) -> claimed.put(UUID.fromString(uuid), new HashSet<>(ids)));
         }
     }
 
@@ -66,10 +58,9 @@ final class Missions {
             return;
         }
         try {
-            Files.createDirectories(file.getParent());
             Map<String, Set<String>> stored = new HashMap<>();
             claimed.forEach((uuid, ids) -> stored.put(uuid.toString(), ids));
-            Files.writeString(file, gson.toJson(stored));
+            JsonStore.write(file, gson.toJson(stored));
         } catch (IOException e) {
             GeoMod.LOGGER.error("Impossible d'enregistrer {}", file, e);
         }
@@ -123,8 +114,9 @@ final class Missions {
             player.sendSystemMessage(Component.literal("Mission non terminée.").withStyle(ChatFormatting.RED));
             return 0;
         }
-        auctionHouse.credit(player, mission.reward(), mission.title());
         save();
+        auctionHouse.credit(player, mission.reward(), mission.title());
+        GeoMod.LOGGER.info("[MISSION] {} réclame {} (+{} crédits)", player.getName().getString(), mission.id(), mission.reward());
         player.sendSystemMessage(Component.literal("Mission terminée : " + mission.title()).withStyle(ChatFormatting.GOLD));
         return 1;
     }
