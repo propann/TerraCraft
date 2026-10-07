@@ -47,7 +47,8 @@ public final class Plans {
                 "Marcher sur la Lune et miner 5 minerais de titane",
                 p -> has(p, "moon") && Progression.get().stat(p, "titanium") >= 5,
                 List.of(new Material(() -> ModBlocks.HELIUM3_SHARD, 2, "éclats d'hélium-3"),
-                        new Material(() -> Items.REDSTONE_BLOCK, 1, "bloc de redstone")));
+                        new Material(() -> Items.REDSTONE_BLOCK, 1, "bloc de redstone"),
+                        new Material(() -> ModBlocks.ALIEN_ARTIFACT, 1, "artefact extraterrestre")));
 
         public final String label;
         public final String effect;

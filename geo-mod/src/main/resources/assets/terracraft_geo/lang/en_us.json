@@ -61,5 +61,9 @@
   "item.terracraft_geo.rover_kit": "Lunar rover (crated)",
   "item.terracraft_geo.lunar_base_kit": "Lunar base kit",
   "item.terracraft_geo.mars_base_kit": "Mars base kit",
-  "entity.terracraft_geo.rover": "Lunar rover"
+  "entity.terracraft_geo.rover": "Lunar rover",
+  "block.terracraft_geo.alien_stone": "Alien stone",
+  "block.terracraft_geo.alien_glyph": "Alien glyph",
+  "block.terracraft_geo.lunar_crystal": "Lunar crystal",
+  "item.terracraft_geo.alien_artifact": "Alien artifact"
 }

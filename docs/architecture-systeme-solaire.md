@@ -132,4 +132,9 @@ Les véhicules terrestres ne deviennent pas des véhicules spatiaux par magie : 
 - Bases de surface (0.15.0) : kits lunaire (matériaux terrestres) et martien (titane, hélium-3) déployés sous la fusée à
   l'atterrissage (aire 9×9 avec pinces et balise, tunnel avec sas, salle de vie 11×11) ; le terrain naturel est creusé,
   jamais une construction. Rover lunaire en caisse : électrique, recharge solaire à l'arrêt, déposé par la fusée.
+- Sous-sol lunaire (0.16.0, `world/MoonUnderground`) : cavernes à deux échelles de bruit 3D entre y = −52 et 14 blocs
+  sous la surface ; un sanctuaire par carré de 384 blocs (60 %) — salle en dôme (rayon 34, sol y = −10), pyramide à
+  degrés (chambre au trésor, couloir vers l'est), 8 piliers à glyphes, puits de 5 × 5 avec échelle jusqu'à la surface
+  marqué de 4 piliers lumineux ; donjons enfouis (2,5 % des chunks, générateur de rampants, 2 coffres). La géométrie
+  est calculée colonne par colonne (identique pour `getBaseColumn`), les coffres et gardiens à la décoration du chunk.
 

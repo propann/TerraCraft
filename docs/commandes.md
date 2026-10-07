@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.15). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.16). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -49,6 +49,7 @@ Référence de TerraCraft (version 0.15). Tout est en français ; `/aide` en don
 | `/terracraft largage` | Ravitaillement militaire près de soi |
 | `/terracraft fusee decoller` | Lancer la fusée où l'on est assis (mêmes vérifications que la touche Espace) |
 | `/terracraft depart` | Rouvrir la carte de départ pour soi |
+| `/terracraft sanctuaire` | Sur la Lune : se rendre au pied du puits du sanctuaire le plus proche |
 | `/terracraft vehicule voiture|camion|moto` | Véhicule complet et plein devant soi |
 | spark : `/spark tps`, `/spark health`, `/spark profiler` | Performances du serveur |
 

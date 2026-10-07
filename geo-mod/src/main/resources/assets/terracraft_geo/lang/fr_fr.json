@@ -61,5 +61,9 @@
   "item.terracraft_geo.rover_kit": "Rover lunaire (en caisse)",
   "item.terracraft_geo.lunar_base_kit": "Kit de base lunaire",
   "item.terracraft_geo.mars_base_kit": "Kit de base martienne",
-  "entity.terracraft_geo.rover": "Rover lunaire"
+  "entity.terracraft_geo.rover": "Rover lunaire",
+  "block.terracraft_geo.alien_stone": "Pierre extraterrestre",
+  "block.terracraft_geo.alien_glyph": "Glyphe extraterrestre",
+  "block.terracraft_geo.lunar_crystal": "Cristal lunaire",
+  "item.terracraft_geo.alien_artifact": "Artefact extraterrestre"
 }

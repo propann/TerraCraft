@@ -56,7 +56,20 @@ public final class ModBlocks {
             BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).requiresCorrectToolForDrops().strength(4f, 10f)
                     .sound(SoundType.METAL).lightLevel(state -> 6));
 
+    /** Pierre extraterrestre : pyramides et ruines du sous-sol lunaire. */
+    public static final Block ALIEN_STONE = block("alien_stone", Block::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PURPLE).requiresCorrectToolForDrops().strength(4f, 9f));
+    /** Glyphe extraterrestre : pierre gravée qui luit (bandes des pyramides, piliers des ruines). */
+    public static final Block ALIEN_GLYPH = block("alien_glyph", Block::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).requiresCorrectToolForDrops().strength(4f, 9f).lightLevel(state -> 10));
+    /** Cristal lunaire : éclaire les cavernes géantes, au sol et au plafond. */
+    public static final Block LUNAR_CRYSTAL = block("lunar_crystal", TransparentBlock::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.DIAMOND).strength(1.5f).sound(SoundType.AMETHYST)
+                    .lightLevel(state -> 12).noOcclusion());
+
     public static final Item TITANIUM_INGOT = ModContent.item("titanium_ingot", Item::new, new Item.Properties());
+    /** Artefact extraterrestre : trésor rare des pyramides et sanctuaires lunaires. */
+    public static final Item ALIEN_ARTIFACT = ModContent.item("alien_artifact", Item::new, new Item.Properties().stacksTo(16));
     public static final Item HELIUM3_SHARD = ModContent.item("helium3_shard", Item::new, new Item.Properties());
 
     public static void init() {
@@ -68,10 +81,14 @@ public final class ModBlocks {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(output -> {
             output.accept(TITANIUM_ORE);
             output.accept(HELIUM3_CRYSTALS);
+            output.accept(ALIEN_STONE);
+            output.accept(ALIEN_GLYPH);
+            output.accept(LUNAR_CRYSTAL);
         });
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output -> {
             output.accept(TITANIUM_INGOT);
             output.accept(HELIUM3_SHARD);
+            output.accept(ALIEN_ARTIFACT);
         });
     }
 

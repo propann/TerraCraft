@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.16", "Sous-sol lunaire : cavernes géantes, sanctuaires et pyramides extraterrestres"),
             new Change("0.15", "Bases lunaire et martienne en kit, rover lunaire solaire"),
             new Change("0.14", "Station orbitale d'abord (kit), fusées à 2 et 4 réservoirs, sas et quai d'amarrage"),
             new Change("0.13", "Accueil refait, liste des joueurs, icône du serveur"),

@@ -94,7 +94,7 @@ public final class MoonChunkGenerator extends ChunkGenerator {
     }
 
     /** Bruit de valeur 3D lissé dans [0, 1) pour les filons. */
-    private static double noise3(double x, double y, double z, long salt) {
+    static double noise3(double x, double y, double z, long salt) {
         int x0 = (int) Math.floor(x);
         int y0 = (int) Math.floor(y);
         int z0 = (int) Math.floor(z);
@@ -152,7 +152,7 @@ public final class MoonChunkGenerator extends ChunkGenerator {
         return sum;
     }
 
-    private static double fbm(double x, double z, int octaves, long salt) {
+    static double fbm(double x, double z, int octaves, long salt) {
         double sum = 0;
         double amplitude = 1;
         double norm = 0;
@@ -216,19 +216,25 @@ public final class MoonChunkGenerator extends ChunkGenerator {
                 chunk.getSection(i).acquire();
             }
             try {
+                BlockState[] states = new BlockState[chunk.getHeight()];
+                boolean[] carved = new boolean[states.length];
                 for (int lx = 0; lx < 16; lx++) {
                     for (int lz = 0; lz < 16; lz++) {
                         int x = pos.getMinBlockX() + lx;
                         int z = pos.getMinBlockZ() + lz;
-                        int surface = Math.min(chunk.getMaxY() - 1, height(x, z));
+                        int surface = Math.min(chunk.getMaxY() - 4, height(x, z));
                         boolean rim = Math.abs(height(x + 1, z) - surface) + Math.abs(height(x, z + 1) - surface) >= 3;
-                        for (int y = minY; y <= surface; y++) {
-                            BlockState state = y == minY ? BEDROCK : block(x, z, y, surface, rim);
+                        int columnTop = fill(x, z, surface, rim, minY, states, carved);
+                        for (int y = minY; y <= columnTop; y++) {
+                            BlockState state = states[y - minY];
+                            if (state.isAir()) {
+                                continue;
+                            }
                             LevelChunkSection section = chunk.getSection(chunk.getSectionIndex(y));
                             section.setBlockState(lx, SectionPos.sectionRelative(y), lz, state, false);
                         }
                         // Cristaux d'hélium-3 affleurant sur les hautes terres (0,3 % des colonnes).
-                        if (!isMare(x, z) && Math.floorMod(Apocalypse.hash(x, z, 43), 1000) < 3 && surface + 1 < chunk.getMaxY()) {
+                        if (columnTop == surface && !isMare(x, z) && Math.floorMod(Apocalypse.hash(x, z, 43), 1000) < 3 && surface + 1 < chunk.getMaxY()) {
                             LevelChunkSection section = chunk.getSection(chunk.getSectionIndex(surface + 1));
                             section.setBlockState(lx, SectionPos.sectionRelative(surface + 1), lz, CRYSTALS, false);
                         }
@@ -244,16 +250,41 @@ public final class MoonChunkGenerator extends ChunkGenerator {
         }, Util.backgroundExecutor().forName("terracraftMoon"));
     }
 
-    private BlockState[] column(int x, int z, LevelHeightAccessor height) {
-        int surface = height(x, z);
-        BlockState[] states = new BlockState[height.getHeight()];
+    /**
+     * Remplit la colonne (indice = y - minY) : terrain, cavernes, sanctuaire et cristaux. Renvoie le y le plus haut
+     * occupé. Partagé par la génération et par {@link #getBaseColumn}, pour qu'ils restent identiques.
+     */
+    private static int fill(int x, int z, int surface, boolean rim, int minY, BlockState[] states, boolean[] carved) {
         Arrays.fill(states, AIR);
-        for (int i = 0; i < states.length; i++) {
-            int y = height.getMinY() + i;
-            if (y <= surface) {
-                states[i] = i == 0 ? BEDROCK : block(x, z, y, surface, false);
+        Arrays.fill(carved, false);
+        MoonUnderground.Site site = MoonUnderground.site(x, z);
+        int top = Math.min(minY + states.length - 1, MoonUnderground.top(site, x, z, surface));
+        for (int y = minY; y <= top; y++) {
+            int i = y - minY;
+            BlockState structure = y == minY ? null : MoonUnderground.sanctuary(site, x, y, z, surface);
+            if (structure != null) {
+                states[i] = structure;
+                carved[i] = structure.isAir() || y > surface;
+            } else if (y > surface) {
+                states[i] = AIR;
+            } else if (y == minY) {
+                states[i] = BEDROCK;
+            } else if (MoonUnderground.cave(x, y, z, surface)) {
+                carved[i] = true;
+            } else {
+                states[i] = block(x, z, y, surface, rim);
             }
         }
+        for (int i = top - minY + 1; i < states.length; i++) {
+            carved[i] = false;
+        }
+        MoonUnderground.crystals(states, carved, x, z, site);
+        return top;
+    }
+
+    private BlockState[] column(int x, int z, LevelHeightAccessor height) {
+        BlockState[] states = new BlockState[height.getHeight()];
+        fill(x, z, height(x, z), false, height.getMinY(), states, new boolean[states.length]);
         return states;
     }
 
@@ -269,13 +300,15 @@ public final class MoonChunkGenerator extends ChunkGenerator {
 
     @Override
     public void addDebugScreenInfo(List<String> result, RandomState randomState, BlockPos feetPos, SamplerContext samplerContext) {
-        result.add("TerraCraft : la Lune" + (isMare(feetPos.getX(), feetPos.getZ()) ? " (mer)" : " (hautes terres)"));
+        result.add("TerraCraft : la Lune" + (isMare(feetPos.getX(), feetPos.getZ()) ? " (mer)" : " (hautes terres)")
+                + (MoonUnderground.inHall(feetPos) ? " — sanctuaire extraterrestre" : ""));
     }
 
     /** Épave de satellite : carcasse métallique, panneaux solaires brisés et un coffre (1,5 % des chunks). */
     @Override
     public void applyBiomeDecoration(WorldGenLevel level, ChunkAccess chunk, StructureManager structureManager) {
         ChunkPos pos = chunk.getPos();
+        MoonUnderground.decorate(level, pos);
         long h = Apocalypse.hash(pos.x(), pos.z(), 47);
         if (Math.floorMod(h, 1000) >= 15) {
             return;
@@ -283,6 +316,9 @@ public final class MoonChunkGenerator extends ChunkGenerator {
         int cx = pos.getMinBlockX() + 8;
         int cz = pos.getMinBlockZ() + 8;
         int ground = height(cx, cz) + 1;
+        if (MoonUnderground.top(MoonUnderground.site(cx, cz), cx, cz, ground - 1) > ground - 1) {
+            return; // Pas d'épave sur le puits d'un sanctuaire.
+        }
         BlockState body = ModBlocks.STATION_HULL.defaultBlockState();
         BlockState panel = Blocks.STAINED_GLASS.pick(DyeColor.BLUE).defaultBlockState();
         for (int dx = -1; dx <= 1; dx++) {

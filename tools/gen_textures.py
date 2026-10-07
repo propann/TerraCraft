@@ -728,6 +728,41 @@ def draw_base_kit(colour):
     return draw
 
 
+def alien_patterns():
+    """Pierre extraterrestre (violet sombre), glyphes cyan lumineux, cristal lunaire, artefact."""
+    def joints(c):
+        for k in (0, 8):
+            c.rect(0, k, 16, 1, (38, 26, 52))
+            c.rect(k + (4 if k else 0), 0, 1, 8, (38, 26, 52))
+            c.rect(12 - k, 8, 1, 8, (38, 26, 52))
+    block_tex("alien_stone", (70, 52, 92), joints, seed=91)
+
+    def glyph(c):
+        c.rect(0, 0, 16, 1, (38, 26, 52))
+        c.rect(0, 15, 16, 1, (38, 26, 52))
+        cyan = (90, 240, 230)
+        for x, y, w, h in [(3, 3, 1, 10), (3, 3, 4, 1), (6, 3, 1, 4), (9, 5, 4, 1), (12, 5, 1, 7),
+                           (9, 11, 4, 1), (9, 8, 1, 4), (5, 10, 2, 2)]:
+            c.rect(x, y, w, h, cyan)
+    block_tex("alien_glyph", (60, 44, 80), glyph, seed=92)
+
+    def crystal(c):
+        for x in range(16):
+            for y in range(16):
+                if (x + y) % 5 == 0 or (x - y) % 7 == 0:
+                    c.set(x, y, (210, 250, 255, 255))
+    block_tex("lunar_crystal", (120, 200, 235), crystal, seed=93, alpha=200)
+
+    def artifact(c):
+        for y in range(2, 14):
+            w = 6 - abs(8 - y) // 2
+            c.rect(8 - w // 2 - 1, y, w + 2, 1, (70, 52, 92))
+        c.rect(6, 5, 4, 1, (90, 240, 230))
+        c.rect(7, 6, 2, 4, (90, 240, 230))
+        c.rect(6, 10, 4, 1, (90, 240, 230))
+    icon("alien_artifact", artifact)
+
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -782,6 +817,7 @@ def main():
     icon("orbital_station_kit", draw_orbital_station_kit)
     rover()
     icon("rover_kit", draw_rover_kit)
+    alien_patterns()
     icon("lunar_base_kit", draw_base_kit((200, 200, 206)))
     icon("mars_base_kit", draw_base_kit((200, 110, 70)))
     icon("station_module", draw_station_module)

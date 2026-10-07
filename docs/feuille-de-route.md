@@ -106,7 +106,8 @@ génération ni perte d'objet.
 - [x] **Fusées à 1, 2, 3 ou 4 réservoirs** (8 à 20 doses, autant de charges utiles), propulseurs visibles, hublots.
 - [x] **Bases lunaire et martienne en kit** (charge utile) déployées à l'atterrissage : aire avec pinces, sas, salle de vie.
 - [x] **Rover lunaire** (charge utile ou caisse) : électrique, recharge solaire à l'arrêt, remballé par son propriétaire.
-- [ ] **Sous-sol lunaire vivant** : cavernes géantes, pyramides et donjons extraterrestres, cristaux, butin alien.
+- [x] **Sous-sol lunaire vivant** : cavernes géantes, sanctuaires (salle en dôme, pyramide, gardiens, puits marqué),
+      donjons enfouis, cristaux lumineux, artefacts extraterrestres (exigés par la navigation martienne).
 - [ ] **Carte des étoiles** : écran de navigation (destinations, coûts, conditions) à la place du choix au clic.
 - [x] Stations en kit (modules pressurisés), balise d'arrivée, `/station`.
 - [x] Plans de fusée et atelier de station ; Mars exige la navigation martienne.

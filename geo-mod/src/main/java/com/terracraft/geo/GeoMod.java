@@ -432,6 +432,26 @@ public final class GeoMod implements ModInitializer {
                                     }
                                     return 1;
                                 }))
+                        .then(Commands.literal("sanctuaire")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> {
+                                    ServerPlayer player = command.getSource().getPlayerOrException();
+                                    if (player.level().dimension() != Space.MOON) {
+                                        command.getSource().sendFailure(Component.literal("Les sanctuaires sont sur la Lune."));
+                                        return 0;
+                                    }
+                                    var site = com.terracraft.geo.world.MoonUnderground.nearest(player.getBlockX(), player.getBlockZ());
+                                    if (site == null) {
+                                        command.getSource().sendFailure(Component.literal("Aucun sanctuaire à moins de 800 blocs."));
+                                        return 0;
+                                    }
+                                    var at = site.entrance();
+                                    player.teleportTo(player.level(), at.getX() + 0.5, at.getY(), at.getZ() + 0.5,
+                                            java.util.Set.of(), 90, 0, true);
+                                    command.getSource().sendSuccess(() -> Component.literal("Sanctuaire : trésor en "
+                                            + site.chest().toShortString() + ", puits en " + (site.x() + 22) + " " + site.z()), true);
+                                    return 1;
+                                }))
                         .then(Commands.literal("depart")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> {

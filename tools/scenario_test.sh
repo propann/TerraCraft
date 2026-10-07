@@ -123,6 +123,16 @@ cmd "execute as Bob run terracraft fusee decoller" 32
 cmd "data get entity Bob Dimension" 1
 cmd "execute if entity @e[type=terracraft_geo:rover]" 1
 cmd "execute as Bob at Bob run data get entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] Fuel" 1
+# Sous-sol lunaire : visite du sanctuaire le plus proche (téléportation au pied du puits, face à la pyramide)
+cmd "effect give Bob minecraft:resistance 120 255 true" 1
+cmd "execute as Bob run terracraft sanctuaire" 10
+cmd "execute as Bob run terracraft sanctuaire" 0
+cmd "execute at Bob if block ~-19 ~1 ~ minecraft:chest run say SANCTUAIRE_COFFRE" 1
+cmd "execute as Bob run terracraft sanctuaire" 0
+cmd "execute at Bob if block ~ ~-1 ~ terracraft_geo:alien_stone run say SANCTUAIRE_DALLAGE" 1
+cmd "execute as Bob run terracraft sanctuaire" 0
+cmd "execute at Bob if block ~4 ~2 ~ minecraft:ladder run say SANCTUAIRE_ECHELLE" 1
+cmd "execute at Bob if entity @e[type=terracraft_geo:lost_astronaut,distance=..40] run say SANCTUAIRE_GARDIENS" 1
 python3 "$ROOT/tools/ping_server.py" localhost 25599 > ping.json 2>&1 || true
 cmd "save-all flush" 3
 cmd "stop" 2
@@ -201,6 +211,12 @@ check(any(s["dimension"] == "terracraft_geo:moon" and s["name"].startswith("Base
       "base lunaire déployée à l'atterrissage et enregistrée")
 check("Rover déposé" in log or log.count("Test passed") >= 7, "rover lunaire déposé à côté de la fusée")
 check("Rocket has the following entity data: 6" in log, "orbite lunaire → Lune : 1 dose (moteur ionique), 6 restantes")
+check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
+check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
+check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")
+progress = json.loads((data / "progression.json").read_text())
+check(any("alien_sanctuary" in r.get("discoveries", []) for r in progress.values()),
+      "découverte « sanctuaire extraterrestre » à l'entrée de la salle")
 ping = json.loads((work / "ping.json").read_text() or "{}")
 check("TerraCraft" in ping.get("motd", "") and "0." in ping.get("motd", ""), f"MOTD de la liste des serveurs ({ping.get('motd', '')!r})")
 check(ping.get("icon") is True, "icône du serveur installée et servie")

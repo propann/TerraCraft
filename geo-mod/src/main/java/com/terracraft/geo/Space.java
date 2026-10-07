@@ -187,6 +187,13 @@ public final class Space {
             if (inSpace && everySecond && !player.isCreative() && !player.isSpectator()) {
                 breathe(player);
             }
+            if (everySecond && player.level().dimension() == MOON && player.getBlockY() < 40
+                    && !Progression.get().hasDiscovered(player, "alien_sanctuary")
+                    && com.terracraft.geo.world.MoonUnderground.inHall(player.blockPosition())) {
+                player.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(
+                        Component.literal("Sanctuaire extraterrestre").withStyle(ChatFormatting.LIGHT_PURPLE)));
+                Progression.get().discover(player, "alien_sanctuary");
+            }
         }
     }
 

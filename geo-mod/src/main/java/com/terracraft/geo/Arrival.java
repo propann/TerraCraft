@@ -78,6 +78,8 @@ final class Arrival {
                         + "réservoir étendu, moteur ionique, soute ou navigation martienne (obligatoire pour Mars).",
                 "LUNE ET MARS\n\nDepuis ta station : charge un KIT DE BASE LUNAIRE (ou martienne) et un ROVER. "
                         + "À l'atterrissage, la base se déploie (aire, sas, salle de vie) et le rover est déposé. Maj + clic gauche : remballer le rover.",
+                "SOUS LA LUNE\n\nSous la croûte : cavernes géantes, cristaux, donjons enfouis. Des puits marqués de "
+                        + "quatre piliers lumineux mènent aux SANCTUAIRES : pyramide, gardiens, artefacts extraterrestres.",
                 "STATIONS\n\nBalise de station : tes fusées s'y posent.\nKit de module : clic droit sur le sol "
                         + "= module pressurisé 7×5×7 avec oxygène. Raccorde-les par les portes.\n/station : tes stations.",
                 "FUSÉE : RECETTES\n\nCoque : fer + blocs de cuivre\nMoteur : fer, bloc de redstone, haut fourneau\n"

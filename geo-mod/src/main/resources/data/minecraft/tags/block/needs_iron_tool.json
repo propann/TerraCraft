@@ -4,6 +4,8 @@
     "terracraft_geo:titanium_ore",
     "terracraft_geo:station_hull",
     "terracraft_geo:station_floor",
-    "terracraft_geo:oxygen_distributor"
+    "terracraft_geo:oxygen_distributor",
+    "terracraft_geo:alien_stone",
+    "terracraft_geo:alien_glyph"
   ]
 }
