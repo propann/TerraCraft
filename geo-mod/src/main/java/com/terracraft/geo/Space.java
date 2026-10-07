@@ -179,6 +179,7 @@ public final class Space {
     }
 
     static void tick(MinecraftServer server) {
+        Meteors.tick(server);
         boolean everySecond = server.getTickCount() % 20 == 0;
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             boolean inSpace = isSpace(player.level());

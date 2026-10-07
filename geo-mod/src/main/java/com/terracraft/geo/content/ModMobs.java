@@ -30,6 +30,16 @@ public final class ModMobs {
         public MoonCrawler(EntityType<? extends Spider> type, Level level) {
             super(type, level);
         }
+
+        /** Nuit lunaire : à découvert, le rôdeur devient plus rapide et plus fort. */
+        @Override
+        public void aiStep() {
+            super.aiStep();
+            if (!level().isClientSide() && tickCount % 40 == 0 && level().isDarkOutside() && level().canSeeSky(blockPosition())) {
+                addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.SPEED, 60, 0, false, false));
+                addEffect(new net.minecraft.world.effect.MobEffectInstance(net.minecraft.world.effect.MobEffects.STRENGTH, 60, 0, false, false));
+            }
+        }
     }
 
     public static class LostAstronaut extends Zombie {

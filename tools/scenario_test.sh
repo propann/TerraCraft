@@ -123,6 +123,14 @@ cmd "execute as Bob run terracraft fusee decoller" 32
 cmd "data get entity Bob Dimension" 1
 cmd "execute if entity @e[type=terracraft_geo:rover]" 1
 cmd "execute as Bob at Bob run data get entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] Fuel" 1
+# Dangers lunaires : pluie de micrométéorites sur Bob, à découvert sur l'aire de sa base (protégé pour le test)
+cmd "effect give Bob minecraft:resistance 300 255 true" 1
+cmd "ride Bob dismount" 1
+cmd "execute in terracraft_geo:moon run tp Bob -2 151 -5" 2
+cmd "execute as Bob run terracraft meteores" 25
+cmd "execute in terracraft_geo:moon run fill -3 154 -6 -1 154 -4 minecraft:stone" 1
+cmd "say ABRI_DEBUT" 12
+cmd "say ABRI_FIN" 1
 # Carte des étoiles (mêmes règles via /fusee cap) : Mars refusé sans navigation martienne, orbite lunaire prête
 cmd "execute as Bob run fusee cap mars" 1
 cmd "execute as Bob run fusee cap lune" 1
@@ -221,6 +229,11 @@ check("[NAV] Bob met le cap sur Mars : " in log and "navigation martienne" in lo
 check("[NAV] Bob met le cap sur l'orbite lunaire : 1 dose(s), prête" in log, "carte des étoiles : retour en orbite lunaire prêt (1 dose)")
 check("[NAV] Bob met le cap sur la Lune" not in log and "Rocket has the following entity data: 11b" in log,
       "carte des étoiles : destination actuelle refusée, cap enregistré sur la fusée")
+check("[METEORES] pluie annoncée dans 5 s" in log and "[METEORES] pluie de micrométéorites sur la Lune" in log,
+      "micrométéorites : pluie annoncée puis déclenchée sur la Lune")
+check("[METEORES] Bob touché à découvert" in log, "micrométéorites : un joueur à découvert est touché")
+abri = log.split("ABRI_DEBUT")[-1].split("ABRI_FIN")[0] if "ABRI_DEBUT" in log else "?"
+check(abri != "?" and "Bob touché" not in abri, "micrométéorites : un toit au-dessus de la tête protège")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

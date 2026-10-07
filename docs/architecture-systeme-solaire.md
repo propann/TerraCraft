@@ -141,4 +141,9 @@ Les véhicules terrestres ne deviennent pas des véhicules spatiaux par magie : 
   (`Rocket.costTo`), l'obstacle éventuel (`Rocket.problemFor` : route, navigation martienne, réservoirs, carburant —
   les mêmes règles que le décollage), les stations du joueur et le graphe `Space.ROUTES` ; l'écran envoie le cap
   choisi (et le décollage pour le pilote). `/fusee cap` passe par le même chemin et journalise `[NAV]`.
+- Dangers lunaires (0.18.0, `Meteors`) : une pluie toutes les 25 à 45 min quand un joueur est sur la Lune, annoncée
+  30 s avant, 60 s d'impacts (un toutes les 12 ticks par joueur au-dessus de y = 40, un sur quatre tout près).
+  Impact = premier bloc solide sous le point visé ; dégâts 3 dans un rayon de 2,5 sauf si un bloc couvre la tête
+  (64 blocs au-dessus) ; mini-cratère dans le régolithe naturel seulement. La nuit, les rôdeurs à découvert
+  reçoivent Vitesse I et Force I. Pas de carte des hauteurs : elle peut ignorer les plateformes construites.
 

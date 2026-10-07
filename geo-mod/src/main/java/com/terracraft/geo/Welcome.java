@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.18", "Dangers lunaires : pluies de micrométéorites (abrite-toi), rôdeurs plus forts la nuit"),
             new Change("0.17", "Carte des étoiles : destinations, coûts et obstacles (Maj + clic droit sur la fusée, menu O)"),
             new Change("0.16", "Sous-sol lunaire : cavernes géantes, sanctuaires et pyramides extraterrestres"),
             new Change("0.15", "Bases lunaire et martienne en kit, rover lunaire solaire"),

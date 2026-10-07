@@ -113,8 +113,8 @@ génération ni perte d'objet.
 - [x] Stations en kit (modules pressurisés), balise d'arrivée, `/station`.
 - [x] Plans de fusée et atelier de station ; Mars exige la navigation martienne.
 - [ ] **Stockage partagé de station** entre habitants d'une même ville.
-- [ ] **Épaves et dangers lunaires** : épaves de sondes avec butin, pluies de micrométéorites (abri requis),
-      rôdeurs plus forts la nuit lunaire.
+- [x] **Dangers lunaires** : épaves de satellites avec butin, pluies de micrométéorites annoncées (un toit protège,
+      fragments à ramasser), rôdeurs plus rapides et plus forts la nuit lunaire.
 - [ ] **Objectifs coopératifs** : grande station de ville (N modules, laboratoire, serre) avec récompense collective.
 - [ ] **Astéroïdes** : petites zones instanciées, minage de métaux rares, jetpack obligatoire.
 - [ ] **Garder la Terre utile** : ressources terrestres indispensables aux améliorations avancées (commerce Terre ↔ espace).

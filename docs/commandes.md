@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.17). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.18). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -51,6 +51,7 @@ Référence de TerraCraft (version 0.17). Tout est en français ; `/aide` en don
 | `/terracraft largage` | Ravitaillement militaire près de soi |
 | `/terracraft fusee decoller` | Lancer la fusée où l'on est assis (mêmes vérifications que la touche Espace) |
 | `/terracraft depart` | Rouvrir la carte de départ pour soi |
+| `/terracraft meteores` | Pluie de micrométéorites sur la Lune dans 5 s (sinon toutes les 25 à 45 min) |
 | `/terracraft sanctuaire` | Sur la Lune : se rendre au pied du puits du sanctuaire le plus proche |
 | `/terracraft vehicule voiture|camion|moto` | Véhicule complet et plein devant soi |
 | spark : `/spark tps`, `/spark health`, `/spark profiler` | Performances du serveur |
@@ -58,7 +59,7 @@ Référence de TerraCraft (version 0.17). Tout est en français ; `/aide` en don
 ## Journal de la console
 
 Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`,
-`[STATION]`, `[ATELIER]`, `[NAV]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
+`[STATION]`, `[ATELIER]`, `[NAV]`, `[METEORES]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
 
 Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,
 `hotel-des-ventes.json`, `economie.json`, `missions.json`, `contrats.json`, `progression.json`, `homes.json`,

@@ -440,6 +440,13 @@ public final class GeoMod implements ModInitializer {
                                     }
                                     return 1;
                                 }))
+                        .then(Commands.literal("meteores")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> {
+                                    Meteors.startSoon(command.getSource().getServer());
+                                    command.getSource().sendSuccess(() -> Component.literal("Pluie de micrométéorites sur la Lune dans 5 s."), true);
+                                    return 1;
+                                }))
                         .then(Commands.literal("sanctuaire")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> {
