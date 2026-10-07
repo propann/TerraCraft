@@ -13,11 +13,10 @@ import net.minecraft.network.chat.Component;
  * débloquées, statistiques de survie et découvertes (cochées ou à faire).
  */
 public final class CharacterSheetScreen extends Screen {
-    private static final int GOLD = 0xFFFFC94A;
-    private static final int WHITE = 0xFFFFFFFF;
-    private static final int GREY = 0xFF8A949B;
+    private static final int GOLD = SuitScreen.GOLD;
+    private static final int WHITE = SuitScreen.TEXT;
+    private static final int GREY = SuitScreen.GREY;
     private static final int GREEN = 0xFF7EE08A;
-    private static final int PANEL = 0xD0101820;
     private final JsonObject sheet;
 
     public CharacterSheetScreen(String json) {
@@ -25,35 +24,45 @@ public final class CharacterSheetScreen extends Screen {
         this.sheet = JsonParser.parseString(json).getAsJsonObject();
     }
 
+    /** Hauteur utile : la plus longue des trois colonnes, sous l'en-tête et les compétences. */
+    private int contentHeight() {
+        int perks = 12 + sheet.getAsJsonArray("perks").size() * 21;
+        int stats = 12 + sheet.getAsJsonArray("stats").size() * 12;
+        int discoveries = 12 + sheet.getAsJsonArray("discoveries").size() * 11;
+        return 104 + Math.max(perks, Math.max(stats, discoveries)) + 16;
+    }
+
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+        extractTransparentBackground(g);
         int w = Math.min(this.width - 20, 520);
+        int h = Math.min(this.height - 16, contentHeight());
         int left = (this.width - w) / 2;
-        int top = 12;
-        int bottom = this.height - 12;
-        g.fill(left, top, left + w, bottom, PANEL);
-        g.outline(left, top, w, bottom - top, 0xFF3A4A55);
+        int top = Math.max(8, (this.height - h) / 2);
+        int bottom = top + h;
+        Ui.frame(g, left, top, w, h, 30);
 
         int level = sheet.get("level").getAsInt();
         int points = sheet.get("points").getAsInt();
         int previous = sheet.get("previous").getAsInt();
         int next = sheet.get("next").getAsInt();
-        g.text(this.font, sheet.get("name").getAsString() + " — Palier " + level + "/10", left + 10, top + 8, GOLD, true);
+        g.text(this.font, sheet.get("name").getAsString(), left + 10, top + 6, GOLD, true);
+        String palier = "Palier " + level + "/10";
+        g.text(this.font, palier, left + w - 10 - this.font.width(palier), top + 6, SuitScreen.CYAN, false);
         g.text(this.font, "❤ " + sheet.get("health").getAsInt() / 2 + " cœurs   ⛨ " + sheet.get("armor").getAsInt() + " armure   ✦ "
-                + points + " pts", left + 10, top + 20, WHITE, false);
+                + points + " pts", left + 10, top + 18, WHITE, false);
 
         // Barre de progression vers le palier suivant.
         int barLeft = left + 10;
         int barWidth = w - 20;
-        int barTop = top + 33;
-        g.fill(barLeft, barTop, barLeft + barWidth, barTop + 6, 0xFF26323A);
+        int barTop = top + 40;
         double ratio = next < 0 ? 1 : Math.min(1, (points - previous) / (double) Math.max(1, next - previous));
-        g.fill(barLeft, barTop, barLeft + (int) (barWidth * ratio), barTop + 6, GOLD);
+        Ui.bar(g, barLeft, barTop, barWidth, 6, ratio, GOLD);
         g.text(this.font, next < 0 ? "Tous les paliers atteints" : "Prochain palier : " + next + " pts",
-                barLeft, barTop + 9, GREY, false);
+                barLeft, barTop + 10, GREY, false);
 
         // Compétences : quatre jauges (niveau et progression vers le niveau suivant).
-        int skillTop = barTop + 22;
+        int skillTop = barTop + 26;
         if (sheet.has("skills")) {
             JsonArray skills = sheet.getAsJsonArray("skills");
             int cell = (w - 20) / Math.max(1, skills.size());
@@ -65,9 +74,8 @@ public final class CharacterSheetScreen extends Screen {
                 long from = sk.get("from").getAsLong();
                 long to = sk.get("to").getAsLong();
                 g.text(this.font, sk.get("name").getAsString() + " " + skillLevel, sx, skillTop, WHITE, true);
-                g.fill(sx, skillTop + 11, sx + cell - 8, skillTop + 15, 0xFF26323A);
                 double r = to < 0 ? 1 : Math.min(1, (xp - from) / (double) Math.max(1, to - from));
-                g.fill(sx, skillTop + 11, sx + (int) ((cell - 8) * r), skillTop + 15, GREEN);
+                Ui.bar(g, sx, skillTop + 12, cell - 10, 3, r, GREEN);
                 if (mouseX >= sx && mouseX < sx + cell - 8 && mouseY >= skillTop && mouseY < skillTop + 16) {
                     g.setTooltipForNextFrame(this.font, Component.literal(sk.get("bonus").getAsString() + " par niveau ("
                             + (to < 0 ? "max" : (xp - from) + "/" + (to - from) + " XP") + ")"), mouseX, mouseY);
@@ -76,12 +84,15 @@ public final class CharacterSheetScreen extends Screen {
         }
 
         int column = (w - 30) / 3;
-        int y0 = skillTop + 24;
+        int y0 = skillTop + 26;
         // Colonne 1 : améliorations.
         int x = left + 10;
-        g.text(this.font, "Améliorations", x, y0, GOLD, true);
-        int y = y0 + 12;
+        Ui.section(g, this.font, "Améliorations", x, y0, column - 4);
+        int y = y0 + 13;
         for (JsonElement e : sheet.getAsJsonArray("perks")) {
+            if (y > bottom - 30) {
+                break;
+            }
             JsonObject p = e.getAsJsonObject();
             boolean unlocked = p.get("unlocked").getAsBoolean();
             g.text(this.font, this.font.plainSubstrByWidth((unlocked ? "★ " : "☆ ") + p.get("name").getAsString(), column),
@@ -90,13 +101,20 @@ public final class CharacterSheetScreen extends Screen {
                     + (unlocked ? "" : " (" + p.get("threshold").getAsInt() + ")"), column), x, y + 9, unlocked ? WHITE : GREY, false);
             y += 21;
         }
-        // Colonne 2 : statistiques.
+        // Colonne 2 : statistiques (lignes alternées).
         x = left + 15 + column;
-        g.text(this.font, "Statistiques", x, y0, GOLD, true);
-        y = y0 + 12;
+        Ui.section(g, this.font, "Statistiques", x, y0, column - 4);
+        y = y0 + 13;
+        int row = 0;
         for (JsonElement e : sheet.getAsJsonArray("stats")) {
+            if (y > bottom - 22) {
+                break;
+            }
             JsonObject s = e.getAsJsonObject();
             String value = Long.toString(s.get("value").getAsLong());
+            if (row++ % 2 == 0) {
+                g.fill(x - 2, y - 2, x + column - 2, y + 9, 0x18FFFFFF);
+            }
             g.text(this.font, this.font.plainSubstrByWidth(s.get("label").getAsString(), column - 30), x, y, WHITE, false);
             g.text(this.font, value, x + column - this.font.width(value) - 4, y, GREEN, false);
             y += 12;
@@ -105,9 +123,12 @@ public final class CharacterSheetScreen extends Screen {
         x = left + 20 + 2 * column;
         JsonArray discoveries = sheet.getAsJsonArray("discoveries");
         long done = discoveries.asList().stream().filter(d -> d.getAsJsonObject().get("done").getAsBoolean()).count();
-        g.text(this.font, "Découvertes " + done + "/" + discoveries.size(), x, y0, GOLD, true);
-        y = y0 + 12;
+        Ui.section(g, this.font, "Découvertes " + done + "/" + discoveries.size(), x, y0, column - 4);
+        y = y0 + 13;
         for (JsonElement e : discoveries) {
+            if (y > bottom - 22) {
+                break;
+            }
             JsonObject d = e.getAsJsonObject();
             boolean ok = d.get("done").getAsBoolean();
             String name = d.get("name").getAsString();
@@ -118,7 +139,8 @@ public final class CharacterSheetScreen extends Screen {
             }
             y += 11;
         }
-        g.text(this.font, "Échap pour fermer", left + w - 10 - this.font.width("Échap pour fermer"), bottom - 12, GREY, false);
+        g.text(this.font, "K : ouvrir la fiche · Échap : fermer", left + w - 10 - this.font.width("K : ouvrir la fiche · Échap : fermer"),
+                bottom - 12, GREY, false);
         super.extractRenderState(g, mouseX, mouseY, delta);
     }
 

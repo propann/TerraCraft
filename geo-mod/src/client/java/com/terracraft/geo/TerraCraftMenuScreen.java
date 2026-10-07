@@ -121,11 +121,7 @@ public final class TerraCraftMenuScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
         extractTransparentBackground(g);
         // Ombre portée, panneau, bandeau de titre.
-        g.fill(left + 3, top + 3, left + panelWidth + 3, top + panelHeight + 3, 0x60000000);
-        g.fill(left, top, left + panelWidth, top + panelHeight, SuitScreen.PANEL);
-        g.fillGradient(left, top, left + panelWidth, top + 30, SuitScreen.HEADER_TOP, SuitScreen.HEADER_BOTTOM);
-        g.fill(left, top + 30, left + panelWidth, top + 31, SuitScreen.GOLD);
-        g.outline(left, top, panelWidth, panelHeight, SuitScreen.BORDER);
+        Ui.frame(g, left, top, panelWidth, panelHeight, 30);
         g.centeredText(font, Component.literal("TERRACRAFT"), width / 2, top + 6, SuitScreen.GOLD);
         g.centeredText(font, Component.literal("Terre réelle · Survie · Villes · Espace"), width / 2, top + 18, SuitScreen.GREY);
 

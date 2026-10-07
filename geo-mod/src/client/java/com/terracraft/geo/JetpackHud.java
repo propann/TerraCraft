@@ -28,7 +28,6 @@ final class JetpackHud implements HudElement {
         int top = g.guiHeight() - 20;
         int color = SuitScreen.gaugeColor(percent);
         g.text(minecraft.font, Component.literal("Jetpack " + percent + " %"), left, top - 10, color, true);
-        g.fill(left, top, left + WIDTH, top + 4, SuitScreen.SLOT_BG);
-        g.fill(left, top, left + WIDTH * percent / 100, top + 4, color);
+        Ui.bar(g, left, top, WIDTH, 4, percent / 100.0, color);
     }
 }

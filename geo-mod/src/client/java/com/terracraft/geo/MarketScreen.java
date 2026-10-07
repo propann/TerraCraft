@@ -153,9 +153,7 @@ public final class MarketScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
         extractTransparentBackground(g);
-        g.fill(left, top, left + panelWidth, top + panelHeight, SuitScreen.PANEL);
-        g.fillGradient(left, top, left + panelWidth, top + 18, SuitScreen.HEADER_TOP, SuitScreen.HEADER_BOTTOM);
-        g.outline(left, top, panelWidth, panelHeight, SuitScreen.BORDER);
+        Ui.frame(g, left, top, panelWidth, panelHeight, 18);
         g.text(font, Component.literal(shopTab ? "COMPTOIR DU SERVEUR" : "HÔTEL DES VENTES"), left + 8, top + 5, SuitScreen.GOLD, false);
         Component balance = Component.literal("Solde : " + data.get("balance").getAsLong() + " crédits");
         g.text(font, balance, left + panelWidth - 8 - font.width(balance), top + 5, GREEN, false);

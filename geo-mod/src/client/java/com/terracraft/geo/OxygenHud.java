@@ -36,7 +36,6 @@ final class OxygenHud implements HudElement {
         Component info = Component.literal(tanks + " bout. · ≈ " + (SpaceSuit.autonomySeconds(player) + 59) / 60 + " min");
         g.text(minecraft.font, info, left + WIDTH - 5 - minecraft.font.width(info), top + 3, SuitScreen.TEXT, false);
         int barWidth = WIDTH - 10;
-        g.fill(left + 5, top + 14, left + 5 + barWidth, top + 18, SuitScreen.SLOT_BG);
-        g.fill(left + 5, top + 14, left + 5 + barWidth * percent / 100, top + 18, color);
+        Ui.bar(g, left + 5, top + 14, barWidth, 4, percent / 100.0, color);
     }
 }

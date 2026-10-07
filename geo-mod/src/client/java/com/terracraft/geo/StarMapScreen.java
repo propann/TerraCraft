@@ -128,9 +128,7 @@ public final class StarMapScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
         extractTransparentBackground(g);
-        g.fill(left, top, left + panelWidth, top + panelHeight, SuitScreen.PANEL);
-        g.fillGradient(left, top, left + panelWidth, top + 18, SuitScreen.HEADER_TOP, SuitScreen.HEADER_BOTTOM);
-        g.outline(left, top, panelWidth, panelHeight, SuitScreen.BORDER);
+        Ui.frame(g, left, top, panelWidth, panelHeight, 18);
         g.text(font, Component.literal("CARTE DES ÉTOILES · NAVIGATION"), left + 8, top + 5, SuitScreen.GOLD, false);
 
         int mx = mapLeft();
@@ -295,8 +293,7 @@ public final class StarMapScreen extends Screen {
         int fuel = data.get("fuel").getAsInt();
         int max = Math.max(1, data.get("maxFuel").getAsInt());
         g.text(font, Component.literal("Carburant " + fuel + "/" + max), x, y + 24, SuitScreen.GREY, false);
-        g.fill(x, y + 35, x + w, y + 40, SuitScreen.SLOT_BG);
-        g.fill(x, y + 35, x + w * fuel / max, y + 40, fuel > 0 ? SuitScreen.CYAN : SuitScreen.RED);
+        Ui.bar(g, x, y + 35, w, 5, (double) fuel / max, fuel > 0 ? SuitScreen.CYAN : SuitScreen.RED);
         g.text(font, font.plainSubstrByWidth("Ici : " + SHORT.getOrDefault(here, "?"), w), x, y + 46, SuitScreen.GOLD, false);
 
         int sy = y + 64;

@@ -57,9 +57,7 @@ public final class WorkshopScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
         extractTransparentBackground(g);
-        g.fill(left, top, left + panelWidth, top + panelHeight, SuitScreen.PANEL);
-        g.fillGradient(left, top, left + panelWidth, top + 18, SuitScreen.HEADER_TOP, SuitScreen.HEADER_BOTTOM);
-        g.outline(left, top, panelWidth, panelHeight, SuitScreen.BORDER);
+        Ui.frame(g, left, top, panelWidth, panelHeight, 18);
         g.text(font, Component.literal("ATELIER DE STATION · PLANS DE FUSÉE"), left + 8, top + 5, SuitScreen.GOLD, false);
         boolean rocket = data.get("rocket").getAsBoolean();
         g.text(font, font.plainSubstrByWidth((rocket ? "Fusée : " : "") + data.get("status").getAsString(), panelWidth - 16),

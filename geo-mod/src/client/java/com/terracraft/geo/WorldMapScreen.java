@@ -211,8 +211,11 @@ public final class WorldMapScreen extends Screen {
 
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float delta) {
-        graphics.fill(0, 0, this.width, TOP_BAR, 0xE0101820);
-        graphics.fill(0, mapBottom(), this.width, this.height, 0xE0101820);
+        // Bandeaux dans la palette commune (voir Ui), liseré doré du côté de la carte.
+        graphics.fillGradient(0, 0, this.width, TOP_BAR, SuitScreen.HEADER_TOP, SuitScreen.HEADER_BOTTOM);
+        graphics.fill(0, TOP_BAR - 1, this.width, TOP_BAR, SuitScreen.GOLD);
+        graphics.fillGradient(0, mapBottom(), this.width, this.height, SuitScreen.HEADER_BOTTOM, SuitScreen.HEADER_TOP);
+        graphics.fill(0, mapBottom(), this.width, mapBottom() + 1, SuitScreen.GOLD);
 
         if (hasSelection) {
             drawMarker(graphics);
@@ -226,24 +229,26 @@ public final class WorldMapScreen extends Screen {
         int infoX = 8;
         int infoY = this.height - BOTTOM_BAR + 6;
         if (hasSelection) {
-            graphics.text(this.font, selectedLabel, infoX, infoY, 0xFFFFFFFF, true);
+            graphics.text(this.font, selectedLabel, infoX, infoY, SuitScreen.GOLD, true);
             graphics.text(this.font, String.format(Locale.ROOT, "%.5f, %.5f", selectedLatitude, selectedLongitude),
-                    infoX, infoY + 11, 0xFFA0C4D0, false);
+                    infoX, infoY + 11, SuitScreen.CYAN, false);
         } else {
             graphics.text(this.font, required ? "Choisis ton point de départ pour commencer à jouer."
-                    : "Choisis un nouveau point de départ.", infoX, infoY, 0xFFFFFFFF, true);
+                    : "Choisis un nouveau point de départ.", infoX, infoY, SuitScreen.GOLD, true);
             graphics.text(this.font, "Glisser : déplacer · Molette : zoom · Clic : choisir",
-                    infoX, infoY + 11, 0xFFA0C4D0, false);
+                    infoX, infoY + 11, SuitScreen.GREY, false);
         }
 
         if (!status.isEmpty()) {
             int statusX = 104 + Math.min(240, this.width - 110);
-            graphics.text(this.font, status, statusX, 10, 0xFFFFD27F, true);
+            graphics.text(this.font, status, statusX, 10, SuitScreen.GOLD, true);
         }
         if (!resultButtons.isEmpty()) {
             Button first = resultButtons.getFirst();
             graphics.fill(first.getX() - 2, first.getY() - 2, first.getX() + first.getWidth() + 2,
-                    first.getY() + resultButtons.size() * RESULT_HEIGHT, 0xD0101820);
+                    first.getY() + resultButtons.size() * RESULT_HEIGHT, SuitScreen.PANEL);
+            graphics.outline(first.getX() - 2, first.getY() - 2, first.getWidth() + 4, resultButtons.size() * RESULT_HEIGHT + 2,
+                    SuitScreen.BORDER);
         }
 
         super.extractRenderState(graphics, mouseX, mouseY, delta);

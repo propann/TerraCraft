@@ -38,8 +38,8 @@ génération ni perte d'objet.
 - [x] **Visuel** : menu `O` en tuiles avec icônes, barres de vie au-dessus des ennemis et des animaux blessés ou
       visés, chat `Pseudo » message`, arrivées et départs lisibles, ville en préfixe coloré (chat, Tab, au-dessus
       de la tête), jour et nuit au rythme normal de Minecraft (la météo reste réelle).
-- [~] **Uniformiser l'interface** : carte des étoiles, atelier et menu `O` ont la palette de la combinaison ; reste
-      à reprendre la fiche `K`, les missions, le marché et la carte de départ dans ce style.
+- [x] **Uniformiser l'interface** : toutes les fenêtres (menu `O`, fiche `K`, missions, marché, atelier, carte des
+      étoiles, carte du monde) et les indicateurs partagent le style de `Ui` (cadre, bandeau, liseré doré, jauges).
 - [ ] **Confirmations** avant les actions coûteuses (fonder une ville, vendre très en dessous du prix moyen, quitter
       une ville en tant que maire) et messages d'erreur qui disent quoi faire ensuite.
 - [ ] **Écran « Mon personnage » unifié** (fiche, métier, plans, stations) au lieu de commandes éparses.

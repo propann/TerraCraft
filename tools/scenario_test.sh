@@ -171,6 +171,8 @@ from pathlib import Path
 work = Path(sys.argv[1])
 data = work / "world" / "terracraft_geo"
 log = (work / "scenario.log").read_text(errors="replace")
+# Préfixe de ville devant les pseudos (équipes, 0.19) : retiré pour que les messages restent comparables.
+log = re.sub(r"\[Bourg Neuf\] (?=(Alice|Bob)\b)", "", log)
 failures = []
 
 def check(condition, message):

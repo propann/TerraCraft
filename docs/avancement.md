@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.19.0**.
+Dernière passe : 7 octobre 2026 — version **0.19.1**.
 
 ## Fonctionnel et raccordé
 
@@ -20,7 +20,7 @@ Dernière passe : 7 octobre 2026 — version **0.19.0**.
 - [x] Carte des étoiles (écran de navigation), `/fusee carte` et `/fusee cap` ; dossier `mods/` du client sur le dépôt.
 - [x] Dangers lunaires : micrométéorites (abri sous un toit), rôdeurs renforcés la nuit lunaire.
 - [x] Rejoindre en un import (pack dans le dépôt, serveur déjà dans la liste) ; `REJOINDRE.md`.
-- [x] Visuel : jour/nuit normaux, barres de vie, chat, menu `O` en tuiles, villes en préfixe.
+- [x] Visuel : jour/nuit normaux, barres de vie, chat, menu `O` en tuiles, villes en préfixe ; toutes les fenêtres au même style.
 - [x] Stations : kit de module pressurisé 7×5×7, balise de station (arrivée des fusées), `/station`.
 - [x] Plans de fusée (`/plans`) et atelier de station : réservoir étendu, moteur ionique, soute (touche V), navigation martienne.
 - [x] Combinaison spatiale (touche `J` et panneau de l'inventaire `E`) : casque, combinaison, bottes magnétiques, jetpack, deux réserves d'oxygène, rendu en armure, HUD O₂.

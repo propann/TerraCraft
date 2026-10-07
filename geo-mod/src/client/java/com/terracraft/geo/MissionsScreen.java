@@ -90,9 +90,7 @@ public final class MissionsScreen extends Screen {
     @Override
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
         extractTransparentBackground(g);
-        g.fill(left, top, left + panelWidth, top + panelHeight, SuitScreen.PANEL);
-        g.fillGradient(left, top, left + panelWidth, top + 18, SuitScreen.HEADER_TOP, SuitScreen.HEADER_BOTTOM);
-        g.outline(left, top, panelWidth, panelHeight, SuitScreen.BORDER);
+        Ui.frame(g, left, top, panelWidth, panelHeight, 18);
         g.text(font, Component.literal("MISSIONS"), left + 8, top + 5, SuitScreen.GOLD, false);
         if (!job.isEmpty()) {
             Component jobLine = Component.literal("Métier : " + job);
@@ -127,9 +125,7 @@ public final class MissionsScreen extends Screen {
         g.text(font, font.plainSubstrByWidth(line, textWidth), left + 8, y, color, false);
         // Barre de progression et récompense.
         int bar = 120;
-        g.fill(left + 8, y + 11, left + 8 + bar, y + 14, SuitScreen.SLOT_BG);
-        g.fill(left + 8, y + 11, left + 8 + (int) (bar * Math.min(1.0, (double) progress / Math.max(1, target))), y + 14,
-                progress >= target ? GREEN : SuitScreen.CYAN);
+        Ui.bar(g, left + 8, y + 11, bar, 3, (double) progress / Math.max(1, target), progress >= target ? GREEN : SuitScreen.CYAN);
         g.text(font, progress + "/" + target + "  ·  " + mission.get("reward").getAsLong() + " crédits", left + 134, y + 9,
                 SuitScreen.GREY, false);
     }
