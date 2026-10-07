@@ -120,6 +120,8 @@ public final class GeoModClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModContent.CAR, context -> new VehicleRenderer(context, false));
         EntityRendererRegistry.register(ModContent.TRUCK, context -> new VehicleRenderer(context, true));
         EntityRendererRegistry.register(ModContent.MOTORCYCLE, context -> new VehicleRenderer(context, Vehicle.Kind.MOTORCYCLE));
+        ModelLayerRegistry.registerModelLayer(VehicleRenderer.ROVER_LAYER, VehicleModel::rover);
+        EntityRendererRegistry.register(ModContent.ROVER, context -> new VehicleRenderer(context, Vehicle.Kind.ROVER));
         ModelLayerRegistry.registerModelLayer(RocketRenderer.LAYER, RocketModel::create);
         EntityRendererRegistry.register(ModContent.ROCKET, RocketRenderer::new);
         ModelLayerRegistry.registerModelLayer(com.terracraft.geo.client.PlaneRenderer.LAYER, com.terracraft.geo.client.PlaneModel::create);

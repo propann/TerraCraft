@@ -112,6 +112,21 @@ public final class Stations {
         return beacon;
     }
 
+    /**
+     * Base de surface (kit lunaire ou martien) déployée sous une fusée qui vient de se poser en
+     * ({@code x}, {@code y}, {@code z}) : l'aire d'atterrissage remplace le sol sous la fusée.
+     */
+    public BlockPos deploySurfaceBase(ServerPlayer owner, ServerLevel level, double x, int y, double z, String kind) {
+        BlockPos beacon = new BlockPos((int) Math.floor(x) - 2, y - 1, (int) Math.floor(z));
+        StationBuilder.buildSurfaceBase(level, beacon);
+        registerBuilt(owner, level, beacon, kind + " de " + owner.getName().getString());
+        GeoMod.LOGGER.info("[STATION] {} déploie sa {} en {} {}", owner.getName().getString(), kind.toLowerCase(java.util.Locale.ROOT),
+                level.dimension().identifier(), beacon);
+        owner.sendSystemMessage(Component.literal("✦ " + kind + " déployée : aire d'atterrissage, sas, salle de vie avec oxygène et atelier. "
+                + "Tes fusées se poseront ici.").withStyle(ChatFormatting.AQUA));
+        return beacon;
+    }
+
     /** Une balise de station se trouve-t-elle à moins de {@code radius} blocs (fusée amarrée) ? */
     public boolean dockedNear(ServerLevel level, BlockPos pos, int radius) {
         String dimension = level.dimension().identifier().toString();

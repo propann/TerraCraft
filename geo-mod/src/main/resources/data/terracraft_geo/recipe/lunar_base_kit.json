@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_block",
+    "C": "minecraft:copper_block",
+    "G": "minecraft:glass",
+    "O": "terracraft_geo:oxygen_tank",
+    "D": "terracraft_geo:docking_clamp"
+  },
+  "pattern": [
+    "IDI",
+    "GOG",
+    "ICI"
+  ],
+  "result": {
+    "id": "terracraft_geo:lunar_base_kit",
+    "count": 1
+  }
+}

@@ -51,7 +51,9 @@ public class Vehicle extends VehicleEntity implements Container {
     public enum Kind {
         CAR(0.62f, 2, 4, 4.5f),
         TRUCK(0.46f, 4, 4, 3.2f),
-        MOTORCYCLE(0.82f, 1, 2, 5.2f);
+        MOTORCYCLE(0.82f, 1, 2, 5.2f),
+        /** Rover lunaire : électrique (panneau solaire), livré complet dans sa caisse. */
+        ROVER(0.55f, 2, 4, 4.0f);
 
         final float maxSpeed;
         final int seats;
@@ -237,6 +239,7 @@ public class Vehicle extends VehicleEntity implements Container {
                 Component.literal(switch (kind) {
                     case TRUCK -> "Coffre du camion";
                     case MOTORCYCLE -> "Sacoches de la moto";
+                    case ROVER -> "Coffre du rover";
                     default -> "Coffre de la voiture";
                 })));
     }
@@ -270,7 +273,24 @@ public class Vehicle extends VehicleEntity implements Container {
         player.sendOverlayMessage(status());
     }
 
+    /** Rover : remballé entier dans sa caisse (aucune pièce séparée, donc aucune duplication). */
+    private void packRover(ServerLevel level, Player player) {
+        recover(level, player, new ItemStack(ModContent.ROVER_KIT));
+        for (ItemStack item : storage.removeAllItems()) {
+            if (!item.isEmpty()) {
+                recover(level, player, item);
+            }
+        }
+        com.terracraft.geo.GeoMod.LOGGER.info("[VEHICULE] {} remballe un rover en {}", player.getName().getString(), blockPosition());
+        discard();
+        player.sendSystemMessage(Component.literal("Rover remballé dans sa caisse.").withStyle(ChatFormatting.GREEN));
+    }
+
     private void dismantle(ServerLevel level, Player player) {
+        if (kind == Kind.ROVER) {
+            packRover(level, player);
+            return;
+        }
         int cans = (fuel() + FUEL_PER_CAN - 1) / FUEL_PER_CAN;
         // Le démontage est une récupération volontaire : on essaie d'abord
         // d'ajouter chaque élément à l'inventaire, puis on ne jette au sol que
@@ -320,7 +340,8 @@ public class Vehicle extends VehicleEntity implements Container {
     }
 
     private boolean isMatchingChassis(Item item) {
-        return kind == Kind.CAR && item == ModContent.CAR_CHASSIS
+        return kind == Kind.ROVER && item == ModContent.ROVER_KIT
+                || kind == Kind.CAR && item == ModContent.CAR_CHASSIS
                 || kind == Kind.TRUCK && item == ModContent.TRUCK_CHASSIS
                 || kind == Kind.MOTORCYCLE && item == ModContent.MOTORCYCLE_CHASSIS;
     }
@@ -397,6 +418,10 @@ public class Vehicle extends VehicleEntity implements Container {
 
     /** « Il manque : 2 roues, radiateur » ou « Prêt — essence 75 % ». */
     public Component status() {
+        if (kind == Kind.ROVER) {
+            return Component.literal("Rover lunaire — batterie " + Math.round(100f * fuel() / MAX_FUEL)
+                    + " % (se recharge à l'arrêt) · Maj + clic gauche : remballer").withStyle(fuel() > 0 ? ChatFormatting.GREEN : ChatFormatting.RED);
+        }
         List<String> missing = new ArrayList<>();
         if (wheels() < kind.requiredWheels) {
             missing.add((kind.requiredWheels - wheels()) + (kind.requiredWheels - wheels() > 1 ? " roues" : " roue"));
@@ -451,6 +476,10 @@ public class Vehicle extends VehicleEntity implements Container {
             Vec3 position = position();
             moved = lastServerPos == null ? 0 : Math.hypot(position.x - lastServerPos.x, position.z - lastServerPos.z);
             lastServerPos = position;
+        }
+        if (!level().isClientSide() && kind == Kind.ROVER && moved < 0.02 && fuel() < MAX_FUEL) {
+            // Panneau solaire : la batterie se recharge à l'arrêt (pleine en 8 minutes environ).
+            entityData.set(DATA_FUEL, Math.min(MAX_FUEL, fuel() + 40));
         }
         if (!level().isClientSide() && getControllingPassenger() != null && fuel() > 0 && moved < 8) {
             boolean saved = getControllingPassenger() instanceof ServerPlayer driver && com.terracraft.geo.Progression.get().saveFuel(driver);
@@ -538,6 +567,11 @@ public class Vehicle extends VehicleEntity implements Container {
      */
     @Override
     public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        if (kind == Kind.ROVER && source.getEntity() instanceof Player owner && owner.isShiftKeyDown() && canAccess(owner)
+                && getPassengers().isEmpty()) {
+            packRover(level, owner);
+            return true;
+        }
         if (owner != null && source.getEntity() instanceof Player attacker && !canAccess(attacker)) {
             attacker.sendSystemMessage(Component.literal("Ce véhicule est verrouillé par un autre joueur.")
                     .withStyle(ChatFormatting.RED));
@@ -562,6 +596,7 @@ public class Vehicle extends VehicleEntity implements Container {
         return switch (kind) {
             case TRUCK -> ModContent.TRUCK_CHASSIS;
             case MOTORCYCLE -> ModContent.MOTORCYCLE_CHASSIS;
+            case ROVER -> ModContent.ROVER_KIT;
             default -> ModContent.CAR_CHASSIS;
         };
     }
@@ -578,6 +613,15 @@ public class Vehicle extends VehicleEntity implements Container {
                 blockPosition(), source.getMsgId(), owner);
         kill(level);
         if (!level.getGameRules().get(GameRules.ENTITY_DROPS)) {
+            return;
+        }
+        if (kind == Kind.ROVER) {
+            spawnAtLocation(level, new ItemStack(ModContent.ROVER_KIT));
+            for (ItemStack item : storage.removeAllItems()) {
+                if (!item.isEmpty()) {
+                    spawnAtLocation(level, item);
+                }
+            }
             return;
         }
         spawnAtLocation(level, chassis());

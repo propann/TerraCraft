@@ -23,10 +23,82 @@ final class StationBuilder {
 
     private final ServerLevel level;
     private final BlockPos origin;
+    /** Base de surface : le terrain naturel (régolithe, roche, sable…) peut être creusé, jamais une construction. */
+    private final boolean carve;
 
     private StationBuilder(ServerLevel level, BlockPos origin) {
+        this(level, origin, false);
+    }
+
+    private StationBuilder(ServerLevel level, BlockPos origin, boolean carve) {
         this.level = level;
         this.origin = origin;
+        this.carve = carve;
+    }
+
+    /** Bloc remplaçable : l'air, ou (base de surface) un bloc de terrain naturel sans contenu. */
+    private boolean replaceable(BlockState state) {
+        if (state.isAir()) {
+            return true;
+        }
+        if (!carve || state.hasBlockEntity() || state.is(Blocks.BEDROCK)) {
+            return false;
+        }
+        return state.is(net.minecraft.tags.BlockTags.BASE_STONE_OVERWORLD) || state.is(net.minecraft.tags.BlockTags.SAND)
+                || state.is(net.minecraft.tags.BlockTags.DIRT) || state.is(net.minecraft.tags.BlockTags.TERRACOTTA)
+                || state.is(Blocks.GRAVEL) || state.is(Blocks.BASALT) || state.is(Blocks.SMOOTH_BASALT)
+                || state.is(Blocks.RED_SANDSTONE) || state.is(Blocks.SANDSTONE)
+                || state.getBlock() instanceof net.minecraft.world.level.block.ConcretePowderBlock
+                || state.is(Blocks.ICE) || state.is(Blocks.PACKED_ICE) || state.is(Blocks.SNOW) || state.is(Blocks.SNOW_BLOCK)
+                || state.is(ModBlocks.TITANIUM_ORE) || state.is(ModBlocks.HELIUM3_CRYSTALS);
+    }
+
+    /** Vide un bloc de terrain naturel (intérieur des salles, dégagement au-dessus du quai). */
+    private void clear(int dx, int dy, int dz) {
+        BlockPos pos = origin.offset(dx, dy, dz);
+        BlockState current = level.getBlockState(pos);
+        if (carve && !current.isAir() && replaceable(current)) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+        }
+    }
+
+    /**
+     * Base de surface (Lune ou Mars), déployée par un kit à l'atterrissage : aire d'atterrissage 9 × 9 avec pinces
+     * et balise, tunnel avec sas, salle de vie 11 × 11 (atelier, oxygène, coffres). La balise est en {@code beacon},
+     * au niveau du sol, sous le point d'arrivée de la fusée.
+     */
+    static BlockPos buildSurfaceBase(ServerLevel level, BlockPos beacon) {
+        StationBuilder b = new StationBuilder(level, beacon, true);
+        // Aire d'atterrissage, dégagée sur 8 blocs de haut.
+        for (int dx = -4; dx <= 4; dx++) {
+            for (int dz = -4; dz <= 4; dz++) {
+                boolean edge = Math.abs(dx) == 4 || Math.abs(dz) == 4;
+                b.put(dx, 0, dz, edge && Math.floorMod(dx + dz, 2) == 0 ? ModBlocks.STATION_LIGHT : ModBlocks.STATION_FLOOR);
+                for (int dy = 1; dy <= 8; dy++) {
+                    b.clear(dx, dy, dz);
+                }
+            }
+        }
+        for (int[] c : new int[][]{{1, -2}, {1, 2}, {4, -2}, {4, 2}}) {
+            b.put(c[0], 1, c[1], ModBlocks.DOCKING_CLAMP);
+        }
+        b.tunnel(-8, -5);
+        for (int dz = -2; dz <= 2; dz++) {
+            for (int dy = 1; dy <= 3; dy++) {
+                b.put(-5, dy, dz, ModBlocks.STATION_HULL);   // Bout du tunnel côté aire d'atterrissage.
+            }
+        }
+        b.room(-14, 5, 5, true);
+        b.door(-5, Direction.EAST);
+        b.door(-9, Direction.EAST);
+        b.floor(-14, 0, ModBlocks.OXYGEN_DISTRIBUTOR);
+        b.put(-18, 1, -3, ModBlocks.STATION_WORKSHOP);
+        b.put(-18, 1, 3, Blocks.CRAFTING_TABLE);
+        b.put(-10, 1, -4, Blocks.CHEST);
+        b.put(-10, 1, 4, Blocks.CHEST);
+        b.put(-18, 1, 0, Blocks.FURNACE);
+        level.setBlock(beacon, ModBlocks.STATION_BEACON.defaultBlockState(), Block.UPDATE_ALL);
+        return beacon;
     }
 
     /**
@@ -69,7 +141,7 @@ final class StationBuilder {
 
     private void put(int dx, int dy, int dz, BlockState state) {
         BlockPos pos = origin.offset(dx, dy, dz);
-        if (level.getBlockState(pos).isAir()) {
+        if (replaceable(level.getBlockState(pos))) {
             level.setBlock(pos, state, Block.UPDATE_CLIENTS);
         }
     }
@@ -78,7 +150,7 @@ final class StationBuilder {
     private void floor(int dx, int dz, Block block) {
         BlockPos pos = origin.offset(dx, 0, dz);
         BlockState current = level.getBlockState(pos);
-        if (current.isAir() || current.is(ModBlocks.STATION_FLOOR)) {
+        if (replaceable(current) || current.is(ModBlocks.STATION_FLOOR)) {
             level.setBlock(pos, block.defaultBlockState(), Block.UPDATE_CLIENTS);
         }
     }
@@ -100,6 +172,7 @@ final class StationBuilder {
                         block = !corner && band && Math.abs(Math.abs(dx) == half ? dz : dx) < half - 1
                                 ? ModBlocks.STATION_WINDOW : ModBlocks.STATION_HULL;
                     } else {
+                        clear(cx + dx, dy, dz); // Intérieur : vidé du terrain naturel en surface.
                         continue;
                     }
                     put(cx + dx, dy, dz, block);
@@ -115,6 +188,7 @@ final class StationBuilder {
                 for (int dy = 0; dy <= 4; dy++) {
                     boolean shell = Math.abs(dz) == 2 || dy == 0 || dy == 4;
                     if (!shell) {
+                        clear(dx, dy, dz);
                         continue;
                     }
                     Block block;
@@ -158,7 +232,7 @@ final class StationBuilder {
         // Le sas remplace la coque du mur à cet endroit (ouverture voulue), jamais autre chose.
         for (BlockPos pos : new BlockPos[]{lower, upper}) {
             BlockState current = level.getBlockState(pos);
-            if (!current.isAir() && !current.is(ModBlocks.STATION_HULL) && !current.is(ModBlocks.STATION_WINDOW)) {
+            if (!replaceable(current) && !current.is(ModBlocks.STATION_HULL) && !current.is(ModBlocks.STATION_WINDOW)) {
                 return;
             }
         }

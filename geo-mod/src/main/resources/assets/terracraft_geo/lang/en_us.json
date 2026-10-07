@@ -57,5 +57,9 @@
   "block.terracraft_geo.station_workshop": "Station workshop",
   "block.terracraft_geo.airlock_door": "Airlock door",
   "block.terracraft_geo.docking_clamp": "Docking clamp",
-  "item.terracraft_geo.orbital_station_kit": "Orbital station kit"
+  "item.terracraft_geo.orbital_station_kit": "Orbital station kit",
+  "item.terracraft_geo.rover_kit": "Lunar rover (crated)",
+  "item.terracraft_geo.lunar_base_kit": "Lunar base kit",
+  "item.terracraft_geo.mars_base_kit": "Mars base kit",
+  "entity.terracraft_geo.rover": "Lunar rover"
 }

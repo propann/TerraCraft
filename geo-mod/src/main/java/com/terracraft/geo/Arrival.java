@@ -76,6 +76,8 @@ final class Arrival {
                         + "Coût : Terre→orbite 3, →orbite lunaire 2, →Lune 1, →Mars 4-5 + 2.",
                 "PLANS DE FUSÉE\n\nSe débloquent en explorant (/plans). Atelier de station : clic droit pour installer "
                         + "réservoir étendu, moteur ionique, soute ou navigation martienne (obligatoire pour Mars).",
+                "LUNE ET MARS\n\nDepuis ta station : charge un KIT DE BASE LUNAIRE (ou martienne) et un ROVER. "
+                        + "À l'atterrissage, la base se déploie (aire, sas, salle de vie) et le rover est déposé. Maj + clic gauche : remballer le rover.",
                 "STATIONS\n\nBalise de station : tes fusées s'y posent.\nKit de module : clic droit sur le sol "
                         + "= module pressurisé 7×5×7 avec oxygène. Raccorde-les par les portes.\n/station : tes stations.",
                 "FUSÉE : RECETTES\n\nCoque : fer + blocs de cuivre\nMoteur : fer, bloc de redstone, haut fourneau\n"

@@ -104,8 +104,8 @@ génération ni perte d'objet.
       fusée, déploie au premier vol une station complète (salle de travail, tunnels vitrés, stockage, quai d'amarrage
       avec pinces, sas étanches). La Lune et Mars partent d'un quai de station.
 - [x] **Fusées à 1, 2, 3 ou 4 réservoirs** (8 à 20 doses, autant de charges utiles), propulseurs visibles, hublots.
-- [ ] **Bases lunaire et martienne en kit** (charge utile) déployées à l'atterrissage, avec quai et oxygène.
-- [ ] **Rover lunaire** (charge utile) : véhicule électrique déposé à l'arrivée, recharge à la base.
+- [x] **Bases lunaire et martienne en kit** (charge utile) déployées à l'atterrissage : aire avec pinces, sas, salle de vie.
+- [x] **Rover lunaire** (charge utile ou caisse) : électrique, recharge solaire à l'arrêt, remballé par son propriétaire.
 - [ ] **Sous-sol lunaire vivant** : cavernes géantes, pyramides et donjons extraterrestres, cristaux, butin alien.
 - [ ] **Carte des étoiles** : écran de navigation (destinations, coûts, conditions) à la place du choix au clic.
 - [x] Stations en kit (modules pressurisés), balise d'arrivée, `/station`.

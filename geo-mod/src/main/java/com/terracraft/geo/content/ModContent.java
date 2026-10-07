@@ -23,6 +23,7 @@ public final class ModContent {
     public static final EntityType<Vehicle> CAR = entity("car", Vehicle.Kind.CAR, 1.9f, 1.3f);
     public static final EntityType<Vehicle> TRUCK = entity("truck", Vehicle.Kind.TRUCK, 2.4f, 2.1f);
     public static final EntityType<Vehicle> MOTORCYCLE = entity("motorcycle", Vehicle.Kind.MOTORCYCLE, 1.1f, 1.5f);
+    public static final EntityType<Vehicle> ROVER = entity("rover", Vehicle.Kind.ROVER, 2.0f, 1.5f);
     public static final EntityType<Rocket> ROCKET = rocketType();
     public static final EntityType<Plane> PLANE = planeType();
 
@@ -44,6 +45,11 @@ public final class ModContent {
      * station complète (salle de travail, tunnels vitrés, stockage, quai d'amarrage, sas) si le pilote n'en a pas.
      */
     public static final Item ORBITAL_STATION_KIT = item("orbital_station_kit", Item::new, new Item.Properties().stacksTo(1));
+    /** Charges utiles des bases de surface : déployées à l'atterrissage sur la Lune ou sur Mars. */
+    public static final Item LUNAR_BASE_KIT = item("lunar_base_kit", Item::new, new Item.Properties().stacksTo(1));
+    public static final Item MARS_BASE_KIT = item("mars_base_kit", Item::new, new Item.Properties().stacksTo(1));
+    /** Rover lunaire en caisse : posé au sol (clic droit) ou déposé par la fusée à l'atterrissage. */
+    public static final Item ROVER_KIT = item("rover_kit", RoverKitItem::new, new Item.Properties().stacksTo(1));
     /** Kit de module de station : construit un module pressurisé de 7 × 5 × 7 dans l'espace. */
     public static final Item STATION_MODULE = item("station_module", StationModuleItem::new, new Item.Properties().stacksTo(16));
     public static final Item ROCKET_HULL = item("rocket_hull", p -> new ChassisItem(() -> ROCKET, p), new Item.Properties().stacksTo(1));
@@ -80,7 +86,7 @@ public final class ModContent {
     public static void init() {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output -> {
             for (Item item : new Item[]{CAR_CHASSIS, TRUCK_CHASSIS, MOTORCYCLE_CHASSIS, PLANE_KIT, WHEEL, ENGINE, RADIATOR, BATTERY, TURBO, FUEL_CAN,
-                    ROCKET_HULL, ROCKET_ENGINE, ROCKET_TANK, NOSE_CONE, FINS, ROCKET_FUEL, SPACE_HELMET, SPACE_SUIT, MAGNETIC_BOOTS, JETPACK, OXYGEN_TANK, STATION_MODULE, ORBITAL_STATION_KIT}) {
+                    ROCKET_HULL, ROCKET_ENGINE, ROCKET_TANK, NOSE_CONE, FINS, ROCKET_FUEL, SPACE_HELMET, SPACE_SUIT, MAGNETIC_BOOTS, JETPACK, OXYGEN_TANK, STATION_MODULE, ORBITAL_STATION_KIT, LUNAR_BASE_KIT, MARS_BASE_KIT, ROVER_KIT}) {
                 output.accept(item);
             }
         });

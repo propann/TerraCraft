@@ -134,7 +134,34 @@ public class Rocket extends VehicleEntity {
     }
 
     public static boolean isPayload(ItemStack stack) {
-        return stack.is(ModContent.ORBITAL_STATION_KIT);
+        return stack.is(ModContent.ORBITAL_STATION_KIT) || stack.is(ModContent.LUNAR_BASE_KIT)
+                || stack.is(ModContent.MARS_BASE_KIT) || stack.is(ModContent.ROVER_KIT);
+    }
+
+    /** À l'atterrissage : base de surface (kit lunaire ou martien) et rover déposés à côté de la fusée. */
+    private void deployOnLanding(ServerLevel level) {
+        if (!(getFirstPassenger() instanceof ServerPlayer pilot)) {
+            return;
+        }
+        byte here = Space.id(level);
+        com.terracraft.geo.Stations stations = com.terracraft.geo.Stations.get();
+        if (here == Space.MOON_ID && hasPayload(ModContent.LUNAR_BASE_KIT) && !stations.hasStation(pilot, level)) {
+            stations.deploySurfaceBase(pilot, level, getX(), getBlockY(), getZ(), "Base lunaire");
+            removePayload(ModContent.LUNAR_BASE_KIT);
+        } else if (here == Space.MARS_ID && hasPayload(ModContent.MARS_BASE_KIT) && !stations.hasStation(pilot, level)) {
+            stations.deploySurfaceBase(pilot, level, getX(), getBlockY(), getZ(), "Base martienne");
+            removePayload(ModContent.MARS_BASE_KIT);
+        }
+        if ((here == Space.MOON_ID || here == Space.MARS_ID || here == Space.EARTH) && hasPayload(ModContent.ROVER_KIT)) {
+            for (double[] offset : new double[][]{{0, 3.5}, {0, -3.5}, {3.5, 0}, {-3.5, 0}}) {
+                if (RoverKitItem.unpack(level, position().add(offset[0], 0.2, offset[1]), getYRot()) != null) {
+                    removePayload(ModContent.ROVER_KIT);
+                    pilot.sendSystemMessage(Component.literal("Rover déposé à côté de la fusée : clic droit pour monter.")
+                            .withStyle(ChatFormatting.AQUA));
+                    break;
+                }
+            }
+        }
     }
 
     public boolean hasPayload(Item item) {
@@ -288,6 +315,12 @@ public class Rocket extends VehicleEntity {
         super.tick();
         if (!(level() instanceof ServerLevel server)) {
             return;
+        }
+        // Une fusée freine elle-même : ni elle ni ses passagers ne subissent de chute (sinon la descente de 140 blocs
+        // vers la Lune ou Mars était reportée sur les passagers à l'atterrissage, et les tuait).
+        resetFallDistance();
+        for (Entity passenger : getPassengers()) {
+            passenger.resetFallDistance();
         }
         switch (phase()) {
             case IDLE -> idle();
@@ -469,6 +502,7 @@ public class Rocket extends VehicleEntity {
         if (onGround()) {
             entityData.set(DATA_PHASE, IDLE);
             setDeltaMovement(Vec3.ZERO);
+            deployOnLanding(level);
             level.playSound(null, getX(), getY(), getZ(), SoundEvents.ANVIL_LAND, SoundSource.NEUTRAL, 0.8f, 0.6f);
             if (getFirstPassenger() instanceof ServerPlayer player) {
                 player.sendOverlayMessage(Component.literal(switch (Space.id(level)) {

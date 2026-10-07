@@ -17,6 +17,7 @@ import net.minecraft.util.Mth;
 public class VehicleRenderer extends EntityRenderer<Vehicle, VehicleRenderState> {
     public static final ModelLayerLocation CAR_LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "car"), "main");
     public static final ModelLayerLocation TRUCK_LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "truck"), "main");
+    public static final ModelLayerLocation ROVER_LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "rover"), "main");
     public static final ModelLayerLocation MOTORCYCLE_LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "motorcycle"), "main");
 
     private final VehicleModel model;
@@ -28,10 +29,14 @@ public class VehicleRenderer extends EntityRenderer<Vehicle, VehicleRenderState>
 
     public VehicleRenderer(EntityRendererProvider.Context context, Vehicle.Kind kind) {
         super(context);
-        this.model = new VehicleModel(context.bakeLayer(kind == Vehicle.Kind.TRUCK ? TRUCK_LAYER
-                : kind == Vehicle.Kind.MOTORCYCLE ? MOTORCYCLE_LAYER : CAR_LAYER));
+        this.model = new VehicleModel(context.bakeLayer(switch (kind) {
+            case TRUCK -> TRUCK_LAYER;
+            case MOTORCYCLE -> MOTORCYCLE_LAYER;
+            case ROVER -> ROVER_LAYER;
+            default -> CAR_LAYER;
+        }));
         this.texture = Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "textures/entity/"
-                + (kind == Vehicle.Kind.TRUCK ? "truck" : "car") + ".png");
+                + (kind == Vehicle.Kind.TRUCK ? "truck" : kind == Vehicle.Kind.ROVER ? "rover" : "car") + ".png");
         this.shadowRadius = kind == Vehicle.Kind.TRUCK ? 1.3f : kind == Vehicle.Kind.MOTORCYCLE ? 0.65f : 1.0f;
     }
 

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "T": "terracraft_geo:titanium_ingot",
+    "H": "terracraft_geo:helium3_shard",
+    "G": "minecraft:glass",
+    "O": "terracraft_geo:oxygen_distributor",
+    "D": "terracraft_geo:docking_clamp"
+  },
+  "pattern": [
+    "TDT",
+    "GOG",
+    "THT"
+  ],
+  "result": {
+    "id": "terracraft_geo:mars_base_kit",
+    "count": 1
+  }
+}

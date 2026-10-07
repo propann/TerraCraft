@@ -129,4 +129,7 @@ Les véhicules terrestres ne deviennent pas des véhicules spatiaux par magie : 
   partir amarrée à une balise de station (16 blocs). Le kit de station orbitale (charge utile) déploie au premier vol
   une station : salle de travail 13×13, tunnels vitrés, salle de stockage, quai 11×11 avec pinces, sas étanches.
   Fusées : 1 réservoir = 8 doses et 1 charge utile, +4 doses et +1 charge par réservoir (4 au maximum).
+- Bases de surface (0.15.0) : kits lunaire (matériaux terrestres) et martien (titane, hélium-3) déployés sous la fusée à
+  l'atterrissage (aire 9×9 avec pinces et balise, tunnel avec sas, salle de vie 11×11) ; le terrain naturel est creusé,
+  jamais une construction. Rover lunaire en caisse : électrique, recharge solaire à l'arrêt, déposé par la fusée.
 

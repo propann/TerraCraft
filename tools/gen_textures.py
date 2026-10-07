@@ -687,6 +687,47 @@ def draw_orbital_station_kit(c):
     c.rect(7, 13, 2, 2, (230, 120, 30))
 
 
+def rover():
+    """Rover lunaire : carrosserie blanche à liseré doré, cabine grise, panneau solaire bleu nuit."""
+    c = Canvas(256, 128, 83)
+    body = box(c, 0, 0, 24, 6, 40, WHITE)
+    for face in ("left", "right", "front", "back"):
+        x, y, w, h = body[face]
+        c.rect(x, y + h - 2, w, 1, (215, 170, 50))
+    lights(c, body["front"])
+    box(c, 0, 50, 18, 8, 14, (150, 154, 162))
+    panel = box(c, 0, 80, 22, 1, 14, (30, 40, 90))
+    x, y, w, h = panel["top"]
+    for i in range(0, w, 4):
+        c.rect(x + i, y, 1, h, (90, 110, 170))
+    for j in range(0, h, 4):
+        c.rect(x, y + j, w, 1, (90, 110, 170))
+    wheel(c, 160, 0, 9)
+    box(c, 160, 30, 4, 2, 4, (170, 170, 175))
+    c.save("entity/rover.png")
+
+
+def draw_rover_kit(c):
+    c.rect(1, 4, 14, 10, (150, 120, 70), 6)
+    c.rect(1, 4, 14, 1, (110, 85, 50))
+    c.rect(3, 7, 10, 4, (225, 225, 228))
+    c.rect(3, 11, 2, 2, (40, 40, 44))
+    c.rect(11, 11, 2, 2, (40, 40, 44))
+    c.rect(5, 6, 6, 1, (30, 40, 90))
+
+
+def draw_base_kit(colour):
+    def draw(c):
+        c.rect(1, 9, 14, 5, (120, 124, 132), 6)
+        for y in range(3, 10):
+            for x in range(2, 14):
+                if (x - 7.5) ** 2 / 36 + (y - 9.5) ** 2 / 42 <= 1:
+                    c.set(x, y, colour)
+        c.rect(6, 6, 4, 2, (120, 190, 230))
+        c.rect(7, 12, 2, 2, (230, 120, 30))
+    return draw
+
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -739,6 +780,10 @@ def main():
     airlock_door()
     block_tex("docking_clamp", (150, 154, 162), clamp_pattern)
     icon("orbital_station_kit", draw_orbital_station_kit)
+    rover()
+    icon("rover_kit", draw_rover_kit)
+    icon("lunar_base_kit", draw_base_kit((200, 200, 206)))
+    icon("mars_base_kit", draw_base_kit((200, 110, 70)))
     icon("station_module", draw_station_module)
     icon("titanium_ingot", lambda c: (c.rect(2, 6, 12, 5, (200, 205, 215), 8), c.rect(2, 6, 12, 1, (235, 238, 245))))
     icon("helium3_shard", lambda c: [c.rect(7 - k // 2, 2 + k, 2 + k, 1, (120, 230, 245)) for k in range(12)])

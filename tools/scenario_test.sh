@@ -117,6 +117,12 @@ cmd "execute as Bob run atelier installer mars_nav"
 cmd "execute as Bob at Bob run data get entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] Upgrades" 1
 cmd "execute as Bob at Bob run data merge entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] {Target:4b}" 1
 cmd "execute as Bob run terracraft fusee decoller" 2
+# Vol 3 : du quai de l'orbite lunaire vers la Lune, avec base lunaire et rover en charges utiles (1 dose)
+cmd 'execute as Bob at Bob run data merge entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] {Target:1b,Payload:[{id:"terracraft_geo:lunar_base_kit",count:1},{id:"terracraft_geo:rover_kit",count:1}]}' 1
+cmd "execute as Bob run terracraft fusee decoller" 32
+cmd "data get entity Bob Dimension" 1
+cmd "execute if entity @e[type=terracraft_geo:rover]" 1
+cmd "execute as Bob at Bob run data get entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] Fuel" 1
 python3 "$ROOT/tools/ping_server.py" localhost 25599 > ping.json 2>&1 || true
 cmd "save-all flush" 3
 cmd "stop" 2
@@ -190,6 +196,11 @@ check(plans == ["CARGO", "ION", "TANK"], f"plans débloqués par l'exploration, 
 check("Rocket has the following entity data: 7b" in log, "atelier : réservoir étendu, moteur ionique et soute installés")
 check(log.count("[ATELIER]") == 3, "trois installations journalisées, navigation martienne refusée")
 check("Décollage refusé" in log, "vers Mars sans navigation martienne : décollage refusé")
+check('Bob has the following entity data: "terracraft_geo:moon"' in log, "troisième vol : atterrissage sur la Lune depuis l'orbite lunaire")
+check(any(s["dimension"] == "terracraft_geo:moon" and s["name"].startswith("Base lunaire") for s in stations),
+      "base lunaire déployée à l'atterrissage et enregistrée")
+check("Rover déposé" in log or log.count("Test passed") >= 7, "rover lunaire déposé à côté de la fusée")
+check("Rocket has the following entity data: 6" in log, "orbite lunaire → Lune : 1 dose (moteur ionique), 6 restantes")
 ping = json.loads((work / "ping.json").read_text() or "{}")
 check("TerraCraft" in ping.get("motd", "") and "0." in ping.get("motd", ""), f"MOTD de la liste des serveurs ({ping.get('motd', '')!r})")
 check(ping.get("icon") is True, "icône du serveur installée et servie")

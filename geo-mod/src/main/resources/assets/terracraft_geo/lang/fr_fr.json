@@ -57,5 +57,9 @@
   "block.terracraft_geo.station_workshop": "Atelier de station",
   "block.terracraft_geo.airlock_door": "Sas étanche",
   "block.terracraft_geo.docking_clamp": "Pince d'amarrage",
-  "item.terracraft_geo.orbital_station_kit": "Kit de station orbitale"
+  "item.terracraft_geo.orbital_station_kit": "Kit de station orbitale",
+  "item.terracraft_geo.rover_kit": "Rover lunaire (en caisse)",
+  "item.terracraft_geo.lunar_base_kit": "Kit de base lunaire",
+  "item.terracraft_geo.mars_base_kit": "Kit de base martienne",
+  "entity.terracraft_geo.rover": "Rover lunaire"
 }

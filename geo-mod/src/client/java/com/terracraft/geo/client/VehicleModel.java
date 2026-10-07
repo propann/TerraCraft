@@ -71,6 +71,18 @@ public class VehicleModel extends EntityModel<VehicleRenderState> {
         return LayerDefinition.create(mesh, 256, 256);
     }
 
+    /** Rover lunaire : châssis bas, cabine ouverte, panneau solaire, grandes roues. Texture 256 × 128. */
+    public static LayerDefinition rover() {
+        MeshDefinition mesh = new MeshDefinition();
+        PartDefinition root = mesh.getRoot();
+        root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-12, -12, -20, 24, 6, 40), PartPose.ZERO);
+        root.addOrReplaceChild("cabin", CubeListBuilder.create().texOffs(0, 50).addBox(-9, -20, -6, 18, 8, 14), PartPose.ZERO);
+        root.addOrReplaceChild("panel", CubeListBuilder.create().texOffs(0, 80).addBox(-11, -23, -19, 22, 1, 14), PartPose.ZERO);
+        wheels(root, 13.5f, 14, 9, 160, 0);
+        root.addOrReplaceChild("turbo", CubeListBuilder.create().texOffs(160, 30).addBox(-2, -14, 18, 4, 2, 4), PartPose.ZERO);
+        return LayerDefinition.create(mesh, 256, 128);
+    }
+
     private static void wheels(PartDefinition root, float side, float along, int size, int u, int v) {
         float[][] positions = {{side, along}, {-side, along}, {side, -along}, {-side, -along}};
         for (int i = 0; i < 4; i++) {
