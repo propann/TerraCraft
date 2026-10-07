@@ -85,8 +85,12 @@ génération ni perte d'objet.
 
 - [x] Ravitaillements militaires réguliers.
 - [~] Armes à chargeur, recul, zoom, grenades ; anti-triche vol.
-- [ ] **Événements** : convoi à attaquer (camion escorté de monstres), zone de contamination (dégâts sans combinaison),
-      vague nocturne sur une ville.
+- [x] **Convoi militaire en panne** (toutes les 50 à 80 min) : camion à réparer et garder, caisse de matériel, escorte
+      armée (zombies et squelettes casqués, pillards), annonce et fumée.
+- [x] **Zones contaminées** fixes (18 % des carrés de 1 024 blocs, rayon 40 à 110) : poison et faim sans casque et
+      combinaison, wither au cœur, compteur à l'approche, cache de matériel au centre (une par zone).
+- [ ] **Vague nocturne sur une ville** : intention — une nuit sur sept, des vagues de monstres convergent vers le centre
+      d'une ville dont des habitants sont en ligne ; récompense versée à la trésorerie si la ville tient.
 - [ ] **Zones PvP explicites** (affichées à l'entrée) et PvE partout ailleurs ; primes seulement en zone PvP.
 - [ ] **Boss rares** dans les bunkers profonds, avec butin unique.
 - [ ] **Textures et icônes** des armes et pièces à reprendre (cohérence visuelle).

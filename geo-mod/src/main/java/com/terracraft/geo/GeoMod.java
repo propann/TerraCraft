@@ -65,6 +65,8 @@ public final class GeoMod implements ModInitializer {
     private static final Contracts CONTRACTS = new Contracts(AUCTION_HOUSE);
     private static final Claims CLAIMS = new Claims();
     private static final SupplyDrops SUPPLY = new SupplyDrops();
+    private static final Convoys CONVOYS = new Convoys();
+    private static final Contamination CONTAMINATION = new Contamination();
     private static final Reports REPORTS = new Reports();
     private static final Welcome WELCOME = new Welcome(AUCTION_HOUSE, TOWNS, CONTRACTS, START_POINTS);
 
@@ -278,6 +280,9 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(SURVIVAL::load);
         ServerLifecycleEvents.SERVER_STARTED.register(AUCTION_HOUSE::load);
         ServerLifecycleEvents.SERVER_STARTED.register(MISSIONS::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(CONTAMINATION::load);
+        ServerTickEvents.END_SERVER_TICK.register(CONVOYS::tick);
+        ServerTickEvents.END_SERVER_TICK.register(CONTAMINATION::tick);
         Tutorial.get().wire(SURVIVAL, MISSIONS, AUCTION_HOUSE, START_POINTS);
         ServerLifecycleEvents.SERVER_STARTED.register(Tutorial.get()::load);
         ServerTickEvents.END_SERVER_TICK.register(Tutorial.get()::tick);
@@ -441,6 +446,42 @@ public final class GeoMod implements ModInitializer {
                                     }
                                     return 1;
                                 }))
+                        .then(Commands.literal("convoi")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> {
+                                    var pos = CONVOYS.spawn(command.getSource().getServer(), command.getSource().getPlayer());
+                                    if (pos == null) {
+                                        command.getSource().sendFailure(Component.literal("Aucun endroit chargé ne convient (joueur sur Terre requis)."));
+                                        return 0;
+                                    }
+                                    return 1;
+                                }))
+                        .then(Commands.literal("contamination")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> {
+                                    ServerPlayer player = command.getSource().getPlayerOrException();
+                                    Contamination.Zone zone = Contamination.nearest(player.getBlockX(), player.getBlockZ());
+                                    if (zone == null) {
+                                        command.getSource().sendFailure(Component.literal("Aucune zone contaminée à moins de 2 000 blocs."));
+                                        return 0;
+                                    }
+                                    command.getSource().sendSuccess(() -> Component.literal("Zone contaminée la plus proche : " + zone.x()
+                                            + " / " + zone.z() + ", rayon " + zone.radius() + " blocs"), true);
+                                    return 1;
+                                })
+                                .then(Commands.literal("aller").executes(command -> {
+                                    ServerPlayer player = command.getSource().getPlayerOrException();
+                                    Contamination.Zone zone = Contamination.nearest(player.getBlockX(), player.getBlockZ());
+                                    if (zone == null || player.level() != command.getSource().getServer().overworld()) {
+                                        command.getSource().sendFailure(Component.literal("Aucune zone contaminée à portée (sur Terre)."));
+                                        return 0;
+                                    }
+                                    player.teleportTo(command.getSource().getServer().overworld(), zone.x() + 0.5, 200, zone.z() + 0.5,
+                                            java.util.Set.of(), player.getYRot(), 0, true);
+                                    command.getSource().sendSuccess(() -> Component.literal("Au-dessus du centre de la zone contaminée "
+                                            + zone.x() + " / " + zone.z()), true);
+                                    return 1;
+                                })))
                         .then(Commands.literal("meteores")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> {

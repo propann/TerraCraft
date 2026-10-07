@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.20). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.21). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -50,6 +50,8 @@ Référence de TerraCraft (version 0.20). Tout est en français ; `/aide` en don
 | `/eco stats` | Crédits créés, détruits, en circulation et dans les trésoreries des villes |
 | `/terracraft sauvegarde [liste]` | Sauvegarde immédiate du monde ; liste des archives (`backups/`) |
 | `/terracraft largage` | Ravitaillement militaire près de soi |
+| `/terracraft convoi` | Convoi militaire en panne près de soi |
+| `/terracraft contamination [aller]` | Zone contaminée la plus proche (et s'y rendre) |
 | `/terracraft fusee decoller` | Lancer la fusée où l'on est assis (mêmes vérifications que la touche Espace) |
 | `/terracraft depart` | Rouvrir la carte de départ pour soi |
 | `/terracraft meteores` | Pluie de micrométéorites sur la Lune dans 5 s (sinon toutes les 25 à 45 min) |
@@ -59,9 +61,9 @@ Référence de TerraCraft (version 0.20). Tout est en français ; `/aide` en don
 
 ## Journal de la console
 
-Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`,
+Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`,
 `[STATION]`, `[ATELIER]`, `[NAV]`, `[METEORES]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
 
 Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,
 `hotel-des-ventes.json`, `economie.json`, `missions.json`, `contrats.json`, `progression.json`, `homes.json`,
-`start_points.json`, `tutorial.json`, `villes.json`, `stations.json`, `signalements.json`.
+`start_points.json`, `tutorial.json`, `villes.json`, `stations.json`, `signalements.json`, `contamination.json`.

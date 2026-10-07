@@ -119,6 +119,7 @@ public final class Progression {
             new Discovery("titanium", "Métal lunaire — miner du titane", 20),
             new Discovery("helium", "Hélium-3 — récolter des cristaux", 20),
             new Discovery("lunar_hunter", "Chasseur lunaire — 10 ennemis lunaires", 50),
+            new Discovery("contamination", "Compteur Geiger — entrer dans une zone contaminée", 30),
             new Discovery("alien_sanctuary", "Sous la poussière — entrer dans un sanctuaire extraterrestre", 100));
 
     /** Libellés des compteurs affichés sur la fiche, dans l'ordre. */

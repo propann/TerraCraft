@@ -60,6 +60,18 @@ cmd "execute as Bob run metier choisir pilote"
 cmd "execute as Alice run metier choisir mecanicien"
 cmd "execute as Bob run signaler Test automatique : tout va bien"
 cmd "execute as Alice at Alice run terracraft largage" 2
+# Phase 6 : convoi militaire en panne (camion, escorte) puis zone contaminée (poison sans combinaison)
+cmd "effect give Alice minecraft:resistance 120 255 true" 1
+cmd "execute as Alice at Alice run terracraft convoi" 3
+cmd "execute if entity @e[type=terracraft_geo:truck] run say CONVOI_CAMION" 1
+cmd "execute at Alice if entity @e[type=minecraft:zombie,distance=..48] run say CONVOI_GARDES" 1
+cmd "kill @e[type=#minecraft:skeletons]" 0
+cmd "kill @e[type=minecraft:zombie]" 0
+cmd "kill @e[type=minecraft:pillager]" 1
+cmd "execute as Alice run terracraft contamination" 1
+cmd "execute as Alice run terracraft contamination aller" 8
+cmd "effect clear Alice minecraft:poison" 1
+cmd "tp Alice 0 201 0" 2
 cmd "execute as Bob run missions" 1
 # Combinaison spatiale (clic droit avec chaque pièce)
 cmd "item replace entity Bob weapon.mainhand with terracraft_geo:space_helmet"
@@ -246,10 +258,16 @@ check("Team [Bourg Neuf] has 2 member(s): Alice, Bob" in log, "équipe de ville 
 times = [int(t) for t in re.findall(r"Clock minecraft:overworld is at (\d+) tick", log)][-2:]
 check(len(times) == 2 and 60 <= (times[1] - times[0]) % 24000 <= 200,
       f"jour/nuit à vitesse normale : {times[1] - times[0] if len(times) == 2 else '?'} ticks en 5 s")
+progress = json.loads((data / "progression.json").read_text())
+check("[CONVOI] camion en" in log and "CONVOI_CAMION" in log, "convoi militaire : camion en panne posé et annoncé")
+check("CONVOI_GARDES" in log, "convoi militaire : escorte armée présente")
+check("Zone contaminée la plus proche" in log, "zones contaminées : zone la plus proche trouvée")
+check("Removed effect Poison from Alice" in log or "Removed effect Poison from [Bourg Neuf] Alice" in log,
+      "zone contaminée : poison sans casque ni combinaison")
+check(any("contamination" in r.get("discoveries", []) for r in progress.values()), "découverte « Compteur Geiger »")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")
-progress = json.loads((data / "progression.json").read_text())
 check(any("alien_sanctuary" in r.get("discoveries", []) for r in progress.values()),
       "découverte « sanctuaire extraterrestre » à l'entrée de la salle")
 ping = json.loads((work / "ping.json").read_text() or "{}")

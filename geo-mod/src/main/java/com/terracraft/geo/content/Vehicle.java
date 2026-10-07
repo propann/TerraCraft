@@ -350,6 +350,11 @@ public class Vehicle extends VehicleEntity implements Container {
         return owner != null && owner.equals(player.getUUID());
     }
 
+    /** Coffre du véhicule (convoi militaire : butin chargé dans le camion). */
+    public net.minecraft.world.SimpleContainer storage() {
+        return storage;
+    }
+
     public boolean canAccess(Player player) {
         return owner == null || owner.equals(player.getUUID()) || trusted.contains(player.getUUID());
     }
