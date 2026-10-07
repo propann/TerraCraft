@@ -36,11 +36,14 @@ public final class Space {
             Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "mars"));
     public static final ResourceKey<Level> MARS_ORBIT = ResourceKey.create(Registries.DIMENSION,
             Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "mars_orbit"));
+    public static final ResourceKey<Level> MOON_ORBIT = ResourceKey.create(Registries.DIMENSION,
+            Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "moon_orbit"));
     public static final byte EARTH = 0;
     public static final byte MOON_ID = 1;
     public static final byte ORBIT_ID = 2;
     public static final byte MARS_ID = 3;
     public static final byte MARS_ORBIT_ID = 4;
+    public static final byte MOON_ORBIT_ID = 11;
     /** Altitude de la plateforme d'amarrage en orbite. */
     public static final int DOCK_Y = 150;
     /** Rayon de la bulle d'air d'un distributeur d'oxygène. */
@@ -56,8 +59,47 @@ public final class Space {
     }
 
     public static boolean isSpace(Level level) {
-        return level.dimension() == MOON || level.dimension() == ORBIT
-                || level.dimension() == MARS || level.dimension() == MARS_ORBIT;
+        return level.dimension() == MOON || isOrbit(level) || level.dimension() == MARS;
+    }
+
+    /** Orbite (terrestre, lunaire ou martienne) : vide, quai d'amarrage, stations. */
+    public static boolean isOrbit(Level level) {
+        return level.dimension() == ORBIT || level.dimension() == MOON_ORBIT || level.dimension() == MARS_ORBIT;
+    }
+
+    public static boolean isOrbitId(byte id) {
+        return id == ORBIT_ID || id == MOON_ORBIT_ID || id == MARS_ORBIT_ID;
+    }
+
+    /**
+     * Carburant de fusée nécessaire entre deux mondes : plus court chemin sur les trajets
+     * Terre — orbite terrestre — orbite lunaire — Lune, et orbites — orbite martienne — Mars.
+     * Quitter la Terre coûte cher, sauter d'une orbite à l'autre beaucoup moins : les stations
+     * servent d'escales pour refaire le plein. Réservoir : {@link com.terracraft.geo.content.Rocket#MAX_FUEL}.
+     */
+    public static int travelCost(byte from, byte to) {
+        byte[] nodes = {EARTH, ORBIT_ID, MOON_ORBIT_ID, MOON_ID, MARS_ORBIT_ID, MARS_ID};
+        int[][] edges = {{EARTH, ORBIT_ID, 3}, {ORBIT_ID, MOON_ORBIT_ID, 2}, {MOON_ORBIT_ID, MOON_ID, 1},
+                {ORBIT_ID, MARS_ORBIT_ID, 5}, {MOON_ORBIT_ID, MARS_ORBIT_ID, 4}, {MARS_ORBIT_ID, MARS_ID, 2}};
+        java.util.Map<Byte, Integer> best = new java.util.HashMap<>();
+        for (byte node : nodes) {
+            best.put(node, Integer.MAX_VALUE / 2);
+        }
+        best.put(from, 0);
+        for (int round = 0; round < nodes.length; round++) {
+            for (int[] edge : edges) {
+                byte a = (byte) edge[0];
+                byte b = (byte) edge[1];
+                best.put(b, Math.min(best.get(b), best.get(a) + edge[2]));
+                best.put(a, Math.min(best.get(a), best.get(b) + edge[2]));
+            }
+        }
+        return best.getOrDefault(to, Integer.MAX_VALUE / 2);
+    }
+
+    /** Destination réservée aux pilotes qui ont déjà marché sur la Lune (Mars et son orbite). */
+    public static boolean requiresMoon(byte destination) {
+        return destination == MARS_ID || destination == MARS_ORBIT_ID;
     }
 
     public static byte id(Level level) {
@@ -65,6 +107,7 @@ public final class Space {
         if (level.dimension() == ORBIT) return ORBIT_ID;
         if (level.dimension() == MARS) return MARS_ID;
         if (level.dimension() == MARS_ORBIT) return MARS_ORBIT_ID;
+        if (level.dimension() == MOON_ORBIT) return MOON_ORBIT_ID;
         return EARTH;
     }
 
@@ -87,6 +130,7 @@ public final class Space {
             case ORBIT_ID -> server.getLevel(ORBIT);
             case MARS_ID -> server.getLevel(MARS);
             case MARS_ORBIT_ID -> server.getLevel(MARS_ORBIT);
+            case MOON_ORBIT_ID -> server.getLevel(MOON_ORBIT);
             default -> server.overworld();
         };
     }
@@ -135,7 +179,7 @@ public final class Space {
         boolean everySecond = server.getTickCount() % 20 == 0;
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             boolean inSpace = isSpace(player.level());
-            boolean orbit = player.level().dimension() == ORBIT || player.level().dimension() == MARS_ORBIT;
+            boolean orbit = isOrbit(player.level());
             // Bottes magnétiques : en orbite, on colle au sol comme sur la Lune au lieu de flotter.
             double gravity = orbit ? (SpaceSuit.hasBoots(player) ? -0.75 : -0.92)
                     : player.level().dimension() == MARS ? -0.62 : -0.83;
@@ -204,6 +248,8 @@ public final class Space {
             Progression.get().discover(player, "moon");
         } else if (destination == ORBIT_ID) {
             Progression.get().discover(player, "orbit");
+        } else if (destination == MOON_ORBIT_ID) {
+            Progression.get().discover(player, "moon_orbit");
         } else if (destination == MARS_ID || destination == MARS_ORBIT_ID) {
             Progression.get().discover(player, "mars");
         }
@@ -212,6 +258,7 @@ public final class Space {
             case ORBIT_ID -> "Orbite terrestre";
             case MARS_ID -> "Mars";
             case MARS_ORBIT_ID -> "Orbite de Mars";
+            case MOON_ORBIT_ID -> "Orbite lunaire";
             default -> "La Terre";
         };
         String subtitle = switch (destination) {
@@ -219,6 +266,7 @@ public final class Space {
             case ORBIT_ID -> "Plateforme d'amarrage — construis ta station";
             case MARS_ID -> "Gravité 38 % — atmosphère irrespirable";
             case MARS_ORBIT_ID -> "Orbite de Mars — prépare la descente";
+            case MOON_ORBIT_ID -> "La Lune sous tes pieds — 1 dose pour descendre";
             default -> "Bon retour parmi les ruines";
         };
         player.connection.send(new ClientboundSetTitlesAnimationPacket(20, 80, 30));

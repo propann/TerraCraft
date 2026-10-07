@@ -114,6 +114,8 @@ public final class Progression {
             new Discovery("moon", "Un petit pas — marcher sur la Lune", 80),
             new Discovery("orbit", "En orbite — atteindre l'orbite", 80),
             new Discovery("mars", "Planète rouge — atteindre Mars", 120),
+            new Discovery("moon_orbit", "Orbite lunaire — tourner autour de la Lune", 80),
+            new Discovery("first_module", "Bâtisseur orbital — premier module de station", 60),
             new Discovery("titanium", "Métal lunaire — miner du titane", 20),
             new Discovery("helium", "Hélium-3 — récolter des cristaux", 20),
             new Discovery("lunar_hunter", "Chasseur lunaire — 10 ennemis lunaires", 50));
@@ -135,6 +137,7 @@ public final class Progression {
         STAT_LABELS.put("helium", "Cristaux d'hélium-3");
         STAT_LABELS.put("supplies", "Caisses de ravitaillement ouvertes");
         STAT_LABELS.put("listings", "Objets mis en vente");
+        STAT_LABELS.put("modules", "Modules de station posés");
     }
 
     // --- Compétences --------------------------------------------------------------------------
@@ -351,6 +354,7 @@ public final class Progression {
                 }
             }
             case "launches" -> discover(player, "first_launch");
+            case "modules" -> discover(player, "first_module");
             case "titanium" -> discover(player, "titanium");
             case "helium" -> discover(player, "helium");
             default -> {
@@ -373,7 +377,7 @@ public final class Progression {
         if (discovery == null) {
             return;
         }
-        if (id.equals("moon") || id.equals("orbit") || id.equals("mars")) {
+        if (id.equals("moon") || id.equals("orbit") || id.equals("mars") || id.equals("moon_orbit")) {
             train(player, Skill.SPACE, 150);
         }
         player.sendSystemMessage(Component.literal("✦ Découverte : " + discovery.name() + "  (+" + discovery.points() + " pts)")
@@ -483,6 +487,10 @@ public final class Progression {
     }
 
     /** Palier 3 : l'oxygène dure deux fois plus longtemps. */
+    public boolean hasDiscovered(ServerPlayer player, String id) {
+        return record(player).discoveries.contains(id);
+    }
+
     public boolean hasSteelLungs(ServerPlayer player) {
         return record(player).level >= 3;
     }

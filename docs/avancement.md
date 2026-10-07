@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.10.0**.
+Dernière passe : 7 octobre 2026 — version **0.11.0**.
 
 ## Fonctionnel et raccordé
 
@@ -11,7 +11,8 @@ Dernière passe : 7 octobre 2026 — version **0.10.0**.
 - [x] Économie persistante, hôtel des ventes graphique : objets conservés à l'identique, sans duplication.
 - [x] Hôtel des ventes : catégories, prix moyens, icônes, vente directe ; comptoir du serveur ; frais de 2 % ; `/eco stats`.
 - [x] Voiture, camion et moto : assemblage, conduite, carburant, coffre, propriétaire et partage ; progression comptée une seule fois par véhicule.
-- [x] Fusée, orbite terrestre, Lune, Mars et orbite de Mars.
+- [x] Fusée, orbite terrestre, orbite lunaire, Lune, Mars et orbite de Mars ; carburant par trajet (8 doses), Mars après la Lune.
+- [x] Stations : kit de module pressurisé 7×5×7, balise de station (arrivée des fusées), `/station`.
 - [x] Combinaison spatiale (touche `J` et panneau de l'inventaire `E`) : casque, combinaison, bottes magnétiques, jetpack, deux réserves d'oxygène, rendu en armure, HUD O₂.
 - [x] Jetpack : poussée en maintenant saut, carburant au bidon, compatible anti-triche.
 - [x] Avion : kit, carburant, pilotage au regard, décrochage, crash, instruments de bord.
@@ -28,7 +29,7 @@ Dernière passe : 7 octobre 2026 — version **0.10.0**.
 - [x] Sauvegardes automatiques du monde, rotation, restauration testée.
 - [x] Versions des mods tiers figées (`tools/mods.lock.json`), identiques serveur et pack.
 - [x] Test de démarrage d'un vrai serveur avant chaque déploiement Falix (CI).
-- [x] Test de scénario avec faux joueurs (`tools/scenario_test.sh`) : villes, économie, combinaison, oxygène.
+- [x] Test de scénario avec faux joueurs (`tools/scenario_test.sh`, 23 vérifications) : villes, économie, combinaison, oxygène, métiers, largages, station et vol en fusée jusqu'à la balise.
 
 ## À tester en jeu
 

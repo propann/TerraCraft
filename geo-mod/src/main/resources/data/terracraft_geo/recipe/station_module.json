@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "H": "terracraft_geo:station_hull",
+    "W": "terracraft_geo:station_window",
+    "L": "terracraft_geo:station_light",
+    "O": "terracraft_geo:oxygen_distributor"
+  },
+  "pattern": [
+    "HWH",
+    "LOL",
+    "HHH"
+  ],
+  "result": {
+    "id": "terracraft_geo:station_module",
+    "count": 1
+  }
+}

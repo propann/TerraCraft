@@ -51,5 +51,7 @@
   "item.terracraft_geo.jetpack": "Jetpack",
   "item.terracraft_geo.plane_kit": "Plane kit",
   "entity.terracraft_geo.plane": "Plane",
-  "key.terracraft_geo.vehicle_storage": "Vehicle storage"
+  "key.terracraft_geo.vehicle_storage": "Vehicle storage",
+  "block.terracraft_geo.station_beacon": "Station beacon",
+  "item.terracraft_geo.station_module": "Station module kit"
 }

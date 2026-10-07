@@ -51,5 +51,7 @@
   "item.terracraft_geo.jetpack": "Jetpack",
   "item.terracraft_geo.plane_kit": "Kit d'avion",
   "entity.terracraft_geo.plane": "Avion",
-  "key.terracraft_geo.vehicle_storage": "Coffre du véhicule"
+  "key.terracraft_geo.vehicle_storage": "Coffre du véhicule",
+  "block.terracraft_geo.station_beacon": "Balise de station",
+  "item.terracraft_geo.station_module": "Kit de module de station"
 }

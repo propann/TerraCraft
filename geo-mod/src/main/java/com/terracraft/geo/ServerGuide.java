@@ -58,6 +58,7 @@ final class ServerGuide {
         line(player, "[Premiers pas]", "/tuto", "Revoir ton objectif en cours");
         line(player, "[Ville]", "/ville", "Fonder ou rejoindre une ville, trésorerie commune, /ville tp");
         line(player, "[Métier]", "/metier", "Choisir une spécialité (mécanicien, éclaireur, pilote…)");
+        line(player, "[Stations]", "/station", "Tes stations spatiales (balise = point d'arrivée de tes fusées)");
         line(player, "[Missions]", "/missions", "Contrats du jour et missions récompensées");
         line(player, "[Signaler]", "/signaler ", "Signaler un bug ou une perte d'objet aux administrateurs");
         return 1;

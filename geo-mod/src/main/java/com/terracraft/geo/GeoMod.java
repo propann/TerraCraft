@@ -271,6 +271,9 @@ public final class GeoMod implements ModInitializer {
             }
         });
         PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> {
+            if (state.is(ModBlocks.STATION_BEACON) && level instanceof net.minecraft.server.level.ServerLevel server) {
+                Stations.get().removed(server, pos);
+            }
             if (player instanceof ServerPlayer serverPlayer) {
                 if (state.is(ModBlocks.TITANIUM_ORE)) {
                     Progression.get().count(serverPlayer, "titanium", 1, 2);
@@ -312,6 +315,8 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(TOWNS::load);
         ServerLifecycleEvents.SERVER_STARTED.register(CONTRACTS::load);
         ServerLifecycleEvents.SERVER_STARTED.register(REPORTS::load);
+        Stations.get().wire(TOWNS);
+        ServerLifecycleEvents.SERVER_STARTED.register(Stations.get()::load);
         MISSIONS.contracts(CONTRACTS);
         ServerTickEvents.END_SERVER_TICK.register(CONTRACTS::tick);
         ServerTickEvents.END_SERVER_TICK.register(CLAIMS::tick);
@@ -343,6 +348,7 @@ public final class GeoMod implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> TOWNS.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Jobs.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> REPORTS.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Stations.get().register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> dispatcher.register(
                 Commands.literal("terracraft")
                         .then(Commands.literal("ou").executes(command -> {
@@ -378,6 +384,21 @@ public final class GeoMod implements ModInitializer {
                                 .then(Commands.literal("liberer")
                                         .executes(command -> releaseVehicle(command.getSource()))))
                         .then(BACKUPS.command())
+                        .then(Commands.literal("fusee").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .then(Commands.literal("decoller").executes(command -> {
+                                    ServerPlayer pilot = command.getSource().getPlayerOrException();
+                                    if (!(pilot.getVehicle() instanceof com.terracraft.geo.content.Rocket rocket)) {
+                                        command.getSource().sendFailure(Component.literal("Le joueur doit être dans une fusée."));
+                                        return 0;
+                                    }
+                                    if (!rocket.requestLaunch(pilot, true)) {
+                                        command.getSource().sendFailure(Component.literal("Décollage refusé : " + rocket.status().getString()));
+                                        return 0;
+                                    }
+                                    command.getSource().sendSuccess(() -> Component.literal("Compte à rebours lancé vers "
+                                            + Space.name(rocket.target()) + "."), true);
+                                    return 1;
+                                })))
                         .then(Commands.literal("largage")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> {

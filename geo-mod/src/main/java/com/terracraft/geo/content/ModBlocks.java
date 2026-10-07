@@ -38,6 +38,9 @@ public final class ModBlocks {
                     .isValidSpawn(Blocks::never).isRedstoneConductor(Blocks::never).isSuffocating(Blocks::never));
     public static final Block STATION_LIGHT = block("station_light", Block::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).strength(1f).sound(SoundType.GLASS).lightLevel(state -> 15));
+    /** Balise de station : point d'arrivée des fusées de son poseur (et de sa ville). */
+    public static final Block STATION_BEACON = block("station_beacon", StationBeaconBlock::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).strength(2f).sound(SoundType.METAL).lightLevel(state -> 12));
     /** Rend l'air respirable dans un rayon de 8 blocs (Lune et orbite). */
     public static final Block OXYGEN_DISTRIBUTOR = block("oxygen_distributor", Block::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_LIGHT_BLUE).requiresCorrectToolForDrops().strength(4f, 10f)
@@ -48,7 +51,7 @@ public final class ModBlocks {
 
     public static void init() {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(output -> {
-            for (Block block : new Block[]{STATION_HULL, STATION_FLOOR, STATION_WINDOW, STATION_LIGHT, OXYGEN_DISTRIBUTOR}) {
+            for (Block block : new Block[]{STATION_HULL, STATION_FLOOR, STATION_WINDOW, STATION_LIGHT, STATION_BEACON, OXYGEN_DISTRIBUTOR}) {
                 output.accept(block);
             }
         });

@@ -551,6 +551,30 @@ def draw_plane_kit(c):
     c.rect(7, 5, 1, 2, (120, 170, 200))
 
 
+def beacon_pattern(c):
+    """Balise de station : coque grise, anneau lumineux cyan, voyant central."""
+    for i in range(16):
+        c.set(i, 0, (90, 94, 104))
+        c.set(i, 15, (90, 94, 104))
+        c.set(0, i, (90, 94, 104))
+        c.set(15, i, (90, 94, 104))
+    for i in range(3, 13):
+        for j in (3, 12):
+            c.set(i, j, (80, 220, 255))
+            c.set(j, i, (80, 220, 255))
+    c.rect(6, 6, 4, 4, (255, 240, 120))
+    c.rect(7, 7, 2, 2, (255, 255, 220))
+
+
+def draw_station_module(c):
+    c.rect(2, 4, 12, 9, (175, 178, 186), 8)
+    c.rect(2, 4, 12, 1, (120, 124, 132))
+    c.rect(4, 7, 2, 2, (120, 190, 230))
+    c.rect(10, 7, 2, 2, (120, 190, 230))
+    c.rect(7, 9, 2, 4, (60, 62, 70))
+    c.rect(7, 2, 2, 2, (255, 240, 120))
+
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -597,6 +621,8 @@ def main():
     block_tex("station_window", (150, 154, 162), window_pattern, alpha=150)
     block_tex("station_light", (150, 154, 162), light_pattern)
     block_tex("oxygen_distributor", (175, 178, 186), distributor_pattern)
+    block_tex("station_beacon", (150, 154, 162), beacon_pattern)
+    icon("station_module", draw_station_module)
     icon("titanium_ingot", lambda c: (c.rect(2, 6, 12, 5, (200, 205, 215), 8), c.rect(2, 6, 12, 1, (235, 238, 245))))
     icon("helium3_shard", lambda c: [c.rect(7 - k // 2, 2 + k, 2 + k, 1, (120, 230, 245)) for k in range(12)])
     spider_skin("moon_crawler", (150, 152, 160), (90, 92, 100), (120, 230, 255))

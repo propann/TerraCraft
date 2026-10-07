@@ -2,6 +2,7 @@ package com.terracraft.geo.content;
 
 import com.terracraft.geo.Space;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -45,7 +46,11 @@ public class Rocket extends VehicleEntity {
     public static final int NOSE = 4;
     public static final int FINS = 8;
     private static final int ALL = ENGINE | TANK | NOSE | FINS;
-    public static final int FUEL_NEEDED = 4;
+    /**
+     * Réservoir : 8 doses. Chaque trajet coûte selon {@link Space#travelCost} (quitter la Terre : 3,
+     * Terre → Lune : 6, orbite → orbite lunaire : 2…). Terre → Mars (10) impose une escale en orbite.
+     */
+    public static final int MAX_FUEL = 8;
 
     public static final byte IDLE = 0;
     public static final byte COUNTDOWN = 1;
@@ -117,7 +122,7 @@ public class Rocket extends VehicleEntity {
                 if (part != 0 && !has(part)) {
                     entityData.set(DATA_PARTS, (byte) (parts() | part));
                     used = true;
-                } else if (stack.is(ModContent.ROCKET_FUEL) && fuel() < FUEL_NEEDED) {
+                } else if (stack.is(ModContent.ROCKET_FUEL) && fuel() < MAX_FUEL) {
                     entityData.set(DATA_FUEL, fuel() + 1);
                     used = true;
                 }
@@ -144,8 +149,9 @@ public class Rocket extends VehicleEntity {
         }
         if (!level().isClientSide()) {
             player.startRiding(this);
-            player.sendOverlayMessage(fuel() >= FUEL_NEEDED
-                    ? Component.literal("Appuie sur Espace pour décoller").withStyle(ChatFormatting.GREEN)
+            player.sendOverlayMessage(fuel() >= cost()
+                    ? Component.literal("Destination : " + Space.name(target()) + " — Espace pour décoller (Maj + clic droit à pied : changer)")
+                            .withStyle(ChatFormatting.GREEN)
                     : status());
         }
         return InteractionResult.SUCCESS;
@@ -168,9 +174,15 @@ public class Rocket extends VehicleEntity {
         if (!missing.isEmpty()) {
             return Component.literal("Il manque : " + String.join(", ", missing)).withStyle(ChatFormatting.GOLD);
         }
-        return Component.literal("Carburant " + fuel() + "/" + FUEL_NEEDED + " · destination : " + Space.name(target())
-                        + (fuel() >= FUEL_NEEDED ? " — prête" : ""))
-                .withStyle(fuel() >= FUEL_NEEDED ? ChatFormatting.GREEN : ChatFormatting.YELLOW);
+        int cost = cost();
+        return Component.literal("Carburant " + fuel() + "/" + MAX_FUEL + " · " + Space.name(target()) + " : " + cost + " dose(s)"
+                        + (fuel() >= cost ? " — prête" : cost > MAX_FUEL ? " — trop loin, fais escale en orbite" : ""))
+                .withStyle(fuel() >= cost ? ChatFormatting.GREEN : ChatFormatting.YELLOW);
+    }
+
+    /** Doses de carburant pour aller d'ici à la destination choisie. */
+    public int cost() {
+        return Space.travelCost(Space.id(level()), target());
     }
 
     // --- Vol -----------------------------------------------------------------------------------
@@ -200,18 +212,43 @@ public class Rocket extends VehicleEntity {
 
     private void idle() {
         setDeltaMovement(0, onGround() ? 0 : Math.max(-1.5, getDeltaMovement().y - 0.06), 0);
-        if (getFirstPassenger() instanceof ServerPlayer player && player.getLastClientInput().jump()
-                && isComplete() && fuel() >= FUEL_NEEDED) {
-            if (!Space.hasLifeSupport(player)) {
-                if (level().getGameTime() % 20 == 0) {
-                    player.sendOverlayMessage(Component.literal("Décollage impossible : équipe le casque-combinaison et recharge son oxygène.")
-                            .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
-                }
-                return;
-            }
-            entityData.set(DATA_PHASE, COUNTDOWN);
-            timer = 60;
+        if (getFirstPassenger() instanceof ServerPlayer player && player.getLastClientInput().jump()) {
+            requestLaunch(player, level().getGameTime() % 20 == 0);
         }
+    }
+
+    /**
+     * Demande de décollage du pilote (touche Espace, ou commande d'administration) : mêmes
+     * vérifications dans les deux cas. Renvoie vrai si le compte à rebours démarre.
+     */
+    public boolean requestLaunch(ServerPlayer player, boolean explain) {
+        if (phase() != IDLE || getFirstPassenger() != player || !isComplete()) {
+            return false;
+        }
+        if (fuel() < cost()) {
+            if (explain) {
+                player.sendOverlayMessage(status());
+            }
+            return false;
+        }
+        if (Space.requiresMoon(target()) && !player.isCreative()
+                && !com.terracraft.geo.Progression.get().hasDiscovered(player, "moon")) {
+            if (explain) {
+                player.sendOverlayMessage(Component.literal("Mars se mérite : pose d'abord le pied sur la Lune.")
+                        .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            }
+            return false;
+        }
+        if (!Space.hasLifeSupport(player)) {
+            if (explain) {
+                player.sendOverlayMessage(Component.literal("Décollage impossible : équipe le casque spatial et de l'oxygène (touche J).")
+                        .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+            }
+            return false;
+        }
+        entityData.set(DATA_PHASE, COUNTDOWN);
+        timer = 60;
+        return true;
     }
 
     private void countdown(ServerLevel level) {
@@ -226,7 +263,7 @@ public class Rocket extends VehicleEntity {
         }
         level.sendParticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, getX(), getY(), getZ(), 3, 0.4, 0.1, 0.4, 0.02);
         if (--timer <= 0) {
-            entityData.set(DATA_FUEL, 0);
+            entityData.set(DATA_FUEL, Math.max(0, fuel() - cost()));
             entityData.set(DATA_PHASE, ASCENT);
             timer = 0;
             if (Space.id(level) == Space.EARTH) {
@@ -266,7 +303,15 @@ public class Rocket extends VehicleEntity {
         double x = home ? earthX : getX();
         double z = home ? earthZ : getZ();
         double y;
-        if (destination == Space.ORBIT_ID || destination == Space.MARS_ORBIT_ID) {
+        BlockPos station = getFirstPassenger() instanceof ServerPlayer pilot
+                ? com.terracraft.geo.Stations.get().landing(pilot, target) : null;
+        if (station != null) {
+            // Station du pilote (ou de sa ville) : on se pose à côté de sa balise.
+            x = station.getX() + 2.5;
+            z = station.getZ() + 0.5;
+            target.getChunk(station.getX() >> 4, station.getZ() >> 4);
+            y = station.getY() + 25;
+        } else if (Space.isOrbitId(destination)) {
             Space.buildDock(target, (int) Math.floor(x), (int) Math.floor(z));
             y = Space.DOCK_Y + 25;
         } else {

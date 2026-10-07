@@ -110,3 +110,16 @@ Les véhicules terrestres ne deviennent pas des véhicules spatiaux par magie : 
 - Station retrouvable après redémarrage.
 - Génération stable sur dix points de départ.
 - Temps de génération et mémoire mesurés avant chaque nouvelle dimension.
+
+## État (0.11.0)
+
+- Destinations : Terre, orbite terrestre, orbite lunaire, Lune, orbite de Mars, Mars (registre `SolarSystem`).
+- Carburant de fusée par trajet (`Space.travelCost`, plus court chemin) : Terre ↔ orbite 3, orbite ↔ orbite lunaire 2,
+  orbite lunaire ↔ Lune 1, orbites ↔ orbite de Mars 4 à 5, orbite de Mars ↔ Mars 2. Réservoir de 8 doses :
+  Terre → Mars impose une escale en orbite.
+- Mars et son orbite se débloquent après avoir marché sur la Lune.
+- Stations : kit de module pressurisé (7 × 5 × 7, oxygène, portes raccordables) et balise de station ; une fusée se
+  pose à la balise de son pilote ou d'un habitant de sa ville, sinon sur un quai construit à l'arrivée.
+- Vérifié automatiquement (`tools/scenario_test.sh`) : module, balise, vol Terre → orbite lunaire, arrivée à la
+  balise, 5 doses consommées.
+

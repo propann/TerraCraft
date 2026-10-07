@@ -73,6 +73,25 @@ cmd "execute in terracraft_geo:moon run fill -3 150 -3 3 150 3 minecraft:stone" 
 cmd "execute in terracraft_geo:moon run tp Bob 0 151 0" 8
 cmd 'data get entity Bob "fabric:attachments"' 2
 cmd "data get entity Bob Health" 1
+# Orbite lunaire : module de station et balise (Bob regarde le sol, orienté vers le sud)
+cmd "execute in terracraft_geo:moon_orbit run forceload add -16 -16 16 16" 3
+cmd "execute in terracraft_geo:moon_orbit run fill -6 150 -6 6 150 6 minecraft:stone" 2
+cmd "execute in terracraft_geo:moon_orbit run tp Bob 0 151 0 0 90" 3
+cmd "item replace entity Bob weapon.mainhand with terracraft_geo:station_module"
+cmd "player Bob use once" 2
+cmd "execute in terracraft_geo:moon_orbit if block 0 151 4 terracraft_geo:oxygen_distributor" 1
+cmd "execute in terracraft_geo:moon_orbit if block 3 152 4 air" 1
+cmd "execute in terracraft_geo:moon_orbit run tp Bob 0.5 151 -4.5 0 45" 2
+cmd "item replace entity Bob weapon.mainhand with terracraft_geo:station_beacon"
+cmd "player Bob use once" 2
+# Vol en fusée : Terre → orbite lunaire, arrivée à la balise de Bob (5 doses sur 8)
+cmd "tp Bob 5.5 201 5.5" 2
+cmd "summon terracraft_geo:rocket 10.5 201 10.5 {Parts:15b,Fuel:8,Target:11b}" 2
+cmd "ride Bob mount @e[type=terracraft_geo:rocket,limit=1,sort=nearest]" 2
+cmd "execute as Bob run terracraft fusee decoller" 25
+cmd "data get entity Bob Dimension" 1
+cmd "data get entity Bob Pos" 1
+cmd "data get entity @e[type=terracraft_geo:rocket,limit=1] Fuel" 1
 cmd "save-all flush" 3
 cmd "stop" 2
 # Laisser le serveur finir sa sauvegarde avant de quitter (sinon le monde reste à moitié écrit).
@@ -126,6 +145,14 @@ check(len(contracts) == 2 and all("baseline" in c for c in contracts.values()), 
 reports = json.loads((data / "signalements.json").read_text())
 check(len(reports) == 1 and reports[0]["player"] == "Bob", "signalement enregistré")
 check("[LARGAGE] Caisse en" in log, "caisse de ravitaillement larguée sur la plateforme")
+check(log.count("Test passed") >= 2, "module de station : distributeur d'oxygène au centre, porte ouverte")
+check(any(s.get("modules") == 1 for s in stats), "compteur de modules de station")
+stations = json.loads((data / "stations.json").read_text())
+check(len(stations) == 1 and stations[0]["dimension"] == "terracraft_geo:moon_orbit", "balise de station enregistrée en orbite lunaire")
+check('Bob has the following entity data: "terracraft_geo:moon_orbit"' in log, "vol en fusée jusqu'à l'orbite lunaire")
+pos = re.findall(r"Bob has the following entity data: \[([-\d.]+)d, ([-\d.]+)d, ([-\d.]+)d\]", log)
+check(bool(pos) and abs(float(pos[-1][0]) - 2.5) < 1 and abs(float(pos[-1][2]) + 2.5) < 1, "fusée posée à côté de la balise de station")
+check("Rocket has the following entity data: 3" in log, "carburant : 5 doses consommées (Terre → orbite lunaire)")
 check(not any("Exception" in line and "spark" not in line for line in log.splitlines()),
       "aucune exception dans le journal (hors spark)")
 sys.exit(1 if failures else 0)
