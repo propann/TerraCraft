@@ -12,7 +12,8 @@ JAR="$(realpath "$1")"
 WORK="${2:-$(mktemp -d)}"
 CARPET_URL="https://cdn.modrinth.com/data/TQTTVgYE/versions/yt9oDFOj/fabric-carpet-26.3%2Bv260915.jar"
 
-"$ROOT/tools/smoke_server.sh" "$JAR" "$WORK" >/dev/null
+rm -rf "$WORK/world"
+"$ROOT/tools/smoke_server.sh" "$JAR" "$WORK" > "$WORK/smoke.out" 2>&1 || { cat "$WORK/smoke.out"; exit 1; }
 cd "$WORK"
 # Le serveur du test de démarrage peut encore écrire le monde : on attend qu'il soit arrêté.
 for _ in $(seq 60); do
@@ -34,8 +35,8 @@ grep -q "Done (" scenario.log || { echo "ÉCHEC : le serveur ne démarre pas"; t
 
 cmd() { echo "$1" >> console.in; sleep "${2:-1}"; }
 # Plateforme en hauteur : le point 0, 0 de la Terre réelle est en plein Atlantique.
-cmd "forceload add 0 0" 3
-cmd "fill -5 200 -5 15 200 15 minecraft:stone" 2
+cmd "forceload add -64 -64 63 63" 6
+cmd "fill -60 200 -60 60 200 60 minecraft:stone" 3
 cmd "player Alice spawn at 0 201 0" 4
 cmd "player Bob spawn at 5 201 5" 4
 cmd "gamemode survival Alice"
@@ -53,6 +54,12 @@ cmd "execute as Bob run comptoir 1"
 cmd "item replace entity Bob weapon.mainhand with terracraft_geo:fuel_can 1"
 cmd "execute as Bob run hdv vendre 100"
 cmd "execute as Alice run hdv acheter 1"
+# Métier, signalement, largage militaire
+cmd "execute as Bob run metier choisir pilote"
+cmd "execute as Alice run metier choisir mecanicien"
+cmd "execute as Bob run signaler Test automatique : tout va bien"
+cmd "execute as Alice at Alice run terracraft largage" 2
+cmd "execute as Bob run missions" 1
 # Combinaison spatiale (clic droit avec chaque pièce)
 cmd "item replace entity Bob weapon.mainhand with terracraft_geo:space_helmet"
 cmd "player Bob use once" 2
@@ -67,7 +74,17 @@ cmd "execute in terracraft_geo:moon run tp Bob 0 151 0" 8
 cmd 'data get entity Bob "fabric:attachments"' 2
 cmd "data get entity Bob Health" 1
 cmd "save-all flush" 3
-cmd "stop" 8
+cmd "stop" 2
+# Laisser le serveur finir sa sauvegarde avant de quitter (sinon le monde reste à moitié écrit).
+for _ in $(seq 60); do
+  pgrep -f "server.jar nogui" >/dev/null || break
+  alive=0
+  for pid in $(pgrep -x java || true); do
+    [ "$(readlink "/proc/$pid/cwd" 2>/dev/null)" = "$(pwd -P)" ] && alive=1
+  done
+  [ "$alive" = 0 ] && break
+  sleep 1
+done
 
 python3 - "$WORK" <<'EOF'
 import json, re, sys
@@ -98,6 +115,17 @@ check(bool(suit) and "space_helmet" in suit[-1] and "jetpack" in suit[-1] and "o
       "casque, bouteilles et jetpack portés par clic droit")
 check(bool(suit) and '"minecraft:damage"' in suit[-1], "le casque consomme de l'oxygène sur la Lune")
 check(re.search(r"Bob has the following entity data: 20\.0f", log) is not None, "Bob respire (aucun dégât)")
+progression = json.loads((data / "progression.json").read_text())
+jobs = sorted(r.get("job") or "" for r in progression.values())
+check(jobs == ["MECANICIEN", "PILOTE"], f"métiers enregistrés (obtenu {jobs})")
+stats = [r.get("stats", {}) for r in progression.values()]
+check(any(s.get("listings") == 1 for s in stats) and any(s.get("shop") == 1 for s in stats), "compteurs vente et comptoir")
+check(any(s.get("town") == 1 for s in stats) and any(s.get("job") == 1 for s in stats), "compteurs ville et métier")
+contracts = json.loads((data / "contrats.json").read_text())
+check(len(contracts) == 2 and all("baseline" in c for c in contracts.values()), "journée de contrats ouverte pour les deux joueurs")
+reports = json.loads((data / "signalements.json").read_text())
+check(len(reports) == 1 and reports[0]["player"] == "Bob", "signalement enregistré")
+check("[LARGAGE] Caisse en" in log, "caisse de ravitaillement larguée sur la plateforme")
 check(not any("Exception" in line and "spark" not in line for line in log.splitlines()),
       "aucune exception dans le journal (hors spark)")
 sys.exit(1 if failures else 0)

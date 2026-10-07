@@ -46,7 +46,9 @@ public final class Jetpack {
                 continue;
             }
             ItemStack jetpack = SpaceSuit.jetpack(player);
-            if (!player.isCreative()) {
+            // Métier pilote : un tick de poussée sur quatre est gratuit.
+            boolean saved = Jobs.is(player, Jobs.Job.PILOTE) && server.getTickCount() % 4 == 0;
+            if (!player.isCreative() && !saved) {
                 jetpack.setDamageValue(jetpack.getDamageValue() + 1);
             }
             player.resetFallDistance();

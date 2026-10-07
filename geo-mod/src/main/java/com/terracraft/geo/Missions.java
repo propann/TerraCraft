@@ -37,9 +37,20 @@ final class Missions {
             new Mission("driver", "Conducteur", "Parcours 1 000 blocs en véhicule", "driven", 1_000, 500),
             new Mission("cleaner", "Nettoyeur", "Élimine 10 monstres", "kills", 10, 350),
             new Mission("bunker", "Abri sûr", "Découvre 1 bunker", "bunkers", 1, 450),
-            new Mission("launch", "Vers les étoiles", "Lance 1 fusée", "launches", 1, 1_000));
+            new Mission("launch", "Vers les étoiles", "Lance 1 fusée", "launches", 1, 1_000),
+            new Mission("merchant", "Marchand", "Mets 1 objet en vente à l'hôtel des ventes", "listings", 1, 200),
+            new Mission("customer", "Client du comptoir", "Achète 1 offre au comptoir", "shop", 1, 100),
+            new Mission("citizen", "Citoyen", "Fonde ou rejoins une ville", "town", 1, 300),
+            new Mission("specialist", "Spécialiste", "Choisis un métier (/metier)", "job", 1, 150),
+            new Mission("supply", "Largage", "Ouvre 1 caisse de ravitaillement", "supplies", 1, 300),
+            new Mission("lunar_miner", "Mineur lunaire", "Mine 5 minerais de titane", "titanium", 5, 400));
 
     private final Map<UUID, Set<String>> claimed = new HashMap<>();
+    private Contracts contracts;
+
+    void contracts(Contracts contracts) {
+        this.contracts = contracts;
+    }
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private Path file;
 
@@ -82,6 +93,19 @@ final class Missions {
 
     private int show(ServerPlayer player, AuctionHouse auctionHouse) {
         Set<String> done = claimed.computeIfAbsent(player.getUUID(), ignored -> new HashSet<>());
+        if (contracts != null) {
+            player.sendSystemMessage(Component.literal("✦ Contrats du jour").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+            for (Contracts.Contract contract : Contracts.todays()) {
+                long progress = contracts.progress(player, contract);
+                boolean ready = progress >= contract.target() && !contracts.claimed(player, contract);
+                String state = contracts.claimed(player, contract) ? "✓" : ready ? "[Réclamer]" : "[En cours]";
+                player.sendSystemMessage(Component.literal(state + " ").withStyle(s -> s
+                                .withColor(ready ? ChatFormatting.GREEN : ChatFormatting.GRAY)
+                                .withClickEvent(ready ? new ClickEvent.RunCommand("/missions reclamer " + Contracts.PREFIX + contract.id()) : null))
+                        .append(Component.literal(contract.title() + " : " + contract.description() + " (" + progress + "/"
+                                + contract.target() + ") — " + contract.reward() + " crédits").withStyle(ChatFormatting.WHITE)));
+            }
+        }
         player.sendSystemMessage(Component.literal("✦ Missions TerraCraft").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
         for (Mission mission : LIST) {
             long progress = Math.min(mission.target(), Progression.get().stat(player, mission.stat()));
@@ -103,6 +127,9 @@ final class Missions {
     }
 
     private int claim(ServerPlayer player, String id, AuctionHouse auctionHouse) {
+        if (id.startsWith(Contracts.PREFIX)) {
+            return contracts != null && contracts.claim(player, id) ? 1 : 0;
+        }
         Mission mission = LIST.stream().filter(candidate -> candidate.id().equals(id)).findFirst().orElse(null);
         if (mission == null) {
             player.sendSystemMessage(Component.literal("Mission inconnue. Fais /missions.").withStyle(ChatFormatting.RED));
@@ -139,7 +166,12 @@ final class Missions {
             json.addProperty("claimed", done.contains(mission.id()));
             missions.add(json);
         }
-        ServerPlayNetworking.send(player, new MissionPayload(gson.toJson(missions)));
+        com.google.gson.JsonObject root = new com.google.gson.JsonObject();
+        root.add("missions", missions);
+        root.add("contracts", contracts == null ? new com.google.gson.JsonArray() : contracts.toJson(player));
+        Jobs.Job job = Jobs.of(player);
+        root.addProperty("job", job == null ? "Aucun métier — /metier" : job.label + " : " + job.bonus);
+        ServerPlayNetworking.send(player, new MissionPayload(gson.toJson(root)));
     }
 
     void claimFromClient(ServerPlayer player, String id, AuctionHouse auctionHouse) {

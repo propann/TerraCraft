@@ -133,6 +133,8 @@ public final class Progression {
         STAT_LABELS.put("launches", "Lancements de fusée");
         STAT_LABELS.put("titanium", "Titane miné");
         STAT_LABELS.put("helium", "Cristaux d'hélium-3");
+        STAT_LABELS.put("supplies", "Caisses de ravitaillement ouvertes");
+        STAT_LABELS.put("listings", "Objets mis en vente");
     }
 
     // --- Compétences --------------------------------------------------------------------------
@@ -207,7 +209,7 @@ public final class Progression {
 
     /** Multiplicateur de dégâts des armes à feu (compétence Combat). */
     public double combatMultiplier(ServerPlayer player) {
-        return 1 + 0.02 * skillLevel(player, Skill.COMBAT);
+        return 1 + 0.02 * skillLevel(player, Skill.COMBAT) + (Jobs.is(player, Jobs.Job.COMBATTANT) ? 0.15 : 0);
     }
 
     // --- Données par joueur ------------------------------------------------------------------
@@ -219,6 +221,25 @@ public final class Progression {
         Set<String> discoveries = new LinkedHashSet<>();
         Set<String> places = new LinkedHashSet<>();
         Map<String, Long> skills = new HashMap<>();
+        /** Métier choisi (nom de {@link Jobs.Job}) et date du dernier changement. */
+        String job;
+        long jobChanged;
+    }
+
+    String jobName(ServerPlayer player) {
+        return record(player).job;
+    }
+
+    long jobChangedAt(ServerPlayer player) {
+        return record(player).jobChanged;
+    }
+
+    void setJob(ServerPlayer player, String job) {
+        Record r = record(player);
+        r.job = job;
+        r.jobChanged = System.currentTimeMillis();
+        dirty = true;
+        save();
     }
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -425,6 +446,10 @@ public final class Progression {
         skillModifier(player, Attributes.ATTACK_DAMAGE, "skill_combat", 0.02 * combat, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         skillModifier(player, Attributes.MOVEMENT_SPEED, "skill_exploration", 0.005 * explore, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         skillModifier(player, Attributes.LUCK, "skill_luck", 0.1 * explore, AttributeModifier.Operation.ADD_VALUE);
+        skillModifier(player, Attributes.MOVEMENT_SPEED, "job_scout", Jobs.is(player, Jobs.Job.ECLAIREUR) ? 0.08 : 0,
+                AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+        skillModifier(player, Attributes.LUCK, "job_scavenger", Jobs.is(player, Jobs.Job.RECUPERATEUR) ? 1.5 : 0,
+                AttributeModifier.Operation.ADD_VALUE);
     }
 
     private static void skillModifier(ServerPlayer player, Holder<Attribute> attribute, String name, double amount,
@@ -448,7 +473,8 @@ public final class Progression {
 
     /** Compétence Mécanique : chance d'économiser l'essence de ce tick. */
     public boolean saveFuel(ServerPlayer player) {
-        return player.getRandom().nextFloat() < 0.02f * skillLevel(player, Skill.MECHANICS);
+        float chance = 0.02f * skillLevel(player, Skill.MECHANICS) + (Jobs.is(player, Jobs.Job.MECANICIEN) ? 0.25f : 0f);
+        return player.getRandom().nextFloat() < chance;
     }
 
     /** Compétence Combat : durée de rechargement réduite. */

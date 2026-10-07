@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.9.0**.
+Dernière passe : 7 octobre 2026 — version **0.10.0**.
 
 ## Fonctionnel et raccordé
 
@@ -17,6 +17,11 @@ Dernière passe : 7 octobre 2026 — version **0.9.0**.
 - [x] Avion : kit, carburant, pilotage au regard, décrochage, crash, instruments de bord.
 - [x] Villes : fondation (500 crédits), invitations, maire, trésorerie, `/ville tp`, titres d'entrée et de sortie.
 - [x] Coffre du véhicule : bouton du menu O et touche V.
+- [x] Contrats du jour (3 par jour), nouvelles missions, écran des missions refait.
+- [x] Métiers (`/metier`) avec bonus branchés sur véhicules, armes, jetpack, avion et attributs.
+- [x] Territoires : propriétaire affiché en changeant de chunk (Open Parties and Claims).
+- [x] Ravitaillements militaires toutes les 45 à 75 min (`/terracraft largage` pour les admins).
+- [x] `/signaler` : rapports de bugs enregistrés, alerte aux opérateurs.
 - [x] Survie : téléportations refusées en combat, `/tpa` limitée.
 - [x] Anti-triche vol (allow-flight est forcé pour l'espace).
 - [x] Données joueurs écrites de façon atomique avec copie `.bak`.
@@ -42,7 +47,7 @@ Dernière passe : 7 octobre 2026 — version **0.9.0**.
 ## Prochaine séquence
 
 1. Retours de jeu sur la 0.8.0 (inventaire, économie, jetpack, avion), puis publication.
-2. Claims : affichage du propriétaire d'un chunk, protection des véhicules dans les claims.
+2. Événements (convoi, contamination), primes, magasins de joueurs.
 3. Missions liées aux lieux réels et métiers (phase 4).
 
 ## Règle de publication

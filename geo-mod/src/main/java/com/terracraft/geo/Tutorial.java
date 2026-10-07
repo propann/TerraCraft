@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -21,7 +20,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,7 +47,7 @@ public final class Tutorial {
             new Step("loot", "Fouille un coffre", "Les immeubles et les bunkers cachent du butin. Ouvre un coffre jamais fouillé.",
                     (t, p) -> Progression.get().stat(p, "loot") > 0),
             new Step("claim", "Protège ton secteur", "Touche M : carte, clic droit sur ton chunk puis « Claim selected ».",
-                    (t, p) -> claimCount(p) != 0),
+                    (t, p) -> Claims.claimCount(p) != 0),
             new Step("market", "Visite l'hôtel des ventes", "Touche O puis « Hôtel des ventes » (ou /hdv) : vends ton surplus.",
                     (t, p) -> t.flag(p, "market")),
             new Step("sheet", "Ouvre ta fiche", "Touche K : niveau, compétences, découvertes et paliers.",
@@ -216,38 +214,5 @@ public final class Tutorial {
         player.sendSystemMessage(Component.literal("Parcours « Premiers pas » masqué. /aide liste toutes les commandes.")
                 .withStyle(ChatFormatting.GRAY));
         return 1;
-    }
-
-    // --- Open Parties and Claims (facultatif, appelé par réflexion) ----------------------------
-
-    private static Method opacGet;
-    private static Method opacClaimsManager;
-    private static Method opacPlayerInfo;
-    private static Method opacClaimCount;
-    private static boolean opacMissing;
-
-    /** Nombre de chunks revendiqués ; -1 si OPAC est absent (l'étape est alors validée d'office). */
-    private static int claimCount(ServerPlayer player) {
-        if (opacMissing || !FabricLoader.getInstance().isModLoaded("openpartiesandclaims")) {
-            return -1;
-        }
-        try {
-            if (opacGet == null) {
-                // Méthodes prises sur les interfaces publiques de l'API, jamais sur les classes internes.
-                Class<?> api = Class.forName("xaero.pac.common.server.api.OpenPACServerAPI");
-                opacGet = api.getMethod("get", MinecraftServer.class);
-                opacClaimsManager = api.getMethod("getServerClaimsManager");
-                opacPlayerInfo = Class.forName("xaero.pac.common.server.claims.api.IServerClaimsManagerAPI")
-                        .getMethod("getPlayerInfo", UUID.class);
-                opacClaimCount = Class.forName("xaero.pac.common.claims.player.api.IPlayerClaimInfoAPI").getMethod("getClaimCount");
-            }
-            Object manager = opacClaimsManager.invoke(opacGet.invoke(null, player.level().getServer()));
-            Object info = opacPlayerInfo.invoke(manager, player.getUUID());
-            return info == null ? 0 : (int) opacClaimCount.invoke(info);
-        } catch (ReflectiveOperationException | RuntimeException e) {
-            opacMissing = true;
-            GeoMod.LOGGER.warn("API Open Parties and Claims inaccessible : étape « claim » du tutoriel validée d'office", e);
-            return -1;
-        }
     }
 }

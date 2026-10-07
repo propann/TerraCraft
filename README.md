@@ -28,9 +28,9 @@ pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.
 | `K` | Fiche de personnage : paliers, compétences, découvertes |
 | `M` / `'` | Carte Xaero et claims |
 
-`/aide` liste les commandes, `/tuto` affiche l'objectif « Premiers pas » en cours.
+`/aide` liste les commandes, `/tuto` affiche l'objectif « Premiers pas » en cours, `/signaler <message>` prévient les administrateurs.
 
-## Ce qui est en place (0.9.0)
+## Ce qui est en place (0.10.0)
 
 - **Monde** : relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés, carte de départ en jeu.
 - **Survie** : inventaire conservé à la mort (−25 % d'expérience), `/sethome` `/home` `/back` `/tpa` (refusés en combat).
@@ -39,6 +39,7 @@ pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.
 - **Équipement** : armes à chargeur, véhicules (voiture, camion, moto) avec propriétaire, coffre et partage, avion, jetpack.
 - **Espace** : fusée, orbite, Lune, Mars, combinaison spatiale dessinée comme une armure, oxygène automatique.
 - **Villes** : `/ville` (fondation, habitants, maire, trésorerie commune, retour au centre-ville, titres d'entrée).
+- **Missions** : contrats du jour, missions permanentes, métiers (`/metier`), ravitaillements militaires.
 - **Claims** : Open Parties and Claims ; cartes Xaero.
 - **Exploitation** : sauvegardes automatiques, anti-triche vol, journal `[HDV]` `[ECO]` `[MISSION]` `[ANTITRICHE]`, spark.
 

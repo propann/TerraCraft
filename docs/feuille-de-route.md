@@ -47,7 +47,7 @@ Critère de sortie : 30 minutes de jeu à plusieurs sans crash, blocage de gén�
 ## Phase 1 — Accueil et interface joueur
 
 - [x] Créer un menu TerraCraft principal : Carte, Claims, Missions, Argent, Hôtel des ventes, Fiche joueur et Guide.
-- [ ] Garder `/aide` comme solution de secours avec les mêmes informations.
+- [x] Garder `/aide` comme solution de secours avec les mêmes informations.
 - [x] Ajouter un tutoriel : parcours « Premiers pas » en 6 étapes (/tuto), affiché à droite de l'écran.
 - [x] Afficher clairement les touches `M`, `'`, `K`, `O`, `J` (carnet de survie, /aide, tutoriel).
 - [ ] Uniformiser couleurs, icônes et textes français.
@@ -60,7 +60,7 @@ Critère : un nouveau joueur peut choisir sa zone, la protéger et accéder à l
 - [ ] Nom, description et couleur du claim.
 - [ ] Rôles : propriétaire, membre, invité, constructeur.
 - [ ] Invitation et retrait d'un joueur depuis un parcours simple.
-- [ ] Affichage du propriétaire et des limites à l'entrée d'une zone.
+- [x] Affichage du propriétaire à l'entrée d'une zone (territoire OPAC, nom du claim) et titres d'entrée des villes.
 - [ ] Protection des coffres, véhicules et ateliers.
 - [x] Puis créer les villes : centre-ville, maire, membres et trésorerie (`/ville`).
 - [ ] Ajouter une taxe légère seulement si elle finance un service identifiable.
@@ -73,7 +73,7 @@ Critère : deux joueurs peuvent créer une base commune et donner des accès dif
 - [x] Catégories : ressources, blocs, pièces, armes, espace, nourriture, équipement.
 - [ ] Magasins joueurs placés dans les bâtiments ou claims.
 - [x] Prix moyen, volume vendu et dernière vente.
-- [ ] Sources d'argent : missions, exploration, primes et vente de ressources.
+- [x] Sources d'argent : missions, contrats du jour, tutoriel, ventes ; primes à venir.
 - [x] Sorties d'argent : comptoir du serveur (carburant, oxygène, munitions, vivres) et frais de marché de 2 %.
 - [x] Transactions atomiques : aucune perte d'objet ou de crédit en cas d'erreur (objet complet conservé, écriture atomique + .bak).
 - [x] Journal administrateur : `/eco stats` (créé, détruit, en circulation) et logs [HDV], [ECO], [MISSION].
@@ -82,12 +82,12 @@ Critère : chaque joueur peut gagner, dépenser et échanger des crédits sans i
 
 ## Phase 4 — Missions et progression
 
-- [ ] Journal de missions actives, terminées et récompenses.
-- [ ] Familles : exploration, survie, combat et économie.
+- [x] Journal de missions actives, terminées et récompenses (écran avec barres de progression).
+- [x] Familles : exploration, combat, véhicules, économie, villes, métiers, espace.
 - [ ] Missions liées à la position réelle : ville, bâtiment, route ou point d'intérêt.
 - [ ] Récompenses : crédits, réputation, pièces, plans et accès à des zones.
-- [ ] Métiers : mécanicien, éclaireur, récupérateur, combattant et pilote.
-- [ ] Collections : villes visitées, bâtiments, véhicules réparés, ressources et découvertes.
+- [x] Métiers : mécanicien, éclaireur, récupérateur, combattant et pilote (`/metier`).
+- [ ] Collections : villes visitées, bâtiments, véhicules réparés, ressources et découvertes (base : fiche K).
 - [ ] Missions coopératives avec progression de groupe.
 
 Critère : un joueur a toujours une prochaine activité claire sans grind obligatoire.
@@ -112,7 +112,7 @@ Critère : conduire, réparer, partager, ranger et démonter fonctionne sans per
 - [ ] Améliorer les textures et icônes des armes, véhicules et pièces.
 - [ ] Ajouter zones PvE, zones PvP et règles explicites.
 - [ ] Ajouter bâtiments dangereux, bunkers, caves, ravitaillements et boss rares.
-- [ ] Ajouter événements : convoi, contamination, attaque et ravitaillement militaire.
+- [ ] Ajouter événements : convoi, contamination, attaque. Ravitaillement militaire : fait.
 - [ ] Ajouter les primes après équilibrage du PvP.
 - [ ] Tester claims contre tirs, explosions, véhicules et mobs.
 
@@ -148,9 +148,9 @@ Critère : atteindre la Lune est une étape prestigieuse, mais la Terre reste ac
 - [ ] Bêta privée avec whitelist.
 - [ ] Publication des commandes, touches, règles, versions et connexion.
 - [x] Sauvegardes automatiques et restauration testée.
-- [ ] Logs des transactions, claims, véhicules et actions administratives.
-- [ ] Procédure de signalement des bugs et pertes d'objets.
-- [ ] Pack client synchronisé avec Falix et versions publiées.
+- [x] Logs des transactions, villes, véhicules, largages et métiers ([HDV] [ECO] [VILLE] [VEHICULE] [LARGAGE] [METIER]).
+- [x] Procédure de signalement des bugs et pertes d'objets (`/signaler`, signalements.json, alerte aux opérateurs).
+- [x] Pack client synchronisé avec Falix et versions publiées (lien stable, CI).
 - [ ] Événement d'ouverture avec objectifs simples.
 - [ ] Suivi : joueurs actifs, retour après 24 h, missions, annonces, TPS et erreurs.
 

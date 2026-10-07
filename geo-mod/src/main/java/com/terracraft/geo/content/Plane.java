@@ -263,7 +263,9 @@ public class Plane extends VehicleEntity {
         // Carburant à la distance parcourue (1 unité tous les 3 blocs, plein ≈ 7 km) : indépendant
         // du rythme d'arrivée des positions envoyées par le pilote.
         if (pilot != null && fuel() > 0) {
-            fuelDistance += current;
+            boolean pilotJob = pilot instanceof ServerPlayer player
+                    && com.terracraft.geo.Jobs.is(player, com.terracraft.geo.Jobs.Job.PILOTE);
+            fuelDistance += pilotJob ? current * 0.75 : current;
             while (fuelDistance >= 3 && fuel() > 0) {
                 fuelDistance -= 3;
                 entityData.set(DATA_FUEL, fuel() - 1);
@@ -371,6 +373,7 @@ public class Plane extends VehicleEntity {
 
     @Override
     protected void destroy(ServerLevel level, DamageSource source) {
+        com.terracraft.geo.GeoMod.LOGGER.info("[VEHICULE] avion détruit en {} ({}) — propriétaire {}", blockPosition(), source.getMsgId(), owner);
         super.destroy(level, source);
         int cans = fuel() / FUEL_PER_CAN;
         if (cans > 0) {

@@ -171,6 +171,7 @@ final class Towns {
         town.founded = System.currentTimeMillis();
         towns.put(key(name), town);
         save();
+        Progression.get().count(player, "town", 1, 10);
         GeoMod.LOGGER.info("[VILLE] {} fonde {} en {}", player.getName().getString(), name, here);
         server.getPlayerList().broadcastSystemMessage(Component.literal("✦ " + player.getName().getString()
                 + " fonde la ville de " + name + " !").withStyle(ChatFormatting.GOLD), false);
@@ -216,6 +217,7 @@ final class Towns {
         town.members.add(player.getUUID());
         town.names.put(player.getUUID().toString(), player.getName().getString());
         save();
+        Progression.get().count(player, "town", 1, 10);
         tellMembers(town, Component.literal("✦ " + player.getName().getString() + " rejoint " + town.name + ".").withStyle(ChatFormatting.GREEN));
         return 1;
     }

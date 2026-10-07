@@ -244,6 +244,7 @@ public final class AuctionHouse {
         Listing listing = new Listing(nextId++, player.getUUID(), player.getName().getString(), itemId, amount, price, encoded);
         listings.put(listing.id(), listing);
         save();
+        Progression.get().count(player, "listings", 1, 0);
         GeoMod.LOGGER.info("[HDV] {} met en vente #{} : {} x{} pour {} crédits",
                 player.getName().getString(), listing.id(), itemId, amount, price);
         player.sendSystemMessage(Component.literal("Annonce #" + listing.id() + " créée : " + displayName(itemId) + " x" + amount
@@ -438,6 +439,7 @@ public final class AuctionHouse {
         economy.destroyed("comptoir", offer.price());
         give(player, stack);
         save();
+        Progression.get().count(player, "shop", 1, 0);
         GeoMod.LOGGER.info("[ECO] {} achète au comptoir : {} x{} pour {} crédits", player.getName().getString(),
                 offer.label(), offer.count(), offer.price());
         player.sendSystemMessage(Component.literal("Comptoir : " + offer.label() + " x" + offer.count() + " pour "

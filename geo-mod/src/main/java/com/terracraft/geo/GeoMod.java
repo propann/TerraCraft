@@ -42,6 +42,12 @@ import java.util.Locale;
 
 public final class GeoMod implements ModInitializer {
     public static final String MOD_ID = "terracraft_geo";
+
+    /** Version du mod (fabric.mod.json), pour les signalements et les journaux. */
+    static String version() {
+        return net.fabricmc.loader.api.FabricLoader.getInstance().getModContainer(MOD_ID)
+                .map(mod -> mod.getMetadata().getVersion().getFriendlyString()).orElse("?");
+    }
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     /** Identifiant HTTP exigé par les politiques d'usage d'OSM et de Nominatim. */
     public static final String USER_AGENT = "TerraCraftGeo/0.2 (+https://github.com/propann/TerraCraft)";
@@ -56,8 +62,12 @@ public final class GeoMod implements ModInitializer {
     private static final AntiFly ANTI_FLY = new AntiFly();
     private static final Backups BACKUPS = new Backups();
     private static final Towns TOWNS = new Towns(AUCTION_HOUSE);
+    private static final Contracts CONTRACTS = new Contracts(AUCTION_HOUSE);
+    private static final Claims CLAIMS = new Claims();
+    private static final SupplyDrops SUPPLY = new SupplyDrops();
+    private static final Reports REPORTS = new Reports();
 
-    private record PendingLoot(ServerPlayer player, net.minecraft.core.BlockPos pos) {
+    private record PendingLoot(ServerPlayer player, net.minecraft.core.BlockPos pos, boolean supply) {
     }
 
     private static final java.util.List<PendingLoot> PENDING_LOOT = new java.util.ArrayList<>();
@@ -275,7 +285,8 @@ public final class GeoMod implements ModInitializer {
             // avec un bloc) ne compte donc pas, et un même coffre ne compte qu'une fois.
             if (player instanceof ServerPlayer serverPlayer && level.getBlockEntity(hit.getBlockPos()) instanceof RandomizableContainer container
                     && container.getLootTable() != null) {
-                PENDING_LOOT.add(new PendingLoot(serverPlayer, hit.getBlockPos().immutable()));
+                PENDING_LOOT.add(new PendingLoot(serverPlayer, hit.getBlockPos().immutable(),
+                        level instanceof net.minecraft.server.level.ServerLevel server && SUPPLY.isSupply(server, hit.getBlockPos())));
             }
             return InteractionResult.PASS;
         });
@@ -285,6 +296,10 @@ public final class GeoMod implements ModInitializer {
                         && pending.player().level().getBlockEntity(pending.pos()) instanceof RandomizableContainer container
                         && container.getLootTable() == null) {
                     Progression.get().count(pending.player(), "loot", 1, 2);
+                    if (pending.supply()) {
+                        Progression.get().count(pending.player(), "supplies", 1, 10);
+                        GeoMod.LOGGER.info("[LARGAGE] {} ouvre la caisse en {}", pending.player().getName().getString(), pending.pos());
+                    }
                 }
             }
             PENDING_LOOT.clear();
@@ -295,6 +310,12 @@ public final class GeoMod implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(ANTI_FLY::tick);
         ServerLifecycleEvents.SERVER_STARTED.register(BACKUPS::load);
         ServerLifecycleEvents.SERVER_STARTED.register(TOWNS::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(CONTRACTS::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(REPORTS::load);
+        MISSIONS.contracts(CONTRACTS);
+        ServerTickEvents.END_SERVER_TICK.register(CONTRACTS::tick);
+        ServerTickEvents.END_SERVER_TICK.register(CLAIMS::tick);
+        ServerTickEvents.END_SERVER_TICK.register(SUPPLY::tick);
         ServerTickEvents.END_SERVER_TICK.register(TOWNS::tick);
         ServerTickEvents.END_SERVER_TICK.register(BACKUPS::tick);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
@@ -310,6 +331,8 @@ public final class GeoMod implements ModInitializer {
             Tutorial.get().onLeave(handler.player);
             AUCTION_HOUSE.onLeave(handler.player);
             TOWNS.onLeave(handler.player);
+            CLAIMS.onLeave(handler.player);
+            REPORTS.onLeave(handler.player);
             SURVIVAL.onLeave(handler.player);
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> SURVIVAL.register(dispatcher));
@@ -318,6 +341,8 @@ public final class GeoMod implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> ServerGuide.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Tutorial.get().register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> TOWNS.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Jobs.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> REPORTS.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> dispatcher.register(
                 Commands.literal("terracraft")
                         .then(Commands.literal("ou").executes(command -> {
@@ -353,6 +378,17 @@ public final class GeoMod implements ModInitializer {
                                 .then(Commands.literal("liberer")
                                         .executes(command -> releaseVehicle(command.getSource()))))
                         .then(BACKUPS.command())
+                        .then(Commands.literal("largage")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> {
+                                    ServerPlayer near = command.getSource().getPlayer();
+                                    var pos = SUPPLY.drop(command.getSource().getServer(), near);
+                                    if (pos == null) {
+                                        command.getSource().sendFailure(Component.literal("Aucun endroit chargé ne convient (joueur sur Terre requis)."));
+                                        return 0;
+                                    }
+                                    return 1;
+                                }))
                         .then(Commands.literal("depart")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> {

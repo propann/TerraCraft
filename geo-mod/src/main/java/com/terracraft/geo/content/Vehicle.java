@@ -292,6 +292,8 @@ public class Vehicle extends VehicleEntity implements Container {
         if (cans > 0) {
             recover(level, player, new ItemStack(ModContent.FUEL_CAN, Math.min(cans, 8)));
         }
+        com.terracraft.geo.GeoMod.LOGGER.info("[VEHICULE] {} démonte {} en {}", player.getName().getString(),
+                kind.name().toLowerCase(java.util.Locale.ROOT), blockPosition());
         discard();
         player.sendSystemMessage(Component.literal("Véhicule démonté : toutes les pièces sont récupérables.")
                 .withStyle(ChatFormatting.GREEN));
@@ -572,6 +574,8 @@ public class Vehicle extends VehicleEntity implements Container {
     /** Casser le véhicule rend le châssis et les pièces montées. */
     @Override
     protected void destroy(ServerLevel level, DamageSource source) {
+        com.terracraft.geo.GeoMod.LOGGER.info("[VEHICULE] {} détruit en {} ({}) — propriétaire {}", kind.name().toLowerCase(java.util.Locale.ROOT),
+                blockPosition(), source.getMsgId(), owner);
         kill(level);
         if (!level.getGameRules().get(GameRules.ENTITY_DROPS)) {
             return;
