@@ -45,6 +45,20 @@ public class VehicleModel extends EntityModel<VehicleRenderState> {
         return LayerDefinition.create(mesh, 256, 128);
     }
 
+    /** Moto : cadre étroit, selle et deux roues alignées. */
+    public static LayerDefinition motorcycle() {
+        MeshDefinition mesh = new MeshDefinition();
+        PartDefinition root = mesh.getRoot();
+        root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-5, -9, -16, 10, 5, 32), PartPose.ZERO);
+        root.addOrReplaceChild("cabin", CubeListBuilder.create().texOffs(0, 20).addBox(-4, -15, -5, 8, 6, 12), PartPose.ZERO);
+        root.addOrReplaceChild("wheel_fl", CubeListBuilder.create().texOffs(48, 0).addBox(-2, -10, -3, 4, 20, 6), PartPose.offset(0, 0, 15));
+        root.addOrReplaceChild("wheel_fr", CubeListBuilder.create().texOffs(48, 0).addBox(-2, -10, -3, 4, 20, 6), PartPose.offset(0, 0, -15));
+        root.addOrReplaceChild("wheel_bl", CubeListBuilder.create().texOffs(48, 0).addBox(-2, -10, -3, 4, 20, 6), PartPose.offset(0, 0, 15));
+        root.addOrReplaceChild("wheel_br", CubeListBuilder.create().texOffs(48, 0).addBox(-2, -10, -3, 4, 20, 6), PartPose.offset(0, 0, -15));
+        root.addOrReplaceChild("turbo", CubeListBuilder.create().texOffs(48, 26).addBox(-2, -12, 8, 4, 2, 4), PartPose.ZERO);
+        return LayerDefinition.create(mesh, 128, 64);
+    }
+
     /** Camion : cabine à l'avant, plateau à l'arrière. Texture 256 × 256. */
     public static LayerDefinition truck() {
         MeshDefinition mesh = new MeshDefinition();

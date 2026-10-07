@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {"I": "minecraft:iron_ingot"},
+  "pattern": [" I ", "III", " I "],
+  "result": {"id": "terracraft_geo:motorcycle_chassis", "count": 1}
+}

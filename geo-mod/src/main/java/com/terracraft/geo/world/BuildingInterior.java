@@ -81,7 +81,8 @@ final class BuildingInterior {
      */
     static BlockState @Nullable [] furniture(int x, int y, int z) {
         int roll = Apocalypse.roll(x * 13L + y, z, 241);
-        if (roll >= 2) {
+        // Un peu plus de mobilier donne des intérieurs vivants sans remplir les pièces.
+        if (roll >= 5) {
             return null;
         }
         int kind = Math.floorMod((int) Apocalypse.hash(x, z * 7L + y, 251), 7);

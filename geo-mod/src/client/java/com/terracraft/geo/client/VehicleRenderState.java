@@ -10,4 +10,5 @@ public class VehicleRenderState extends EntityRenderState {
     public int wheels;
     public boolean turbo;
     public boolean truck;
+    public boolean motorcycle;
 }

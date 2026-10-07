@@ -41,6 +41,13 @@ final class ServerGuide {
         line(player, "[Retour]", "/back", "Revenir à ton dernier lieu de mort");
         line(player, "[Ami]", "/tpa <joueur>", "Demander une téléportation");
         line(player, "[Marché]", "/hdv", "Vendre et acheter des ressources");
+        line(player, "[Solde]", "/argent", "Voir tes crédits");
+        player.sendSystemMessage(Component.literal("Claims : M ouvre la carte Xaero ; clic droit sur les chunks puis « Claim selected ». La touche ' ouvre le menu des claims.")
+                .withStyle(ChatFormatting.YELLOW));
+        player.sendSystemMessage(Component.literal("Armes : clic droit maintenu avec le sniper pour zoomer · Véhicules : complète les pièces puis monte dedans.")
+                .withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.literal("Véhicule partagé : /terracraft vehicule partager <joueur> · retirer <joueur> · liberer")
+                .withStyle(ChatFormatting.GRAY));
         player.sendSystemMessage(Component.literal("Espace : fusée · Lune : casque-combinaison chargé · K : fiche de personnage")
                 .withStyle(ChatFormatting.GRAY));
         return 1;

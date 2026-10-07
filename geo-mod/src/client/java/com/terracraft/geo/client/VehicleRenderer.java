@@ -17,15 +17,22 @@ import net.minecraft.util.Mth;
 public class VehicleRenderer extends EntityRenderer<Vehicle, VehicleRenderState> {
     public static final ModelLayerLocation CAR_LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "car"), "main");
     public static final ModelLayerLocation TRUCK_LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "truck"), "main");
+    public static final ModelLayerLocation MOTORCYCLE_LAYER = new ModelLayerLocation(Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "motorcycle"), "main");
 
     private final VehicleModel model;
     private final Identifier texture;
 
     public VehicleRenderer(EntityRendererProvider.Context context, boolean truck) {
+        this(context, truck ? Vehicle.Kind.TRUCK : Vehicle.Kind.CAR);
+    }
+
+    public VehicleRenderer(EntityRendererProvider.Context context, Vehicle.Kind kind) {
         super(context);
-        this.model = new VehicleModel(context.bakeLayer(truck ? TRUCK_LAYER : CAR_LAYER));
-        this.texture = Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "textures/entity/" + (truck ? "truck" : "car") + ".png");
-        this.shadowRadius = truck ? 1.3f : 1.0f;
+        this.model = new VehicleModel(context.bakeLayer(kind == Vehicle.Kind.TRUCK ? TRUCK_LAYER
+                : kind == Vehicle.Kind.MOTORCYCLE ? MOTORCYCLE_LAYER : CAR_LAYER));
+        this.texture = Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "textures/entity/"
+                + (kind == Vehicle.Kind.TRUCK ? "truck" : "car") + ".png");
+        this.shadowRadius = kind == Vehicle.Kind.TRUCK ? 1.3f : kind == Vehicle.Kind.MOTORCYCLE ? 0.65f : 1.0f;
     }
 
     @Override
@@ -42,6 +49,7 @@ public class VehicleRenderer extends EntityRenderer<Vehicle, VehicleRenderState>
         state.wheels = vehicle.wheels();
         state.turbo = vehicle.has(Vehicle.TURBO);
         state.truck = vehicle.kind() == Vehicle.Kind.TRUCK;
+        state.motorcycle = vehicle.kind() == Vehicle.Kind.MOTORCYCLE;
     }
 
     @Override

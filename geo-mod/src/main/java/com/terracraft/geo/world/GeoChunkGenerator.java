@@ -366,15 +366,6 @@ public final class GeoChunkGenerator extends ChunkGenerator {
     /** Rue en ruine : voitures abandonnées sur la chaussée, lierre sur les façades voisines. */
     private static void decorateRuinedStreet(ChunkAccess chunk, OsmCells.Cell osm, int blockX, int blockZ,
                                              int x, int z, int ground) {
-        int[] car = Apocalypse.car(osm, blockX, blockZ);
-        if (car != null) {
-            BlockState body = Apocalypse.carBody(car[1]);
-            set(chunk, x, ground + 1, z, body);
-            if (car[0] == 2) {
-                set(chunk, x, ground + 2, z, body);
-            }
-            return;
-        }
         int[][] around = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
         for (int d = 0; d < around.length; d++) {
             int nx = blockX + around[d][0];

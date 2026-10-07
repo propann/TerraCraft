@@ -44,7 +44,9 @@ cliquables pour acheter ou retirer. Les comptes et annonces sont persistants dan
 1. Choisir une ville réelle sur la carte et sécuriser un premier abri.
 2. Explorer les bâtiments, récupérer des ressources et vendre le surplus à l'hôtel des ventes.
 3. Former un groupe, revendiquer son secteur et améliorer voiture, équipement électrique et base.
-4. Fabriquer une combinaison chargée, une fusée et partir vers la Lune puis l'orbite.
+4. Fabriquer une combinaison chargée, une fusée et partir vers la Lune, l'orbite puis Mars.
+
+L'état détaillé et les tests restants sont suivis dans [`docs/avancement.md`](docs/avancement.md).
 
 Chaque fonctionnalité doit renforcer cette boucle : accueil immédiat, objectifs courts, progression
 visible et commandes compréhensibles en français.

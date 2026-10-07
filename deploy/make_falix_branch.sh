@@ -38,6 +38,13 @@ cp "$ROOT/serveur-local/config/openpartiesandclaims-server.toml" "$WORK/tree/con
 cp "$ROOT/deploy/FALIX.md" "$WORK/tree/TERRACRAFT-FALIX.md"
 # Administrateurs du serveur (réécrit à chaque déploiement : ajoute-les ici, pas dans la console).
 cp "$ROOT/deploy/ops.json" "$WORK/tree/ops.json"
+# Cache bâtiments Overture préparé pour la zone de test, s'il existe. Les autres zones
+# continuent d'utiliser le fallback OpenFreeMap jusqu'à leur prochain préchargement.
+OVERTURE_CACHE="$ROOT/serveur-local/terracraft-cache/osm/scale-1.0/overture-buildings.geojson"
+if [ -f "$OVERTURE_CACHE" ]; then
+  mkdir -p "$WORK/tree/terracraft-cache/osm/scale-1.0"
+  cp "$OVERTURE_CACHE" "$WORK/tree/terracraft-cache/osm/scale-1.0/"
+fi
 
 cd "$WORK/tree"
 git add -A

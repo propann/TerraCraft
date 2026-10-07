@@ -32,9 +32,15 @@ public final class Space {
             Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "moon"));
     public static final ResourceKey<Level> ORBIT = ResourceKey.create(Registries.DIMENSION,
             Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "orbit"));
+    public static final ResourceKey<Level> MARS = ResourceKey.create(Registries.DIMENSION,
+            Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "mars"));
+    public static final ResourceKey<Level> MARS_ORBIT = ResourceKey.create(Registries.DIMENSION,
+            Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "mars_orbit"));
     public static final byte EARTH = 0;
     public static final byte MOON_ID = 1;
     public static final byte ORBIT_ID = 2;
+    public static final byte MARS_ID = 3;
+    public static final byte MARS_ORBIT_ID = 4;
     /** Altitude de la plateforme d'amarrage en orbite. */
     public static final int DOCK_Y = 150;
     /** Rayon de la bulle d'air d'un distributeur d'oxygène. */
@@ -50,15 +56,20 @@ public final class Space {
     }
 
     public static boolean isSpace(Level level) {
-        return level.dimension() == MOON || level.dimension() == ORBIT;
+        return level.dimension() == MOON || level.dimension() == ORBIT
+                || level.dimension() == MARS || level.dimension() == MARS_ORBIT;
     }
 
     public static byte id(Level level) {
-        return level.dimension() == MOON ? MOON_ID : level.dimension() == ORBIT ? ORBIT_ID : EARTH;
+        if (level.dimension() == MOON) return MOON_ID;
+        if (level.dimension() == ORBIT) return ORBIT_ID;
+        if (level.dimension() == MARS) return MARS_ID;
+        if (level.dimension() == MARS_ORBIT) return MARS_ORBIT_ID;
+        return EARTH;
     }
 
     public static String name(byte id) {
-        return id == MOON_ID ? "la Lune" : id == ORBIT_ID ? "l'orbite" : "la Terre";
+        return SolarSystem.byId(id).displayName();
     }
 
     public static byte defaultDestination(Level level) {
@@ -67,17 +78,15 @@ public final class Space {
 
     /** Destination suivante, en sautant le monde où l'on se trouve. */
     public static byte nextDestination(Level level, byte current) {
-        byte next = current;
-        do {
-            next = (byte) ((next + 1) % 3);
-        } while (next == id(level));
-        return next;
+        return SolarSystem.nextActive(current, id(level));
     }
 
     public static @Nullable ServerLevel level(MinecraftServer server, byte id) {
         return switch (id) {
             case MOON_ID -> server.getLevel(MOON);
             case ORBIT_ID -> server.getLevel(ORBIT);
+            case MARS_ID -> server.getLevel(MARS);
+            case MARS_ORBIT_ID -> server.getLevel(MARS_ORBIT);
             default -> server.overworld();
         };
     }
@@ -128,7 +137,9 @@ public final class Space {
         boolean everySecond = server.getTickCount() % 20 == 0;
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             boolean inSpace = isSpace(player.level());
-            gravity(player, inSpace, player.level().dimension() == ORBIT ? -0.92 : -0.83);
+            double gravity = player.level().dimension() == ORBIT || player.level().dimension() == MARS_ORBIT
+                    ? -0.92 : player.level().dimension() == MARS ? -0.62 : -0.83;
+            gravity(player, inSpace, gravity);
             if (inSpace && everySecond && !player.isCreative() && !player.isSpectator()) {
                 breathe(player);
             }
@@ -181,15 +192,21 @@ public final class Space {
             Progression.get().discover(player, "moon");
         } else if (destination == ORBIT_ID) {
             Progression.get().discover(player, "orbit");
+        } else if (destination == MARS_ID || destination == MARS_ORBIT_ID) {
+            Progression.get().discover(player, "mars");
         }
         String title = switch (destination) {
             case MOON_ID -> "La Lune";
             case ORBIT_ID -> "Orbite terrestre";
+            case MARS_ID -> "Mars";
+            case MARS_ORBIT_ID -> "Orbite de Mars";
             default -> "La Terre";
         };
         String subtitle = switch (destination) {
             case MOON_ID -> "Gravité 1/6 — surveille ton oxygène";
             case ORBIT_ID -> "Plateforme d'amarrage — construis ta station";
+            case MARS_ID -> "Gravité 38 % — atmosphère irrespirable";
+            case MARS_ORBIT_ID -> "Orbite de Mars — prépare la descente";
             default -> "Bon retour parmi les ruines";
         };
         player.connection.send(new ClientboundSetTitlesAnimationPacket(20, 80, 30));

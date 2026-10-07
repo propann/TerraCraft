@@ -25,6 +25,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 
 public final class GeoModClient implements ClientModInitializer {
+    private static final int SNIPER_FOV = 22;
+    private static Integer fovBeforeSniper = null;
+
     @Override
     public void onInitializeClient() {
         // Le serveur décide quand ouvrir la carte (premier choix ou /terracraft depart).
@@ -34,12 +37,23 @@ public final class GeoModClient implements ClientModInitializer {
         // Fiche de personnage : touche K, le serveur renvoie la fiche à jour.
         KeyMapping sheetKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.terracraft_geo.sheet",
                 InputConstants.KEY_K, KeyMapping.Category.GAMEPLAY));
+        KeyMapping menuKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.terracraft_geo.menu",
+                InputConstants.KEY_O, KeyMapping.Category.GAMEPLAY));
         ClientPlayNetworking.registerGlobalReceiver(SheetPayload.TYPE, (payload, context) ->
                 context.client().gui.setScreen(new CharacterSheetScreen(payload.json())));
+        ClientPlayNetworking.registerGlobalReceiver(MissionPayload.TYPE, (payload, context) ->
+                context.client().gui.setScreen(new MissionsScreen(payload.json())));
+        ClientPlayNetworking.registerGlobalReceiver(MarketPayload.TYPE, (payload, context) ->
+                context.client().gui.setScreen(new MarketScreen(payload.json())));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (sheetKey.consumeClick()) {
                 if (client.player != null && ClientPlayNetworking.canSend(RequestSheetPayload.TYPE)) {
                     ClientPlayNetworking.send(RequestSheetPayload.INSTANCE);
+                }
+            }
+            while (menuKey.consumeClick()) {
+                if (client.player != null) {
+                    client.setScreenAndShow(new TerraCraftMenuScreen());
                 }
             }
         });
@@ -47,8 +61,10 @@ public final class GeoModClient implements ClientModInitializer {
         // Véhicules : modèles, rendu, et touches de déplacement transmises au véhicule conduit.
         ModelLayerRegistry.registerModelLayer(VehicleRenderer.CAR_LAYER, VehicleModel::car);
         ModelLayerRegistry.registerModelLayer(VehicleRenderer.TRUCK_LAYER, VehicleModel::truck);
+        ModelLayerRegistry.registerModelLayer(VehicleRenderer.MOTORCYCLE_LAYER, VehicleModel::motorcycle);
         EntityRendererRegistry.register(ModContent.CAR, context -> new VehicleRenderer(context, false));
         EntityRendererRegistry.register(ModContent.TRUCK, context -> new VehicleRenderer(context, true));
+        EntityRendererRegistry.register(ModContent.MOTORCYCLE, context -> new VehicleRenderer(context, Vehicle.Kind.MOTORCYCLE));
         ModelLayerRegistry.registerModelLayer(RocketRenderer.LAYER, RocketModel::create);
         EntityRendererRegistry.register(ModContent.ROCKET, RocketRenderer::new);
         EntityRendererRegistry.register(ModContent.GRENADE_ENTITY, ThrownItemRenderer::new);
@@ -78,6 +94,23 @@ public final class GeoModClient implements ClientModInitializer {
                 vehicle.setYRot(client.player.getYRot());
                 vehicle.setYHeadRot(client.player.getYRot());
                 vehicle.setInput(keys.left(), keys.right(), keys.forward(), keys.backward());
+            }
+
+            // Zoom propre et réversible du sniper : clic droit maintenu, sans
+            // modifier définitivement le réglage FOV du joueur.
+            boolean zooming = client.player != null
+                    && client.options.keyUse.isDown()
+                    && client.player.getMainHandItem().is(ModContent.SNIPER);
+            if (zooming) {
+                if (fovBeforeSniper == null) {
+                    fovBeforeSniper = client.options.fov().get();
+                }
+                if (client.options.fov().get() != SNIPER_FOV) {
+                    client.options.fov().set(SNIPER_FOV);
+                }
+            } else if (fovBeforeSniper != null) {
+                client.options.fov().set(fovBeforeSniper);
+                fovBeforeSniper = null;
             }
         });
     }

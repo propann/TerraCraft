@@ -118,6 +118,16 @@ public final class AuctionHouse {
         return balances.computeIfAbsent(uuid, ignored -> STARTING_BALANCE);
     }
 
+    void credit(ServerPlayer player, long amount, String reason) {
+        if (amount <= 0) {
+            return;
+        }
+        balances.put(player.getUUID(), balanceOf(player.getUUID()) + amount);
+        save();
+        player.sendSystemMessage(Component.literal("✦ +" + amount + " crédits — " + reason)
+                .withStyle(ChatFormatting.GREEN));
+    }
+
     private int balance(ServerPlayer player) {
         player.sendSystemMessage(Component.literal("✦ Compte TerraCraft : " + balanceOf(player.getUUID()) + " crédits")
                 .withStyle(ChatFormatting.GOLD));
@@ -207,6 +217,40 @@ public final class AuctionHouse {
         buyer.sendSystemMessage(Component.literal("Achat confirmé : " + displayName(listing.itemId()) + " x" + listing.count() + ".")
                 .withStyle(ChatFormatting.GREEN));
         return 1;
+    }
+
+    void buyFromClient(ServerPlayer buyer, long id) {
+        buy(buyer, id);
+    }
+
+    void removeFromClient(ServerPlayer player, long id) {
+        remove(player, id);
+    }
+
+    void sendMarket(ServerPlayer player) {
+        sendMarket(player, 1);
+    }
+
+    void sendMarket(ServerPlayer player, int page) {
+        com.google.gson.JsonObject root = new com.google.gson.JsonObject();
+        root.addProperty("balance", balanceOf(player.getUUID()));
+        int pages = Math.max(1, (listings.size() + PAGE_SIZE - 1) / PAGE_SIZE);
+        page = Math.max(1, Math.min(page, pages));
+        root.addProperty("page", page);
+        root.addProperty("pages", pages);
+        com.google.gson.JsonArray rows = new com.google.gson.JsonArray();
+        listings.values().stream().skip((long) (page - 1) * PAGE_SIZE).limit(PAGE_SIZE).forEach(listing -> {
+            com.google.gson.JsonObject row = new com.google.gson.JsonObject();
+            row.addProperty("id", listing.id());
+            row.addProperty("item", displayName(listing.itemId()));
+            row.addProperty("count", listing.count());
+            row.addProperty("price", listing.price());
+            row.addProperty("seller", listing.sellerName());
+            row.addProperty("own", listing.seller().equals(player.getUUID()));
+            rows.add(row);
+        });
+        root.add("listings", rows);
+        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player, new MarketPayload(GSON.toJson(root)));
     }
 
     private int remove(ServerPlayer player, long id) {

@@ -266,7 +266,7 @@ public class Rocket extends VehicleEntity {
         double x = home ? earthX : getX();
         double z = home ? earthZ : getZ();
         double y;
-        if (destination == Space.ORBIT_ID) {
+        if (destination == Space.ORBIT_ID || destination == Space.MARS_ORBIT_ID) {
             Space.buildDock(target, (int) Math.floor(x), (int) Math.floor(z));
             y = Space.DOCK_Y + 25;
         } else {
@@ -303,6 +303,8 @@ public class Rocket extends VehicleEntity {
                 player.sendOverlayMessage(Component.literal(switch (Space.id(level)) {
                             case Space.MOON_ID -> "Alunissage réussi";
                             case Space.ORBIT_ID -> "Amarrage réussi";
+                            case Space.MARS_ID -> "Atterrissage sur Mars réussi";
+                            case Space.MARS_ORBIT_ID -> "Amarrage à l'orbite de Mars réussi";
                             default -> "Retour sur Terre";
                         })
                         .withStyle(ChatFormatting.AQUA));

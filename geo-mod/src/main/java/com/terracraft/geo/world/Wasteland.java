@@ -329,7 +329,9 @@ public final class Wasteland {
 
     /** Épave incomplète sur la chaussée : environ 1 chunk sur 80 qui a une route. */
     private static void wreck(WorldGenLevel level, ChunkPos pos, EarthTerrain terrain, OsmCells.Cell osm, RandomSource random) {
-        if (Math.floorMod(Apocalypse.hash(pos.x(), pos.z(), 307), 1000) >= 12) {
+        // Les épaves sont de vraies entités Vehicle : elles peuvent être réparées,
+        // démontées, attaquées et conduites. Environ 3 % des chunks routiers en reçoivent.
+        if (Math.floorMod(Apocalypse.hash(pos.x(), pos.z(), 307), 1000) >= 30) {
             return;
         }
         for (int lx = 4; lx < 12; lx++) {

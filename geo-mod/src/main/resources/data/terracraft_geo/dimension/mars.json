@@ -1,0 +1,7 @@
+{
+  "type": "terracraft_geo:mars",
+  "generator": {
+    "type": "terracraft_geo:mars",
+    "biome_source": {"type": "minecraft:fixed", "biome": "terracraft_geo:mars"}
+  }
+}

@@ -329,6 +329,11 @@ public final class Progression {
         }
     }
 
+    /** Valeur actuelle d'un compteur pour les systèmes de missions et d'objectifs. */
+    public long stat(ServerPlayer player, String stat) {
+        return record(player).stats.getOrDefault(stat, 0L);
+    }
+
     public void discover(ServerPlayer player, String id) {
         Record r = record(player);
         if (!r.discoveries.add(id)) {

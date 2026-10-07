@@ -1,6 +1,5 @@
 package com.terracraft.geo.world;
 
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.VineBlock;
@@ -9,7 +8,8 @@ import net.minecraft.world.level.block.state.BlockState;
 /**
  * Le monde a redémarré sans humains, il y a quelques décennies : bâtiments en ruine, vitres
  * brisées, lierre, routes fissurées envahies par l'herbe, voitures abandonnées, plus aucune
- * lumière. Tout est déterministe (hachage de la position ou de l'identifiant OSM), donc
+ * lumière. Les véhicules sont de vraies entités réparables et conduisibles, pas des blocs
+ * décoratifs. Tout est déterministe (hachage de la position ou de l'identifiant OSM), donc
  * identique d'un chunk à l'autre et d'un redémarrage à l'autre.
  */
 final class Apocalypse {
@@ -26,13 +26,6 @@ final class Apocalypse {
     private static final BlockState[] CRACKS = {
             Blocks.COBBLESTONE.defaultBlockState(), Blocks.GRAVEL.defaultBlockState(),
             Blocks.COARSE_DIRT.defaultBlockState(), Blocks.ANDESITE.defaultBlockState()};
-    private static final BlockState[] CAR_BODIES = {
-            Blocks.DYED_TERRACOTTA.pick(DyeColor.RED).defaultBlockState(),
-            Blocks.DYED_TERRACOTTA.pick(DyeColor.BROWN).defaultBlockState(),
-            Blocks.DYED_TERRACOTTA.pick(DyeColor.LIGHT_GRAY).defaultBlockState(),
-            Blocks.DYED_TERRACOTTA.pick(DyeColor.BLUE).defaultBlockState(),
-            Blocks.CONCRETE.pick(DyeColor.BLACK).defaultBlockState(),
-            Blocks.DYED_TERRACOTTA.pick(DyeColor.WHITE).defaultBlockState()};
     static final BlockState GRASS = Blocks.GRASS_BLOCK.defaultBlockState();
     static final BlockState COBWEB = Blocks.COBWEB.defaultBlockState();
     static final BlockState MOSS = Blocks.MOSS_BLOCK.defaultBlockState();
@@ -135,56 +128,6 @@ final class Apocalypse {
             return vine.setValue(VineBlock.WEST, true);
         }
         return dz > 0 ? vine.setValue(VineBlock.SOUTH, true) : vine.setValue(VineBlock.NORTH, true);
-    }
-
-    /**
-     * Voiture abandonnée : rectangle de 2×4 posé dans l'axe x ou z sur la chaussée. Renvoie
-     * pour cette colonne {hauteur du toit (1 ou 2), indice de couleur}, ou null.
-     */
-    static int[] car(OsmCells.Cell osm, int x, int z) {
-        int grid = 14;
-        int gx = Math.floorDiv(x, grid);
-        int gz = Math.floorDiv(z, grid);
-        for (int ax = gx - 1; ax <= gx; ax++) {
-            for (int az = gz - 1; az <= gz; az++) {
-                long h = hash(ax, az, 59);
-                if (Math.floorMod(h, 100) >= 35) {
-                    continue;
-                }
-                int originX = ax * grid + (int) Math.floorMod(h >>> 8, grid - 4);
-                int originZ = az * grid + (int) Math.floorMod(h >>> 16, grid - 4);
-                boolean alongX = ((h >>> 24) & 1) == 0;
-                int lengthX = alongX ? 4 : 2;
-                int lengthZ = alongX ? 2 : 4;
-                if (x < originX || z < originZ || x >= originX + lengthX || z >= originZ + lengthZ) {
-                    continue;
-                }
-                if (!fitsOnRoad(osm, originX, originZ, lengthX, lengthZ)) {
-                    return null;
-                }
-                int along = alongX ? x - originX : z - originZ;
-                int roof = along == 1 || along == 2 ? 2 : 1;
-                return new int[]{roof, (int) Math.floorMod(h >>> 32, CAR_BODIES.length)};
-            }
-        }
-        return null;
-    }
-
-    static BlockState carBody(int colour) {
-        return CAR_BODIES[colour];
-    }
-
-    private static boolean fitsOnRoad(OsmCells.Cell osm, int x0, int z0, int lx, int lz) {
-        for (int x = x0; x < x0 + lx; x++) {
-            for (int z = z0; z < z0 + lz; z++) {
-                byte s = osm.surface(x, z);
-                if ((s != OsmCells.ROAD_MAJOR && s != OsmCells.ROAD_MINOR) || osm.deck(x, z) != OsmCells.NO_LEVEL
-                        || osm.building(x, z) != null) {
-                    return false;
-                }
-            }
-        }
-        return true;
     }
 
     /** Variante moussue d'un bloc de toit plat. */

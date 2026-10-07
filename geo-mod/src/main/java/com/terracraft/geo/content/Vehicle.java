@@ -20,8 +20,13 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.VehicleEntity;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -30,25 +35,35 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Véhicule assemblé pièce par pièce : on pose un châssis, on clique dessus avec 4 roues, un
  * moteur, un radiateur et une batterie (le turbo est optionnel), on ajoute de l'essence, puis
  * on monte dedans. Physique côté client du conducteur, comme les bateaux vanilla.
  */
-public class Vehicle extends VehicleEntity {
+public class Vehicle extends VehicleEntity implements Container {
     public enum Kind {
-        CAR(0.62f, 2, 4.5f),
-        TRUCK(0.46f, 4, 3.2f);
+        CAR(0.62f, 2, 4, 4.5f),
+        TRUCK(0.46f, 4, 4, 3.2f),
+        MOTORCYCLE(0.82f, 1, 2, 5.2f);
 
         final float maxSpeed;
         final int seats;
+        final int requiredWheels;
         final float turnRate;
 
-        Kind(float maxSpeed, int seats, float turnRate) {
+        Kind(float maxSpeed, int seats, int requiredWheels, float turnRate) {
             this.maxSpeed = maxSpeed;
             this.seats = seats;
+            this.requiredWheels = requiredWheels;
             this.turnRate = turnRate;
+        }
+
+        public int requiredWheels() {
+            return requiredWheels;
         }
     }
 
@@ -66,6 +81,9 @@ public class Vehicle extends VehicleEntity {
     private static final EntityDataAccessor<Integer> DATA_FUEL = SynchedEntityData.defineId(Vehicle.class, EntityDataSerializers.INT);
 
     private final Kind kind;
+    private UUID owner;
+    private final Set<UUID> trusted = new HashSet<>();
+    private final SimpleContainer storage;
     private boolean inputLeft;
     private boolean inputRight;
     private boolean inputUp;
@@ -76,6 +94,7 @@ public class Vehicle extends VehicleEntity {
     public Vehicle(EntityType<? extends Vehicle> type, Level level, Kind kind) {
         super(type, level);
         this.kind = kind;
+        this.storage = new SimpleContainer(kind == Kind.TRUCK ? 54 : 27);
         this.blocksBuilding = true;
     }
 
@@ -114,7 +133,7 @@ public class Vehicle extends VehicleEntity {
     }
 
     public boolean isComplete() {
-        return wheels() == 4 && (parts() & REQUIRED) == REQUIRED;
+        return wheels() == kind.requiredWheels && (parts() & REQUIRED) == REQUIRED;
     }
 
     public void setInput(boolean left, boolean right, boolean up, boolean down) {
@@ -130,10 +149,34 @@ public class Vehicle extends VehicleEntity {
     public InteractionResult interact(Player player, InteractionHand hand, Vec3 location) {
         ItemStack stack = player.getItemInHand(hand);
         Item item = stack.getItem();
+        if (owner != null && !canAccess(player)) {
+            if (!level().isClientSide()) {
+                player.sendOverlayMessage(Component.literal("Ce véhicule est verrouillé par un autre joueur.")
+                        .withStyle(ChatFormatting.RED));
+            }
+            return InteractionResult.SUCCESS;
+        }
         int part = ModContent.partFlag(item);
         if (part != 0 || item == ModContent.WHEEL || item == ModContent.FUEL_CAN) {
             if (!level().isClientSide()) {
                 install(player, stack, item, part);
+            }
+            return InteractionResult.SUCCESS;
+        }
+        // Démontage rapide : main vide + Shift-clic droit rend tout le véhicule
+        // remontable immédiatement, y compris le carburant restant.
+        if (player.isSecondaryUseActive() && stack.isEmpty()) {
+            if (!level().isClientSide() && player instanceof ServerPlayer serverPlayer) {
+                serverPlayer.openMenu(new SimpleMenuProvider((id, inventory, menuPlayer) ->
+                                kind == Kind.TRUCK ? ChestMenu.sixRows(id, inventory, this)
+                                        : ChestMenu.threeRows(id, inventory, this),
+                        Component.literal(kind == Kind.TRUCK ? "Coffre du camion" : "Coffre de la voiture")));
+            }
+            return InteractionResult.SUCCESS;
+        }
+        if (player.isSecondaryUseActive() && isMatchingChassis(item)) {
+            if (!level().isClientSide() && level() instanceof ServerLevel server) {
+                dismantle(server, player);
             }
             return InteractionResult.SUCCESS;
         }
@@ -152,12 +195,17 @@ public class Vehicle extends VehicleEntity {
         if (!level().isClientSide() && !player.startRiding(this)) {
             return InteractionResult.PASS;
         }
+        if (!level().isClientSide() && owner == null) {
+            owner = player.getUUID();
+            player.sendSystemMessage(Component.literal("Véhicule enregistré à ton nom. Il est maintenant verrouillé.")
+                    .withStyle(ChatFormatting.GREEN));
+        }
         return InteractionResult.SUCCESS;
     }
 
     private void install(Player player, ItemStack stack, Item item, int part) {
         boolean used = false;
-        if (item == ModContent.WHEEL && wheels() < 4) {
+        if (item == ModContent.WHEEL && wheels() < kind.requiredWheels) {
             entityData.set(DATA_WHEELS, (byte) (wheels() + 1));
             used = true;
         } else if (item == ModContent.FUEL_CAN && fuel() + FUEL_PER_CAN <= MAX_FUEL) {
@@ -181,11 +229,121 @@ public class Vehicle extends VehicleEntity {
         player.sendOverlayMessage(status());
     }
 
+    private void dismantle(ServerLevel level, Player player) {
+        int cans = (fuel() + FUEL_PER_CAN - 1) / FUEL_PER_CAN;
+        // Le démontage est une récupération volontaire : on essaie d'abord
+        // d'ajouter chaque élément à l'inventaire, puis on ne jette au sol que
+        // le surplus si l'inventaire est plein.
+        recover(level, player, new ItemStack(getDropItem()));
+        if (wheels() > 0) {
+            recover(level, player, new ItemStack(ModContent.WHEEL, wheels()));
+        }
+        for (int flag : new int[]{ENGINE, RADIATOR, BATTERY, TURBO}) {
+            if (has(flag)) {
+                recover(level, player, new ItemStack(ModContent.partItem(flag)));
+            }
+        }
+        for (ItemStack item : storage.removeAllItems()) {
+            if (!item.isEmpty()) {
+                recover(level, player, item);
+            }
+        }
+        if (cans > 0) {
+            recover(level, player, new ItemStack(ModContent.FUEL_CAN, Math.min(cans, 8)));
+        }
+        discard();
+        player.sendSystemMessage(Component.literal("Véhicule démonté : toutes les pièces sont récupérables.")
+                .withStyle(ChatFormatting.GREEN));
+    }
+
+    private void recover(ServerLevel level, Player player, ItemStack stack) {
+        if (!player.getInventory().add(stack) && !stack.isEmpty()) {
+            spawnAtLocation(level, stack);
+        }
+    }
+
+    private boolean isMatchingChassis(Item item) {
+        return kind == Kind.CAR && item == ModContent.CAR_CHASSIS
+                || kind == Kind.TRUCK && item == ModContent.TRUCK_CHASSIS
+                || kind == Kind.MOTORCYCLE && item == ModContent.MOTORCYCLE_CHASSIS;
+    }
+
+    public boolean isOwnedBy(Player player) {
+        return owner != null && owner.equals(player.getUUID());
+    }
+
+    public boolean canAccess(Player player) {
+        return owner == null || owner.equals(player.getUUID()) || trusted.contains(player.getUUID());
+    }
+
+    public void setTrusted(UUID player, boolean allowed) {
+        if (allowed) {
+            trusted.add(player);
+        } else {
+            trusted.remove(player);
+        }
+    }
+
+    public void clearOwnership(Player player) {
+        if (isOwnedBy(player)) {
+            owner = null;
+            trusted.clear();
+        }
+    }
+
+    // --- Coffre du véhicule -----------------------------------------------------------------
+
+    @Override
+    public int getContainerSize() {
+        return storage.getContainerSize();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return storage.isEmpty();
+    }
+
+    @Override
+    public ItemStack getItem(int slot) {
+        return storage.getItem(slot);
+    }
+
+    @Override
+    public ItemStack removeItem(int slot, int amount) {
+        return storage.removeItem(slot, amount);
+    }
+
+    @Override
+    public ItemStack removeItemNoUpdate(int slot) {
+        return storage.removeItemNoUpdate(slot);
+    }
+
+    @Override
+    public void setItem(int slot, ItemStack stack) {
+        storage.setItem(slot, stack);
+    }
+
+    @Override
+    public void setChanged() {
+        storage.setChanged();
+    }
+
+    @Override
+    public boolean stillValid(Player player) {
+        return !isRemoved() && owner != null && canAccess(player)
+                && player.distanceToSqr(this) <= 64;
+    }
+
+    @Override
+    public void clearContent() {
+        storage.clearContent();
+    }
+
     /** « Il manque : 2 roues, radiateur » ou « Prêt — essence 75 % ». */
     public Component status() {
         List<String> missing = new ArrayList<>();
         if (wheels() < 4) {
-            missing.add((4 - wheels()) + (4 - wheels() > 1 ? " roues" : " roue"));
+            missing.add((kind.requiredWheels - wheels()) + (kind.requiredWheels - wheels() > 1 ? " roues" : " roue"));
         }
         if (!has(ENGINE)) {
             missing.add("moteur");
@@ -312,6 +470,25 @@ public class Vehicle extends VehicleEntity {
         return !isRemoved();
     }
 
+    /**
+     * Les véhicules vanilla accumulent les dégâts, mais notre entité ne demandait
+     * jamais leur destruction. Les tirs peuvent maintenant réellement les casser
+     * après environ 60 points de dégâts cumulés.
+     */
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        if (owner != null && source.getEntity() instanceof Player attacker && !canAccess(attacker)) {
+            attacker.sendSystemMessage(Component.literal("Ce véhicule est verrouillé par un autre joueur.")
+                    .withStyle(ChatFormatting.RED));
+            return false;
+        }
+        boolean hurt = super.hurtServer(level, source, damage);
+        if (hurt && getDamage() >= 600f) {
+            destroy(level, source);
+        }
+        return hurt;
+    }
+
     @Override
     public boolean isPushable() {
         return false;
@@ -321,7 +498,11 @@ public class Vehicle extends VehicleEntity {
 
     @Override
     protected Item getDropItem() {
-        return kind == Kind.TRUCK ? ModContent.TRUCK_CHASSIS : ModContent.CAR_CHASSIS;
+        return switch (kind) {
+            case TRUCK -> ModContent.TRUCK_CHASSIS;
+            case MOTORCYCLE -> ModContent.MOTORCYCLE_CHASSIS;
+            default -> ModContent.CAR_CHASSIS;
+        };
     }
 
     @Override
@@ -341,6 +522,11 @@ public class Vehicle extends VehicleEntity {
                 spawnAtLocation(level, new ItemStack(ModContent.partItem(flag)));
             }
         }
+        for (ItemStack item : storage.removeAllItems()) {
+            if (!item.isEmpty()) {
+                spawnAtLocation(level, item);
+            }
+        }
     }
 
     @Override
@@ -348,10 +534,33 @@ public class Vehicle extends VehicleEntity {
         output.putByte("Parts", (byte) parts());
         output.putByte("Wheels", (byte) wheels());
         output.putInt("Fuel", fuel());
+        if (owner != null) {
+            output.putString("Owner", owner.toString());
+        }
+        if (!trusted.isEmpty()) {
+            output.putString("Trusted", trusted.stream().map(UUID::toString).reduce((a, b) -> a + "," + b).orElse(""));
+        }
+        storage.storeAsItemList(output.list("Items", ItemStack.CODEC));
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         setParts(input.getByteOr("Parts", (byte) 0), input.getByteOr("Wheels", (byte) 0), input.getIntOr("Fuel", 0));
+        owner = input.getString("Owner").flatMap(Vehicle::parseUuid).orElse(null);
+        trusted.clear();
+        for (String value : input.getStringOr("Trusted", "").split(",")) {
+            if (!value.isBlank()) {
+                parseUuid(value).ifPresent(trusted::add);
+            }
+        }
+        storage.fromItemList(input.listOrEmpty("Items", ItemStack.CODEC));
+    }
+
+    private static java.util.Optional<UUID> parseUuid(String value) {
+        try {
+            return java.util.Optional.of(UUID.fromString(value));
+        } catch (IllegalArgumentException ignored) {
+            return java.util.Optional.empty();
+        }
     }
 }
