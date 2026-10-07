@@ -161,10 +161,15 @@ public final class AuctionHouse {
     }
 
     /** Crédits gardés hors des comptes (trésoreries des villes), pour /eco stats. */
-    private java.util.function.LongSupplier treasuries = () -> 0;
+    /** Argent bloqué hors des comptes : trésoreries des villes, primes en cours. */
+    private final java.util.List<java.util.function.LongSupplier> held = new java.util.ArrayList<>();
 
     void treasuries(java.util.function.LongSupplier supplier) {
-        treasuries = supplier;
+        held.add(supplier);
+    }
+
+    private long heldTotal() {
+        return held.stream().mapToLong(java.util.function.LongSupplier::getAsLong).sum();
     }
 
     void credit(ServerPlayer player, long amount, String reason) {
@@ -484,7 +489,7 @@ public final class AuctionHouse {
         long listed = listings.values().stream().mapToLong(Listing::price).sum();
         source.sendSuccess(() -> Component.literal("✦ Économie TerraCraft").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
         source.sendSuccess(() -> Component.literal("Comptes : " + balances.size() + " · en circulation : " + circulation
-                + " crédits · trésoreries des villes : " + treasuries.getAsLong()), false);
+                + " crédits · trésoreries des villes et primes : " + heldTotal()), false);
         source.sendSuccess(() -> Component.literal("Créés : " + created + " " + economy.createdTotals()).withStyle(ChatFormatting.GREEN), false);
         source.sendSuccess(() -> Component.literal("Détruits : " + destroyed + " " + economy.destroyedTotals()).withStyle(ChatFormatting.RED), false);
         source.sendSuccess(() -> Component.literal("Annonces : " + listings.size() + " pour " + listed + " crédits demandés"), false);

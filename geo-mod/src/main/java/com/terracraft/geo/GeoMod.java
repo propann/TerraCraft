@@ -64,6 +64,7 @@ public final class GeoMod implements ModInitializer {
     private static final Towns TOWNS = new Towns(AUCTION_HOUSE);
     private static final NightRaids RAIDS = new NightRaids(TOWNS);
     private static final PvpZones PVP = new PvpZones();
+    private static final Bounties BOUNTIES = new Bounties(AUCTION_HOUSE);
     private static final Contracts CONTRACTS = new Contracts(AUCTION_HOUSE);
     private static final Claims CLAIMS = new Claims();
     private static final SupplyDrops SUPPLY = new SupplyDrops();
@@ -284,6 +285,8 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(MISSIONS::load);
         ServerLifecycleEvents.SERVER_STARTED.register(CONTAMINATION::load);
         ServerLifecycleEvents.SERVER_STARTED.register(PVP::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(BOUNTIES::load);
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> BOUNTIES.register(dispatcher));
         ServerTickEvents.END_SERVER_TICK.register(RAIDS::tick);
         ServerTickEvents.END_SERVER_TICK.register(PVP::tick);
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> PVP.allowDamage(entity, source));
@@ -306,7 +309,14 @@ public final class GeoMod implements ModInitializer {
             if (source.getEntity() instanceof ServerPlayer killer) {
                 Progression.get().onKill(entity, killer);
             }
+            Bosses.onDeath(entity, source, AUCTION_HOUSE);
+            if (entity instanceof ServerPlayer victim && source.getEntity() instanceof ServerPlayer killer) {
+                BOUNTIES.onPlayerKilled(victim, killer);
+            }
         });
+        ServerTickEvents.END_SERVER_TICK.register(Bosses::tick);
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents.ENTITY_LOAD.register((entity, level) -> Bosses.onLoad(entity));
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents.ENTITY_UNLOAD.register((entity, level) -> Bosses.onUnload(entity));
         PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, blockEntity) -> {
             if (state.is(ModBlocks.STATION_BEACON) && level instanceof net.minecraft.server.level.ServerLevel server) {
                 Stations.get().removed(server, pos);
@@ -452,6 +462,18 @@ public final class GeoMod implements ModInitializer {
                                         command.getSource().sendFailure(Component.literal("Aucun endroit chargé ne convient (joueur sur Terre requis)."));
                                         return 0;
                                     }
+                                    return 1;
+                                }))
+                        .then(Commands.literal("boss")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> {
+                                    ServerPlayer player = command.getSource().getPlayerOrException();
+                                    var boss = Bosses.commander(player.level(), player.blockPosition().relative(player.getDirection(), 4));
+                                    if (boss == null) {
+                                        return 0;
+                                    }
+                                    player.level().addFreshEntity(boss);
+                                    command.getSource().sendSuccess(() -> Component.literal("Commandant du bunker invoqué."), true);
                                     return 1;
                                 }))
                         .then(Commands.literal("vague")

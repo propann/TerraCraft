@@ -85,7 +85,8 @@ final class Arrival {
                         + "☢ ZONE CONTAMINÉE : poison sans casque et combinaison spatiaux (J). Une cache t'attend au cœur.",
                 "VILLES ET COMBAT\n\nPvE partout : les joueurs ne peuvent se battre que dans les ZONES PVP (titre rouge, /pvp).\n"
                         + "VAGUE NOCTURNE : certaines nuits, des hordes attaquent une ville dont un habitant est présent. Tenez jusqu'à "
-                        + "l'aube : la trésorerie est récompensée.",
+                        + "l'aube : la trésorerie est récompensée.\nPRIMES : /prime <joueur> <montant> ; gagnées en zone PvP.\n"
+                        + "☠ Certains BUNKERS sont gardés par un Commandant : butin unique et 300 crédits.",
                 "DANGERS LUNAIRES\n\nPLUIE DE MICROMÉTÉORITES : annoncée 30 s avant, elle dure une minute. Mets-toi sous un toit "
                         + "(base, module, grotte, cabine de fusée). Les impacts laissent parfois des fragments.\nLa NUIT LUNAIRE, les rôdeurs sont plus rapides et plus forts.",
                 "STATIONS\n\nBalise de station : tes fusées s'y posent.\nKit de module : clic droit sur le sol "

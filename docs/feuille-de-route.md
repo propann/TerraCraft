@@ -60,7 +60,7 @@ génération ni perte d'objet.
 - [x] Hôtel des ventes par catégories, prix moyens, vente depuis l'écran, comptoir, frais 2 %, `/eco stats`.
 - [x] Sources : missions, contrats du jour, tutoriel, ventes.
 - [ ] **Magasins de joueurs** : un bloc « étal » posé dans son claim, qui vend un objet à prix fixe même hors ligne.
-- [ ] **Primes** sur les monstres rares et les événements (pas sur les joueurs avant les règles PvP).
+- [x] **Primes** : 300 crédits par boss de bunker, vagues nocturnes récompensées, primes de joueurs en zone PvP.
 - [ ] **Relevé hebdomadaire** de `/eco stats` et ajustement des prix du comptoir si l'argent s'accumule.
 
 ## Phase 4 — Missions et progression
@@ -93,8 +93,9 @@ génération ni perte d'objet.
       habitant à moins de 64 blocs du centre) ; trois vagues convergent vers le centre ; 70 % repoussés avant l'aube :
       100 + 50 crédits par vague pour la trésorerie, découverte « Rempart ».
 - [x] **Zones PvP explicites** : PvE partout, PvP seulement dans les cercles déclarés (`/pvp creer <rayon> <nom>`),
-      titre à l'entrée et à la sortie. Reste : primes en zone PvP.
-- [ ] **Boss rares** dans les bunkers profonds, avec butin unique.
+      titre à l'entrée et à la sortie ; primes sur les joueurs (`/prime`), argent bloqué, gagnées en zone PvP.
+- [x] **Boss rares** : un bunker sur cinq gardé par un « Commandant du bunker » (120 PV, barre de boss) ; insigne du
+      commandant, diamants, netherite, prime de 300 crédits, découverte.
 - [ ] **Textures et icônes** des armes et pièces à reprendre (cohérence visuelle).
 
 ## Phase 7 — Monde vivant et génération avancée

@@ -68,6 +68,9 @@ public final class ModBlocks {
                     .lightLevel(state -> 12).noOcclusion());
 
     public static final Item TITANIUM_INGOT = ModContent.item("titanium_ingot", Item::new, new Item.Properties());
+    /** Insigne du commandant : butin unique des boss de bunker (objet de collection, se vend cher). */
+    public static final Item COMMANDER_BADGE = ModContent.item("commander_badge", Item::new,
+            new Item.Properties().stacksTo(16).rarity(net.minecraft.world.item.Rarity.EPIC));
     /** Artefact extraterrestre : trésor rare des pyramides et sanctuaires lunaires. */
     public static final Item ALIEN_ARTIFACT = ModContent.item("alien_artifact", Item::new, new Item.Properties().stacksTo(16));
     public static final Item HELIUM3_SHARD = ModContent.item("helium3_shard", Item::new, new Item.Properties());
@@ -89,6 +92,7 @@ public final class ModBlocks {
             output.accept(TITANIUM_INGOT);
             output.accept(HELIUM3_SHARD);
             output.accept(ALIEN_ARTIFACT);
+            output.accept(COMMANDER_BADGE);
         });
     }
 

@@ -818,6 +818,9 @@ def main():
     rover()
     icon("rover_kit", draw_rover_kit)
     alien_patterns()
+    icon("commander_badge", lambda c: [c.rect(5, 1, 6, 3, (170, 30, 30)), c.rect(6, 4, 4, 2, (200, 200, 205)),
+                                       c.rect(3, 6, 10, 8, (215, 170, 50)), c.rect(5, 8, 6, 4, (170, 120, 30)),
+                                       c.rect(7, 7, 2, 6, (250, 220, 120)), c.rect(6, 9, 4, 2, (250, 220, 120))])
     icon("lunar_base_kit", draw_base_kit((200, 200, 206)))
     icon("mars_base_kit", draw_base_kit((200, 110, 70)))
     icon("station_module", draw_station_module)

@@ -256,6 +256,13 @@ public final class Wasteland {
             if (random.nextBoolean()) {
                 spawner(level, new BlockPos(x + 11, f + 1, z + 5), EntityTypes.ZOMBIE, random);
             }
+            if (random.nextInt(5) == 0) {
+                // Un bunker sur cinq : le Commandant garde les coffres (boss, voir Bosses).
+                var boss = com.terracraft.geo.Bosses.commander(level, new BlockPos(x + 7, f + 1, z + 7));
+                if (boss != null) {
+                    level.addFreshEntityWithPassengers(boss);
+                }
+            }
         }
         wreck(level, pos, terrain, osm, random);
     }

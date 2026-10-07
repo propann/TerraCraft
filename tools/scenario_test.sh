@@ -95,6 +95,16 @@ cmd "kill @e[type=minecraft:zombie]" 0
 cmd "kill @e[type=#minecraft:skeletons]" 0
 cmd "kill @e[type=minecraft:spider]" 0
 cmd "kill @e[type=minecraft:vindicator]" 3
+# Boss de bunker (Alice l'abat : +300) puis prime de Bob sur Alice, gagnée par Bob en zone PvP
+cmd "execute as Alice at Alice run terracraft boss" 2
+cmd "execute if entity @e[tag=terracraft_boss] run say BOSS_PRESENT" 1
+cmd "damage @e[tag=terracraft_boss,limit=1] 500 minecraft:player_attack by Alice" 2
+cmd "execute as Bob run prime Alice 100" 1
+cmd "execute as Alice at Alice run pvp creer 30 Arene des primes" 1
+cmd "tp Bob 3 201 3" 1
+cmd "effect clear Alice minecraft:resistance" 1
+cmd "damage Alice 1000 minecraft:player_attack by Bob" 3
+cmd "execute as Bob run pvp supprimer Arene des primes" 1
 cmd "execute as Bob run missions" 1
 # Combinaison spatiale (clic droit avec chaque pièce)
 cmd "item replace entity Bob weapon.mainhand with terracraft_geo:space_helmet"
@@ -222,7 +232,7 @@ check(len(towns) == 1 and towns[0]["name"] == "Bourg Neuf", "ville fondée")
 check(len(towns[0]["members"]) == 2, "Bob a rejoint la ville")
 check(towns[0]["treasury"] == 150 + eco_created.get("vague_nocturne", 0), "trésorerie = 200 déposés - 50 payés (+ récompense de vague)")
 balances = sorted(json.loads((data / "balances.json").read_text()).values())
-check(balances == [400, 888], f"soldes Alice 400 / Bob 888 (obtenu {balances})")
+check(balances == [700, 888], f"soldes Alice 400 + 300 de prime de boss / Bob 888 (prime de 100 posée puis gagnée) (obtenu {balances})")
 eco = json.loads((data / "economie.json").read_text())
 created, destroyed = sum(eco["created"].values()), sum(eco["destroyed"].values())
 check(created == sum(balances) + towns[0]["treasury"] + destroyed, "aucun crédit perdu ni créé : créés = comptes + trésorerie + détruits")
@@ -298,6 +308,12 @@ check(damages[:2] == ["Target is invulnerable to the given damage type", "Applie
 check("[VAGUE] Bourg Neuf : vague 3/3" in log, "vague nocturne : trois vagues lancées sur Bourg Neuf")
 check("ville défendue" in log and eco_created.get("vague_nocturne") == 250, "vague nocturne repoussée : 250 crédits pour la trésorerie")
 check(any("rampart" in r.get("discoveries", []) for r in progress.values()), "découverte « Rempart »")
+check("BOSS_PRESENT" in log and "[BOSS] Commandant abattu" in log, "boss de bunker : invoqué puis abattu")
+check(eco_created.get("recompenses", 0) >= 300 and any("bunker_boss" in r.get("discoveries", []) for r in progress.values()),
+      "boss de bunker : prime de 300 crédits et découverte")
+check("[PRIME] Bob met 100 crédits sur Alice" in log and "[PRIME] Bob touche 100 crédits pour Alice" in log,
+      "prime posée puis gagnée en zone PvP")
+check(json.loads((data / "primes.json").read_text()) == {}, "plus aucune prime en attente après le paiement")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")
