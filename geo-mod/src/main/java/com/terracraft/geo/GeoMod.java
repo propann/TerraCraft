@@ -66,6 +66,7 @@ public final class GeoMod implements ModInitializer {
     private static final Claims CLAIMS = new Claims();
     private static final SupplyDrops SUPPLY = new SupplyDrops();
     private static final Reports REPORTS = new Reports();
+    private static final Welcome WELCOME = new Welcome(AUCTION_HOUSE, TOWNS, CONTRACTS, START_POINTS);
 
     private record PendingLoot(ServerPlayer player, net.minecraft.core.BlockPos pos, boolean supply) {
     }
@@ -159,6 +160,7 @@ public final class GeoMod implements ModInitializer {
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR, Identifier.fromNamespaceAndPath(MOD_ID, "mars"), MarsChunkGenerator.CODEC);
 
         SpaceSuit.register();
+        Welcome.installIcon();
         // Charge tout de suite la classe modifiée par nos mixins : un mixin cassé fait échouer
         // le démarrage (et donc le test automatique), au lieu de planter à la première connexion.
         try {
@@ -337,13 +339,15 @@ public final class GeoMod implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(CONTRACTS::tick);
         ServerTickEvents.END_SERVER_TICK.register(CLAIMS::tick);
         ServerTickEvents.END_SERVER_TICK.register(SUPPLY::tick);
+        ServerTickEvents.END_SERVER_TICK.register(WELCOME::tick);
+        ServerLifecycleEvents.SERVER_STARTED.register(Welcome::motd);
         ServerTickEvents.END_SERVER_TICK.register(TOWNS::tick);
         ServerTickEvents.END_SERVER_TICK.register(BACKUPS::tick);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             SpaceSuit.migrate(handler.player);
             START_POINTS.onJoin(handler.player);
             Progression.get().applyPerks(handler.player);
-            ServerGuide.welcome(handler.player);
+            WELCOME.onJoin(handler.player);
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             START_POINTS.onLeave(handler.player);

@@ -587,6 +587,51 @@ def workshop_pattern(c):
     c.rect(9, 9, 4, 2, (235, 120, 30))
 
 
+def server_icon():
+    """Icône 64×64 de la liste des serveurs : la Terre et la Lune dans l'espace, une fusée."""
+    c = Canvas(64, 64, 61)
+    for y in range(64):
+        for x in range(64):
+            c.set(x, y, (6 + y // 8, 10 + y // 6, 26 + y // 3))
+    for _ in range(40):
+        x, y = c.rng.randrange(64), c.rng.randrange(64)
+        b = c.rng.randint(150, 255)
+        c.set(x, y, (b, b, b))
+    # La Terre : disque océan, continents, atmosphère.
+    cx, cy, r = 26, 38, 21
+    for y in range(64):
+        for x in range(64):
+            d = ((x - cx) ** 2 + (y - cy) ** 2) ** 0.5
+            if d <= r:
+                land = any(((x - bx) / rx) ** 2 + ((y - by) / ry) ** 2 + 0.25 * ((x * 13 + y * 7) % 5 - 2) / 2 <= 1
+                           for bx, by, rx, ry in ((17, 31, 7, 5), (27, 45, 6, 8), (34, 31, 4, 3), (15, 46, 4, 3), (38, 43, 3, 4)))
+                shade = max(0.55, 1 - (x - cx + y - cy) / (3.2 * r))
+                base = (70, 140, 60) if land else (30, 90, 170)
+                c.set(x, y, tuple(int(v * shade) for v in base))
+            elif d <= r + 1.6:
+                c.set(x, y, (120, 190, 255))
+    # La Lune.
+    for y in range(64):
+        for x in range(64):
+            d = ((x - 52) ** 2 + (y - 12) ** 2) ** 0.5
+            if d <= 7:
+                g = 200 - int(d * 6)
+                c.set(x, y, (g, g, g + 6))
+    for x, y in ((50, 10), (54, 14), (52, 15)):
+        c.set(x, y, (140, 140, 148))
+    # Fusée et sa traînée, de la Terre vers la Lune.
+    for i in range(9):
+        x, y = 30 + i, 30 - i
+        c.set(x, y, (255, 170 - i * 10, 40))
+        c.set(x + 1, y, (200, 90, 30))
+    c.rect(39, 18, 3, 5, (235, 235, 240))
+    c.rect(39, 17, 3, 1, (220, 60, 50))
+    c.set(40, 16, (220, 60, 50))
+    c.set(38, 22, (180, 180, 190))
+    c.set(42, 22, (180, 180, 190))
+    write_png(ROOT.parent / "server-icon.png", 64, 64, c.px)
+
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -635,6 +680,7 @@ def main():
     block_tex("oxygen_distributor", (175, 178, 186), distributor_pattern)
     block_tex("station_beacon", (150, 154, 162), beacon_pattern)
     block_tex("station_workshop", (150, 154, 162), workshop_pattern)
+    server_icon()
     icon("station_module", draw_station_module)
     icon("titanium_ingot", lambda c: (c.rect(2, 6, 12, 5, (200, 205, 215), 8), c.rect(2, 6, 12, 1, (235, 238, 245))))
     icon("helium3_shard", lambda c: [c.rect(7 - k // 2, 2 + k, 2 + k, 1, (120, 230, 245)) for k in range(12)])

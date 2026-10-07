@@ -18,22 +18,6 @@ final class ServerGuide {
         dispatcher.register(Commands.literal("guide").executes(c -> show(c.getSource().getPlayerOrException())));
     }
 
-    static void welcome(ServerPlayer player) {
-        player.sendSystemMessage(Component.literal("━━━━━━━━ TerraCraft ━━━━━━━━")
-                .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
-        player.sendSystemMessage(Component.literal("Terre réelle, survie, exploration et départ vers l'espace.")
-                .withStyle(ChatFormatting.GRAY));
-        var actions = Component.literal("[Aide complète]").withStyle(style -> style.withColor(ChatFormatting.GREEN)
-                .withClickEvent(new ClickEvent.RunCommand("/aide")));
-        actions.append(Component.literal("  "));
-        actions.append(Component.literal("[Marché]").withStyle(style -> style.withColor(ChatFormatting.GOLD)
-                .withClickEvent(new ClickEvent.RunCommand("/hdv"))));
-        actions.append(Component.literal("  "));
-        actions.append(Component.literal("[Solde]").withStyle(style -> style.withColor(ChatFormatting.YELLOW)
-                .withClickEvent(new ClickEvent.RunCommand("/argent"))));
-        player.sendSystemMessage(actions);
-    }
-
     private static int show(ServerPlayer player) {
         player.sendSystemMessage(Component.literal("✦ Guide TerraCraft").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
         line(player, "[Position]", "/terracraft ou", "Voir ta latitude et ta longitude");

@@ -230,6 +230,20 @@ public final class Progression {
         long jobChanged;
         /** Plans de fusée débloqués (noms de {@link Plans.Plan}). */
         Set<String> plans = new LinkedHashSet<>();
+        /** Dernière version du mod vue par le joueur (nouveautés à l'accueil). */
+        String lastVersion;
+    }
+
+    String lastVersion(ServerPlayer player) {
+        return record(player).lastVersion;
+    }
+
+    void setLastVersion(ServerPlayer player, String version) {
+        Record r = record(player);
+        if (!version.equals(r.lastVersion)) {
+            r.lastVersion = version;
+            dirty = true;
+        }
     }
 
     boolean knowsPlan(ServerPlayer player, String plan) {

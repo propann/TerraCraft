@@ -53,7 +53,15 @@ done
 
 if grep -q "Done (" console.log && ! grep -qE "Failed to load registries|Registry loading errors" console.log; then
   echo stop >> console.in
-  for _ in $(seq 60); do grep -q "All dimensions are saved\|Stopping server" console.log && break; sleep 1; done
+  # Attendre la fin réelle du serveur (sauvegarde comprise) : le suivant peut démarrer sans conflit.
+  for _ in $(seq 90); do
+    alive=0
+    for pid in $(pgrep -x java || true); do
+      [ "$(readlink "/proc/$pid/cwd" 2>/dev/null)" = "$(pwd -P)" ] && alive=1
+    done
+    [ "$alive" = 0 ] && break
+    sleep 1
+  done
   echo "Test de démarrage réussi : $(grep -o 'Done ([^)]*)' console.log)"
   exit 0
 fi

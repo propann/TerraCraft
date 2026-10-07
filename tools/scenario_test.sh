@@ -107,6 +107,7 @@ cmd "execute as Bob run atelier installer mars_nav"
 cmd "execute as Bob at Bob run data get entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] Upgrades" 1
 cmd "execute as Bob at Bob run data merge entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] {Target:4b}" 1
 cmd "execute as Bob run terracraft fusee decoller" 2
+python3 "$ROOT/tools/ping_server.py" localhost 25599 > ping.json 2>&1 || true
 cmd "save-all flush" 3
 cmd "stop" 2
 # Laisser le serveur finir sa sauvegarde avant de quitter (sinon le monde reste à moitié écrit).
@@ -173,6 +174,10 @@ check(plans == ["CARGO", "ION", "TANK"], f"plans débloqués par l'exploration, 
 check("Rocket has the following entity data: 7b" in log, "atelier : réservoir étendu, moteur ionique et soute installés")
 check(log.count("[ATELIER]") == 3, "trois installations journalisées, navigation martienne refusée")
 check("Décollage refusé" in log, "vers Mars sans navigation martienne : décollage refusé")
+ping = json.loads((work / "ping.json").read_text() or "{}")
+check("TerraCraft" in ping.get("motd", "") and "0." in ping.get("motd", ""), f"MOTD de la liste des serveurs ({ping.get('motd', '')!r})")
+check(ping.get("icon") is True, "icône du serveur installée et servie")
+check((work / "server-icon.png").exists(), "server-icon.png écrit à la racine du serveur")
 check(not any("Exception" in line and "spark" not in line for line in log.splitlines()),
       "aucune exception dans le journal (hors spark)")
 sys.exit(1 if failures else 0)
