@@ -41,3 +41,26 @@ Les données sont mises en cache dans `terracraft-cache/` à la racine du serveu
 ## Joueurs
 
 Chaque joueur importe le pack client `TerraCraft-client.mrpack` (publié dans les Releases GitHub) dans Prism Launcher : *Ajouter une instance → Importer*.
+
+## Sauvegardes du monde
+
+TerraCraft sauvegarde le monde tout seul (aucun mod de sauvegarde n'existe en 26.3) :
+
+- toutes les **6 heures** (première sauvegarde 30 min après le démarrage), dans `backups/` à la racine du serveur ;
+- les **3** archives les plus récentes sont gardées ; les plus anciennes sont supprimées ;
+- la sauvegarde est refusée si l'espace disque libre est inférieur à la taille du monde ;
+- réglages dans `config/terracraft-backup.json` (`enabled`, `intervalMinutes`, `firstDelayMinutes`, `keep`, `directory`).
+
+Commandes (opérateurs) : `/terracraft sauvegarde` pour sauvegarder tout de suite, `/terracraft sauvegarde liste` pour voir les archives. La console affiche `[SAUVEGARDE]`.
+
+Pense aussi aux sauvegardes du panel Falix : une copie hors du serveur protège contre la perte du serveur lui-même.
+
+### Restaurer une sauvegarde
+
+1. **Arrête** le serveur.
+2. Renomme le dossier du monde (par exemple `world` → `world-avant-restauration`) : ne le supprime qu'une fois la restauration vérifiée.
+3. Décompresse l'archive choisie de `backups/` **à la racine du serveur** : elle recrée le dossier du monde avec son nom d'origine.
+4. Redémarre et vérifie le monde, les comptes (`/argent`) et les annonces (`/hdv`).
+
+Procédure testée le 7 octobre 2026 : sauvegarde, rotation, archive intègre (`unzip -t`), restauration et redémarrage sans erreur.
+

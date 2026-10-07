@@ -28,3 +28,5 @@ geo-mod/logs/
 serveur-local/config/chunky/
 dist/
 serveur-local/config/spark/
+serveur-local/backups/
+serveur-local/config/terracraft-backup.json

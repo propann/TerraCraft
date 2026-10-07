@@ -54,6 +54,7 @@ public final class GeoMod implements ModInitializer {
 
     private static final RateLimit GUI_RATE = new RateLimit(150);
     private static final AntiFly ANTI_FLY = new AntiFly();
+    private static final Backups BACKUPS = new Backups();
 
     private record PendingLoot(ServerPlayer player, net.minecraft.core.BlockPos pos) {
     }
@@ -241,6 +242,8 @@ public final class GeoMod implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(REAL_SKY::tick);
         ServerTickEvents.END_SERVER_TICK.register(Space::tick);
         ServerTickEvents.END_SERVER_TICK.register(ANTI_FLY::tick);
+        ServerLifecycleEvents.SERVER_STARTED.register(BACKUPS::load);
+        ServerTickEvents.END_SERVER_TICK.register(BACKUPS::tick);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             START_POINTS.onJoin(handler.player);
             Progression.get().applyPerks(handler.player);
@@ -292,6 +295,7 @@ public final class GeoMod implements ModInitializer {
                                                         EntityArgument.getPlayer(command, "joueur"), false))))
                                 .then(Commands.literal("liberer")
                                         .executes(command -> releaseVehicle(command.getSource()))))
+                        .then(BACKUPS.command())
                         .then(Commands.literal("depart")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> {

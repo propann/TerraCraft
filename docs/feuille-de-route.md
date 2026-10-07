@@ -39,7 +39,7 @@ Priorité immédiate, bloquante pour le reste.
 - [ ] Tester la génération avec et sans cache Overture.
 - [ ] Vérifier qu'un chunk ne contient pas de bâtiment géant, vide ou dupliqué.
 - [ ] Tester véhicules, armes, souris, claims et économie sur serveur local puis Falix.
-- [ ] Ajouter une procédure de sauvegarde et de restauration testée.
+- [x] Ajouter une procédure de sauvegarde et de restauration testée (sauvegardes automatiques intégrées, voir deploy/FALIX.md).
 - [ ] Mesurer TPS, mémoire, temps de démarrage et taille du monde (spark installé : `/spark tps`, `/spark health`, `/spark profiler`).
 
 Critère de sortie : 30 minutes de jeu à plusieurs sans crash, blocage de génération ou perte d'objets.
@@ -147,7 +147,7 @@ Critère : atteindre la Lune est une étape prestigieuse, mais la Terre reste ac
 
 - [ ] Bêta privée avec whitelist.
 - [ ] Publication des commandes, touches, règles, versions et connexion.
-- [ ] Sauvegardes automatiques et restauration testée.
+- [x] Sauvegardes automatiques et restauration testée.
 - [ ] Logs des transactions, claims, véhicules et actions administratives.
 - [ ] Procédure de signalement des bugs et pertes d'objets.
 - [ ] Pack client synchronisé avec Falix et versions publiées.
