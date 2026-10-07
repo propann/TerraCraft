@@ -70,13 +70,13 @@ Critère : deux joueurs peuvent créer une base commune et donner des accès dif
 ## Phase 3 — Économie et commerce
 
 - [x] Créer un vrai écran d'hôtel des ventes avec pages, prix, vendeur, achat et retrait d'annonce.
-- [ ] Catégories : ressources, pièces, armes, munitions, véhicules et objets rares.
+- [x] Catégories : ressources, blocs, pièces, armes, espace, nourriture, équipement.
 - [ ] Magasins joueurs placés dans les bâtiments ou claims.
-- [ ] Prix moyen, volume vendu et dernière vente.
+- [x] Prix moyen, volume vendu et dernière vente.
 - [ ] Sources d'argent : missions, exploration, primes et vente de ressources.
-- [ ] Sorties d'argent : carburant, réparation, téléportation, taxes optionnelles et frais de marché.
+- [x] Sorties d'argent : comptoir du serveur (carburant, oxygène, munitions, vivres) et frais de marché de 2 %.
 - [x] Transactions atomiques : aucune perte d'objet ou de crédit en cas d'erreur (objet complet conservé, écriture atomique + .bak).
-- [ ] Journal administrateur : argent créé, dépensé et en circulation (les transactions sont déjà tracées dans les logs : [HDV], [ECO], [MISSION]).
+- [x] Journal administrateur : `/eco stats` (créé, détruit, en circulation) et logs [HDV], [ECO], [MISSION].
 
 Critère : chaque joueur peut gagner, dépenser et échanger des crédits sans inflation incontrôlée.
 

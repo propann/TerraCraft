@@ -55,7 +55,7 @@ final class Economy {
     }
 
     private static final Set<String> MOD_PARTS = Set.of("wheel", "engine", "radiator", "battery", "turbo", "fuel_can",
-            "car_chassis", "truck_chassis", "motorcycle_chassis", "rocket_hull", "rocket_engine", "rocket_tank",
+            "car_chassis", "truck_chassis", "motorcycle_chassis", "plane_kit", "rocket_hull", "rocket_engine", "rocket_tank",
             "nose_cone", "fins", "rocket_fuel");
     private static final Set<String> MOD_WEAPONS = Set.of("pistol", "rifle", "shotgun", "smg", "sniper", "ammo",
             "grenade", "machete");

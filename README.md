@@ -23,7 +23,7 @@ pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.
 | Touche | Rôle |
 |---|---|
 | `O` | Menu TerraCraft (carte, hôtel des ventes, missions, fiche, combinaison…) |
-| `J` | Combinaison spatiale : casque, combinaison, bottes magnétiques, réserves d'oxygène |
+| `J` | Combinaison spatiale (aussi dans l'inventaire `E`) : casque, combinaison, bottes, jetpack, oxygène |
 | `K` | Fiche de personnage : paliers, compétences, découvertes |
 | `M` / `'` | Carte Xaero et claims |
 
@@ -34,8 +34,8 @@ pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.
 - **Monde** : relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés, carte de départ en jeu.
 - **Survie** : inventaire conservé à la mort (−25 % d'expérience), `/sethome` `/home` `/back` `/tpa` (refusés en combat).
 - **Accueil** : parcours « Premiers pas » en 6 étapes récompensées, carnet de survie.
-- **Économie** : 1 000 crédits au départ, hôtel des ventes (`/hdv`, touche O), missions récompensées.
-- **Équipement** : armes à chargeur, véhicules à assembler (voiture, camion, moto) avec propriétaire, coffre et partage.
+- **Économie** : 1 000 crédits au départ, hôtel des ventes par catégories avec prix moyens, comptoir (`/comptoir`), missions.
+- **Équipement** : armes à chargeur, véhicules (voiture, camion, moto) avec propriétaire, coffre et partage, avion, jetpack.
 - **Espace** : fusée, orbite, Lune, Mars, combinaison spatiale dessinée comme une armure, oxygène automatique.
 - **Claims** : Open Parties and Claims ; cartes Xaero.
 - **Exploitation** : sauvegardes automatiques, anti-triche vol, journal `[HDV]` `[ECO]` `[MISSION]` `[ANTITRICHE]`, spark.

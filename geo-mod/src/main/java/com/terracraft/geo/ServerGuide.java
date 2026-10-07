@@ -46,6 +46,9 @@ final class ServerGuide {
                 .withStyle(ChatFormatting.YELLOW));
         player.sendSystemMessage(Component.literal("Armes : clic droit maintenu avec le sniper pour zoomer · Véhicules : complète les pièces puis monte dedans.")
                 .withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.literal("Avion : Z/S gaz, le regard dirige, lève les yeux pour décoller · bidon d'essence : clic droit")
+                .withStyle(ChatFormatting.GRAY));
+        line(player, "[Comptoir]", "/comptoir", "Carburant, oxygène, munitions et vivres à prix fixe");
         player.sendSystemMessage(Component.literal("Véhicule partagé : /terracraft vehicule partager <joueur> · retirer <joueur> · liberer")
                 .withStyle(ChatFormatting.GRAY));
         player.sendSystemMessage(Component.literal("Touches : O menu · J combinaison spatiale · K fiche · M carte et claims")

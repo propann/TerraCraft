@@ -515,6 +515,42 @@ def draw_jetpack(c):
     c.set(7, 6, (90, 230, 120))
 
 
+def plane():
+    """Avion léger (modèle 256×128) : fuselage blanc à bande rouge, ailes rayées, cockpit vitré."""
+    c = Canvas(256, 128, 53)
+    red = (190, 40, 40)
+    glass = (120, 170, 200)
+    body = box(c, 0, 0, 10, 10, 48, WHITE)
+    for face in ("right", "left"):
+        x, y, w, h = body[face]
+        c.rect(x, y + 4, w, 2, red)
+        for i in range(6, w - 6, 8):
+            c.rect(x + i, y + 1, 3, 2, glass)
+    box(c, 120, 0, 8, 5, 12, glass)
+    box(c, 120, 20, 8, 8, 4, red)
+    wings = box(c, 0, 60, 72, 2, 14, WHITE)
+    x, y, w, h = wings["top"]
+    c.rect(x, y, 6, h, red)
+    c.rect(x + w - 6, y, 6, h, red)
+    box(c, 0, 80, 28, 2, 8, WHITE)
+    box(c, 80, 80, 2, 10, 8, red)
+    box(c, 180, 0, 24, 2, 1, (60, 50, 40))
+    box(c, 180, 10, 2, 2, 1, (150, 150, 155))
+    box(c, 200, 20, 2, 4, 4, (35, 35, 38))
+    c.rust(0, 0, 256, 128, 0.01)
+    c.save("entity/plane.png")
+
+
+def draw_plane_kit(c):
+    c.rect(1, 7, 14, 2, WHITE, 6)
+    c.rect(6, 3, 3, 10, WHITE, 6)
+    c.rect(6, 3, 3, 2, (190, 40, 40))
+    c.rect(4, 12, 7, 1, WHITE)
+    c.rect(1, 7, 2, 2, (190, 40, 40))
+    c.rect(13, 7, 2, 2, (190, 40, 40))
+    c.rect(7, 5, 1, 2, (120, 170, 200))
+
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -552,6 +588,8 @@ def main():
     space_suit_armor()
     icon("jetpack", draw_jetpack)
     jetpack_armor()
+    plane()
+    icon("plane_kit", draw_plane_kit)
     block_tex("titanium_ore", (120, 120, 124), speckles([(200, 205, 215), (170, 180, 195)], 9))
     block_tex("helium3_crystals", (70, 160, 170), speckles([(160, 240, 250), (220, 255, 255), (40, 120, 140)], 18, 3))
     block_tex("station_hull", (175, 178, 186), hull_pattern)

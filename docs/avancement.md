@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.7.0** (serveur Falix, release GitHub et pack client alignés).
+Dernière passe : 7 octobre 2026 — version **0.8.0** (à valider en jeu avant publication).
 
 ## Fonctionnel et raccordé
 
@@ -9,9 +9,12 @@ Dernière passe : 7 octobre 2026 — version **0.7.0** (serveur Falix, release G
 - [x] Menu TerraCraft `O`, fiche joueur `K`, missions, `/aide` et carnet de survie avec les touches.
 - [x] Parcours « Premiers pas » (6 étapes récompensées, encart à l'écran, `/tuto`).
 - [x] Économie persistante, hôtel des ventes graphique : objets conservés à l'identique, sans duplication.
+- [x] Hôtel des ventes : catégories, prix moyens, icônes, vente directe ; comptoir du serveur ; frais de 2 % ; `/eco stats`.
 - [x] Voiture, camion et moto : assemblage, conduite, carburant, coffre, propriétaire et partage ; progression comptée une seule fois par véhicule.
 - [x] Fusée, orbite terrestre, Lune, Mars et orbite de Mars.
-- [x] Combinaison spatiale (touche `J`) : casque, combinaison, bottes magnétiques, deux réserves d'oxygène, rendu en armure, HUD O₂.
+- [x] Combinaison spatiale (touche `J` et panneau de l'inventaire `E`) : casque, combinaison, bottes magnétiques, jetpack, deux réserves d'oxygène, rendu en armure, HUD O₂.
+- [x] Jetpack : poussée en maintenant saut, carburant au bidon, compatible anti-triche.
+- [x] Avion : kit, carburant, pilotage au regard, décrochage, crash, instruments de bord.
 - [x] Survie : téléportations refusées en combat, `/tpa` limitée.
 - [x] Anti-triche vol (allow-flight est forcé pour l'espace).
 - [x] Données joueurs écrites de façon atomique avec copie `.bak`.
@@ -20,6 +23,11 @@ Dernière passe : 7 octobre 2026 — version **0.7.0** (serveur Falix, release G
 - [x] Test de démarrage d'un vrai serveur avant chaque déploiement Falix (CI).
 
 ## À tester en jeu
+
+- [ ] Inventaire E : panneau de la combinaison, shift-clic, clic sans jeter l'objet, mode créatif.
+- [ ] Hôtel des ventes : catégories, vente depuis l'écran, comptoir, frais.
+- [ ] Jetpack : poussée, carburant, recharge, flammes, pas de faux positif anti-triche.
+- [ ] Avion : décollage, virages, décrochage, atterrissage, crash, passager.
 
 - [ ] Combinaison spatiale : rendu sur le joueur (avec et sans armure), autres joueurs, migration depuis la 0.6.
 - [ ] Moto : montage avec deux roues, conduite, démontage et reconnexion.
@@ -30,10 +38,9 @@ Dernière passe : 7 octobre 2026 — version **0.7.0** (serveur Falix, release G
 
 ## Prochaine séquence
 
-1. Retours de jeu sur la combinaison, Mars et la moto.
-2. Phase 3 de la feuille de route : catégories et prix dans l'hôtel des ventes, dépenses utiles, journal économique.
-3. Jetpack (module dorsal de la combinaison) avec énergie et limites, compatible anti-triche.
-4. Avion terrestre avec carburant et pistes simples.
+1. Retours de jeu sur la 0.8.0 (inventaire, économie, jetpack, avion), puis publication.
+2. Claims et villes (phase 2 de la feuille de route).
+3. Missions liées aux lieux réels et métiers (phase 4).
 
 ## Règle de publication
 

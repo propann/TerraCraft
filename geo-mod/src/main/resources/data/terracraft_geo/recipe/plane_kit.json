@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": "terracraft_geo:fins",
+    "E": "terracraft_geo:engine",
+    "I": "minecraft:iron_block",
+    "B": "terracraft_geo:battery",
+    "W": "terracraft_geo:wheel"
+  },
+  "pattern": [
+    "FEF",
+    "IBI",
+    "W W"
+  ],
+  "result": {
+    "id": "terracraft_geo:plane_kit",
+    "count": 1
+  }
+}

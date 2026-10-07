@@ -24,6 +24,7 @@ public final class ModContent {
     public static final EntityType<Vehicle> TRUCK = entity("truck", Vehicle.Kind.TRUCK, 2.4f, 2.1f);
     public static final EntityType<Vehicle> MOTORCYCLE = entity("motorcycle", Vehicle.Kind.MOTORCYCLE, 1.1f, 1.5f);
     public static final EntityType<Rocket> ROCKET = rocketType();
+    public static final EntityType<Plane> PLANE = planeType();
 
     public static final Item WHEEL = item("wheel", Item::new, new Item.Properties().stacksTo(16));
     public static final Item ENGINE = item("engine", Item::new, new Item.Properties().stacksTo(4));
@@ -36,6 +37,8 @@ public final class ModContent {
     public static final Item TRUCK_CHASSIS = item("truck_chassis", p -> new ChassisItem(() -> TRUCK, p), new Item.Properties().stacksTo(1));
     public static final Item MOTORCYCLE_CHASSIS = item("motorcycle_chassis", p -> new ChassisItem(() -> MOTORCYCLE, p), new Item.Properties().stacksTo(1));
 
+    /** Kit d'avion : posé au sol, il devient un avion complet (il ne manque que le carburant). */
+    public static final Item PLANE_KIT = item("plane_kit", p -> new ChassisItem(() -> PLANE, p), new Item.Properties().stacksTo(1));
     public static final Item ROCKET_HULL = item("rocket_hull", p -> new ChassisItem(() -> ROCKET, p), new Item.Properties().stacksTo(1));
     public static final Item ROCKET_ENGINE = item("rocket_engine", Item::new, new Item.Properties().stacksTo(1));
     public static final Item ROCKET_TANK = item("rocket_tank", Item::new, new Item.Properties().stacksTo(1));
@@ -69,7 +72,7 @@ public final class ModContent {
 
     public static void init() {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output -> {
-            for (Item item : new Item[]{CAR_CHASSIS, TRUCK_CHASSIS, MOTORCYCLE_CHASSIS, WHEEL, ENGINE, RADIATOR, BATTERY, TURBO, FUEL_CAN,
+            for (Item item : new Item[]{CAR_CHASSIS, TRUCK_CHASSIS, MOTORCYCLE_CHASSIS, PLANE_KIT, WHEEL, ENGINE, RADIATOR, BATTERY, TURBO, FUEL_CAN,
                     ROCKET_HULL, ROCKET_ENGINE, ROCKET_TANK, NOSE_CONE, FINS, ROCKET_FUEL, SPACE_HELMET, SPACE_SUIT, MAGNETIC_BOOTS, JETPACK, OXYGEN_TANK}) {
                 output.accept(item);
             }
@@ -150,6 +153,15 @@ public final class ModContent {
         ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "rocket"));
         EntityType<Rocket> type = EntityType.Builder.<Rocket>of(Rocket::new, MobCategory.MISC)
                 .sized(1.2f, 4.0f)
+                .clientTrackingRange(16)
+                .build(key);
+        return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, type);
+    }
+
+    private static EntityType<Plane> planeType() {
+        ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "plane"));
+        EntityType<Plane> type = EntityType.Builder.<Plane>of(Plane::new, MobCategory.MISC)
+                .sized(2.6f, 1.4f)
                 .clientTrackingRange(16)
                 .build(key);
         return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, type);

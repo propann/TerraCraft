@@ -65,6 +65,8 @@ public final class GeoModClient implements ClientModInitializer {
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "oxygen"), new OxygenHud());
         net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "jetpack"), new JetpackHud());
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
+                Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "plane"), new PlaneHud());
         // Parcours « Premiers pas » : le serveur envoie l'objectif en cours, affiché à droite.
         ClientPlayNetworking.registerGlobalReceiver(TutorialPayload.TYPE, (payload, context) -> TutorialHud.update(payload));
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
@@ -107,6 +109,8 @@ public final class GeoModClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModContent.MOTORCYCLE, context -> new VehicleRenderer(context, Vehicle.Kind.MOTORCYCLE));
         ModelLayerRegistry.registerModelLayer(RocketRenderer.LAYER, RocketModel::create);
         EntityRendererRegistry.register(ModContent.ROCKET, RocketRenderer::new);
+        ModelLayerRegistry.registerModelLayer(com.terracraft.geo.client.PlaneRenderer.LAYER, com.terracraft.geo.client.PlaneModel::create);
+        EntityRendererRegistry.register(ModContent.PLANE, com.terracraft.geo.client.PlaneRenderer::new);
         EntityRendererRegistry.register(ModContent.GRENADE_ENTITY, ThrownItemRenderer::new);
 
         // Ennemis lunaires : modèles vanilla, textures TerraCraft.
@@ -125,6 +129,10 @@ public final class GeoModClient implements ClientModInitializer {
             }
         });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.player != null && client.player.getVehicle() instanceof com.terracraft.geo.content.Plane plane) {
+                Input keys = client.player.input.keyPresses;
+                plane.setInput(keys.forward(), keys.backward(), keys.left(), keys.right());
+            }
             if (client.player != null && client.player.getVehicle() instanceof Vehicle vehicle) {
                 Input keys = client.player.input.keyPresses;
                 // Le véhicule ne recevait auparavant que A/D : la souris tournait la

@@ -48,5 +48,7 @@
   "entity.terracraft_geo.grenade": "Grenade",
   "item.terracraft_geo.space_suit": "Combinaison spatiale",
   "item.terracraft_geo.magnetic_boots": "Bottes magnétiques",
-  "item.terracraft_geo.jetpack": "Jetpack"
+  "item.terracraft_geo.jetpack": "Jetpack",
+  "item.terracraft_geo.plane_kit": "Kit d'avion",
+  "entity.terracraft_geo.plane": "Avion"
 }

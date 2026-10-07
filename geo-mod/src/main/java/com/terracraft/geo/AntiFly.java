@@ -69,7 +69,8 @@ final class AntiFly {
 
     private void check(MinecraftServer server, ServerPlayer player) {
         State state = states.computeIfAbsent(player.getUUID(), ignored -> new State());
-        Entity subject = player.getVehicle() instanceof Vehicle car ? car : player;
+        Entity subject = player.getVehicle() instanceof Vehicle car ? car
+                : player.getVehicle() instanceof com.terracraft.geo.content.Plane plane ? plane : player;
         Vec3 position = subject.position();
         boolean teleported = state.level != player.level() || state.last == null
                 || state.last.distanceToSqr(position) > TELEPORT_DISTANCE * TELEPORT_DISTANCE;
@@ -113,6 +114,9 @@ final class AntiFly {
         }
         if (SpaceSuit.hasJetpackFuel(player) && player.getLastClientInput().jump()) {
             return true; // Jetpack en marche (carburant limité, décompté par le serveur).
+        }
+        if (subject instanceof com.terracraft.geo.content.Plane plane && plane.fuel() > 0) {
+            return true; // Avion en vol : carburant limité, décompté par le serveur.
         }
         if (Space.isSpace(player.level())) {
             return true; // Gravité réduite : les sauts durent légitimement plusieurs secondes.
