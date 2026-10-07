@@ -30,3 +30,4 @@ dist/
 serveur-local/config/spark/
 serveur-local/backups/
 serveur-local/config/terracraft-backup.json
+serveur-local/server-icon.png
