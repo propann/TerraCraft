@@ -65,6 +65,7 @@ public final class GeoMod implements ModInitializer {
     private static final NightRaids RAIDS = new NightRaids(TOWNS);
     private static final PvpZones PVP = new PvpZones();
     private static final Bounties BOUNTIES = new Bounties(AUCTION_HOUSE);
+    private static final Stalls STALLS = new Stalls(AUCTION_HOUSE);
     private static final Contracts CONTRACTS = new Contracts(AUCTION_HOUSE);
     private static final Claims CLAIMS = new Claims();
     private static final SupplyDrops SUPPLY = new SupplyDrops();
@@ -287,6 +288,7 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(PVP::load);
         ServerLifecycleEvents.SERVER_STARTED.register(BOUNTIES::load);
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> BOUNTIES.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> STALLS.register(dispatcher));
         ServerTickEvents.END_SERVER_TICK.register(RAIDS::tick);
         ServerTickEvents.END_SERVER_TICK.register(PVP::tick);
         ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) -> PVP.allowDamage(entity, source));

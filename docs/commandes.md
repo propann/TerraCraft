@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.23). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.24). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -28,6 +28,7 @@ Référence de TerraCraft (version 0.23). Tout est en français ; `/aide` en don
 | `/tpa <joueur>`, `/tpaccept`, `/tpdeny` | Téléportation entre joueurs (une demande toutes les 10 s) |
 | `/argent` | Solde (1 000 crédits au départ) |
 | `/hdv` | Hôtel des ventes (aussi menu `O`) : `vendre <prix>` (objet en main, frais 2 %), `acheter <n°>`, `retirer <n°>`, `page <n>` |
+| `/etal`, `/etal prix <n>`, `/etal ajouter`, `/etal acheter [n]` | Étal le plus proche (4 blocs) : offre ; fixer le prix et garnir (propriétaire) ; acheter. Clic droit : stock (propriétaire) ou offre ; Maj + clic droit : acheter 1 |
 | `/comptoir [n]` | Comptoir du serveur : carburant, oxygène, munitions, vivres à prix fixe |
 | `/missions` | Contrats du jour et missions ; `reclamer <id>` |
 | `/metier` | Métiers (mécanicien, éclaireur, récupérateur, combattant, pilote) ; `choisir <métier>` (un changement par 24 h) |
@@ -66,7 +67,7 @@ Référence de TerraCraft (version 0.23). Tout est en français ; `/aide` en don
 
 ## Journal de la console
 
-Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`,
+Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`,
 `[STATION]`, `[ATELIER]`, `[NAV]`, `[METEORES]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
 
 Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,

@@ -95,6 +95,14 @@ cmd "kill @e[type=minecraft:zombie]" 0
 cmd "kill @e[type=#minecraft:skeletons]" 0
 cmd "kill @e[type=minecraft:spider]" 0
 cmd "kill @e[type=minecraft:vindicator]" 3
+# Étal de marché : Bob vend des diamants à 25 l'unité, Alice en achète 2 (50 crédits passent d'Alice à Bob)
+cmd "tp Bob 3 201 3" 1
+cmd "setblock 6 201 0 terracraft_geo:market_stall" 1
+cmd "execute as Bob run etal prix 25" 1
+cmd "item replace entity Bob weapon.mainhand with minecraft:diamond 5" 1
+cmd "execute as Bob run etal ajouter" 1
+cmd "tp Alice 5 201 1" 1
+cmd "execute as Alice run etal acheter 2" 1
 # Boss de bunker (Alice l'abat : +300) puis prime de Bob sur Alice, gagnée par Bob en zone PvP
 cmd "execute as Alice at Alice run terracraft boss" 2
 cmd "execute if entity @e[tag=terracraft_boss] run say BOSS_PRESENT" 1
@@ -232,7 +240,7 @@ check(len(towns) == 1 and towns[0]["name"] == "Bourg Neuf", "ville fondée")
 check(len(towns[0]["members"]) == 2, "Bob a rejoint la ville")
 check(towns[0]["treasury"] == 150 + eco_created.get("vague_nocturne", 0), "trésorerie = 200 déposés - 50 payés (+ récompense de vague)")
 balances = sorted(json.loads((data / "balances.json").read_text()).values())
-check(balances == [700, 888], f"soldes Alice 400 + 300 de prime de boss / Bob 888 (prime de 100 posée puis gagnée) (obtenu {balances})")
+check(balances == [650, 938], f"soldes Alice 400 + 300 de boss - 50 à l'étal / Bob 888 + 50 de l'étal (prime de 100 posée puis gagnée) (obtenu {balances})")
 eco = json.loads((data / "economie.json").read_text())
 created, destroyed = sum(eco["created"].values()), sum(eco["destroyed"].values())
 check(created == sum(balances) + towns[0]["treasury"] + destroyed, "aucun crédit perdu ni créé : créés = comptes + trésorerie + détruits")
@@ -314,6 +322,8 @@ check(eco_created.get("recompenses", 0) >= 300 and any("bunker_boss" in r.get("d
 check("[PRIME] Bob met 100 crédits sur Alice" in log and "[PRIME] Bob touche 100 crédits pour Alice" in log,
       "prime posée puis gagnée en zone PvP")
 check(json.loads((data / "primes.json").read_text()) == {}, "plus aucune prime en attente après le paiement")
+check("[ETAL] Bob fixe le prix à 25" in log and "[ETAL] Alice achète Diamond x2 à Bob pour 50 crédits" in log,
+      "étal de marché : Bob fixe le prix, Alice achète 2 diamants (50 crédits à Bob)")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

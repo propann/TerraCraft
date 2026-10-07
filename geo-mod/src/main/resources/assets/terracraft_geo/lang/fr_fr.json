@@ -72,5 +72,6 @@
   "multiplayer.player.joined": "§a➜ §f%s §7a rejoint TerraCraft",
   "multiplayer.player.joined.renamed": "§a➜ §f%s §7(anciennement %s) a rejoint TerraCraft",
   "multiplayer.player.left": "§c← §7%s a quitté le serveur",
-  "item.terracraft_geo.commander_badge": "Insigne du commandant"
+  "item.terracraft_geo.commander_badge": "Insigne du commandant",
+  "block.terracraft_geo.market_stall": "Étal de marché"
 }

@@ -818,6 +818,11 @@ def main():
     rover()
     icon("rover_kit", draw_rover_kit)
     alien_patterns()
+    block_tex("market_stall_top", (200, 40, 40), lambda c: [c.rect(x, 0, 2, 16, (235, 230, 220)) for x in range(0, 16, 4)], seed=95)
+    block_tex("market_stall_side", (150, 105, 60), lambda c: [c.rect(0, 0, 16, 4, (200, 40, 40)), c.rect(0, 4, 16, 1, (90, 60, 35)),
+                                                              c.rect(0, 9, 16, 1, (110, 75, 45)), c.rect(0, 15, 16, 1, (90, 60, 35))]
+              + [c.rect(x, 0, 2, 4, (235, 230, 220)) for x in range(0, 16, 4)], seed=96)
+    block_tex("market_stall_bottom", (140, 100, 58), lambda c: [c.rect(0, y, 16, 1, (105, 72, 42)) for y in range(3, 16, 4)], seed=97)
     icon("commander_badge", lambda c: [c.rect(5, 1, 6, 3, (170, 30, 30)), c.rect(6, 4, 4, 2, (200, 200, 205)),
                                        c.rect(3, 6, 10, 8, (215, 170, 50)), c.rect(5, 8, 6, 4, (170, 120, 30)),
                                        c.rect(7, 7, 2, 6, (250, 220, 120)), c.rect(6, 9, 4, 2, (250, 220, 120))])

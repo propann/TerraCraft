@@ -59,7 +59,9 @@ génération ni perte d'objet.
 
 - [x] Hôtel des ventes par catégories, prix moyens, vente depuis l'écran, comptoir, frais 2 %, `/eco stats`.
 - [x] Sources : missions, contrats du jour, tutoriel, ventes.
-- [ ] **Magasins de joueurs** : un bloc « étal » posé dans son claim, qui vend un objet à prix fixe même hors ligne.
+- [x] **Magasins de joueurs** : étal de marché (laine, planches, coffre, or) qui vend l'objet de son stock à prix fixe,
+      même vendeur hors ligne ; paiement de compte à compte ; stock inaccessible aux entonnoirs ; seul le propriétaire
+      casse l'étal (`/etal`, `/etal prix`, `/etal ajouter`, `/etal acheter`, Maj + clic droit).
 - [x] **Primes** : 300 crédits par boss de bunker, vagues nocturnes récompensées, primes de joueurs en zone PvP.
 - [ ] **Relevé hebdomadaire** de `/eco stats` et ajustement des prix du comptoir si l'argent s'accumule.
 

@@ -72,5 +72,6 @@
   "multiplayer.player.joined": "§a➜ §f%s §7joined TerraCraft",
   "multiplayer.player.joined.renamed": "§a➜ §f%s §7(formerly %s) joined TerraCraft",
   "multiplayer.player.left": "§c← §7%s left the server",
-  "item.terracraft_geo.commander_badge": "Commander's badge"
+  "item.terracraft_geo.commander_badge": "Commander's badge",
+  "block.terracraft_geo.market_stall": "Market stall"
 }

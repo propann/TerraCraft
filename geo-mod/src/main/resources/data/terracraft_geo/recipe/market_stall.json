@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "W": "#minecraft:wool",
+    "P": "#minecraft:planks",
+    "C": "minecraft:chest",
+    "G": "minecraft:gold_ingot"
+  },
+  "pattern": [
+    "WWW",
+    "PCP",
+    "PGP"
+  ],
+  "result": {
+    "id": "terracraft_geo:market_stall",
+    "count": 1
+  }
+}

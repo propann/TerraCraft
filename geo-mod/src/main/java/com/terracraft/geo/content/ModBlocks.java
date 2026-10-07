@@ -67,6 +67,13 @@ public final class ModBlocks {
             BlockBehaviour.Properties.of().mapColor(MapColor.DIAMOND).strength(1.5f).sound(SoundType.AMETHYST)
                     .lightLevel(state -> 12).noOcclusion());
 
+    /** Étal de marché : vend un objet à prix fixe, même vendeur hors ligne (voir Stalls). */
+    public static final Block MARKET_STALL = block("market_stall", MarketStallBlock::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(2.5f, 1200f).sound(SoundType.WOOD));
+    public static final net.minecraft.world.level.block.entity.BlockEntityType<MarketStallBlockEntity> MARKET_STALL_ENTITY =
+            Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE, Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "market_stall"),
+                    new net.minecraft.world.level.block.entity.BlockEntityType<>(MarketStallBlockEntity::new, java.util.Set.of(MARKET_STALL)));
+
     public static final Item TITANIUM_INGOT = ModContent.item("titanium_ingot", Item::new, new Item.Properties());
     /** Insigne du commandant : butin unique des boss de bunker (objet de collection, se vend cher). */
     public static final Item COMMANDER_BADGE = ModContent.item("commander_badge", Item::new,
@@ -84,6 +91,7 @@ public final class ModBlocks {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(output -> {
             output.accept(TITANIUM_ORE);
             output.accept(HELIUM3_CRYSTALS);
+            output.accept(MARKET_STALL);
             output.accept(ALIEN_STONE);
             output.accept(ALIEN_GLYPH);
             output.accept(LUNAR_CRYSTAL);
