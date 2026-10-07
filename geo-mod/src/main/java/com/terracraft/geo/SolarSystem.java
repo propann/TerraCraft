@@ -9,8 +9,8 @@ public final class SolarSystem {
     public static final Body EARTH = new Body((byte) 0, "earth", "la Terre", true);
     public static final Body MOON = new Body((byte) 1, "moon", "la Lune", true);
     public static final Body EARTH_ORBIT = new Body((byte) 2, "earth_orbit", "l'orbite terrestre", true);
-    public static final Body MARS = new Body((byte) 3, "mars", "Mars", false);
-    public static final Body MARS_ORBIT = new Body((byte) 4, "mars_orbit", "l'orbite de Mars", false);
+    public static final Body MARS = new Body((byte) 3, "mars", "Mars", true);
+    public static final Body MARS_ORBIT = new Body((byte) 4, "mars_orbit", "l'orbite de Mars", true);
     public static final Body MERCURY = new Body((byte) 5, "mercury", "Mercure", false);
     public static final Body MERCURY_ORBIT = new Body((byte) 6, "mercury_orbit", "l'orbite de Mercure", false);
     public static final Body VENUS = new Body((byte) 7, "venus", "Vénus", false);

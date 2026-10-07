@@ -32,6 +32,13 @@ jobs:
         working-directory: geo-mod
         run: gradle --no-daemon build
 
+      # Démarre un vrai serveur avec le jar compilé et les mods figés : si le serveur ne
+      # démarre pas (données invalides, crash au chargement), rien n'est déployé sur Falix.
+      - name: Test de démarrage du serveur
+        run: |
+          VERSION="$(sed -n 's/^mod_version=//p' geo-mod/gradle.properties)"
+          tools/smoke_server.sh "geo-mod/build/libs/terracraft-geo-$VERSION.jar" "$RUNNER_TEMP/smoke"
+
       - name: Identité Git du robot
         run: |
           git config user.name "terracraft-bot"
@@ -41,6 +48,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         env:
           GRADLE_BIN: gradle
+          SKIP_SMOKE: "1"
         run: deploy/make_falix_branch.sh
 
       - name: Pack client

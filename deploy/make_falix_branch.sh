@@ -17,6 +17,12 @@ echo "== Compilation du mod"
 (cd "$ROOT/geo-mod" && "${GRADLE_BIN:-$HOME/.cache/terracraft-gradle/9.7.1/gradle-9.7.1/bin/gradle}" --no-daemon -q build -x test)
 VERSION="$(sed -n 's/^mod_version=//p' "$ROOT/geo-mod/gradle.properties")"
 
+# Jamais de déploiement d'un serveur qui ne démarre pas (la CI fait ce test juste avant).
+if [ -z "${SKIP_SMOKE:-}" ]; then
+  echo "== Test de démarrage du serveur"
+  "$ROOT/tools/smoke_server.sh" "$ROOT/geo-mod/build/libs/terracraft-geo-$VERSION.jar" "$WORK/smoke"
+fi
+
 echo "== Mods serveur (Modrinth, sha512 vérifié)"
 python3 "$ROOT/tools/install_mods.py" server "$WORK/mods" --stable-names
 cp "$ROOT/geo-mod/build/libs/terracraft-geo-$VERSION.jar" "$WORK/mods/terracraft-geo.jar"
