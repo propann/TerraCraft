@@ -21,7 +21,8 @@ final class PlaneHud implements HudElement {
         g.outline(left - 2, top - 2, 114, 52, SuitScreen.BORDER);
         boolean pilot = plane.getControllingPassenger() == minecraft.player;
         int throttle = Math.round(plane.throttle() * 100);
-        int kmh = (int) Math.round(plane.getDeltaMovement().horizontalDistance() * 20 * 3.6);
+        // Déplacement réel entre deux ticks : valable pour le pilote comme pour le passager.
+        int kmh = (int) Math.round(Math.hypot(plane.getX() - plane.xo, plane.getZ() - plane.zo) * 20 * 3.6);
         int fuel = Math.round(100f * plane.fuel() / Plane.MAX_FUEL);
         g.text(minecraft.font, Component.literal(pilot ? "Gaz " + throttle + " %" : "Passager"), left + 2, top + 2, SuitScreen.TEXT, false);
         g.text(minecraft.font, Component.literal("Vitesse " + kmh + " km/h"), left + 2, top + 13, SuitScreen.TEXT, false);

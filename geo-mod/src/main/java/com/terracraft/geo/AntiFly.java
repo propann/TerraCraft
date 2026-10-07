@@ -118,6 +118,9 @@ final class AntiFly {
         if (subject instanceof com.terracraft.geo.content.Plane plane && plane.fuel() > 0) {
             return true; // Avion en vol : carburant limité, décompté par le serveur.
         }
+        if (!(player.level() instanceof ServerLevel level) || !level.isPositionEntityTicking(subject.blockPosition())) {
+            return true; // Zone pas encore générée/chargée : le client attend le terrain, il ne vole pas.
+        }
         if (Space.isSpace(player.level())) {
             return true; // Gravité réduite : les sauts durent légitimement plusieurs secondes.
         }

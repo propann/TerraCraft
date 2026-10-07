@@ -101,6 +101,12 @@ public class Vehicle extends VehicleEntity implements Container {
     private boolean inputDown;
     private float speed;
     private double odometer;
+    /**
+     * Dernière position vue par le serveur. On ne peut pas utiliser xo/zo : le serveur les remet à
+     * la position courante au début du tick, après avoir appliqué le déplacement envoyé par le
+     * conducteur ; le déplacement mesuré valait donc toujours zéro (ni essence ni compteur).
+     */
+    private @Nullable Vec3 lastServerPos;
 
     public Vehicle(EntityType<? extends Vehicle> type, Level level, Kind kind) {
         super(type, level);
@@ -429,8 +435,13 @@ public class Vehicle extends VehicleEntity implements Container {
         } else {
             setDeltaMovement(Vec3.ZERO);
         }
-        if (!level().isClientSide() && getControllingPassenger() != null && fuel() > 0) {
-            double moved = Math.hypot(getX() - xo, getZ() - zo);
+        double moved = 0;
+        if (!level().isClientSide()) {
+            Vec3 position = position();
+            moved = lastServerPos == null ? 0 : Math.hypot(position.x - lastServerPos.x, position.z - lastServerPos.z);
+            lastServerPos = position;
+        }
+        if (!level().isClientSide() && getControllingPassenger() != null && fuel() > 0 && moved < 8) {
             boolean saved = getControllingPassenger() instanceof ServerPlayer driver && com.terracraft.geo.Progression.get().saveFuel(driver);
             if (moved > 0.02 && !saved) {
                 entityData.set(DATA_FUEL, fuel() - 1);

@@ -59,6 +59,8 @@ public class Plane extends VehicleEntity {
     private float speed;
     /** Côté serveur : vitesse du tick précédent, pour détecter les chocs. */
     private double lastSpeed;
+    /** Dernière position vue par le serveur (xo/yo/zo y sont remis à jour avant le tick : inutilisables). */
+    private @Nullable Vec3 lastServerPos;
     private int fuelTicks;
 
     public Plane(EntityType<? extends Plane> type, Level level) {
@@ -97,8 +99,15 @@ public class Plane extends VehicleEntity {
     public InteractionResult interact(Player player, InteractionHand hand, Vec3 location) {
         ItemStack stack = player.getItemInHand(hand);
         if (owner != null && !owner.equals(player.getUUID())) {
+            // Un autre joueur peut monter comme passager quand le propriétaire est aux commandes.
+            boolean ownerFlying = getControllingPassenger() != null && owner.equals(getControllingPassenger().getUUID());
             if (!level().isClientSide()) {
-                player.sendOverlayMessage(Component.literal("Cet avion appartient à un autre joueur.").withStyle(ChatFormatting.RED));
+                if (ownerFlying && !player.isSecondaryUseActive() && player.startRiding(this)) {
+                    player.sendSystemMessage(Component.literal("Tu embarques comme passager.").withStyle(ChatFormatting.GREEN));
+                } else {
+                    player.sendOverlayMessage(Component.literal("Cet avion appartient à un autre joueur : monte quand il est aux commandes.")
+                            .withStyle(ChatFormatting.RED));
+                }
             }
             return InteractionResult.SUCCESS;
         }
@@ -221,8 +230,12 @@ public class Plane extends VehicleEntity {
     }
 
     private void serverTick(ServerLevel level) {
-        Vec3 moved = position().subtract(xo, yo, zo);
-        double current = moved.length();
+        Vec3 position = position();
+        double current = lastServerPos == null ? 0 : position.distanceTo(lastServerPos);
+        lastServerPos = position;
+        if (current > 8) {
+            current = 0; // Téléportation, changement de dimension : pas un déplacement.
+        }
         LivingEntity pilot = getControllingPassenger();
         if (pilot != null && current > 0.05 && fuel() > 0 && ++fuelTicks % 2 == 0) {
             entityData.set(DATA_FUEL, fuel() - 1);
