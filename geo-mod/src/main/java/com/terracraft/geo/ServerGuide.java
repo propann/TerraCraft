@@ -46,12 +46,12 @@ final class ServerGuide {
                 .withStyle(ChatFormatting.YELLOW));
         player.sendSystemMessage(Component.literal("Armes : clic droit maintenu avec le sniper pour zoomer · Véhicules : complète les pièces puis monte dedans.")
                 .withStyle(ChatFormatting.GRAY));
-        player.sendSystemMessage(Component.literal("Avion : Z/S gaz, le regard dirige, lève les yeux pour décoller · bidon d'essence : clic droit")
+        player.sendSystemMessage(Component.literal("Avion : Z/S gaz · Q/D tourner · Espace monter · Ctrl descendre · bidon d'essence : clic droit")
                 .withStyle(ChatFormatting.GRAY));
         line(player, "[Comptoir]", "/comptoir", "Carburant, oxygène, munitions et vivres à prix fixe");
         player.sendSystemMessage(Component.literal("Véhicule partagé : /terracraft vehicule partager <joueur> · retirer <joueur> · liberer")
                 .withStyle(ChatFormatting.GRAY));
-        player.sendSystemMessage(Component.literal("Touches : O menu · J combinaison spatiale · K fiche · M carte et claims")
+        player.sendSystemMessage(Component.literal("Touches : O menu · J combinaison spatiale · V coffre du véhicule · K fiche · M carte et claims")
                 .withStyle(ChatFormatting.AQUA));
         player.sendSystemMessage(Component.literal("Combinaison (touche J ou panneau de l'inventaire E) : casque spatial, combinaison, bottes, jetpack, 2 réserves d'O₂")
                 .withStyle(ChatFormatting.GRAY));

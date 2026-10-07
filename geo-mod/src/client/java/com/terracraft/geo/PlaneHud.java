@@ -29,6 +29,17 @@ final class PlaneHud implements HudElement {
         g.text(minecraft.font, Component.literal("Altitude " + Math.round(plane.getY()) + " m"), left + 2, top + 24, SuitScreen.TEXT, false);
         g.text(minecraft.font, Component.literal("Carburant " + fuel + " %"), left + 2, top + 35,
                 SuitScreen.gaugeColor(fuel), false);
+        if (pilot && plane.onGround()) {
+            g.centeredText(minecraft.font, Component.literal("Z : gaz · Q/D : tourner · Espace : monter · Ctrl : descendre"),
+                    g.guiWidth() / 2, g.guiHeight() - 96, SuitScreen.TEXT);
+            if (plane.fuel() == 0) {
+                g.centeredText(minecraft.font, Component.literal("Réservoir vide : clic droit sur l'avion avec un bidon d'essence"),
+                        g.guiWidth() / 2, g.guiHeight() - 84, SuitScreen.RED);
+            } else if (plane.speed() >= Plane.LIFT_SPEED) {
+                g.centeredText(minecraft.font, Component.literal("Vitesse de décollage : Espace pour monter"),
+                        g.guiWidth() / 2, g.guiHeight() - 84, SuitScreen.CYAN);
+            }
+        }
         if (pilot && !plane.onGround() && plane.speed() < Plane.LIFT_SPEED) {
             g.centeredText(minecraft.font, Component.literal("⚠ DÉCROCHAGE — remets les gaz (Z)"), g.guiWidth() / 2,
                     g.guiHeight() / 2 + 20, SuitScreen.RED);

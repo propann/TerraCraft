@@ -33,11 +33,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Avion léger : 2 places, carburant au bidon d'essence. Pilotage simple : Z/S règlent les gaz,
- * le regard du pilote donne le cap et l'assiette, Q/D accentuent le virage. Au-delà de la vitesse
- * de portance, regarder vers le haut fait décoller ; en dessous, l'avion décroche et pique.
- * Comme les bateaux vanilla, la physique tourne chez le pilote ; le serveur décompte le carburant
- * et détecte les crashs (forte décélération).
+ * Avion léger : 2 places, carburant au bidon d'essence. Pilotage au clavier : Z/S gaz, Q/D virage,
+ * Espace monter, Ctrl descendre ; sans commande, l'avion revient à l'horizontale. Au-delà de la
+ * vitesse de portance, Espace fait décoller ; en dessous, l'avion décroche et pique.
+ * Comme les bateaux vanilla, la physique tourne chez le pilote ; le serveur décompte le carburant.
+ * Le crash est détecté chez le pilote (vrai choc) puis appliqué par le serveur : le mesurer côté
+ * serveur donnait de faux crashs, les positions du pilote n'arrivant pas à chaque tick.
  */
 public class Plane extends VehicleEntity {
     public static final int MAX_FUEL = 2400;
@@ -54,14 +55,17 @@ public class Plane extends VehicleEntity {
     private boolean inputDown;
     private boolean inputLeft;
     private boolean inputRight;
+    private boolean inputClimb;
+    private boolean inputDive;
+    /** Branché par le client : signale un crash au serveur (impact en blocs/tick). */
+    public static java.util.function.DoubleConsumer crashReporter = impact -> { };
+    private int lastCrashTick = -100;
     /** Côté pilote : gaz (0 à 1) et vitesse le long du cap. */
     private float throttle;
     private float speed;
-    /** Côté serveur : vitesse du tick précédent, pour détecter les chocs. */
-    private double lastSpeed;
     /** Dernière position vue par le serveur (xo/yo/zo y sont remis à jour avant le tick : inutilisables). */
     private @Nullable Vec3 lastServerPos;
-    private int fuelTicks;
+    private double fuelDistance;
 
     public Plane(EntityType<? extends Plane> type, Level level) {
         super(type, level);
@@ -86,11 +90,13 @@ public class Plane extends VehicleEntity {
         return speed;
     }
 
-    public void setInput(boolean up, boolean down, boolean left, boolean right) {
+    public void setInput(boolean up, boolean down, boolean left, boolean right, boolean climb, boolean dive) {
         this.inputUp = up;
         this.inputDown = down;
         this.inputLeft = left;
         this.inputRight = right;
+        this.inputClimb = climb;
+        this.inputDive = dive;
     }
 
     // --- Interaction ---------------------------------------------------------------------------
@@ -132,8 +138,8 @@ public class Plane extends VehicleEntity {
         }
         if (!level().isClientSide() && player.startRiding(this) && owner == null) {
             owner = player.getUUID();
-            player.sendSystemMessage(Component.literal("Avion enregistré à ton nom. Z/S : gaz · regard : cap et assiette · "
-                    + "Q/D : virage · Maj : descendre.").withStyle(ChatFormatting.GREEN));
+            player.sendSystemMessage(Component.literal("Avion enregistré à ton nom. Z/S : gaz · Q/D : tourner · "
+                    + "Espace : monter · Ctrl : descendre · Maj : sortir.").withStyle(ChatFormatting.GREEN));
         }
         return InteractionResult.SUCCESS;
     }
@@ -190,25 +196,24 @@ public class Plane extends VehicleEntity {
         }
         float target = throttle * MAX_SPEED;
         speed += Mth.clamp(target - speed, -0.02f, 0.015f);
-        if (onGround()) {
-            speed = Math.min(speed, inputDown ? speed * 0.9f : speed);
+        if (onGround() && inputDown) {
+            speed *= 0.92f; // Freins au sol.
         }
 
-        // Cap : l'avion suit le regard du pilote, Q/D accentuent le virage.
-        float turnRate = (onGround() ? 3f : 2.2f) * Math.min(1f, speed / 0.3f);
-        float yawDelta = Mth.wrapDegrees(pilot.getYRot() - getYRot());
-        float steer = (inputLeft ? -1.5f : 0f) + (inputRight ? 1.5f : 0f);
-        setYRot(getYRot() + Mth.clamp(yawDelta, -turnRate, turnRate) + steer * Math.min(1f, speed));
+        // Cap : Q/D, plus vif au sol (roulage) qu'en vol.
+        float steer = (inputLeft ? -1f : 0f) + (inputRight ? 1f : 0f);
+        float turnRate = (onGround() ? 3f : 2.5f) * Math.min(1f, speed / 0.25f);
+        setYRot(getYRot() + steer * turnRate);
 
         float pitch;
         double vertical;
         if (speed >= LIFT_SPEED) {
-            // Portance : l'assiette suit le regard (vers le haut = nez levé = xRot négatif).
-            float wanted = Mth.clamp(pilot.getXRot(), -30f, 35f);
+            // Portance : Espace lève le nez, Ctrl le baisse, sinon retour à l'horizontale.
+            float wanted = inputClimb ? -25f : inputDive ? 30f : 0f;
             if (onGround() && wanted > 0) {
                 wanted = 0; // On ne pique pas dans le sol.
             }
-            pitch = Mth.approachDegrees(getXRot(), wanted, 1.5f);
+            pitch = Mth.approachDegrees(getXRot(), wanted, inputClimb || inputDive ? 1.5f : 1f);
             vertical = -Mth.sin(pitch * Mth.DEG_TO_RAD) * speed;
         } else {
             // Décrochage : le nez tombe, la gravité reprend la main.
@@ -219,6 +224,8 @@ public class Plane extends VehicleEntity {
             }
         }
         setXRot(pitch);
+        double impactBefore = speed;
+        double fallBefore = getDeltaMovement().y;
         Vec3 flat = forward(0).scale(speed * Mth.cos(pitch * Mth.DEG_TO_RAD));
         setDeltaMovement(flat.x, vertical, flat.z);
         move(MoverType.SELF, getDeltaMovement());
@@ -226,7 +233,23 @@ public class Plane extends VehicleEntity {
             speed *= 0.2f;
             throttle *= 0.5f;
         }
+        // Vrai choc : mur à grande vitesse, ou atterrissage beaucoup trop brutal.
+        double impact = horizontalCollision && impactBefore > 0.8 ? impactBefore
+                : verticalCollisionBelow && fallBefore < -0.8 ? -fallBefore : 0;
+        if (impact > 0 && tickCount - lastCrashTick > 20) {
+            lastCrashTick = tickCount;
+            crashReporter.accept(impact);
+        }
         resetFallDistance();
+    }
+
+    /** Crash signalé par le pilote : dégâts plafonnés, au plus un par seconde. */
+    public void reportCrash(ServerPlayer pilot, double impact) {
+        if (getControllingPassenger() != pilot || tickCount - lastCrashTick < 20 || !(level() instanceof ServerLevel server)) {
+            return;
+        }
+        lastCrashTick = tickCount;
+        crash(server, Mth.clamp(impact, 0.8, 2.5));
     }
 
     private void serverTick(ServerLevel level) {
@@ -237,14 +260,15 @@ public class Plane extends VehicleEntity {
             current = 0; // Téléportation, changement de dimension : pas un déplacement.
         }
         LivingEntity pilot = getControllingPassenger();
-        if (pilot != null && current > 0.05 && fuel() > 0 && ++fuelTicks % 2 == 0) {
-            entityData.set(DATA_FUEL, fuel() - 1);
+        // Carburant à la distance parcourue (1 unité tous les 3 blocs, plein ≈ 7 km) : indépendant
+        // du rythme d'arrivée des positions envoyées par le pilote.
+        if (pilot != null && fuel() > 0) {
+            fuelDistance += current;
+            while (fuelDistance >= 3 && fuel() > 0) {
+                fuelDistance -= 3;
+                entityData.set(DATA_FUEL, fuel() - 1);
+            }
         }
-        // Crash : la vitesse s'effondre d'un coup (mur, sol, montagne).
-        if (lastSpeed > 0.9 && current < lastSpeed * 0.3 && pilot != null) {
-            crash(level, lastSpeed);
-        }
-        lastSpeed = current;
         resetFallDistance();
         for (Entity passenger : getPassengers()) {
             passenger.resetFallDistance();

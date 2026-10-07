@@ -50,5 +50,6 @@
   "item.terracraft_geo.magnetic_boots": "Magnetic boots",
   "item.terracraft_geo.jetpack": "Jetpack",
   "item.terracraft_geo.plane_kit": "Plane kit",
-  "entity.terracraft_geo.plane": "Plane"
+  "entity.terracraft_geo.plane": "Plane",
+  "key.terracraft_geo.vehicle_storage": "Vehicle storage"
 }

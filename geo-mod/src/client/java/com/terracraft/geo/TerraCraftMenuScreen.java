@@ -59,10 +59,14 @@ public final class TerraCraftMenuScreen extends Screen {
             onClose();
             GeoModClient.openSuit(minecraft);
         }).bounds(left + 10, top + 90, buttonWidth, 24).build());
+        addRenderableWidget(Button.builder(Component.literal("Coffre du véhicule  [V]"), b -> {
+            onClose();
+            GeoModClient.openVehicleStorage(minecraft);
+        }).bounds(right, top + 90, buttonWidth, 24).build());
         addRenderableWidget(Button.builder(Component.literal("Guide"), b -> runCommand("aide"))
-                .bounds(right, top + 90, buttonWidth, 24).build());
+                .bounds(left + 10, top + 120, buttonWidth, 24).build());
         addRenderableWidget(Button.builder(Component.literal("Fermer"), b -> onClose())
-                .bounds(left + 10 + (buttonWidth + 5) / 2, top + 120, buttonWidth, 24).build());
+                .bounds(right, top + 120, buttonWidth, 24).build());
     }
 
     private void runCommand(String command) {

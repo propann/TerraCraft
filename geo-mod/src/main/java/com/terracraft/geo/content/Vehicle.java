@@ -183,14 +183,7 @@ public class Vehicle extends VehicleEntity implements Container {
         // Coffre : main vide + Shift-clic droit.
         if (player.isSecondaryUseActive() && stack.isEmpty()) {
             if (!level().isClientSide() && player instanceof ServerPlayer serverPlayer) {
-                serverPlayer.openMenu(new SimpleMenuProvider((id, inventory, menuPlayer) ->
-                                kind == Kind.TRUCK ? ChestMenu.sixRows(id, inventory, this)
-                                        : ChestMenu.threeRows(id, inventory, this),
-                        Component.literal(switch (kind) {
-                            case TRUCK -> "Coffre du camion";
-                            case MOTORCYCLE -> "Sacoches de la moto";
-                            default -> "Coffre de la voiture";
-                        })));
+                openStorage(serverPlayer);
             }
             return InteractionResult.SUCCESS;
         }
@@ -230,6 +223,22 @@ public class Vehicle extends VehicleEntity implements Container {
                     .withStyle(ChatFormatting.GREEN));
         }
         return InteractionResult.SUCCESS;
+    }
+
+    /** Ouvre le coffre (aussi depuis le menu O ou la touche V, même assis dans le véhicule). */
+    public void openStorage(ServerPlayer player) {
+        if (owner != null && !canAccess(player)) {
+            player.sendOverlayMessage(Component.literal("Ce véhicule est verrouillé par un autre joueur.").withStyle(ChatFormatting.RED));
+            return;
+        }
+        player.openMenu(new SimpleMenuProvider((id, inventory, menuPlayer) ->
+                        kind == Kind.TRUCK ? ChestMenu.sixRows(id, inventory, this)
+                                : ChestMenu.threeRows(id, inventory, this),
+                Component.literal(switch (kind) {
+                    case TRUCK -> "Coffre du camion";
+                    case MOTORCYCLE -> "Sacoches de la moto";
+                    default -> "Coffre de la voiture";
+                })));
     }
 
     private void install(Player player, ItemStack stack, Item item, int part) {

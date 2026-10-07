@@ -24,6 +24,7 @@ pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.
 |---|---|
 | `O` | Menu TerraCraft (carte, hôtel des ventes, missions, fiche, combinaison…) |
 | `J` | Combinaison spatiale (aussi dans l'inventaire `E`) : casque, combinaison, bottes, jetpack, oxygène |
+| `V` | Coffre du véhicule (assis dedans ou à moins de 6 blocs) |
 | `K` | Fiche de personnage : paliers, compétences, découvertes |
 | `M` / `'` | Carte Xaero et claims |
 

@@ -86,6 +86,21 @@ public final class GeoMod implements ModInitializer {
         return 1;
     }
 
+    /** Coffre du véhicule où l'on est assis, sinon du véhicule accessible le plus proche (6 blocs). */
+    private static void openVehicleStorage(ServerPlayer player) {
+        Vehicle vehicle = player.getVehicle() instanceof Vehicle riding ? riding
+                : player.level().getEntitiesOfClass(Vehicle.class, player.getBoundingBox().inflate(6)).stream()
+                        .filter(candidate -> candidate.canAccess(player))
+                        .min(java.util.Comparator.comparingDouble(candidate -> candidate.distanceToSqr(player)))
+                        .orElse(null);
+        if (vehicle == null) {
+            player.sendOverlayMessage(Component.literal("Aucun véhicule à toi à moins de 6 blocs.")
+                    .withStyle(net.minecraft.ChatFormatting.GOLD));
+            return;
+        }
+        vehicle.openStorage(player);
+    }
+
     private static int shareVehicle(CommandSourceStack source, ServerPlayer target, boolean allowed) throws CommandSyntaxException {
         ServerPlayer owner = source.getPlayerOrException();
         Vehicle vehicle = owner.level().getEntitiesOfClass(Vehicle.class, owner.getBoundingBox().inflate(6)).stream()
@@ -130,8 +145,9 @@ public final class GeoMod implements ModInitializer {
         // le démarrage (et donc le test automatique), au lieu de planter à la première connexion.
         try {
             Class.forName("net.minecraft.world.inventory.InventoryMenu", false, GeoMod.class.getClassLoader());
+            Class.forName("net.minecraft.server.network.ServerGamePacketListenerImpl", false, GeoMod.class.getClassLoader());
         } catch (ClassNotFoundException e) {
-            throw new IllegalStateException("InventoryMenu introuvable", e);
+            throw new IllegalStateException("Classe visée par un mixin introuvable", e);
         }
         PayloadTypeRegistry.serverboundPlay().register(StartPointPayload.TYPE, StartPointPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(OpenSuitPayload.TYPE, OpenSuitPayload.CODEC);
@@ -148,6 +164,18 @@ public final class GeoMod implements ModInitializer {
         PayloadTypeRegistry.serverboundPlay().register(RemoveListingPayload.TYPE, RemoveListingPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(SellPayload.TYPE, SellPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(BuyShopPayload.TYPE, BuyShopPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(PlaneCrashPayload.TYPE, PlaneCrashPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(OpenVehicleStoragePayload.TYPE, OpenVehicleStoragePayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(OpenVehicleStoragePayload.TYPE, (payload, context) -> {
+            if (GUI_RATE.allow(context.player())) {
+                openVehicleStorage(context.player());
+            }
+        });
+        ServerPlayNetworking.registerGlobalReceiver(PlaneCrashPayload.TYPE, (payload, context) -> {
+            if (context.player().getVehicle() instanceof com.terracraft.geo.content.Plane plane && Float.isFinite(payload.impact())) {
+                plane.reportCrash(context.player(), payload.impact());
+            }
+        });
         // Les écrans envoient ces paquets sur un clic : au-delà de quelques par seconde, c'est un
         // client modifié qui inonde le serveur (chaque achat écrit sur le disque).
         ServerPlayNetworking.registerGlobalReceiver(RequestSheetPayload.TYPE, (payload, context) -> {

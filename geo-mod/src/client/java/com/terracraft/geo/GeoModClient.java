@@ -28,6 +28,12 @@ public final class GeoModClient implements ClientModInitializer {
     private static final int SNIPER_FOV = 22;
     private static Integer fovBeforeSniper = null;
 
+    static void openVehicleStorage(Minecraft client) {
+        if (client.player != null && ClientPlayNetworking.canSend(OpenVehicleStoragePayload.TYPE)) {
+            ClientPlayNetworking.send(OpenVehicleStoragePayload.INSTANCE);
+        }
+    }
+
     static void openSuit(Minecraft client) {
         if (client.player != null && ClientPlayNetworking.canSend(OpenSuitPayload.TYPE)) {
             ClientPlayNetworking.send(OpenSuitPayload.INSTANCE);
@@ -47,6 +53,8 @@ public final class GeoModClient implements ClientModInitializer {
                 InputConstants.KEY_O, KeyMapping.Category.GAMEPLAY));
         KeyMapping suitKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.terracraft_geo.suit",
                 InputConstants.KEY_J, KeyMapping.Category.GAMEPLAY));
+        KeyMapping storageKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.terracraft_geo.vehicle_storage",
+                InputConstants.KEY_V, KeyMapping.Category.GAMEPLAY));
         // Combinaison spatiale : fenêtre (le serveur ouvre le menu) et bandeau d'oxygène hors de la Terre.
         net.minecraft.client.gui.screens.MenuScreens.register(SpaceSuit.MENU, SuitScreen::new);
         // Équipement spatial dessiné sur le joueur comme une armure (par-dessus l'armure normale).
@@ -90,6 +98,9 @@ public final class GeoModClient implements ClientModInitializer {
                     && Jetpack.canThrust(client.player, client.options.keyJump.isDown())) {
                 client.player.setDeltaMovement(Jetpack.thrust(client.player.getDeltaMovement()));
             }
+            while (storageKey.consumeClick()) {
+                openVehicleStorage(client);
+            }
             while (suitKey.consumeClick()) {
                 openSuit(client);
             }
@@ -111,6 +122,11 @@ public final class GeoModClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModContent.ROCKET, RocketRenderer::new);
         ModelLayerRegistry.registerModelLayer(com.terracraft.geo.client.PlaneRenderer.LAYER, com.terracraft.geo.client.PlaneModel::create);
         EntityRendererRegistry.register(ModContent.PLANE, com.terracraft.geo.client.PlaneRenderer::new);
+        com.terracraft.geo.content.Plane.crashReporter = impact -> {
+            if (ClientPlayNetworking.canSend(PlaneCrashPayload.TYPE)) {
+                ClientPlayNetworking.send(new PlaneCrashPayload((float) impact));
+            }
+        };
         EntityRendererRegistry.register(ModContent.GRENADE_ENTITY, ThrownItemRenderer::new);
 
         // Ennemis lunaires : modèles vanilla, textures TerraCraft.
@@ -131,7 +147,7 @@ public final class GeoModClient implements ClientModInitializer {
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player != null && client.player.getVehicle() instanceof com.terracraft.geo.content.Plane plane) {
                 Input keys = client.player.input.keyPresses;
-                plane.setInput(keys.forward(), keys.backward(), keys.left(), keys.right());
+                plane.setInput(keys.forward(), keys.backward(), keys.left(), keys.right(), keys.jump(), keys.sprint());
             }
             if (client.player != null && client.player.getVehicle() instanceof Vehicle vehicle) {
                 Input keys = client.player.input.keyPresses;
