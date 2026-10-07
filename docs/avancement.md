@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.8.0** (publiée : Falix, release GitHub et pack client alignés).
+Dernière passe : 7 octobre 2026 — version **0.9.0**.
 
 ## Fonctionnel et raccordé
 
@@ -15,12 +15,15 @@ Dernière passe : 7 octobre 2026 — version **0.8.0** (publiée : Falix, releas
 - [x] Combinaison spatiale (touche `J` et panneau de l'inventaire `E`) : casque, combinaison, bottes magnétiques, jetpack, deux réserves d'oxygène, rendu en armure, HUD O₂.
 - [x] Jetpack : poussée en maintenant saut, carburant au bidon, compatible anti-triche.
 - [x] Avion : kit, carburant, pilotage au regard, décrochage, crash, instruments de bord.
+- [x] Villes : fondation (500 crédits), invitations, maire, trésorerie, `/ville tp`, titres d'entrée et de sortie.
+- [x] Coffre du véhicule : bouton du menu O et touche V.
 - [x] Survie : téléportations refusées en combat, `/tpa` limitée.
 - [x] Anti-triche vol (allow-flight est forcé pour l'espace).
 - [x] Données joueurs écrites de façon atomique avec copie `.bak`.
 - [x] Sauvegardes automatiques du monde, rotation, restauration testée.
 - [x] Versions des mods tiers figées (`tools/mods.lock.json`), identiques serveur et pack.
 - [x] Test de démarrage d'un vrai serveur avant chaque déploiement Falix (CI).
+- [x] Test de scénario avec faux joueurs (`tools/scenario_test.sh`) : villes, économie, combinaison, oxygène.
 
 ## À tester en jeu
 
@@ -39,7 +42,7 @@ Dernière passe : 7 octobre 2026 — version **0.8.0** (publiée : Falix, releas
 ## Prochaine séquence
 
 1. Retours de jeu sur la 0.8.0 (inventaire, économie, jetpack, avion), puis publication.
-2. Claims et villes (phase 2 de la feuille de route).
+2. Claims : affichage du propriétaire d'un chunk, protection des véhicules dans les claims.
 3. Missions liées aux lieux réels et métiers (phase 4).
 
 ## Règle de publication

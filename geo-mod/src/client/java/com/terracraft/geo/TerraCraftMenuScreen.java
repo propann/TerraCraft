@@ -21,15 +21,15 @@ public final class TerraCraftMenuScreen extends Screen {
         int panelWidth = Math.min(460, width - 24);
         int left = (width - panelWidth) / 2;
         int buttonWidth = (panelWidth - 30) / 2;
-        int top = Math.max(55, (height - 190) / 2);
+        int top = Math.max(44, (height - 130) / 2);
         int right = left + 15 + buttonWidth;
 
         addRenderableWidget(Button.builder(Component.literal("Carte du monde"), b -> {
             minecraft.setScreenAndShow(new WorldMapScreen(false));
-        }).bounds(left + 10, top, buttonWidth, 24).build());
+        }).bounds(left + 10, top, buttonWidth, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Claims  [M / ']"), b -> closeWithMessage(
                 "Claims : ouvre M pour la carte Xaero, puis clic droit sur les chunks. La touche ' ouvre le menu des claims."))
-                .bounds(right, top, buttonWidth, 24).build());
+                .bounds(right, top, buttonWidth, 20).build());
 
         addRenderableWidget(Button.builder(Component.literal("Hôtel des ventes"), b -> {
             if (net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.canSend(RequestMarketPayload.TYPE)) {
@@ -37,36 +37,38 @@ public final class TerraCraftMenuScreen extends Screen {
                 onClose();
             }
         })
-                .bounds(left + 10, top + 30, buttonWidth, 24).build());
+                .bounds(left + 10, top + 24, buttonWidth, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Mon argent"), b -> runCommand("argent"))
-                .bounds(right, top + 30, buttonWidth, 24).build());
+                .bounds(right, top + 24, buttonWidth, 20).build());
 
         addRenderableWidget(Button.builder(Component.literal("Fiche joueur  [K]"), b -> {
             if (minecraft.player != null && ClientPlayNetworkingBridge.canRequestSheet()) {
                 ClientPlayNetworkingBridge.requestSheet();
                 onClose();
             }
-        }).bounds(left + 10, top + 60, buttonWidth, 24).build());
+        }).bounds(left + 10, top + 48, buttonWidth, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Missions"), b -> {
             if (net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.canSend(RequestMissionsPayload.TYPE)) {
                 net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(RequestMissionsPayload.INSTANCE);
                 onClose();
             }
         })
-                .bounds(right, top + 60, buttonWidth, 24).build());
+                .bounds(right, top + 48, buttonWidth, 20).build());
 
         addRenderableWidget(Button.builder(Component.literal("Combinaison spatiale  [J]"), b -> {
             onClose();
             GeoModClient.openSuit(minecraft);
-        }).bounds(left + 10, top + 90, buttonWidth, 24).build());
+        }).bounds(left + 10, top + 72, buttonWidth, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Coffre du véhicule  [V]"), b -> {
             onClose();
             GeoModClient.openVehicleStorage(minecraft);
-        }).bounds(right, top + 90, buttonWidth, 24).build());
+        }).bounds(right, top + 72, buttonWidth, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Ma ville"), b -> runCommand("ville"))
+                .bounds(left + 10, top + 96, buttonWidth, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Guide"), b -> runCommand("aide"))
-                .bounds(left + 10, top + 120, buttonWidth, 24).build());
+                .bounds(right, top + 96, buttonWidth, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Fermer"), b -> onClose())
-                .bounds(right, top + 120, buttonWidth, 24).build());
+                .bounds(left + 10 + (buttonWidth + 5) / 2, top + 124, buttonWidth, 20).build());
     }
 
     private void runCommand(String command) {
@@ -87,9 +89,9 @@ public final class TerraCraftMenuScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
         extractTransparentBackground(g);
         int panelWidth = Math.min(460, width - 24);
-        int panelHeight = 208;
+        int panelHeight = 166;
         int left = (width - panelWidth) / 2;
-        int top = Math.max(55, (height - 190) / 2);
+        int top = Math.max(44, (height - 130) / 2);
         g.fill(left, top - 38, left + panelWidth, top + panelHeight, PANEL);
         g.outline(left, top - 38, panelWidth, panelHeight + 38, BORDER);
         g.centeredText(font, Component.literal("TERRACRAFT"), width / 2, top - 27, GOLD);

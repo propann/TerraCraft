@@ -126,6 +126,41 @@ public final class AuctionHouse {
         });
     }
 
+    long balance(UUID uuid) {
+        return balanceOf(uuid);
+    }
+
+    /**
+     * Retire des crédits d'un compte sans les détruire (dépôt en trésorerie de ville…) ;
+     * {@code sink} non nul : les crédits sortent de l'économie (frais). Faux si le solde manque.
+     */
+    boolean withdraw(UUID uuid, long amount, String sink) {
+        if (amount <= 0 || balanceOf(uuid) < amount) {
+            return false;
+        }
+        balances.put(uuid, balanceOf(uuid) - amount);
+        if (sink != null) {
+            economy.destroyed(sink, amount);
+        }
+        save();
+        return true;
+    }
+
+    /** Verse des crédits venant d'une trésorerie (pas de création monétaire). */
+    void deposit(UUID uuid, long amount) {
+        if (amount > 0) {
+            balances.put(uuid, balanceOf(uuid) + amount);
+            save();
+        }
+    }
+
+    /** Crédits gardés hors des comptes (trésoreries des villes), pour /eco stats. */
+    private java.util.function.LongSupplier treasuries = () -> 0;
+
+    void treasuries(java.util.function.LongSupplier supplier) {
+        treasuries = supplier;
+    }
+
     void credit(ServerPlayer player, long amount, String reason) {
         if (amount <= 0) {
             return;
@@ -418,7 +453,8 @@ public final class AuctionHouse {
         long destroyed = economy.destroyedTotals().values().stream().mapToLong(Long::longValue).sum();
         long listed = listings.values().stream().mapToLong(Listing::price).sum();
         source.sendSuccess(() -> Component.literal("✦ Économie TerraCraft").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), false);
-        source.sendSuccess(() -> Component.literal("Comptes : " + balances.size() + " · en circulation : " + circulation + " crédits"), false);
+        source.sendSuccess(() -> Component.literal("Comptes : " + balances.size() + " · en circulation : " + circulation
+                + " crédits · trésoreries des villes : " + treasuries.getAsLong()), false);
         source.sendSuccess(() -> Component.literal("Créés : " + created + " " + economy.createdTotals()).withStyle(ChatFormatting.GREEN), false);
         source.sendSuccess(() -> Component.literal("Détruits : " + destroyed + " " + economy.destroyedTotals()).withStyle(ChatFormatting.RED), false);
         source.sendSuccess(() -> Component.literal("Annonces : " + listings.size() + " pour " + listed + " crédits demandés"), false);

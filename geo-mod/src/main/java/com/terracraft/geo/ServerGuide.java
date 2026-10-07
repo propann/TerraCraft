@@ -56,6 +56,7 @@ final class ServerGuide {
         player.sendSystemMessage(Component.literal("Combinaison (touche J ou panneau de l'inventaire E) : casque spatial, combinaison, bottes, jetpack, 2 réserves d'O₂")
                 .withStyle(ChatFormatting.GRAY));
         line(player, "[Premiers pas]", "/tuto", "Revoir ton objectif en cours");
+        line(player, "[Ville]", "/ville", "Fonder ou rejoindre une ville, trésorerie commune, /ville tp");
         return 1;
     }
 

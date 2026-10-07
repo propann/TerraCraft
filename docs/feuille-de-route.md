@@ -62,7 +62,7 @@ Critère : un nouveau joueur peut choisir sa zone, la protéger et accéder à l
 - [ ] Invitation et retrait d'un joueur depuis un parcours simple.
 - [ ] Affichage du propriétaire et des limites à l'entrée d'une zone.
 - [ ] Protection des coffres, véhicules et ateliers.
-- [ ] Puis créer les villes : plusieurs claims, centre-ville, membres et trésorerie.
+- [x] Puis créer les villes : centre-ville, maire, membres et trésorerie (`/ville`).
 - [ ] Ajouter une taxe légère seulement si elle finance un service identifiable.
 
 Critère : deux joueurs peuvent créer une base commune et donner des accès différents sans ambiguïté.

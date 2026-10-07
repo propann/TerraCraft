@@ -158,7 +158,7 @@ public final class Survival {
     }
 
     /** Blessé par une créature ou un joueur dans les 5 dernières secondes. */
-    private static boolean inCombat(ServerPlayer player) {
+    static boolean inCombat(ServerPlayer player) {
         if (player.getLastHurtByMob() == null) {
             return false;
         }
@@ -217,7 +217,7 @@ public final class Survival {
         return new Place(player.level().dimension().identifier().toString(), player.getX(), player.getY(), player.getZ(), player.getYRot());
     }
 
-    private static int go(ServerPlayer player, Place place, String missing, String done) {
+    static int go(ServerPlayer player, Place place, String missing, String done) {
         if (place == null) {
             player.sendSystemMessage(Component.literal(missing).withStyle(ChatFormatting.GRAY));
             return 0;

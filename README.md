@@ -30,7 +30,7 @@ pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.
 
 `/aide` liste les commandes, `/tuto` affiche l'objectif « Premiers pas » en cours.
 
-## Ce qui est en place (0.8.0)
+## Ce qui est en place (0.9.0)
 
 - **Monde** : relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés, carte de départ en jeu.
 - **Survie** : inventaire conservé à la mort (−25 % d'expérience), `/sethome` `/home` `/back` `/tpa` (refusés en combat).
@@ -38,6 +38,7 @@ pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.
 - **Économie** : 1 000 crédits au départ, hôtel des ventes par catégories avec prix moyens, comptoir (`/comptoir`), missions.
 - **Équipement** : armes à chargeur, véhicules (voiture, camion, moto) avec propriétaire, coffre et partage, avion, jetpack.
 - **Espace** : fusée, orbite, Lune, Mars, combinaison spatiale dessinée comme une armure, oxygène automatique.
+- **Villes** : `/ville` (fondation, habitants, maire, trésorerie commune, retour au centre-ville, titres d'entrée).
 - **Claims** : Open Parties and Claims ; cartes Xaero.
 - **Exploitation** : sauvegardes automatiques, anti-triche vol, journal `[HDV]` `[ECO]` `[MISSION]` `[ANTITRICHE]`, spark.
 
@@ -59,9 +60,10 @@ Compiler et installer en local : `geo-mod/build-mod.sh` (avec `CLIENT_MODS_DIR=�
 ### Publier une version
 
 1. Monter `mod_version` dans `geo-mod/gradle.properties`.
-2. Pousser sur `main` : la CI compile, **démarre un vrai serveur** (`tools/smoke_server.sh`) puis met à
+2. Tester : `tools/scenario_test.sh <jar>` joue une partie avec deux faux joueurs (Carpet, test uniquement) et vérifie villes, économie, combinaison et oxygène.
+3. Pousser sur `main` : la CI compile, **démarre un vrai serveur** (`tools/smoke_server.sh`) puis met à
    jour la branche **`falix`** (copiée par Falix à la racine du serveur ; redémarrer le serveur ensuite).
-3. Si le client change (objets, écrans, réseau), pousser un tag `vX.Y.Z` : la CI publie une release avec le jar
+4. Si le client change (objets, écrans, réseau), pousser un tag `vX.Y.Z` : la CI publie une release avec le jar
    et `TerraCraft-client.mrpack`, que le lien de téléchargement ci-dessus suit automatiquement.
 
 Mods tiers : versions figées dans `tools/mods.lock.json`, identiques sur le serveur et dans le pack.

@@ -55,6 +55,7 @@ public final class GeoMod implements ModInitializer {
     private static final RateLimit GUI_RATE = new RateLimit(150);
     private static final AntiFly ANTI_FLY = new AntiFly();
     private static final Backups BACKUPS = new Backups();
+    private static final Towns TOWNS = new Towns(AUCTION_HOUSE);
 
     private record PendingLoot(ServerPlayer player, net.minecraft.core.BlockPos pos) {
     }
@@ -293,6 +294,8 @@ public final class GeoMod implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(Jetpack::tick);
         ServerTickEvents.END_SERVER_TICK.register(ANTI_FLY::tick);
         ServerLifecycleEvents.SERVER_STARTED.register(BACKUPS::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(TOWNS::load);
+        ServerTickEvents.END_SERVER_TICK.register(TOWNS::tick);
         ServerTickEvents.END_SERVER_TICK.register(BACKUPS::tick);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             SpaceSuit.migrate(handler.player);
@@ -306,6 +309,7 @@ public final class GeoMod implements ModInitializer {
             ANTI_FLY.forget(handler.player);
             Tutorial.get().onLeave(handler.player);
             AUCTION_HOUSE.onLeave(handler.player);
+            TOWNS.onLeave(handler.player);
             SURVIVAL.onLeave(handler.player);
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> SURVIVAL.register(dispatcher));
@@ -313,6 +317,7 @@ public final class GeoMod implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> MISSIONS.register(dispatcher, AUCTION_HOUSE));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> ServerGuide.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Tutorial.get().register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> TOWNS.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> dispatcher.register(
                 Commands.literal("terracraft")
                         .then(Commands.literal("ou").executes(command -> {
