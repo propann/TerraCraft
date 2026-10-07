@@ -40,7 +40,7 @@ Priorité immédiate, bloquante pour le reste.
 - [ ] Vérifier qu'un chunk ne contient pas de bâtiment géant, vide ou dupliqué.
 - [ ] Tester véhicules, armes, souris, claims et économie sur serveur local puis Falix.
 - [ ] Ajouter une procédure de sauvegarde et de restauration testée.
-- [ ] Mesurer TPS, mémoire, temps de démarrage et taille du monde.
+- [ ] Mesurer TPS, mémoire, temps de démarrage et taille du monde (spark installé : `/spark tps`, `/spark health`, `/spark profiler`).
 
 Critère de sortie : 30 minutes de jeu à plusieurs sans crash, blocage de génération ou perte d'objets.
 
@@ -75,8 +75,8 @@ Critère : deux joueurs peuvent créer une base commune et donner des accès dif
 - [ ] Prix moyen, volume vendu et dernière vente.
 - [ ] Sources d'argent : missions, exploration, primes et vente de ressources.
 - [ ] Sorties d'argent : carburant, réparation, téléportation, taxes optionnelles et frais de marché.
-- [ ] Transactions atomiques : aucune perte d'objet ou de crédit en cas d'erreur.
-- [ ] Journal administrateur : argent créé, dépensé et en circulation.
+- [x] Transactions atomiques : aucune perte d'objet ou de crédit en cas d'erreur (objet complet conservé, écriture atomique + .bak).
+- [ ] Journal administrateur : argent créé, dépensé et en circulation (les transactions sont déjà tracées dans les logs : [HDV], [ECO], [MISSION]).
 
 Critère : chaque joueur peut gagner, dépenser et échanger des crédits sans inflation incontrôlée.
 

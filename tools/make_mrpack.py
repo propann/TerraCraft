@@ -15,7 +15,7 @@ import zipfile
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from install_mods import API, GAME_VERSION, LOADER, USER_AGENT  # noqa: E402
+from install_mods import API, GAME_VERSION, LOADER, USER_AGENT, resolve  # noqa: E402
 
 FABRIC_LOADER = "0.19.5"
 OPTIONAL = {"sodium", "iris", "distanthorizons", "complementary-reimagined"}
@@ -28,14 +28,8 @@ def get_json(url):
 
 
 def version_of(slug, kind):
-    params = {"game_versions": json.dumps([GAME_VERSION])}
-    if kind == "mod":
-        params["loaders"] = json.dumps([LOADER])
-    versions = get_json(f"{API}/project/{slug}/version?{urllib.parse.urlencode(params)}")
-    if not versions and kind == "shader":
-        versions = get_json(f"{API}/project/{slug}/version")
-    release = [v for v in versions if v["version_type"] == "release"]
-    return (release or versions)[0]
+    # Mêmes versions que le serveur : celles figées dans tools/mods.lock.json.
+    return resolve(slug, kind)
 
 
 def main():

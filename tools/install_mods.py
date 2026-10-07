@@ -4,7 +4,12 @@
 Usage :
   python3 tools/install_mods.py server serveur-local/mods
   python3 tools/install_mods.py client <instance>/minecraft/mods [--shaders <instance>/minecraft/shaderpacks]
+  python3 tools/install_mods.py --update-lock
   --stable-names : enregistre chaque mod sous « <slug>.jar » (déploiement par copie, sans doublons)
+
+Les versions utilisées sont figées dans tools/mods.lock.json : un build ou un déploiement
+installe toujours exactement les mêmes fichiers. Pour passer aux dernières versions, lancer
+--update-lock, tester le serveur et le client, puis commiter le fichier de verrouillage.
 """
 import hashlib
 import json
@@ -17,6 +22,7 @@ GAME_VERSION = "26.3"
 LOADER = "fabric"
 API = "https://api.modrinth.com/v2"
 USER_AGENT = "TerraCraftGeo/0.2 (+https://github.com/propann/TerraCraft)"
+LOCK_FILE = Path(__file__).with_name("mods.lock.json")
 
 
 def get(url):
@@ -39,11 +45,43 @@ def latest(slug, kind):
     return (release or versions)[0]
 
 
+def read_lock():
+    return json.loads(LOCK_FILE.read_text(encoding="utf-8")) if LOCK_FILE.exists() else {}
+
+
+def resolve(slug, kind):
+    """Version figée dans mods.lock.json, sinon la dernière (et on prévient)."""
+    pinned = read_lock().get(slug)
+    if pinned:
+        return json.loads(get(f"{API}/version/{pinned['id']}"))
+    print(f"  ⚠ {slug} absent de {LOCK_FILE.name} : dernière version utilisée (lancer --update-lock)",
+          file=sys.stderr)
+    return latest(slug, kind)
+
+
+def manifest_entries():
+    manifest = Path(__file__).with_name("mods.txt")
+    for line in manifest.read_text(encoding="utf-8").splitlines():
+        line = line.split("#", 1)[0].split()
+        if line:
+            yield line[0], line[1], line[2] if len(line) > 2 else "mod"
+
+
+def update_lock():
+    lock = {}
+    for slug, _where, kind in manifest_entries():
+        version = latest(slug, kind)
+        lock[slug] = {"id": version["id"], "version": version["version_number"]}
+        print(f"  {slug:28} {version['version_number']}")
+    LOCK_FILE.write_text(json.dumps(lock, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(f"{LOCK_FILE} mis à jour : teste serveur et client avant de commiter.")
+
+
 STABLE = "--stable-names" in sys.argv
 
 
 def install(slug, kind, target):
-    version = latest(slug, kind)
+    version = resolve(slug, kind)
     file = next(f for f in version["files"] if f["primary"])
     name = f"{slug}.jar" if STABLE and kind == "mod" else file["filename"]
     destination = target / name
@@ -68,19 +106,16 @@ def install(slug, kind, target):
 
 
 def main():
+    if "--update-lock" in sys.argv:
+        update_lock()
+        return
     if len(sys.argv) < 3 or sys.argv[1] not in ("server", "client"):
         raise SystemExit(__doc__)
     side = sys.argv[1]
     mods_dir = Path(sys.argv[2])
     shaders_dir = Path(sys.argv[sys.argv.index("--shaders") + 1]) if "--shaders" in sys.argv else None
     mods_dir.mkdir(parents=True, exist_ok=True)
-    manifest = Path(__file__).with_name("mods.txt")
-    for line in manifest.read_text(encoding="utf-8").splitlines():
-        line = line.split("#", 1)[0].split()
-        if not line:
-            continue
-        slug, where = line[0], line[1]
-        kind = line[2] if len(line) > 2 else "mod"
+    for slug, where, kind in manifest_entries():
         if where not in ("both", side):
             continue
         if kind == "shader":

@@ -7,6 +7,7 @@ lithium                  server
 ferrite-core             both
 krypton                  server
 chunky                   server
+spark                    server   # profilage : /spark tps, /spark health, /spark profiler
 sodium                   client
 iris                     client
 distanthorizons          client
