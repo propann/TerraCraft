@@ -28,6 +28,19 @@ Lancement du client Minecraft Fabric
 - Le serveur valide la position, récupère ou lit le cache cartographique, demande la météo et lance la génération.
 - La page web actuelle reste un outil de test local pour vérifier les API ; elle ne doit pas être requise par le joueur.
 
-## État actuel (6 octobre 2026)
+## Parcours complet (0.13, 7 octobre 2026)
 
-Implémenté dans `geo-mod/` : le serveur ouvre la carte à la première connexion (joueur en spectateur en attendant), le joueur cherche ou clique un lieu, le serveur précharge le relief, cherche la terre ferme la plus proche et le téléporte. Le choix est enregistré dans `<monde>/terracraft_geo/start_points.json`. Reste à faire : aperçu météo avant confirmation, routes et bâtiments OSM.
+1. **Liste des serveurs** : icône TerraCraft (installée par le mod si le serveur n'en a pas) et MOTD sur deux lignes
+   avec la version. Un MOTD personnalisé est respecté.
+2. **Connexion d'un nouveau joueur** : message de bienvenue, carte du monde ouverte (spectateur en attendant), recherche
+   ou clic sur un lieu ; le serveur précharge le relief, les rues et les bâtiments, cherche la terre ferme hors des
+   bâtiments et largue le joueur (chute lente), avec le titre « Jour 1 ».
+3. **Kit de départ** : pain, torches, épée en pierre, boussole, carnet de survie (touches, véhicules, armes, espace,
+   stations, plans).
+4. **Premiers pas** : six objectifs récompensés affichés à droite de l'écran (`/tuto`).
+5. **Connexions suivantes** : titre « Bon retour », solde, contrats du jour, ville, métier, nouveautés depuis la
+   dernière version vue, boutons Missions / Ma ville / Marché / Aide.
+6. **Liste des joueurs (Tab)** : en-tête TerraCraft, joueurs en ligne, version, raccourcis.
+
+Le choix du point de départ est enregistré dans `<monde>/terracraft_geo/start_points.json`. Reste à faire : aperçu
+météo avant confirmation.

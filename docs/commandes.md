@@ -1,0 +1,61 @@
+# Commandes et touches
+
+Référence de TerraCraft (version 0.13). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+
+## Touches
+
+| Touche | Rôle |
+|---|---|
+| `O` | Menu TerraCraft : carte, hôtel des ventes, argent, fiche, missions, combinaison, coffre du véhicule, ville, guide |
+| `J` | Combinaison spatiale : casque, combinaison, bottes, jetpack, deux réserves d'oxygène |
+| `E` | Inventaire, avec le panneau de la combinaison spatiale à droite (survie et créatif) |
+| `V` | Coffre du véhicule où l'on est assis (ou du sien à moins de 6 blocs) ; soute de la fusée |
+| `K` | Fiche de personnage : paliers, compétences, découvertes, compteurs |
+| `M` / `'` | Carte Xaero ; menu des claims (Open Parties and Claims) |
+| Saut maintenu en l'air | Jetpack (s'il est porté et a du carburant) |
+| Avion | `Z`/`S` gaz, `Q`/`D` tourner, `Espace` monter, `Ctrl` descendre, `Maj` sortir |
+| Fusée | `Espace` décoller ; à pied, `Maj` + clic droit main vide : changer de destination |
+
+## Joueurs
+
+| Commande | Rôle |
+|---|---|
+| `/aide` (ou `/guide`) | Résumé des commandes et des touches |
+| `/tuto` | Objectif « Premiers pas » en cours ; `/tuto passer` pour masquer le parcours |
+| `/sethome`, `/home` | Maison (refusé en combat) |
+| `/back` | Retour au lieu de la dernière mort (refusé en combat) |
+| `/tpa <joueur>`, `/tpaccept`, `/tpdeny` | Téléportation entre joueurs (une demande toutes les 10 s) |
+| `/argent` | Solde (1 000 crédits au départ) |
+| `/hdv` | Hôtel des ventes (aussi menu `O`) : `vendre <prix>` (objet en main, frais 2 %), `acheter <n°>`, `retirer <n°>`, `page <n>` |
+| `/comptoir [n]` | Comptoir du serveur : carburant, oxygène, munitions, vivres à prix fixe |
+| `/missions` | Contrats du jour et missions ; `reclamer <id>` |
+| `/metier` | Métiers (mécanicien, éclaireur, récupérateur, combattant, pilote) ; `choisir <métier>` (un changement par 24 h) |
+| `/ville` | Sa ville : `creer <nom>` (500 crédits), `inviter`, `rejoindre`, `quitter`, `exclure`, `maire`, `centre`, `tp`, `deposer`, `payer`, `liste` |
+| `/station` | Ses stations spatiales ; `nom <nom>` pour renommer la plus proche |
+| `/plans` | Plans de fusée débloqués, matériaux, comment débloquer les autres |
+| `/atelier installer <plan>` | Installer une amélioration sur la fusée garée près d'un atelier de station |
+| `/terracraft ou` | Latitude, longitude et altitude réelles de sa position |
+| `/terracraft vehicule partager|retirer <joueur>`, `liberer` | Partage et propriété de son véhicule |
+| `/signaler <message>` | Signaler un bug ou une perte d'objet aux administrateurs (un par minute) |
+
+## Administrateurs (opérateurs)
+
+| Commande | Rôle |
+|---|---|
+| `/eco donner <joueur> <montant>` | Créditer un joueur (journalisé `[ECO]`) |
+| `/eco stats` | Crédits créés, détruits, en circulation et dans les trésoreries des villes |
+| `/terracraft sauvegarde [liste]` | Sauvegarde immédiate du monde ; liste des archives (`backups/`) |
+| `/terracraft largage` | Ravitaillement militaire près de soi |
+| `/terracraft fusee decoller` | Lancer la fusée où l'on est assis (mêmes vérifications que la touche Espace) |
+| `/terracraft depart` | Rouvrir la carte de départ pour soi |
+| `/terracraft vehicule voiture|camion|moto` | Véhicule complet et plein devant soi |
+| spark : `/spark tps`, `/spark health`, `/spark profiler` | Performances du serveur |
+
+## Journal de la console
+
+Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`,
+`[STATION]`, `[ATELIER]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
+
+Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,
+`hotel-des-ventes.json`, `economie.json`, `missions.json`, `contrats.json`, `progression.json`, `homes.json`,
+`start_points.json`, `tutorial.json`, `villes.json`, `stations.json`, `signalements.json`.

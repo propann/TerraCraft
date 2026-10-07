@@ -1,177 +1,137 @@
 # Feuille de route TerraCraft
 
-Objectif : construire un serveur survie multijoueur sur une Terre réelle, avec exploration, villes, claims, économie, véhicules, armes, apocalypse et progression vers l'espace.
+Objectif : un serveur survie multijoueur sur la Terre réelle après la chute de l'humanité — exploration des villes
+réelles, commerce, villes de joueurs, véhicules, danger, et une progression qui mène jusqu'aux stations lunaires et à
+Mars.
 
-Architecture spatiale de référence : [architecture-systeme-solaire.md](architecture-systeme-solaire.md).
+Principes : chaque phase doit être **jouable et vérifiable** avant la suivante ; le serveur passe avant l'interface ;
+les données réelles et la performance passent avant les effets ; une fonctionnalité n'est cochée que si elle est en
+place, et marquée « à tester en jeu » tant qu'aucun joueur ne l'a validée.
 
-Principe : chaque phase doit être jouable et vérifiable avant d'ajouter la suivante. Les systèmes serveur passent avant l'interface ; les données réelles et la performance passent avant les effets visuels.
+Références : [état du projet](etat-du-projet.md) · [avancement](avancement.md) · [commandes](commandes.md) ·
+[système solaire](architecture-systeme-solaire.md).
 
-## État actuel
-
-### Déjà en place
-
-- Serveur Fabric 26.3 avec déploiement Falix sur la branche `falix`.
-- Monde Terre réelle : relief, climat, routes, eau, occupation du sol et bâtiments OSM/Overture.
-- Carte en jeu avec sélection du point de départ, recherche et souris corrigée.
-- Générateur de bâtiments avec plafonds de hauteur, styles, fenêtres, toits et intérieurs.
-- Open Parties and Claims, Xaero Minimap et Xaero World Map.
-- Survie, `/aide`, `/sethome`, `/home`, `/back`, `/tpa`.
-- Économie de base : `/argent`, `/hdv`, vente, achat et retrait d'annonces.
-- Armes à feu, munitions, dégâts et sniper avec zoom.
-- Véhicules assemblables, réparables, conduisibles, attaquables et démontables.
-- Véhicules générés sous forme de vraies entités, plus de voitures décoratives pour les nouvelles zones.
-- Fusée, station orbitale, Lune, oxygène et progression de personnage.
-- Cache Overture local et déploiement du cache de bâtiments avec le pack Falix.
-
-### Problèmes à surveiller
-
-- Les anciens chunks gardent leur ancienne génération : une nouvelle map ou de nouvelles zones sont nécessaires pour valider le générateur.
-- L'hôtel des ventes possède maintenant une interface graphique, pagination et retrait d'annonces.
-- Les claims sont fournis par un mod externe ; TerraCraft peut améliorer l'aide et le parcours, mais pas redessiner directement son écran interne.
-- Les véhicules générés doivent être testés avec plusieurs joueurs, collisions, démontage et inventaire plein.
+Légende : `[x]` fait · `[~]` fait, à tester en jeu · `[ ]` à faire (avec notre intention).
 
 ## Phase 0 — Stabilisation technique
 
-Priorité immédiate, bloquante pour le reste.
+Bloquante pour l'ouverture publique. Critère de sortie : 30 minutes de jeu à plusieurs sans crash, blocage de
+génération ni perte d'objet.
 
-- [ ] Tester une map neuve avec 10 à 20 points réels : centre-ville, maisons, zones industrielles, routes, campagne et montagne.
-- [ ] Vérifier les temps de génération et les erreurs de téléchargement/cache.
-- [ ] Tester la génération avec et sans cache Overture.
-- [ ] Vérifier qu'un chunk ne contient pas de bâtiment géant, vide ou dupliqué.
-- [ ] Tester véhicules, armes, souris, claims et économie sur serveur local puis Falix.
-- [x] Ajouter une procédure de sauvegarde et de restauration testée (sauvegardes automatiques intégrées, voir deploy/FALIX.md).
-- [ ] Mesurer TPS, mémoire, temps de démarrage et taille du monde (spark installé : `/spark tps`, `/spark health`, `/spark profiler`).
-
-Critère de sortie : 30 minutes de jeu à plusieurs sans crash, blocage de génération ou perte d'objets.
+- [x] Sauvegardes automatiques du monde, rotation, restauration testée.
+- [x] Données joueurs atomiques (`.bak`), versions de mods figées, test de démarrage et test de scénario en CI.
+- [ ] **Carte neuve sur 10 à 20 points réels** (centre-ville dense, banlieue, zone industrielle, campagne, montagne,
+      côte). Intention : un script admin qui téléporte un bot sur une liste de coordonnées, attend la génération et
+      relève le temps par chunk, les erreurs de téléchargement et les bâtiments suspects.
+- [ ] **Avec et sans cache Overture** : comparer temps et rendu ; documenter quand préparer le cache.
+- [ ] **Bâtiments géants, vides ou dupliqués** : rapport de génération (voir phase 7) pour les repérer.
+- [ ] **Mesures** : `/spark tps`, `/spark health`, mémoire et taille du monde avec 1, 5 et 10 joueurs ; seuils notés
+      dans `deploy/FALIX.md` (distance de vue, mémoire).
+- [~] Véhicules, armes, claims, économie, combinaison, avion : vérifiés côté serveur, à valider en séance de jeu.
 
 ## Phase 1 — Accueil et interface joueur
 
-- [x] Créer un menu TerraCraft principal : Carte, Claims, Missions, Argent, Hôtel des ventes, Fiche joueur et Guide.
-- [x] Garder `/aide` comme solution de secours avec les mêmes informations.
-- [x] Ajouter un tutoriel : parcours « Premiers pas » en 6 étapes (/tuto), affiché à droite de l'écran.
-- [x] Afficher clairement les touches `M`, `'`, `K`, `O`, `J` (carnet de survie, /aide, tutoriel).
-- [ ] Uniformiser couleurs, icônes et textes français.
-- [ ] Ajouter confirmations et messages d'erreur compréhensibles.
-
-Critère : un nouveau joueur peut choisir sa zone, la protéger et accéder à l'économie sans consulter le code.
+- [x] Menu TerraCraft (`O`), `/aide`, carnet de survie, touches affichées.
+- [x] Parcours « Premiers pas » (6 étapes récompensées).
+- [x] Accueil des habitués : titre, solde, contrats, ville, métier, nouveautés depuis la dernière visite.
+- [x] Liste des serveurs (MOTD avec version, icône) et liste des joueurs (Tab).
+- [ ] **Uniformiser l'interface** : une seule palette (celle de la combinaison), mêmes en-têtes et boutons pour tous
+      les écrans ; reprendre la fiche `K` et la carte de départ dans ce style.
+- [ ] **Confirmations** avant les actions coûteuses (fonder une ville, vendre très en dessous du prix moyen, quitter
+      une ville en tant que maire) et messages d'erreur qui disent quoi faire ensuite.
+- [ ] **Écran « Mon personnage » unifié** (fiche, métier, plans, stations) au lieu de commandes éparses.
 
 ## Phase 2 — Claims, villes et groupes
 
-- [ ] Nom, description et couleur du claim.
-- [ ] Rôles : propriétaire, membre, invité, constructeur.
-- [ ] Invitation et retrait d'un joueur depuis un parcours simple.
-- [x] Affichage du propriétaire à l'entrée d'une zone (territoire OPAC, nom du claim) et titres d'entrée des villes.
-- [ ] Protection des coffres, véhicules et ateliers.
-- [x] Puis créer les villes : centre-ville, maire, membres et trésorerie (`/ville`).
-- [ ] Ajouter une taxe légère seulement si elle finance un service identifiable.
-
-Critère : deux joueurs peuvent créer une base commune et donner des accès différents sans ambiguïté.
+- [x] Villes : maire, habitants, trésorerie, `/ville tp`, titres d'entrée et de sortie.
+- [x] Propriétaire du territoire affiché en changeant de zone.
+- [ ] **Claims de ville** : les chunks revendiqués par les habitants autour du centre comptent comme ville ; afficher
+      « Ville de X » plutôt que le pseudo du propriétaire.
+- [ ] **Rôles de ville** (maire, adjoint, habitant) avec droits sur la trésorerie et les invitations.
+- [ ] **Protection des véhicules et coffres** dans les claims d'autrui (aujourd'hui : verrou du propriétaire).
+- [ ] **Taxe de ville légère** seulement si elle finance un service visible (balise de ville, garage, téléporteur).
 
 ## Phase 3 — Économie et commerce
 
-- [x] Créer un vrai écran d'hôtel des ventes avec pages, prix, vendeur, achat et retrait d'annonce.
-- [x] Catégories : ressources, blocs, pièces, armes, espace, nourriture, équipement.
-- [ ] Magasins joueurs placés dans les bâtiments ou claims.
-- [x] Prix moyen, volume vendu et dernière vente.
-- [x] Sources d'argent : missions, contrats du jour, tutoriel, ventes ; primes à venir.
-- [x] Sorties d'argent : comptoir du serveur (carburant, oxygène, munitions, vivres) et frais de marché de 2 %.
-- [x] Transactions atomiques : aucune perte d'objet ou de crédit en cas d'erreur (objet complet conservé, écriture atomique + .bak).
-- [x] Journal administrateur : `/eco stats` (créé, détruit, en circulation) et logs [HDV], [ECO], [MISSION].
-
-Critère : chaque joueur peut gagner, dépenser et échanger des crédits sans inflation incontrôlée.
+- [x] Hôtel des ventes par catégories, prix moyens, vente depuis l'écran, comptoir, frais 2 %, `/eco stats`.
+- [x] Sources : missions, contrats du jour, tutoriel, ventes.
+- [ ] **Magasins de joueurs** : un bloc « étal » posé dans son claim, qui vend un objet à prix fixe même hors ligne.
+- [ ] **Primes** sur les monstres rares et les événements (pas sur les joueurs avant les règles PvP).
+- [ ] **Relevé hebdomadaire** de `/eco stats` et ajustement des prix du comptoir si l'argent s'accumule.
 
 ## Phase 4 — Missions et progression
 
-- [x] Journal de missions actives, terminées et récompenses (écran avec barres de progression).
-- [x] Familles : exploration, combat, véhicules, économie, villes, métiers, espace.
-- [ ] Missions liées à la position réelle : ville, bâtiment, route ou point d'intérêt.
-- [ ] Récompenses : crédits, réputation, pièces, plans et accès à des zones.
-- [x] Métiers : mécanicien, éclaireur, récupérateur, combattant et pilote (`/metier`).
-- [ ] Collections : villes visitées, bâtiments, véhicules réparés, ressources et découvertes (base : fiche K).
-- [ ] Missions coopératives avec progression de groupe.
-
-Critère : un joueur a toujours une prochaine activité claire sans grind obligatoire.
+- [x] Journal des missions, contrats du jour, familles (exploration, combat, véhicules, économie, villes, espace).
+- [x] Métiers avec bonus réels.
+- [ ] **Missions liées aux lieux réels** : « rejoindre l'hôpital/la gare la plus proche », à partir des données OSM
+      déjà téléchargées (points d'intérêt de la phase 7).
+- [ ] **Collections** : villes réelles visitées, bunkers, véhicules réparés, minerais ; récompense par palier.
+- [ ] **Missions de ville** : objectifs communs (déposer X crédits, poser N modules) avec récompense partagée.
+- [ ] **Réputation** : un niveau par métier, débloquant des offres du comptoir.
 
 ## Phase 5 — Véhicules et transport
 
-- [x] Propriétaire, verrouillage et partage d'accès.
-- [ ] Coffre de véhicule protégé par le claim.
-- [ ] État détaillé : moteur, roues, radiateur, batterie, turbo et carburant.
-- [ ] Garage ou borne de réparation dans les villes.
-- [x] Récupération sûre des pièces dans l'inventaire lors du démontage.
-- [ ] Rôles clairs : voiture rapide, camion de transport, véhicule lourd.
-- [ ] Tester collisions, pentes, frontières de chunks, passagers et reconnexion.
-- [ ] Réserver les véhicules rares aux événements.
-
-Critère : conduire, réparer, partager, ranger et démonter fonctionne sans perte d'objet.
+- [x] Propriétaire, verrou, partage, coffre (touche `V`), démontage sûr, avion au clavier, jetpack.
+- [ ] **État détaillé** dans l'écran du véhicule : moteur, roues, carburant, dégâts.
+- [ ] **Garage de ville** : réparation et plein contre crédits.
+- [ ] **Rôles clairs** : moto rapide et fragile, voiture polyvalente, camion lent à grand coffre (réglages chiffrés).
+- [ ] **Test multi-joueurs** : collisions, pentes, frontières de chunks, passagers, reconnexion en roulant.
 
 ## Phase 6 — Combat, danger et apocalypse
 
-- [ ] Finaliser les dégâts des véhicules et les règles de protection dans les claims.
-- [ ] Améliorer munitions, rechargement, recul, zoom et effets visuels.
-- [ ] Améliorer les textures et icônes des armes, véhicules et pièces.
-- [ ] Ajouter zones PvE, zones PvP et règles explicites.
-- [ ] Ajouter bâtiments dangereux, bunkers, caves, ravitaillements et boss rares.
-- [ ] Ajouter événements : convoi, contamination, attaque. Ravitaillement militaire : fait.
-- [ ] Ajouter les primes après équilibrage du PvP.
-- [ ] Tester claims contre tirs, explosions, véhicules et mobs.
-
-Critère : le danger pousse à explorer sans détruire arbitrairement la progression.
+- [x] Ravitaillements militaires réguliers.
+- [~] Armes à chargeur, recul, zoom, grenades ; anti-triche vol.
+- [ ] **Événements** : convoi à attaquer (camion escorté de monstres), zone de contamination (dégâts sans combinaison),
+      vague nocturne sur une ville.
+- [ ] **Zones PvP explicites** (affichées à l'entrée) et PvE partout ailleurs ; primes seulement en zone PvP.
+- [ ] **Boss rares** dans les bunkers profonds, avec butin unique.
+- [ ] **Textures et icônes** des armes et pièces à reprendre (cohérence visuelle).
 
 ## Phase 7 — Monde vivant et génération avancée
 
-- [ ] Stabiliser la classification maison, immeuble, commerce, industriel et tour.
-- [ ] Utiliser hauteur et niveaux Overture uniquement quand les données sont fiables.
-- [ ] Refuser les géométries aberrantes et les bâtiments trop grands.
-- [ ] Ajouter des variantes d'intérieurs selon le type de bâtiment.
-- [ ] Ajouter mobilier, éclairage, entrées et loot contextualisé.
-- [ ] Ajouter points d'intérêt : hôpitaux, gares, stations-service, écoles et bunkers.
-- [ ] Varier la densité entre centre-ville, banlieue, campagne et zones industrielles.
-- [ ] Ajouter un rapport de génération pour localiser les bâtiments suspects.
-
-Critère : une ville est reconnaissable, les maisons restent à taille humaine et chaque zone a un intérêt différent.
+- [ ] **Classification fiable** maison / immeuble / commerce / industrie / tour à partir des tags OSM et Overture.
+- [ ] **Hauteurs Overture** seulement quand la donnée est fiable ; plafond par type sinon.
+- [ ] **Refus des géométries aberrantes** et rapport de génération (`/terracraft rapport`) listant les bâtiments
+      suspects avec leurs coordonnées.
+- [ ] **Intérieurs par type** : mobilier, éclairage, entrées, butin contextualisé (pharmacie, armurerie, garage).
+- [ ] **Points d'intérêt** : hôpitaux, gares, stations-service, écoles, utilisés par les missions.
+- [ ] **Densité variable** entre centre, banlieue, campagne et zones industrielles.
 
 ## Phase 8 — Espace et endgame
 
-- [x] Plans de fusée débloqués en explorant (`/plans`) et installés à l'atelier de station : réservoir étendu, moteur ionique, soute, navigation martienne (obligatoire pour Mars).
-- [ ] Ressources rares terrestres nécessaires au départ (titane et hélium-3 lunaires requis pour les améliorations : fait).
-- [x] Station orbitale : modules pressurisés en kit, balise d'arrivée des fusées, missions (stockage : coffres vanilla).
-- [ ] Zones lunaires, minerais, épaves et dangers spécifiques.
-- [x] Retour Terre et transport limité : carburant par trajet (réservoir de 8 doses, escales en orbite).
-- [ ] Objectifs coopératifs de construction de station.
-- [ ] Garder la Terre utile après l'accès à la Lune.
-
-Critère : atteindre la Lune est une étape prestigieuse, mais la Terre reste active.
+- [x] Orbites terrestre et lunaire, Lune, Mars, carburant par trajet (escales).
+- [x] Stations en kit (modules pressurisés), balise d'arrivée, `/station`.
+- [x] Plans de fusée et atelier de station ; Mars exige la navigation martienne.
+- [ ] **Stockage partagé de station** entre habitants d'une même ville.
+- [ ] **Épaves et dangers lunaires** : épaves de sondes avec butin, pluies de micrométéorites (abri requis),
+      rôdeurs plus forts la nuit lunaire.
+- [ ] **Objectifs coopératifs** : grande station de ville (N modules, laboratoire, serre) avec récompense collective.
+- [ ] **Astéroïdes** : petites zones instanciées, minage de métaux rares, jetpack obligatoire.
+- [ ] **Garder la Terre utile** : ressources terrestres indispensables aux améliorations avancées (commerce Terre ↔ espace).
 
 ## Phase 9 — Bêta publique et exploitation
 
-- [ ] Bêta privée avec whitelist.
-- [ ] Publication des commandes, touches, règles, versions et connexion.
-- [x] Sauvegardes automatiques et restauration testée.
-- [x] Logs des transactions, villes, véhicules, largages et métiers ([HDV] [ECO] [VILLE] [VEHICULE] [LARGAGE] [METIER]).
-- [x] Procédure de signalement des bugs et pertes d'objets (`/signaler`, signalements.json, alerte aux opérateurs).
-- [x] Pack client synchronisé avec Falix et versions publiées (lien stable, CI).
-- [ ] Événement d'ouverture avec objectifs simples.
-- [ ] Suivi : joueurs actifs, retour après 24 h, missions, annonces, TPS et erreurs.
+- [x] Journaux des transactions, villes, véhicules, largages, métiers, signalements.
+- [x] `/signaler` avec alerte aux opérateurs ; pack client synchronisé, lien stable, versions publiées.
+- [ ] **Bêta privée** avec whitelist et un canal de retours.
+- [ ] **Règles publiées** (PvP, claims, triche, comportement) dans le README et en jeu.
+- [ ] **Permissions** (LuckPerms) : modérateurs sans être opérateurs.
+- [ ] **Événement d'ouverture** : course à la première station lunaire.
+- [ ] **Suivi** : joueurs actifs, retour à 24 h, missions et contrats remplis, annonces, TPS, erreurs.
 
-## Ordre de développement recommandé
+## Ordre de développement
 
-1. Stabilisation et nouvelle map de test.
-2. Menu principal et onboarding.
-3. Claims améliorés et villes.
-4. Hôtel des ventes graphique et magasins joueurs.
-5. Missions, métiers et collections.
-6. Véhicules propriétaires et garages.
-7. Événements, danger et combat.
-8. Génération enrichie et points d'intérêt.
-9. Endgame spatial.
-10. Bêta publique.
+1. Séance de test à plusieurs et phase 0 (mesures, carte neuve).
+2. Uniformisation de l'interface et confirmations (phase 1).
+3. Événements et règles PvP (phase 6).
+4. Claims de ville et magasins de joueurs (phases 2 et 3).
+5. Génération enrichie et points d'intérêt, puis missions liées aux lieux (phases 7 et 4).
+6. Espace : épaves, stockage partagé, station de ville, astéroïdes (phase 8).
+7. Bêta publique (phase 9).
 
 ## Validation avant chaque déploiement
 
-- Le serveur compile.
-- Le client reçoit le même jar.
-- Le pack Falix contient la même version.
-- Une sauvegarde est disponible.
-- Une commande de test est documentée.
-- Aucun système ne supprime silencieusement un item, un crédit, un claim ou un véhicule.
+- `tools/scenario_test.sh` passe (il inclut le test de démarrage).
+- Le pack client est publié si le client change (nouveaux objets, écrans, paquets).
+- `docs/avancement.md` et cette feuille de route sont à jour.
+- Aucun système ne supprime silencieusement un objet, un crédit, une ville, une station ou un véhicule.

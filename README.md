@@ -30,11 +30,11 @@ pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.
 
 `/aide` liste les commandes, `/tuto` affiche l'objectif « Premiers pas » en cours, `/signaler <message>` prévient les administrateurs.
 
-## Ce qui est en place (0.12.0)
+## Ce qui est en place (0.13.0)
 
 - **Monde** : relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés, carte de départ en jeu.
 - **Survie** : inventaire conservé à la mort (−25 % d'expérience), `/sethome` `/home` `/back` `/tpa` (refusés en combat).
-- **Accueil** : parcours « Premiers pas » en 6 étapes récompensées, carnet de survie.
+- **Accueil** : carte de départ, parcours « Premiers pas » récompensé, carnet de survie, accueil des habitués avec les nouveautés, liste des joueurs et des serveurs soignées.
 - **Économie** : 1 000 crédits au départ, hôtel des ventes par catégories avec prix moyens, comptoir (`/comptoir`), missions.
 - **Équipement** : armes à chargeur, véhicules (voiture, camion, moto) avec propriétaire, coffre et partage, avion, jetpack.
 - **Espace** : fusée (carburant par trajet), orbite terrestre, orbite lunaire, Lune, Mars ; stations en kit (modules pressurisés, balise d'arrivée, `/station`), plans de fusée (`/plans`) et atelier de station ; combinaison spatiale dessinée comme une armure.
@@ -43,7 +43,18 @@ pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.
 - **Claims** : Open Parties and Claims ; cartes Xaero.
 - **Exploitation** : sauvegardes automatiques, anti-triche vol, journal `[HDV]` `[ECO]` `[MISSION]` `[ANTITRICHE]`, spark.
 
-Suite du projet : [`docs/feuille-de-route.md`](docs/feuille-de-route.md) · état détaillé : [`docs/avancement.md`](docs/avancement.md).
+## Documentation
+
+| Document | Contenu |
+|---|---|
+| [`docs/commandes.md`](docs/commandes.md) | Toutes les touches et commandes (joueurs et administrateurs), journaux, fichiers de données |
+| [`docs/etat-du-projet.md`](docs/etat-du-projet.md) | Analyse : ce que nous avons, niveau de vérification, risques, priorités |
+| [`docs/feuille-de-route.md`](docs/feuille-de-route.md) | Phases, ce qui est fait, nos intentions pour la suite |
+| [`docs/avancement.md`](docs/avancement.md) | Liste de contrôle de la version en cours et tests restants |
+| [`docs/entree-en-jeu.md`](docs/entree-en-jeu.md) | Parcours d'un joueur, de la liste des serveurs aux premiers pas |
+| [`docs/architecture-systeme-solaire.md`](docs/architecture-systeme-solaire.md) | Espace : destinations, carburant, stations, plans |
+| [`docs/localisation-et-monde.md`](docs/localisation-et-monde.md) | Génération de la Terre réelle |
+| [`deploy/FALIX.md`](deploy/FALIX.md) | Hébergement Falix, sauvegardes et restauration |
 
 ## Développement
 
@@ -61,7 +72,7 @@ Compiler et installer en local : `geo-mod/build-mod.sh` (avec `CLIENT_MODS_DIR=�
 ### Publier une version
 
 1. Monter `mod_version` dans `geo-mod/gradle.properties`.
-2. Tester : `tools/scenario_test.sh <jar>` joue une partie avec deux faux joueurs (Carpet, test uniquement) et vérifie villes, économie, combinaison et oxygène.
+2. Tester : `tools/scenario_test.sh <jar>` joue une partie avec deux faux joueurs (Carpet, test uniquement) : 30 vérifications (villes, économie, espace, liste des serveurs). `tools/ping_server.py` montre ce que voit la liste des serveurs.
 3. Pousser sur `main` : la CI compile, **démarre un vrai serveur** (`tools/smoke_server.sh`) puis met à
    jour la branche **`falix`** (copiée par Falix à la racine du serveur ; redémarrer le serveur ensuite).
 4. Si le client change (objets, écrans, réseau), pousser un tag `vX.Y.Z` : la CI publie une release avec le jar

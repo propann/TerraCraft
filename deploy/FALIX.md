@@ -28,6 +28,14 @@ Elle est générée par `deploy/make_falix_branch.sh` depuis `main`. Ne pas la m
 - **Administrateurs** : `ops.json` est fourni par cette branche et réécrit à chaque déploiement. Pour ajouter un admin, modifie `deploy/ops.json` dans `main`.
 - Optionnel : `max-tick-time=300000` (plus de marge pendant les premiers téléchargements) et `view-distance=8` si le serveur n'a que 4 Go.
 
+## Liste des serveurs
+
+- **Icône** : au premier démarrage, TerraCraft écrit `server-icon.png` (la Terre, la Lune et une fusée) s'il n'existe
+  pas. Pour une autre icône, remplace ce fichier (PNG 64 × 64) : il ne sera plus touché.
+- **MOTD** : si le MOTD est celui par défaut (« A Minecraft Server », Falix ou vide), TerraCraft affiche le sien sur
+  deux lignes avec la version. Un MOTD personnalisé dans `server.properties` est respecté.
+- Vérification depuis n'importe quel PC : `python3 tools/ping_server.py <adresse> 25565`.
+
 ## Le serveur a besoin d'internet
 
 Le monde est généré à la demande depuis :

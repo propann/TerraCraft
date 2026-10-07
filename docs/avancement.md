@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.12.0**.
+Dernière passe : 7 octobre 2026 — version **0.13.0**.
 
 ## Fonctionnel et raccordé
 
@@ -8,6 +8,7 @@ Dernière passe : 7 octobre 2026 — version **0.12.0**.
 - [x] Génération des bâtiments limitée par type et hauteur.
 - [x] Menu TerraCraft `O`, fiche joueur `K`, missions, `/aide` et carnet de survie avec les touches.
 - [x] Parcours « Premiers pas » (6 étapes récompensées, encart à l'écran, `/tuto`).
+- [x] Accueil des habitués (titre, solde, contrats, ville, métier, nouveautés), liste des joueurs (Tab), MOTD et icône du serveur.
 - [x] Économie persistante, hôtel des ventes graphique : objets conservés à l'identique, sans duplication.
 - [x] Hôtel des ventes : catégories, prix moyens, icônes, vente directe ; comptoir du serveur ; frais de 2 % ; `/eco stats`.
 - [x] Voiture, camion et moto : assemblage, conduite, carburant, coffre, propriétaire et partage ; progression comptée une seule fois par véhicule.
@@ -30,7 +31,7 @@ Dernière passe : 7 octobre 2026 — version **0.12.0**.
 - [x] Sauvegardes automatiques du monde, rotation, restauration testée.
 - [x] Versions des mods tiers figées (`tools/mods.lock.json`), identiques serveur et pack.
 - [x] Test de démarrage d'un vrai serveur avant chaque déploiement Falix (CI).
-- [x] Test de scénario avec faux joueurs (`tools/scenario_test.sh`, 27 vérifications) : villes, économie, combinaison, oxygène, métiers, largages, station, vol en fusée jusqu'à la balise, plans et atelier.
+- [x] Test de scénario avec faux joueurs (`tools/scenario_test.sh`, 30 vérifications) : villes, économie, combinaison, oxygène, métiers, largages, station, vol en fusée jusqu'à la balise, plans et atelier, MOTD et icône.
 
 ## À tester en jeu
 
@@ -48,9 +49,8 @@ Dernière passe : 7 octobre 2026 — version **0.12.0**.
 
 ## Prochaine séquence
 
-1. Retours de jeu sur la 0.8.0 (inventaire, économie, jetpack, avion), puis publication.
-2. Événements (convoi, contamination), primes, magasins de joueurs.
-3. Missions liées aux lieux réels et métiers (phase 4).
+Voir l'ordre de développement de la [feuille de route](feuille-de-route.md) et l'[état du projet](etat-du-projet.md) :
+séance de test à plusieurs et mesures, uniformisation de l'interface, événements et règles PvP.
 
 ## Règle de publication
 
