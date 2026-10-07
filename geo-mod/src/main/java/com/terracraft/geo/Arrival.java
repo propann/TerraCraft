@@ -73,7 +73,7 @@ final class Arrival {
                 "L'ESPACE\n\nDepuis la Terre, la fusée ne va qu'en orbite. Charge un KIT DE STATION ORBITALE (clic droit sur la fusée) : "
                         + "au premier vol, ta station se déploie (salle de travail, tunnels, quai). La Lune et Mars partent de ce quai.",
                 "FUSÉES\n\n1 réservoir : légère, 8 doses, 1 charge.\n2 : moyenne, 12 doses.\n4 : lourde, 20 doses, 4 charges.\n"
-                        + "Coût : Terre→orbite 3, →orbite lunaire 2, →Lune 1, →Mars 4-5 + 2.",
+                        + "CARTE DES ÉTOILES : Maj + clic droit sur la fusée (ou menu O) : coûts, obstacles, cap et décollage.",
                 "PLANS DE FUSÉE\n\nSe débloquent en explorant (/plans). Atelier de station : clic droit pour installer "
                         + "réservoir étendu, moteur ionique, soute ou navigation martienne (obligatoire pour Mars).",
                 "LUNE ET MARS\n\nDepuis ta station : charge un KIT DE BASE LUNAIRE (ou martienne) et un ROVER. "

@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.16). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.17). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -15,7 +15,7 @@ Référence de TerraCraft (version 0.16). Tout est en français ; `/aide` en don
 | Saut maintenu en l'air | Jetpack (s'il est porté et a du carburant) |
 | Avion | `Z`/`S` gaz, `Q`/`D` tourner, `Espace` monter, `Ctrl` descendre, `Maj` sortir |
 | Rover lunaire | Clic droit avec la caisse : déballer ; conduite comme une voiture ; `Maj` + clic gauche : remballer |
-| Fusée | `Espace` décoller ; à pied, `Maj` + clic droit main vide : changer de destination ; clic droit avec un réservoir : réservoir en plus, avec un kit : charge utile |
+| Fusée | `Espace` décoller ; à pied, `Maj` + clic droit main vide : **carte des étoiles** (aussi menu `O`) ; clic droit avec un réservoir : réservoir en plus, avec un kit : charge utile |
 
 ## Joueurs
 
@@ -34,6 +34,8 @@ Référence de TerraCraft (version 0.16). Tout est en français ; `/aide` en don
 | `/ville` | Sa ville : `creer <nom>` (500 crédits), `inviter`, `rejoindre`, `quitter`, `exclure`, `maire`, `centre`, `tp`, `deposer`, `payer`, `liste` |
 | `/station` | Ses stations spatiales ; `nom <nom>` pour renommer la plus proche |
 | `/plans` | Plans de fusée débloqués, matériaux, comment débloquer les autres |
+| `/fusee carte` | Carte des étoiles de la fusée où l'on est assis (ou à moins de 8 blocs) |
+| `/fusee cap <destination>` | Mettre le cap : `terre`, `orbite`, `orbite_lunaire`, `lune`, `orbite_mars`, `mars` |
 | `/atelier installer <plan>` | Installer une amélioration sur la fusée garée près d'un atelier de station |
 | `/terracraft ou` | Latitude, longitude et altitude réelles de sa position |
 | `/terracraft vehicule partager|retirer <joueur>`, `liberer` | Partage et propriété de son véhicule |
@@ -56,7 +58,7 @@ Référence de TerraCraft (version 0.16). Tout est en français ; `/aide` en don
 ## Journal de la console
 
 Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`,
-`[STATION]`, `[ATELIER]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
+`[STATION]`, `[ATELIER]`, `[NAV]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
 
 Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,
 `hotel-des-ventes.json`, `economie.json`, `missions.json`, `contrats.json`, `progression.json`, `homes.json`,

@@ -77,10 +77,13 @@ public final class Space {
      * Quitter la Terre coûte cher, sauter d'une orbite à l'autre beaucoup moins : les stations
      * servent d'escales pour refaire le plein. Réservoir : {@link com.terracraft.geo.content.Rocket#MAX_FUEL}.
      */
+    /** Trajets directs {départ, arrivée, doses} : aussi dessinés sur la carte des étoiles. */
+    public static final int[][] ROUTES = {{EARTH, ORBIT_ID, 3}, {ORBIT_ID, MOON_ORBIT_ID, 2}, {MOON_ORBIT_ID, MOON_ID, 1},
+            {ORBIT_ID, MARS_ORBIT_ID, 5}, {MOON_ORBIT_ID, MARS_ORBIT_ID, 4}, {MARS_ORBIT_ID, MARS_ID, 2}};
+
     public static int travelCost(byte from, byte to) {
         byte[] nodes = {EARTH, ORBIT_ID, MOON_ORBIT_ID, MOON_ID, MARS_ORBIT_ID, MARS_ID};
-        int[][] edges = {{EARTH, ORBIT_ID, 3}, {ORBIT_ID, MOON_ORBIT_ID, 2}, {MOON_ORBIT_ID, MOON_ID, 1},
-                {ORBIT_ID, MARS_ORBIT_ID, 5}, {MOON_ORBIT_ID, MARS_ORBIT_ID, 4}, {MARS_ORBIT_ID, MARS_ID, 2}};
+        int[][] edges = ROUTES;
         java.util.Map<Byte, Integer> best = new java.util.HashMap<>();
         for (byte node : nodes) {
             best.put(node, Integer.MAX_VALUE / 2);

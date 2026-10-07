@@ -108,7 +108,8 @@ génération ni perte d'objet.
 - [x] **Rover lunaire** (charge utile ou caisse) : électrique, recharge solaire à l'arrêt, remballé par son propriétaire.
 - [x] **Sous-sol lunaire vivant** : cavernes géantes, sanctuaires (salle en dôme, pyramide, gardiens, puits marqué),
       donjons enfouis, cristaux lumineux, artefacts extraterrestres (exigés par la navigation martienne).
-- [ ] **Carte des étoiles** : écran de navigation (destinations, coûts, conditions) à la place du choix au clic.
+- [x] **Carte des étoiles** : écran de navigation (destinations, coûts, obstacles, stations) à la place du choix au
+      clic ; `/fusee carte`, `/fusee cap <destination>`.
 - [x] Stations en kit (modules pressurisés), balise d'arrivée, `/station`.
 - [x] Plans de fusée et atelier de station ; Mars exige la navigation martienne.
 - [ ] **Stockage partagé de station** entre habitants d'une même ville.

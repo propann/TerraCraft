@@ -123,6 +123,11 @@ cmd "execute as Bob run terracraft fusee decoller" 32
 cmd "data get entity Bob Dimension" 1
 cmd "execute if entity @e[type=terracraft_geo:rover]" 1
 cmd "execute as Bob at Bob run data get entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] Fuel" 1
+# Carte des étoiles (mêmes règles via /fusee cap) : Mars refusé sans navigation martienne, orbite lunaire prête
+cmd "execute as Bob run fusee cap mars" 1
+cmd "execute as Bob run fusee cap lune" 1
+cmd "execute as Bob run fusee cap orbite_lunaire" 1
+cmd "execute as Bob at Bob run data get entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] Target" 1
 # Sous-sol lunaire : visite du sanctuaire le plus proche (téléportation au pied du puits, face à la pyramide)
 cmd "effect give Bob minecraft:resistance 120 255 true" 1
 cmd "execute as Bob run terracraft sanctuaire" 10
@@ -211,6 +216,11 @@ check(any(s["dimension"] == "terracraft_geo:moon" and s["name"].startswith("Base
       "base lunaire déployée à l'atterrissage et enregistrée")
 check("Rover déposé" in log or log.count("Test passed") >= 7, "rover lunaire déposé à côté de la fusée")
 check("Rocket has the following entity data: 6" in log, "orbite lunaire → Lune : 1 dose (moteur ionique), 6 restantes")
+check("[NAV] Bob met le cap sur Mars : " in log and "navigation martienne" in log.split("[NAV] Bob met le cap sur Mars")[1].split("\n")[0],
+      "carte des étoiles : Mars signalé « navigation martienne requise »")
+check("[NAV] Bob met le cap sur l'orbite lunaire : 1 dose(s), prête" in log, "carte des étoiles : retour en orbite lunaire prêt (1 dose)")
+check("[NAV] Bob met le cap sur la Lune" not in log and "Rocket has the following entity data: 11b" in log,
+      "carte des étoiles : destination actuelle refusée, cap enregistré sur la fusée")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

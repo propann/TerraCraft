@@ -248,9 +248,8 @@ public class Rocket extends VehicleEntity {
             return InteractionResult.SUCCESS;
         }
         if (player.isSecondaryUseActive() && stack.isEmpty()) {
-            if (!level().isClientSide()) {
-                entityData.set(DATA_TARGET, Space.nextDestination(level(), target()));
-                player.sendOverlayMessage(Component.literal("Destination : " + Space.name(target())).withStyle(ChatFormatting.AQUA));
+            if (player instanceof ServerPlayer server) {
+                com.terracraft.geo.StarMap.open(server, this); // Carte des étoiles : choix de la destination.
             }
             return InteractionResult.SUCCESS;
         }
@@ -263,7 +262,7 @@ public class Rocket extends VehicleEntity {
         if (!level().isClientSide()) {
             player.startRiding(this);
             player.sendOverlayMessage(fuel() >= cost()
-                    ? Component.literal("Destination : " + Space.name(target()) + " — Espace pour décoller (Maj + clic droit à pied : changer)")
+                    ? Component.literal("Destination : " + Space.name(target()) + " — Espace pour décoller (Maj + clic droit à pied : carte des étoiles)")
                             .withStyle(ChatFormatting.GREEN)
                     : status());
         }
@@ -298,8 +297,43 @@ public class Rocket extends VehicleEntity {
 
     /** Doses de carburant pour aller d'ici à la destination choisie. */
     public int cost() {
-        int cost = Space.travelCost(Space.id(level()), target());
+        return costTo(target());
+    }
+
+    /** Doses pour aller d'ici à {@code to} (moteur ionique compris). */
+    public int costTo(byte to) {
+        int cost = Space.travelCost(Space.id(level()), to);
         return hasUpgrade(com.terracraft.geo.Plans.Plan.ION) ? Math.max(1, cost - 1) : cost;
+    }
+
+    /** Fixe la destination (carte des étoiles, commande /fusee cap). */
+    public void setTarget(byte to) {
+        entityData.set(DATA_TARGET, to);
+    }
+
+    /**
+     * Ce qui empêche d'aller vers {@code to} depuis ici, ou null si le vol est possible : mêmes règles que le
+     * décollage (route, navigation martienne, carburant). Sert à la carte des étoiles.
+     */
+    public String problemFor(ServerPlayer player, byte to) {
+        if (to == Space.id(level())) {
+            return "Tu y es.";
+        }
+        String route = routeProblem(player, to);
+        if (route != null) {
+            return route;
+        }
+        if (Space.requiresMoon(to) && !player.isCreative() && !hasUpgrade(com.terracraft.geo.Plans.Plan.MARS_NAV)) {
+            return "Installe la navigation martienne à l'atelier de station (/plans).";
+        }
+        int cost = costTo(to);
+        if (cost > maxFuel()) {
+            return "Trop loin pour tes réservoirs (" + maxFuel() + " doses) : fais escale ou ajoute un réservoir.";
+        }
+        if (fuel() < cost) {
+            return "Carburant insuffisant : " + fuel() + "/" + cost + " doses.";
+        }
+        return null;
     }
 
     // --- Vol -----------------------------------------------------------------------------------
@@ -345,12 +379,11 @@ public class Rocket extends VehicleEntity {
      * l'espace) ; pour aller plus loin, la fusée doit partir amarrée à une station ou une base. Rentrer sur Terre ou en
      * orbite terrestre reste toujours possible. Renvoie le problème, ou null si la route est permise.
      */
-    private String routeProblem(ServerPlayer player) {
+    private String routeProblem(ServerPlayer player, byte to) {
         if (player.isCreative() || !(level() instanceof ServerLevel server)) {
             return null;
         }
         byte from = Space.id(level());
-        byte to = target();
         if (to == Space.EARTH || to == Space.ORBIT_ID) {
             return null;
         }
@@ -377,7 +410,7 @@ public class Rocket extends VehicleEntity {
             }
             return false;
         }
-        String route = routeProblem(player);
+        String route = routeProblem(player, target());
         if (route != null) {
             if (explain) {
                 player.sendOverlayMessage(Component.literal(route).withStyle(ChatFormatting.RED, ChatFormatting.BOLD));

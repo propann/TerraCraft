@@ -137,4 +137,8 @@ Les véhicules terrestres ne deviennent pas des véhicules spatiaux par magie : 
   degrés (chambre au trésor, couloir vers l'est), 8 piliers à glyphes, puits de 5 × 5 avec échelle jusqu'à la surface
   marqué de 4 piliers lumineux ; donjons enfouis (2,5 % des chunks, générateur de rampants, 2 coffres). La géométrie
   est calculée colonne par colonne (identique pour `getBaseColumn`), les coffres et gardiens à la décoration du chunk.
+- Carte des étoiles (0.17.0, `StarMap` / `StarMapScreen`) : le serveur envoie chaque destination avec son coût
+  (`Rocket.costTo`), l'obstacle éventuel (`Rocket.problemFor` : route, navigation martienne, réservoirs, carburant —
+  les mêmes règles que le décollage), les stations du joueur et le graphe `Space.ROUTES` ; l'écran envoie le cap
+  choisi (et le décollage pour le pilote). `/fusee cap` passe par le même chemin et journalise `[NAV]`.
 

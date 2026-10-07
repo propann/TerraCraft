@@ -21,7 +21,7 @@ public final class TerraCraftMenuScreen extends Screen {
         int panelWidth = Math.min(460, width - 24);
         int left = (width - panelWidth) / 2;
         int buttonWidth = (panelWidth - 30) / 2;
-        int top = Math.max(44, (height - 130) / 2);
+        int top = Math.max(44, (height - 154) / 2);
         int right = left + 15 + buttonWidth;
 
         addRenderableWidget(Button.builder(Component.literal("Carte du monde"), b -> {
@@ -67,8 +67,16 @@ public final class TerraCraftMenuScreen extends Screen {
                 .bounds(left + 10, top + 96, buttonWidth, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Guide"), b -> runCommand("aide"))
                 .bounds(right, top + 96, buttonWidth, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Carte des étoiles"), b -> {
+            if (net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.canSend(StarMapActionPayload.TYPE)) {
+                net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking.send(new StarMapActionPayload(-1, (byte) -1, false));
+                onClose();
+            }
+        }).bounds(left + 10, top + 120, buttonWidth, 20).build());
+        addRenderableWidget(Button.builder(Component.literal("Plans de fusée"), b -> runCommand("plans"))
+                .bounds(right, top + 120, buttonWidth, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Fermer"), b -> onClose())
-                .bounds(left + 10 + (buttonWidth + 5) / 2, top + 124, buttonWidth, 20).build());
+                .bounds(left + 10 + (buttonWidth + 5) / 2, top + 148, buttonWidth, 20).build());
     }
 
     private void runCommand(String command) {
@@ -89,15 +97,15 @@ public final class TerraCraftMenuScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
         extractTransparentBackground(g);
         int panelWidth = Math.min(460, width - 24);
-        int panelHeight = 166;
+        int panelHeight = 190;
         int left = (width - panelWidth) / 2;
-        int top = Math.max(44, (height - 130) / 2);
+        int top = Math.max(44, (height - 154) / 2);
         g.fill(left, top - 38, left + panelWidth, top + panelHeight, PANEL);
         g.outline(left, top - 38, panelWidth, panelHeight + 38, BORDER);
         g.centeredText(font, Component.literal("TERRACRAFT"), width / 2, top - 27, GOLD);
         g.centeredText(font, Component.literal("Terre réelle  ·  Survie  ·  Exploration  ·  Espace"), width / 2,
                 top - 14, GREY);
-        g.centeredText(font, Component.literal("Touche O pour ouvrir ce menu"), width / 2, top + 152, GREY);
+        g.centeredText(font, Component.literal("Touche O pour ouvrir ce menu"), width / 2, top + 176, GREY);
         super.extractRenderState(g, mouseX, mouseY, delta);
     }
 

@@ -188,6 +188,13 @@ public final class GeoMod implements ModInitializer {
         PayloadTypeRegistry.serverboundPlay().register(OpenVehicleStoragePayload.TYPE, OpenVehicleStoragePayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(WorkshopPayload.TYPE, WorkshopPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(InstallUpgradePayload.TYPE, InstallUpgradePayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(StarMapPayload.TYPE, StarMapPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(StarMapActionPayload.TYPE, StarMapActionPayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(StarMapActionPayload.TYPE, (payload, context) -> {
+            if (GUI_RATE.allow(context.player())) {
+                StarMap.act(context.player(), payload);
+            }
+        });
         ServerPlayNetworking.registerGlobalReceiver(InstallUpgradePayload.TYPE, (payload, context) -> {
             Plans.Plan plan = Plans.Plan.parse(payload.plan());
             if (plan != null && GUI_RATE.allow(context.player())) {
@@ -371,6 +378,7 @@ public final class GeoMod implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Stations.get().register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Plans.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Workshop.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> StarMap.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> dispatcher.register(
                 Commands.literal("terracraft")
                         .then(Commands.literal("ou").executes(command -> {
