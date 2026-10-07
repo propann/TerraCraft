@@ -379,6 +379,7 @@ public final class GeoMod implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Plans.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Workshop.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> StarMap.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Confirmations.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> dispatcher.register(
                 Commands.literal("terracraft")
                         .then(Commands.literal("ou").executes(command -> {

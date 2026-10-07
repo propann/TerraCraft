@@ -127,9 +127,24 @@ public final class MarketScreen extends Screen {
 
     private void sell() {
         String value = price == null ? "" : price.getValue();
-        if (!value.isEmpty() && value.length() <= 10) {
-            send(new SellPayload(Long.parseLong(value)));
+        if (value.isEmpty() || value.length() > 10) {
+            return;
         }
+        long asked = Long.parseLong(value);
+        long fair = data.has("heldAverage") ? data.get("heldAverage").getAsLong() * data.get("heldCount").getAsInt() : 0;
+        if (fair > 0 && asked < fair / 2) {
+            // Moins de la moitié du prix moyen : faute de frappe ou objet bradé, on demande avant d'envoyer.
+            minecraft.gui.setScreen(new net.minecraft.client.gui.screens.ConfirmScreen(yes -> {
+                if (yes) {
+                    send(new SellPayload(asked));
+                }
+                minecraft.gui.setScreen(this);
+            }, Component.literal("Vendre si peu cher ?"), Component.literal(data.get("held").getAsString() + " x"
+                    + data.get("heldCount").getAsInt() + " pour " + asked + " crédits : moins de la moitié du prix moyen ("
+                    + fair + " crédits)."), Component.literal("Vendre quand même"), Component.literal("Revenir")));
+            return;
+        }
+        send(new SellPayload(asked));
     }
 
     private void request(int page, String category) {

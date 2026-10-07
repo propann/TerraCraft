@@ -42,7 +42,8 @@ cmd "player Bob spawn at 5 201 5" 4
 cmd "gamemode survival Alice"
 cmd "gamemode survival Bob"
 # Villes
-cmd "execute as Alice at Alice run ville creer Bourg Neuf" 2
+cmd "execute as Alice at Alice run ville creer Bourg Neuf" 1
+cmd "execute as Alice run confirmer" 2
 cmd "execute as Alice run ville inviter Bob"
 cmd "execute as Bob run ville rejoindre"
 cmd "execute as Bob run ville deposer 200"

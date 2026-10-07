@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.18). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.20). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -39,6 +39,7 @@ Référence de TerraCraft (version 0.18). Tout est en français ; `/aide` en don
 | `/atelier installer <plan>` | Installer une amélioration sur la fusée garée près d'un atelier de station |
 | `/terracraft ou` | Latitude, longitude et altitude réelles de sa position |
 | `/terracraft vehicule partager|retirer <joueur>`, `liberer` | Partage et propriété de son véhicule |
+| `/confirmer`, `/annuler` | Valider ou abandonner une action coûteuse en attente (boutons cliquables dans le chat, 30 s) |
 | `/signaler <message>` | Signaler un bug ou une perte d'objet aux administrateurs (un par minute) |
 
 ## Administrateurs (opérateurs)

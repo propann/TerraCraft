@@ -100,7 +100,7 @@ public final class AuctionHouse {
                 .then(Commands.literal("page").then(Commands.argument("numero", IntegerArgumentType.integer(1))
                         .executes(c -> show(c.getSource().getPlayerOrException(), IntegerArgumentType.getInteger(c, "numero")))))
                 .then(Commands.literal("vendre").then(Commands.argument("prix", IntegerArgumentType.integer(1, 1_000_000_000))
-                        .executes(c -> sell(c.getSource().getPlayerOrException(), IntegerArgumentType.getInteger(c, "prix")))))
+                        .executes(c -> sell(c.getSource().getPlayerOrException(), IntegerArgumentType.getInteger(c, "prix"), false))))
                 .then(Commands.literal("acheter").then(Commands.argument("annonce", LongArgumentType.longArg(1))
                         .executes(c -> buy(c.getSource().getPlayerOrException(), LongArgumentType.getLong(c, "annonce")))))
                 .then(Commands.literal("retirer").then(Commands.argument("annonce", LongArgumentType.longArg(1))
@@ -214,11 +214,33 @@ public final class AuctionHouse {
         return 1;
     }
 
-    private int sell(ServerPlayer player, long price) {
+    /** Confirmation d'une vente : refusée si l'objet en main n'est plus exactement celui annoncé. */
+    private Runnable confirmSameItem(ServerPlayer player, ItemStack expected, long price) {
+        return () -> {
+            ItemStack now = player.getMainHandItem();
+            if (now.getCount() != expected.getCount() || !ItemStack.isSameItemSameComponents(now, expected)) {
+                player.sendSystemMessage(Component.literal("Vente annulée : l'objet en main a changé.").withStyle(ChatFormatting.RED));
+                return;
+            }
+            sell(player, price, true);
+        };
+    }
+
+    /** Sous ce rapport au prix moyen, la vente demande confirmation (faute de frappe, objet bradé). */
+    private static final double CHEAP_RATIO = 0.5;
+
+    private int sell(ServerPlayer player, long price, boolean confirmed) {
         ItemStack held = player.getMainHandItem();
         if (held.isEmpty()) {
             player.sendSystemMessage(Component.literal("Tiens la ressource à vendre dans ta main.").withStyle(ChatFormatting.RED));
             return 0;
+        }
+        long average = economy.averageUnitPrice(BuiltInRegistries.ITEM.getKey(held.getItem()).toString());
+        long fair = average * held.getCount();
+        if (!confirmed && average > 0 && price < fair * CHEAP_RATIO) {
+            Confirmations.ask(player, "Vendre " + held.getHoverName().getString() + " x" + held.getCount() + " pour " + price + " crédits ?",
+                    "C'est moins de la moitié du prix moyen (" + fair + " crédits pour cette quantité).", confirmSameItem(player, held.copy(), price));
+            return 1;
         }
         long count = listings.values().stream().filter(l -> l.seller().equals(player.getUUID())).count();
         if (count >= MAX_LISTINGS_PER_PLAYER) {
@@ -317,7 +339,7 @@ public final class AuctionHouse {
 
     void sellFromClient(ServerPlayer player, long price) {
         if (price >= 1 && price <= 1_000_000_000) {
-            sell(player, price);
+            sell(player, price, true); // L'écran du marché a déjà demandé confirmation.
         }
     }
 

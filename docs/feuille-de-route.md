@@ -40,8 +40,9 @@ génération ni perte d'objet.
       de la tête), jour et nuit au rythme normal de Minecraft (la météo reste réelle).
 - [x] **Uniformiser l'interface** : toutes les fenêtres (menu `O`, fiche `K`, missions, marché, atelier, carte des
       étoiles, carte du monde) et les indicateurs partagent le style de `Ui` (cadre, bandeau, liseré doré, jauges).
-- [ ] **Confirmations** avant les actions coûteuses (fonder une ville, vendre très en dessous du prix moyen, quitter
-      une ville en tant que maire) et messages d'erreur qui disent quoi faire ensuite.
+- [x] **Confirmations** avant les actions coûteuses : fonder une ville (500 crédits), la dissoudre (dernier habitant),
+      vendre à moins de la moitié du prix moyen (chat : [Confirmer] / [Annuler], 30 s ; écran du marché : boîte de
+      dialogue). Les erreurs disent quoi faire ensuite (solde manquant, maire à remplacer…).
 - [ ] **Écran « Mon personnage » unifié** (fiche, métier, plans, stations) au lieu de commandes éparses.
 
 ## Phase 2 — Claims, villes et groupes

@@ -174,11 +174,11 @@ final class Towns {
         dispatcher.register(Commands.literal("ville")
                 .executes(c -> info(c.getSource().getPlayerOrException()))
                 .then(Commands.literal("creer").then(Commands.argument("nom", StringArgumentType.greedyString())
-                        .executes(c -> create(c.getSource().getPlayerOrException(), StringArgumentType.getString(c, "nom")))))
+                        .executes(c -> create(c.getSource().getPlayerOrException(), StringArgumentType.getString(c, "nom"), false))))
                 .then(Commands.literal("inviter").then(Commands.argument("joueur", EntityArgument.player())
                         .executes(c -> invite(c.getSource().getPlayerOrException(), EntityArgument.getPlayer(c, "joueur")))))
                 .then(Commands.literal("rejoindre").executes(c -> join(c.getSource().getPlayerOrException())))
-                .then(Commands.literal("quitter").executes(c -> leave(c.getSource().getPlayerOrException())))
+                .then(Commands.literal("quitter").executes(c -> leave(c.getSource().getPlayerOrException(), false)))
                 .then(Commands.literal("exclure").then(Commands.argument("joueur", StringArgumentType.word())
                         .executes(c -> kick(c.getSource().getPlayerOrException(), StringArgumentType.getString(c, "joueur")))))
                 .then(Commands.literal("maire").then(Commands.argument("joueur", EntityArgument.player())
@@ -198,7 +198,7 @@ final class Towns {
         player.sendSystemMessage(Component.literal(message).withStyle(ChatFormatting.RED));
     }
 
-    private int create(ServerPlayer player, String rawName) {
+    private int create(ServerPlayer player, String rawName, boolean confirmed) {
         String name = rawName.strip().replaceAll("\\s+", " ");
         if (name.length() < 3 || name.length() > 24 || !name.matches("[\\p{L}0-9 '\\-]+")) {
             error(player, "Nom de ville : 3 à 24 caractères (lettres, chiffres, espaces, apostrophes, tirets).");
@@ -217,6 +217,16 @@ final class Towns {
         if (tooClose != null) {
             error(player, "Trop près de " + tooClose.name + " : éloigne-toi d'au moins " + MIN_DISTANCE + " blocs de son centre.");
             return 0;
+        }
+        if (!confirmed) {
+            long balance = bank.balance(player.getUUID());
+            if (balance < CREATION_COST) {
+                error(player, "Fonder une ville coûte " + CREATION_COST + " crédits (tu en as " + balance + ").");
+                return 0;
+            }
+            Confirmations.ask(player, "Fonder la ville de " + name + " ici ?", "Coût : " + CREATION_COST + " crédits (solde : "
+                    + balance + "). Centre ici, rayon " + RADIUS + " blocs.", () -> create(player, rawName, true));
+            return 1;
         }
         if (!bank.withdraw(player.getUUID(), CREATION_COST, "creation_ville")) {
             error(player, "Fonder une ville coûte " + CREATION_COST + " crédits.");
@@ -282,7 +292,7 @@ final class Towns {
         return 1;
     }
 
-    private int leave(ServerPlayer player) {
+    private int leave(ServerPlayer player, boolean confirmed) {
         Town town = townOf(player.getUUID());
         if (town == null) {
             error(player, "Tu ne fais partie d'aucune ville.");
@@ -291,6 +301,11 @@ final class Towns {
         if (town.mayor.equals(player.getUUID()) && town.members.size() > 1) {
             error(player, "Tu es maire : passe la main d'abord (/ville maire <joueur>).");
             return 0;
+        }
+        if (!confirmed && town.members.size() == 1) {
+            Confirmations.ask(player, "Dissoudre " + town.name + " ?", "Tu es le dernier habitant : la ville disparaît et sa trésorerie ("
+                    + town.treasury + " crédits) te revient. Son nom redevient libre.", () -> leave(player, true));
+            return 1;
         }
         town.members.remove(player.getUUID());
         if (town.members.isEmpty()) {
