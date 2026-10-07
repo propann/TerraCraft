@@ -27,3 +27,4 @@ serveur-local/console.*
 geo-mod/logs/
 serveur-local/config/chunky/
 dist/
+serveur-local/config/spark/
