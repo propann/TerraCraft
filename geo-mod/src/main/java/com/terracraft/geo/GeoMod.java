@@ -53,6 +53,7 @@ public final class GeoMod implements ModInitializer {
     private static final Missions MISSIONS = new Missions();
 
     private static final RateLimit GUI_RATE = new RateLimit(150);
+    private static final AntiFly ANTI_FLY = new AntiFly();
 
     private record PendingLoot(ServerPlayer player, net.minecraft.core.BlockPos pos) {
     }
@@ -228,6 +229,7 @@ public final class GeoMod implements ModInitializer {
         });
         ServerTickEvents.END_SERVER_TICK.register(REAL_SKY::tick);
         ServerTickEvents.END_SERVER_TICK.register(Space::tick);
+        ServerTickEvents.END_SERVER_TICK.register(ANTI_FLY::tick);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             START_POINTS.onJoin(handler.player);
             Progression.get().applyPerks(handler.player);
@@ -236,6 +238,7 @@ public final class GeoMod implements ModInitializer {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             START_POINTS.onLeave(handler.player);
             GUI_RATE.forget(handler.player);
+            ANTI_FLY.forget(handler.player);
             SURVIVAL.onLeave(handler.player);
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> SURVIVAL.register(dispatcher));
