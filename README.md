@@ -29,7 +29,7 @@ pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.
 
 `/aide` liste les commandes, `/tuto` affiche l'objectif « Premiers pas » en cours.
 
-## Ce qui est en place (0.7.0)
+## Ce qui est en place (0.8.0)
 
 - **Monde** : relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés, carte de départ en jeu.
 - **Survie** : inventaire conservé à la mort (−25 % d'expérience), `/sethome` `/home` `/back` `/tpa` (refusés en combat).

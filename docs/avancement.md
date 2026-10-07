@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.8.0** (à valider en jeu avant publication).
+Dernière passe : 7 octobre 2026 — version **0.8.0** (publiée : Falix, release GitHub et pack client alignés).
 
 ## Fonctionnel et raccordé
 
