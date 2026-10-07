@@ -14,6 +14,8 @@ on commerce, on répare des véhicules… et on part vers la Lune, l'orbite puis
 3. Lance l'instance et connecte-toi au serveur.
 
 Launcher Minecraft officiel : installeurs Windows et Linux dans [`installer/`](installer/README.md).
+Installation à la main : tous les mods du client sont dans le dossier [`mods/`](mods/LISEZMOI.md)
+(lancer `telecharger-restants` pour les deux cartes Xaero, que leur licence interdit de republier ici).
 
 **Le pack doit avoir la même version que le serveur.** Après une mise à jour du serveur, réimporte le
 pack (ou relance l'installeur). Toutes les versions : [Releases](https://github.com/propann/TerraCraft/releases).

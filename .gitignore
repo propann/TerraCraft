@@ -31,3 +31,6 @@ serveur-local/config/spark/
 serveur-local/backups/
 serveur-local/config/terracraft-backup.json
 serveur-local/server-icon.png
+
+# Mods que leur licence interdit de republier (récupérés par mods/telecharger-restants.*)
+mods/xaero*.jar

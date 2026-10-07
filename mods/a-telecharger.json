@@ -1,0 +1,14 @@
+[
+  {
+    "file": "xaerominimap-fabric-26.3-26.6.0.jar",
+    "url": "https://cdn.modrinth.com/data/1bokaNcj/versions/B2aG1aya/xaerominimap-fabric-26.3-26.6.0.jar",
+    "sha512": "c704ed5154e66e891517b9b6778b3227a276823844ec70b348a32dc91d38e3500a6e74d8c69d7f9c68e3137b49511258b0b7d5e0b503391dd959f31e8c4e5112",
+    "label": "Xaero's Minimap"
+  },
+  {
+    "file": "xaeroworldmap-fabric-26.3-1.47.0.jar",
+    "url": "https://cdn.modrinth.com/data/NcUtCpym/versions/nz9xjzWi/xaeroworldmap-fabric-26.3-1.47.0.jar",
+    "sha512": "e80c6bd6729c059c3e433e7e77714ed4c7f20e1a487f7449cf47282e9816b51523efe39183090b76a56834ffc67090317e70324730f311ba2e71fa24eec539c6",
+    "label": "Xaero's World Map"
+  }
+]
