@@ -61,6 +61,7 @@ cmd "execute as Alice run hdv acheter 1"
 cmd "moderateurs ajouter Bob" 1
 cmd "execute as Bob run mod avertir Alice Test de moderation" 1
 cmd "terracraft suivi" 1
+cmd "terracraft course demarrer" 1
 # Métier, signalement, largage militaire
 cmd "execute as Bob run metier choisir pilote"
 cmd "execute as Alice run metier choisir mecanicien"
@@ -246,7 +247,9 @@ check(len(towns) == 1 and towns[0]["name"] == "Bourg Neuf", "ville fondée")
 check(len(towns[0]["members"]) == 2, "Bob a rejoint la ville")
 check(towns[0]["treasury"] == 140 + eco_created.get("vague_nocturne", 0), "trésorerie = 200 déposés - 50 et 10 payés (+ récompense de vague)")
 balances = sorted(json.loads((data / "balances.json").read_text()).values())
-check(balances == [660, 938], f"soldes Alice 400 + 10 de l'adjoint + 300 de boss - 50 à l'étal / Bob 888 + 50 de l'étal (prime de 100 posée puis gagnée) (obtenu {balances})")
+race = json.loads((data / "course.json").read_text())
+race_bob = sum(w["reward"] for w in race["winners"].values() if w["name"] == "Bob")
+check(balances == sorted([660, 938 + race_bob]), f"soldes Alice 400 + 10 de l'adjoint + 300 de boss - 50 à l'étal / Bob 888 + 50 de l'étal + {race_bob} de course (prime de 100 posée puis gagnée) (obtenu {balances})")
 eco = json.loads((data / "economie.json").read_text())
 created, destroyed = sum(eco["created"].values()), sum(eco["destroyed"].values())
 check(created == sum(balances) + towns[0]["treasury"] + destroyed, "aucun crédit perdu ni créé : créés = comptes + trésorerie + détruits")
@@ -339,6 +342,8 @@ check("nomme modérateur Bob" in log and "avertit Alice : Test de moderation" in
 check("[SUIVI] 2 joueurs uniques" in log, "suivi de l'activité : 2 joueurs uniques")
 activity = json.loads((data / "activite.json").read_text())
 check(len(activity) == 2 and all(r["sessions"] >= 1 for r in activity.values()), "activite.json : sessions enregistrées")
+check(sorted(race["winners"]) == sorted(["orbit", "orbital_station", "moon", "lunar_base", "alien_sanctuary"])
+      and race_bob == 1300 and race["active"], f"course à l'espace : Bob remporte 5 étapes, 1 300 crédits (obtenu {sorted(race['winners'])})")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

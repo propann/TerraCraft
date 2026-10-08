@@ -143,7 +143,9 @@ génération ni perte d'objet.
 - [x] **Modérateurs sans être opérateurs** : rôle intégré (`/moderateurs ajouter`), outils `/mod` (expulser,
       silence, avertir, aller, signalements), journal `[MOD]`. LuckPerms (disponible pour 26.3) n'est pas utilisé : il ne
       règle pas les commandes du mod ; à reconsidérer si une hiérarchie fine devient nécessaire.
-- [ ] **Événement d'ouverture** : course à la première station lunaire.
+- [x] **Événement d'ouverture** : course à l'espace (`/terracraft course demarrer`) ; le premier à chaque étape
+      (orbite, station orbitale, Lune, base lunaire, sanctuaire, Mars) gagne 200 à 500 crédits ; titre pour tous ;
+      tableau `/course`.
 - [x] **Suivi** (`/terracraft suivi`, activite.json) : joueurs uniques, actifs 24 h / 7 j, retour après le premier
       jour, temps de jeu, joueurs en ligne, tick moyen. Reste : missions et contrats remplis, erreurs.
 

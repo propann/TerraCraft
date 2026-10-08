@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.27", "Course à l'espace : le premier à chaque étape gagne une prime (/course)"),
             new Change("0.26", "Règles du serveur (/regles) et modérateurs ; bêta prête"),
             new Change("0.25", "Les claims des habitants agrandissent leur ville ; adjoints de maire (/ville adjoint)"),
             new Change("0.24", "Étals de marché : vends tes objets à prix fixe, même hors ligne (/etal)"),

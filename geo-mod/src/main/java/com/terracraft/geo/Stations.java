@@ -105,6 +105,7 @@ public final class Stations {
         }
         StationBuilder.buildOrbital(level, beacon);
         registerBuilt(owner, level, beacon, "Station orbitale de " + owner.getName().getString());
+        SpaceRace.reached(owner, "orbital_station");
         GeoMod.LOGGER.info("[STATION] {} déploie sa station orbitale en {}", owner.getName().getString(), beacon);
         owner.sendSystemMessage(Component.literal("✦ Station orbitale déployée : salle de travail, tunnels, stockage et quai "
                 + "d'amarrage. Tes fusées se poseront ici ; les voyages vers la Lune et au-delà partent de ce quai.")
@@ -120,6 +121,9 @@ public final class Stations {
         BlockPos beacon = new BlockPos((int) Math.floor(x) - 2, y - 1, (int) Math.floor(z));
         StationBuilder.buildSurfaceBase(level, beacon);
         registerBuilt(owner, level, beacon, kind + " de " + owner.getName().getString());
+        if (level.dimension() == Space.MOON) {
+            SpaceRace.reached(owner, "lunar_base");
+        }
         GeoMod.LOGGER.info("[STATION] {} déploie sa {} en {} {}", owner.getName().getString(), kind.toLowerCase(java.util.Locale.ROOT),
                 level.dimension().identifier(), beacon);
         owner.sendSystemMessage(Component.literal("✦ " + kind + " déployée : aire d'atterrissage, sas, salle de vie avec oxygène et atelier. "

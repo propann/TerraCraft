@@ -74,6 +74,7 @@ public final class GeoMod implements ModInitializer {
     private static final Bounties BOUNTIES = new Bounties(AUCTION_HOUSE);
     private static final Stalls STALLS = new Stalls(AUCTION_HOUSE);
     private static final Activity ACTIVITY = new Activity();
+    private static final SpaceRace RACE = new SpaceRace(AUCTION_HOUSE);
     private static final Contracts CONTRACTS = new Contracts(AUCTION_HOUSE);
     private static final Claims CLAIMS = new Claims();
     private static final SupplyDrops SUPPLY = new SupplyDrops();
@@ -297,6 +298,8 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(PVP::load);
         ServerLifecycleEvents.SERVER_STARTED.register(BOUNTIES::load);
         ServerLifecycleEvents.SERVER_STARTED.register(ACTIVITY::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(RACE::load);
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> RACE.register(dispatcher));
         ServerLifecycleEvents.SERVER_STARTED.register(MODERATION::load);
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> MODERATION.register(dispatcher));
         net.fabricmc.fabric.api.message.v1.ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) ->
@@ -485,6 +488,10 @@ public final class GeoMod implements ModInitializer {
                                     }
                                     return 1;
                                 }))
+                        .then(Commands.literal("course")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .then(Commands.literal("demarrer").executes(command -> RACE.start(command.getSource())))
+                                .then(Commands.literal("arreter").executes(command -> RACE.stop(command.getSource()))))
                         .then(Commands.literal("suivi")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> ACTIVITY.report(command.getSource())))

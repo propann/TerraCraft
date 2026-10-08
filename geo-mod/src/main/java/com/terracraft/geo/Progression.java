@@ -403,6 +403,7 @@ public final class Progression {
     }
 
     public void discover(ServerPlayer player, String id) {
+        SpaceRace.reached(player, id); // Course à l'espace : orbite, Lune, sanctuaire, Mars (même déjà découverts).
         Record r = record(player);
         if (!r.discoveries.add(id)) {
             return;
