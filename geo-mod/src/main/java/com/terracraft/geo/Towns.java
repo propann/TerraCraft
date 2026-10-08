@@ -53,7 +53,16 @@ final class Towns {
         Survival.Place center;
         long treasury;
         long founded;
+        /** Adjoints : invitent, excluent les simples habitants et paient depuis la trésorerie. */
+        Set<UUID> deputies = new LinkedHashSet<>();
+
+        boolean canManage(UUID player) {
+            return mayor.equals(player) || deputies != null && deputies.contains(player);
+        }
     }
+
+    /** Un claim d'habitant compte comme territoire de la ville jusqu'à cette distance du centre. */
+    static final int CLAIM_REACH = 256;
 
     private record Invite(String town, long time) {
     }
@@ -198,6 +207,8 @@ final class Towns {
                         .executes(c -> kick(c.getSource().getPlayerOrException(), StringArgumentType.getString(c, "joueur")))))
                 .then(Commands.literal("maire").then(Commands.argument("joueur", EntityArgument.player())
                         .executes(c -> transfer(c.getSource().getPlayerOrException(), EntityArgument.getPlayer(c, "joueur")))))
+                .then(Commands.literal("adjoint").then(Commands.argument("joueur", EntityArgument.player())
+                        .executes(c -> deputy(c.getSource().getPlayerOrException(), EntityArgument.getPlayer(c, "joueur")))))
                 .then(Commands.literal("centre").executes(c -> moveCenter(c.getSource().getPlayerOrException())))
                 .then(Commands.literal("tp").executes(c -> teleport(c.getSource().getPlayerOrException())))
                 .then(Commands.literal("deposer").then(Commands.argument("montant", IntegerArgumentType.integer(1, 1_000_000_000))
@@ -267,8 +278,8 @@ final class Towns {
 
     private int invite(ServerPlayer mayor, ServerPlayer target) {
         Town town = townOf(mayor.getUUID());
-        if (town == null || !town.mayor.equals(mayor.getUUID())) {
-            error(mayor, "Seul le maire peut inviter.");
+        if (town == null || !town.canManage(mayor.getUUID())) {
+            error(mayor, "Seuls le maire et ses adjoints peuvent inviter.");
             return 0;
         }
         if (townOf(target.getUUID()) != null) {
@@ -323,6 +334,7 @@ final class Towns {
             return 1;
         }
         town.members.remove(player.getUUID());
+        town.deputies.remove(player.getUUID());
         if (town.members.isEmpty()) {
             // Dernier habitant : la trésorerie lui revient, la ville disparaît.
             bank.deposit(player.getUUID(), town.treasury);
@@ -340,8 +352,8 @@ final class Towns {
 
     private int kick(ServerPlayer mayor, String name) {
         Town town = townOf(mayor.getUUID());
-        if (town == null || !town.mayor.equals(mayor.getUUID())) {
-            error(mayor, "Seul le maire peut exclure un habitant.");
+        if (town == null || !town.canManage(mayor.getUUID())) {
+            error(mayor, "Seuls le maire et ses adjoints peuvent exclure un habitant.");
             return 0;
         }
         UUID target = null;
@@ -354,7 +366,12 @@ final class Towns {
             error(mayor, "Aucun autre habitant ne porte ce nom.");
             return 0;
         }
+        if (!town.mayor.equals(mayor.getUUID()) && (target.equals(town.mayor) || town.deputies.contains(target))) {
+            error(mayor, "Un adjoint ne peut exclure ni le maire ni un autre adjoint.");
+            return 0;
+        }
         town.members.remove(target);
+        town.deputies.remove(target);
         save();
         tellMembers(town, Component.literal(name + " a été exclu de " + town.name + ".").withStyle(ChatFormatting.GRAY));
         ServerPlayer online = server.getPlayerList().getPlayer(target);
@@ -371,9 +388,33 @@ final class Towns {
             return 0;
         }
         town.mayor = target.getUUID();
+        town.deputies.remove(target.getUUID());
         save();
         tellMembers(town, Component.literal("✦ " + target.getName().getString() + " est le nouveau maire de " + town.name + ".")
                 .withStyle(ChatFormatting.GOLD));
+        return 1;
+    }
+
+    /** Le maire nomme ou destitue un adjoint (bascule). */
+    private int deputy(ServerPlayer mayor, ServerPlayer target) {
+        Town town = townOf(mayor.getUUID());
+        if (town == null || !town.mayor.equals(mayor.getUUID())) {
+            error(mayor, "Seul le maire nomme les adjoints.");
+            return 0;
+        }
+        if (!town.members.contains(target.getUUID()) || target.getUUID().equals(town.mayor)) {
+            error(mayor, "L'adjoint doit être un autre habitant de ta ville.");
+            return 0;
+        }
+        boolean named = town.deputies.add(target.getUUID());
+        if (!named) {
+            town.deputies.remove(target.getUUID());
+        }
+        save();
+        GeoMod.LOGGER.info("[VILLE] {} {} {} adjoint de {}", mayor.getName().getString(), named ? "nomme" : "destitue",
+                target.getName().getString(), town.name);
+        tellMembers(town, Component.literal(target.getName().getString() + (named ? " est nommé adjoint" : " n'est plus adjoint")
+                + " de " + town.name + ".").withStyle(ChatFormatting.GOLD));
         return 1;
     }
 
@@ -433,8 +474,8 @@ final class Towns {
 
     private int pay(ServerPlayer mayor, ServerPlayer target, long amount) {
         Town town = townOf(mayor.getUUID());
-        if (town == null || !town.mayor.equals(mayor.getUUID())) {
-            error(mayor, "Seul le maire peut puiser dans la trésorerie.");
+        if (town == null || !town.canManage(mayor.getUUID())) {
+            error(mayor, "Seuls le maire et ses adjoints peuvent puiser dans la trésorerie.");
             return 0;
         }
         if (!town.members.contains(target.getUUID())) {
@@ -473,6 +514,15 @@ final class Towns {
         player.sendSystemMessage(Component.literal("✦ " + town.name).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
         player.sendSystemMessage(Component.literal("Maire : " + town.names.getOrDefault(town.mayor.toString(), "?")
                 + " · habitants : " + town.members.size() + " · trésorerie : " + town.treasury + " crédits"));
+        if (!town.deputies.isEmpty()) {
+            List<String> deputies = new ArrayList<>();
+            town.deputies.forEach(id -> deputies.add(town.names.getOrDefault(id.toString(), "?")));
+            player.sendSystemMessage(Component.literal("Adjoints : " + String.join(", ", deputies)).withStyle(ChatFormatting.GRAY));
+        }
+        int claimed = town.members.stream().mapToInt(id -> Math.max(0, Claims.claimCount(server, id))).sum();
+        player.sendSystemMessage(Component.literal("Territoire : rayon " + RADIUS + " blocs autour du centre, plus " + claimed
+                + " chunk(s) revendiqué(s) par les habitants (comptent jusqu'à " + CLAIM_REACH + " blocs du centre).")
+                .withStyle(ChatFormatting.GRAY));
         List<String> names = new ArrayList<>();
         town.members.forEach(id -> names.add(town.names.getOrDefault(id.toString(), "?")));
         player.sendSystemMessage(Component.literal("Habitants : " + String.join(", ", names)).withStyle(ChatFormatting.GRAY));
@@ -518,7 +568,7 @@ final class Towns {
             return;
         }
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
-            Town town = nearest(here(player), RADIUS);
+            Town town = townAt(player);
             String now = town == null ? null : key(town.name);
             String before = inside.get(player.getUUID());
             if (java.util.Objects.equals(now, before)) {
@@ -541,6 +591,27 @@ final class Towns {
                         + " habitant(s)").withStyle(ChatFormatting.GRAY)));
             }
         }
+    }
+
+    /**
+     * Ville où se trouve le joueur : dans le rayon du centre, ou sur un chunk revendiqué par un habitant à moins de
+     * {@link #CLAIM_REACH} blocs du centre (la ville grandit avec les claims de ses habitants).
+     */
+    Town townAt(ServerPlayer player) {
+        Town town = nearest(here(player), RADIUS);
+        if (town != null) {
+            return town;
+        }
+        Claims.Owner owner = Claims.ownerAt(player);
+        if (owner == null) {
+            return null;
+        }
+        Town home = townOf(owner.player());
+        if (home == null || !home.center.dimension().equals(player.level().dimension().identifier().toString())
+                || Math.hypot(home.center.x() - player.getX(), home.center.z() - player.getZ()) > CLAIM_REACH) {
+            return null;
+        }
+        return home;
     }
 
     void onLeave(ServerPlayer player) {

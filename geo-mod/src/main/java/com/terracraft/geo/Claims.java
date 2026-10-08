@@ -31,6 +31,8 @@ final class Claims {
     private static Method infoUsername;
     private static Method infoClaimsName;
     private static boolean unavailable;
+    /** Ville d'un joueur (branchée par GeoMod) : ses claims s'affichent « Ville de X ». */
+    static java.util.function.Function<UUID, String> townName = id -> null;
 
     /** Dernier territoire affiché à chaque joueur (null = zone libre). */
     private final Map<UUID, UUID> shown = new HashMap<>();
@@ -74,11 +76,16 @@ final class Claims {
 
     /** Nombre de chunks revendiqués par le joueur ; -1 si Open Parties and Claims est absent. */
     static int claimCount(ServerPlayer player) {
+        return claimCount(player.level().getServer(), player.getUUID());
+    }
+
+    /** Nombre de chunks revendiqués par ce joueur (même hors ligne) ; -1 si Open Parties and Claims est absent. */
+    static int claimCount(MinecraftServer server, UUID player) {
         if (!ready()) {
             return -1;
         }
         try {
-            Object info = playerInfo.invoke(manager(player.level().getServer()), player.getUUID());
+            Object info = playerInfo.invoke(manager(server), player);
             return info == null ? 0 : (int) claimCount.invoke(info);
         } catch (ReflectiveOperationException | RuntimeException e) {
             return -1;
@@ -129,8 +136,9 @@ final class Claims {
                 player.sendOverlayMessage(Component.literal("Ton territoire" + (owner.claimName() == null ? "" : " — " + owner.claimName()))
                         .withStyle(ChatFormatting.GREEN));
             } else {
-                player.sendOverlayMessage(Component.literal("Territoire de " + owner.username()
-                        + (owner.claimName() == null ? "" : " — " + owner.claimName())).withStyle(ChatFormatting.GOLD));
+                String town = townName.apply(owner.player());
+                player.sendOverlayMessage(Component.literal((town == null ? "Territoire de " : "Ville de " + town + " · terrain de ")
+                        + owner.username() + (owner.claimName() == null ? "" : " — " + owner.claimName())).withStyle(ChatFormatting.GOLD));
             }
         }
     }

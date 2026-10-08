@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.24). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.25). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -32,7 +32,7 @@ Référence de TerraCraft (version 0.24). Tout est en français ; `/aide` en don
 | `/comptoir [n]` | Comptoir du serveur : carburant, oxygène, munitions, vivres à prix fixe |
 | `/missions` | Contrats du jour et missions ; `reclamer <id>` |
 | `/metier` | Métiers (mécanicien, éclaireur, récupérateur, combattant, pilote) ; `choisir <métier>` (un changement par 24 h) |
-| `/ville` | Sa ville : `creer <nom>` (500 crédits), `inviter`, `rejoindre`, `quitter`, `exclure`, `maire`, `centre`, `tp`, `deposer`, `payer`, `liste` |
+| `/ville` | Sa ville : `creer <nom>` (500 crédits), `inviter`, `rejoindre`, `quitter`, `exclure`, `maire`, `adjoint`, `centre`, `tp`, `deposer`, `payer`, `liste` (adjoints : inviter, exclure, payer) |
 | `/station` | Ses stations spatiales ; `nom <nom>` pour renommer la plus proche |
 | `/plans` | Plans de fusée débloqués, matériaux, comment débloquer les autres |
 | `/fusee carte` | Carte des étoiles de la fusée où l'on est assis (ou à moins de 8 blocs) |

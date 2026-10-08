@@ -62,6 +62,13 @@ public final class GeoMod implements ModInitializer {
     private static final AntiFly ANTI_FLY = new AntiFly();
     private static final Backups BACKUPS = new Backups();
     private static final Towns TOWNS = new Towns(AUCTION_HOUSE);
+
+    static {
+        Claims.townName = id -> {
+            Towns.Town town = TOWNS.townOf(id);
+            return town == null ? null : town.name;
+        };
+    }
     private static final NightRaids RAIDS = new NightRaids(TOWNS);
     private static final PvpZones PVP = new PvpZones();
     private static final Bounties BOUNTIES = new Bounties(AUCTION_HOUSE);

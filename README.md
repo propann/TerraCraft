@@ -19,7 +19,7 @@ Launcher Minecraft officiel : installeurs Windows et Linux dans [`installer/`](i
 main : dossier [`mods/`](mods/LISEZMOI.md). **Le pack doit avoir la même version que le serveur** : après une mise à
 jour, réimporte-le. Toutes les versions : [Releases](https://github.com/propann/TerraCraft/releases).
 
-## Ce qui est en place (0.24.0)
+## Ce qui est en place (0.25.0)
 
 - **Monde** : relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés, carte de départ en jeu.
 - **Survie** : inventaire conservé à la mort (−25 % d'expérience), `/sethome` `/home` `/back` `/tpa` (refusés en combat).

@@ -1,6 +1,6 @@
 # État du projet TerraCraft
 
-Analyse au 7 octobre 2026, version **0.24.0**. Ce document dit ce que nous avons, à quel point c'est vérifié, ce qui
+Analyse au 7 octobre 2026, version **0.25.0**. Ce document dit ce que nous avons, à quel point c'est vérifié, ce qui
 reste fragile et dans quel ordre continuer. La liste détaillée des tâches est dans [`feuille-de-route.md`](feuille-de-route.md).
 
 ## En bref
@@ -41,7 +41,7 @@ Légende du niveau de vérification :
 - **Intégration continue** : compilation, test de démarrage d'un vrai serveur (`tools/smoke_server.sh`), mise à jour
   de la branche `falix`, publication d'une release avec le pack client sur tag.
 - **Test de scénario** (`tools/scenario_test.sh`) : deux faux joueurs (Carpet, test uniquement) jouent une partie
-  courte ; **64 vérifications** (villes, économie au crédit près, combinaison et oxygène, métiers, contrats, largage,
+  courte ; **66 vérifications** (villes, économie au crédit près, combinaison et oxygène, métiers, contrats, largage,
   module de station, balise, vol en fusée posé à la balise, carburant consommé, plans et atelier, MOTD et icône).
 - **Versions figées** des mods tiers (`tools/mods.lock.json`), identiques sur le serveur et dans le pack.
 - **Données joueurs** écrites de façon atomique avec copie `.bak` ; **sauvegardes** du monde toutes les 6 h.

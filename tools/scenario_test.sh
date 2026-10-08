@@ -48,6 +48,8 @@ cmd "execute as Alice run ville inviter Bob"
 cmd "execute as Bob run ville rejoindre"
 cmd "execute as Bob run ville deposer 200"
 cmd "execute as Alice run ville payer Bob 50"
+cmd "execute as Alice run ville adjoint Bob" 1
+cmd "execute as Bob run ville payer Alice 10" 1
 cmd "execute as Bob run tp Bob 900 220 900" 2
 cmd "execute as Bob run ville tp" 2
 # Économie
@@ -238,9 +240,9 @@ towns = json.loads((data / "villes.json").read_text())
 eco_created = json.loads((data / "economie.json").read_text())["created"]
 check(len(towns) == 1 and towns[0]["name"] == "Bourg Neuf", "ville fondée")
 check(len(towns[0]["members"]) == 2, "Bob a rejoint la ville")
-check(towns[0]["treasury"] == 150 + eco_created.get("vague_nocturne", 0), "trésorerie = 200 déposés - 50 payés (+ récompense de vague)")
+check(towns[0]["treasury"] == 140 + eco_created.get("vague_nocturne", 0), "trésorerie = 200 déposés - 50 et 10 payés (+ récompense de vague)")
 balances = sorted(json.loads((data / "balances.json").read_text()).values())
-check(balances == [650, 938], f"soldes Alice 400 + 300 de boss - 50 à l'étal / Bob 888 + 50 de l'étal (prime de 100 posée puis gagnée) (obtenu {balances})")
+check(balances == [660, 938], f"soldes Alice 400 + 10 de l'adjoint + 300 de boss - 50 à l'étal / Bob 888 + 50 de l'étal (prime de 100 posée puis gagnée) (obtenu {balances})")
 eco = json.loads((data / "economie.json").read_text())
 created, destroyed = sum(eco["created"].values()), sum(eco["destroyed"].values())
 check(created == sum(balances) + towns[0]["treasury"] + destroyed, "aucun crédit perdu ni créé : créés = comptes + trésorerie + détruits")
@@ -324,6 +326,10 @@ check("[PRIME] Bob met 100 crédits sur Alice" in log and "[PRIME] Bob touche 10
 check(json.loads((data / "primes.json").read_text()) == {}, "plus aucune prime en attente après le paiement")
 check("[ETAL] Bob fixe le prix à 25" in log and "[ETAL] Alice achète Diamond x2 à Bob pour 50 crédits" in log,
       "étal de marché : Bob fixe le prix, Alice achète 2 diamants (50 crédits à Bob)")
+check("[VILLE] Alice nomme Bob adjoint de Bourg Neuf" in log and "[VILLE] Bob paie 10 crédits à Alice depuis Bourg Neuf" in log,
+      "rôles de ville : Bob nommé adjoint puis paie depuis la trésorerie")
+check(towns[0].get("deputies") == [str(uuid) for uuid in towns[0]["members"] if uuid != towns[0]["mayor"]],
+      "l'adjoint est enregistré dans villes.json")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

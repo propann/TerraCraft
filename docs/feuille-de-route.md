@@ -49,9 +49,11 @@ génération ni perte d'objet.
 
 - [x] Villes : maire, habitants, trésorerie, `/ville tp`, titres d'entrée et de sortie.
 - [x] Propriétaire du territoire affiché en changeant de zone.
-- [ ] **Claims de ville** : les chunks revendiqués par les habitants autour du centre comptent comme ville ; afficher
-      « Ville de X » plutôt que le pseudo du propriétaire.
-- [ ] **Rôles de ville** (maire, adjoint, habitant) avec droits sur la trésorerie et les invitations.
+- [~] **Claims de ville** : les chunks revendiqués par un habitant à moins de 256 blocs du centre comptent comme la
+      ville (titre d'entrée, vagues…), et s'affichent « Ville de X · terrain de Pseudo » ; `/ville` montre le
+      territoire. À vérifier en jeu avec de vrais claims (non couvert par le test automatique).
+- [x] **Rôles de ville** : le maire nomme des adjoints (`/ville adjoint <joueur>`, bascule) qui invitent, excluent
+      les simples habitants et paient depuis la trésorerie ; centre-ville et passation restent au maire.
 - [ ] **Protection des véhicules et coffres** dans les claims d'autrui (aujourd'hui : verrou du propriétaire).
 - [ ] **Taxe de ville légère** seulement si elle finance un service visible (balise de ville, garage, téléporteur).
 
