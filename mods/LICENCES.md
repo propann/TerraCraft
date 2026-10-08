@@ -1,4 +1,4 @@
-# Licences des mods de ce dossier (v0.25.0)
+# Licences des mods de ce dossier (v0.26.0)
 
 | Fichier | Licence | Source |
 |---|---|---|
