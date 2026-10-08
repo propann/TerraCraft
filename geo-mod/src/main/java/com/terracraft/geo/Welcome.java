@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.34", "Lieux réels : /lieux (hôpitaux, gares, commissariats…), butin selon le lieu, découvertes"),
             new Change("0.33", "Lampes électriques, réseaux de tuyaux et câbles jusqu'à ~1 000 blocs"),
             new Change("0.32", "Groupe électrogène, tableau de bord des véhicules (vitesse, carburant, autonomie)"),
             new Change("0.31", "Stations-service en ruine (vraies adresses), batteries pour la nuit, écran des machines"),

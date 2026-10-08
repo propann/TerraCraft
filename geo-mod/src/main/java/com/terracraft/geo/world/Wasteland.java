@@ -44,6 +44,12 @@ public final class Wasteland {
 
     static final ResourceKey<LootTable> RUIN_LOOT = loot("chests/ruin");
     static final ResourceKey<LootTable> BUNKER_LOOT = loot("chests/bunker");
+    static final ResourceKey<LootTable> MEDICAL_LOOT = loot("chests/medical");
+    static final ResourceKey<LootTable> POLICE_LOOT = loot("chests/police");
+    static final ResourceKey<LootTable> GROCERY_LOOT = loot("chests/grocery");
+    static final ResourceKey<LootTable> SCHOOL_LOOT = loot("chests/school");
+    static final ResourceKey<LootTable> FIRE_LOOT = loot("chests/fire_station");
+    static final ResourceKey<LootTable> RAILWAY_LOOT = loot("chests/railway");
 
     private static final int CAVE_GRID = 192;
     private static final int BUNKER_GRID = 320;
@@ -278,7 +284,8 @@ public final class Wasteland {
                     continue;
                 }
                 int roll = (int) Math.floorMod(Apocalypse.hash(x, z, 211), 1000);
-                if (roll >= 15) {
+                ResourceKey<LootTable> placeLoot = placeLoot(osm, b);
+                if (roll >= 15 && !(placeLoot != null && roll < 19)) {
                     continue;
                 }
                 int top = Apocalypse.effectiveTop(b, x, z);
@@ -288,8 +295,9 @@ public final class Wasteland {
                 if (!level.getBlockState(at).isAir() || level.getBlockState(at.below()).isAir()) {
                     continue;
                 }
-                if (roll < 4) {
-                    chest(level, at, RUIN_LOOT, random, Direction.from2DDataValue(random.nextInt(4)));
+                if (roll < 4 || placeLoot != null && roll >= 15) {
+                    // Bâtiment d'un lieu réel (hôpital, commissariat…) : butin de son type, deux fois plus de coffres.
+                    chest(level, at, placeLoot != null ? placeLoot : RUIN_LOOT, random, Direction.from2DDataValue(random.nextInt(4)));
                 } else if (roll < 6) {
                     spawner(level, at, pickMonster(random), random);
                 } else {
@@ -297,6 +305,24 @@ public final class Wasteland {
                 }
             }
         }
+    }
+
+    /** Butin du lieu réel qui occupe ce bâtiment (point d'intérêt OSM à l'intérieur), ou null. */
+    private static ResourceKey<LootTable> placeLoot(OsmCells.Cell osm, OsmCells.Building building) {
+        for (OsmCells.Poi poi : osm.pois()) {
+            if (osm.building(poi.x(), poi.z()) == building) {
+                return switch (poi.kind()) {
+                    case "hospital", "pharmacy" -> MEDICAL_LOOT;
+                    case "police" -> POLICE_LOOT;
+                    case "grocery" -> GROCERY_LOOT;
+                    case "school", "college" -> SCHOOL_LOOT;
+                    case "fire_station" -> FIRE_LOOT;
+                    case "railway" -> RAILWAY_LOOT;
+                    default -> null;
+                };
+            }
+        }
+        return null;
     }
 
     private static void populateCaves(WorldGenLevel level, ChunkPos pos, EarthTerrain terrain, RandomSource random) {

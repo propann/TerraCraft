@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.33.0**.
+Dernière passe : 7 octobre 2026 — version **0.34.0**.
 
 ## Fonctionnel et raccordé
 
@@ -37,6 +37,7 @@ Dernière passe : 7 octobre 2026 — version **0.33.0**.
 - [x] Stations-service en ruine (vraies adresses), batteries, écran à jauges des machines.
 - [x] Groupe électrogène, tableau de bord des véhicules, bidons dans les ruines.
 - [x] Lampes électriques, réseaux de tuyaux et câbles d'environ 1 000 blocs.
+- [x] Lieux réels : `/lieux`, butin selon le lieu, découvertes par type de lieu.
 - [x] Stations : kit de module pressurisé 7×5×7, balise de station (arrivée des fusées), `/station`.
 - [x] Plans de fusée (`/plans`) et atelier de station : réservoir étendu, moteur ionique, soute (touche V), navigation martienne.
 - [x] Combinaison spatiale (touche `J` et panneau de l'inventaire `E`) : casque, combinaison, bottes magnétiques, jetpack, deux réserves d'oxygène, rendu en armure, HUD O₂.

@@ -128,7 +128,10 @@ public final class GeoMod implements ModInitializer {
         double distance = Double.MAX_VALUE;
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
-                var cell = generator.terrain().osm().cellAt(player.getBlockX() + dx * 512, player.getBlockZ() + dz * 512);
+                var cell = generator.terrain().osm().cellIfLoaded(player.getBlockX() + dx * 512, player.getBlockZ() + dz * 512);
+                if (cell == null) {
+                    continue;
+                }
                 for (int[] station : cell.fuelStations()) {
                     double d = Math.hypot(station[0] - player.getX(), station[1] - player.getZ());
                     if (d < distance) {
@@ -362,6 +365,8 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(ACTIVITY::load);
         ServerLifecycleEvents.SERVER_STARTED.register(RACE::load);
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> RACE.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Places.register(dispatcher));
+        ServerTickEvents.END_SERVER_TICK.register(Places::tick);
         ServerLifecycleEvents.SERVER_STARTED.register(MODERATION::load);
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> MODERATION.register(dispatcher));
         net.fabricmc.fabric.api.message.v1.ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) ->

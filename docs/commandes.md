@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.33). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.34). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -60,6 +60,7 @@ Clic droit main vide sur une machine : écran à jauges (contenu, énergie, char
 | `/fusee cap <destination>` | Mettre le cap : `terre`, `orbite`, `orbite_lunaire`, `lune`, `orbite_mars`, `mars` |
 | `/atelier installer <plan>` | Installer une amélioration sur la fusée garée près d'un atelier de station |
 | `/terracraft ou` | Latitude, longitude et altitude réelles de sa position |
+| `/lieux` | Lieux réels les plus proches (hôpital, pharmacie, commissariat, gare, supermarché, école…) : nom, distance, direction |
 | `/terracraft vehicule partager|retirer <joueur>`, `liberer` | Partage et propriété de son véhicule |
 | `/pvp` | Règle de combat : PvE partout, liste des zones PvP |
 | `/prime <joueur> <montant>`, `/primes` | Mettre une tête à prix (minimum 50, argent bloqué, gagné par qui l'abat en zone PvP) ; primes en cours |
@@ -105,7 +106,7 @@ Clic droit main vide sur une machine : écran à jauges (contenu, énergie, char
 
 ## Journal de la console
 
-Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`, `[MOD]`, `[SUIVI]`, `[COURSE]`, `[GEN]`, `[PROTECTION]`, `[CARBURANT]`,
+Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`, `[MOD]`, `[SUIVI]`, `[COURSE]`, `[GEN]`, `[PROTECTION]`, `[CARBURANT]`, `[LIEUX]`,
 `[STATION]`, `[ATELIER]`, `[NAV]`, `[METEORES]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
 
 Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,

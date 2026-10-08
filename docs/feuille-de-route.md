@@ -74,8 +74,8 @@ génération ni perte d'objet.
 
 - [x] Journal des missions, contrats du jour, familles (exploration, combat, véhicules, économie, villes, espace).
 - [x] Métiers avec bonus réels.
-- [ ] **Missions liées aux lieux réels** : « rejoindre l'hôpital/la gare la plus proche », à partir des données OSM
-      déjà téléchargées (points d'intérêt de la phase 7).
+- [~] **Missions liées aux lieux réels** : découvertes par type de lieu (premier passage) ; reste les contrats du jour
+      « rejoindre l'hôpital le plus proche ».
 - [ ] **Collections** : villes réelles visitées, bunkers, véhicules réparés, minerais ; récompense par palier.
 - [ ] **Missions de ville** : objectifs communs (déposer X crédits, poser N modules) avec récompense partagée.
 - [ ] **Réputation** : un niveau par métier, débloquant des offres du comptoir.
@@ -119,8 +119,11 @@ génération ni perte d'objet.
 - [ ] **Hauteurs Overture** seulement quand la donnée est fiable ; plafond par type sinon.
 - [ ] **Refus des géométries aberrantes** et rapport de génération (`/terracraft rapport`) listant les bâtiments
       suspects avec leurs coordonnées.
-- [ ] **Intérieurs par type** : mobilier, éclairage, entrées, butin contextualisé (pharmacie, armurerie, garage).
-- [ ] **Points d'intérêt** : hôpitaux, gares, stations-service, écoles, utilisés par les missions.
+- [~] **Intérieurs par type** : butin contextualisé fait (soins, armes, vivres, livres, matériel de pompier, rails),
+      deux fois plus de coffres dans ces bâtiments ; reste le mobilier et l'éclairage par type.
+- [x] **Points d'intérêt** : hôpitaux, pharmacies, commissariats, écoles, gares, supermarchés, casernes, mairies,
+      stations-service (OSM, avec leur nom) ; `/lieux` ; découverte au premier passage (vérifié : 68 lieux au centre
+      de Paris).
 - [ ] **Densité variable** entre centre, banlieue, campagne et zones industrielles.
 
 ## Phase 8 — Espace et endgame

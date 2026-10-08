@@ -31,6 +31,7 @@ final class ServerGuide {
     static {
         THEMES.put("survie", java.util.List.of(
                 new Entry("[Position]", "/terracraft ou", "Ta latitude et ta longitude réelles"),
+                new Entry("[Lieux]", "/lieux", "Hôpital, pharmacie, commissariat, gare, supermarché… les plus proches"),
                 new Entry("[Maison]", "/sethome", "Enregistrer ta maison ; /home pour y revenir"),
                 new Entry("[Retour]", "/back", "Revenir au lieu de ta dernière mort"),
                 new Entry("[Ami]", "/tpa ", "Demander une téléportation à un joueur"),

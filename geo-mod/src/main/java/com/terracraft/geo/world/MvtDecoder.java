@@ -15,6 +15,9 @@ import java.util.Map;
  */
 final class MvtDecoder {
     static final int POINT = 1;
+    /** Classes de points d'intérêt OpenMapTiles conservées. */
+    static final java.util.Set<String> POI_CLASSES = java.util.Set.of("fuel", "hospital", "pharmacy", "police", "school",
+            "college", "railway", "grocery", "fire_station", "town_hall");
     static final int LINE = 2;
     static final int POLYGON = 3;
 
@@ -141,8 +144,8 @@ final class MvtDecoder {
             }
         }
         if (type == POINT) {
-            // Points d'intérêt : seules les stations-service servent (ruines à piller), le reste est ignoré.
-            return "fuel".equals(map.get("class")) ? new Feature(layer, id, type, map, points(geometry, extent)) : null;
+            // Points d'intérêt utiles au jeu (lieux réels : butin, /lieux, découvertes) ; le reste est ignoré.
+            return POI_CLASSES.contains(String.valueOf(map.get("class"))) ? new Feature(layer, id, type, map, points(geometry, extent)) : null;
         }
         return new Feature(layer, id, type, map, geometry(geometry, extent));
     }

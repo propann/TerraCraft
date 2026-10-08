@@ -30,10 +30,11 @@ jour, réimporte-le. Toutes les versions : [Releases](https://github.com/propann
 
 Les mêmes règles s'affichent en jeu à la première connexion et avec `/regles`.
 
-## Ce qui est en place (0.33.0)
+## Ce qui est en place (0.34.0)
 
 - **Monde** : la Terre réelle (relief, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés), météo réelle,
-  jour et nuit normaux ; ruines, bunkers, caves, épaves.
+  jour et nuit normaux ; ruines, bunkers, caves, épaves ; lieux réels (`/lieux` : hôpitaux, gares, commissariats…)
+  avec un butin à leur image.
 - **Entrée** : pack à importer (serveur déjà dans la liste), carte de départ en jeu, règles, carnet de survie, parcours
   « Premiers pas », accueil des habitués avec les nouveautés.
 - **Interface** : menu `O` en tuiles, fiche `K`, aide par thèmes (`/aide`), barres de vie, chat soigné, ville en

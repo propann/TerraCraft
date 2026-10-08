@@ -63,6 +63,10 @@ public final class OsmCells {
 
     public enum RoofShape { FLAT, HIPPED, MANSARD, STEEP }
 
+    /** Lieu réel : classe OpenMapTiles (hospital, pharmacy…), position en blocs, nom (peut être vide). */
+    public record Poi(String kind, int x, int z, String name) {
+    }
+
     /**
      * Bâtiment rastérisé : hauteurs en Y Minecraft absolus, blocs en identifiants
      * ({@code minecraft:bricks}) résolus par le générateur.
@@ -88,6 +92,12 @@ public final class OsmCells {
         final List<Building> buildings = new ArrayList<>();
         /** Stations-service réelles (OSM amenity=fuel) : {x, z} en blocs. */
         final List<int[]> fuelStations = new ArrayList<>();
+        /** Lieux réels utiles (hôpitaux, pharmacies, commissariats, écoles, gares, supermarchés…). */
+        final List<Poi> pois = new ArrayList<>();
+
+        public List<Poi> pois() {
+            return pois;
+        }
 
         /** Stations-service de cette cellule (ruines à piller). */
         public List<int[]> fuelStations() {
@@ -187,6 +197,15 @@ public final class OsmCells {
     /** Cellule contenant le bloc ; bloquant au premier accès (téléchargement). */
     public Cell cellAt(int blockX, int blockZ) {
         return load(Math.floorDiv(blockX, CELL_SIZE), Math.floorDiv(blockZ, CELL_SIZE)).join();
+    }
+
+    /**
+     * Cellule déjà en mémoire, ou null (son chargement est alors lancé en arrière-plan). À utiliser sur le fil du
+     * serveur : ne bloque jamais sur un téléchargement.
+     */
+    public Cell cellIfLoaded(int blockX, int blockZ) {
+        CompletableFuture<Cell> future = load(Math.floorDiv(blockX, CELL_SIZE), Math.floorDiv(blockZ, CELL_SIZE));
+        return future.isDone() && !future.isCompletedExceptionally() ? future.join() : null;
     }
 
     /** Prépare toutes les cellules à moins de {@code radius} blocs du point. */
@@ -430,9 +449,22 @@ public final class OsmCells {
                     }
                     case "waterway" -> waterways.add(shape);
                     case "poi" -> {
+                        String kind = shape.get("class");
+                        Object rawName = shape.feature().tags().get("name:fr");
+                        if (rawName == null) {
+                            rawName = shape.feature().tags().get("name");
+                        }
+                        String name = rawName == null ? "" : rawName.toString();
                         for (double[] point : shape.parts()) {
                             int x = (int) Math.floor(point[0]);
                             int z = (int) Math.floor(point[1]);
+                            boolean inside = x >= cell.originX && x < cell.originX + CELL_SIZE && z >= cell.originZ && z < cell.originZ + CELL_SIZE;
+                            if (inside && cell.pois.stream().noneMatch(p -> p.kind().equals(kind) && Math.abs(p.x() - x) < 8 && Math.abs(p.z() - z) < 8)) {
+                                cell.pois.add(new Poi(kind, x, z, name));
+                            }
+                            if (!"fuel".equals(kind)) {
+                                continue;
+                            }
                             boolean known = cell.fuelStations.stream().anyMatch(s -> Math.abs(s[0] - x) < 24 && Math.abs(s[1] - z) < 24);
                             // Une même station figure dans les tuiles voisines (marges) : une seule ruine par station.
                             if (!known && x >= cell.originX && x < cell.originX + CELL_SIZE && z >= cell.originZ && z < cell.originZ + CELL_SIZE) {
