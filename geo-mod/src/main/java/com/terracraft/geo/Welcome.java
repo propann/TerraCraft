@@ -34,7 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
-            new Change("0.37", "Réputation de métier (offres réservées au comptoir), intérieurs selon le lieu, serre hydroponique"),
+            new Change("0.37", "Réputation de métier, intérieurs selon le lieu, serre hydroponique, icônes redessinées"),
             new Change("0.36", "Ceinture d'astéroïdes, collections de lieux, grande station de ville (objectif commun)"),
             new Change("0.35", "Terminal logistique : stock commun de la ville, de la Terre à la Lune ; contrats de lieux réels"),
             new Change("0.34", "Lieux réels : /lieux (hôpitaux, gares, commissariats…), butin selon le lieu, découvertes"),
@@ -102,11 +102,11 @@ final class Welcome {
     static void motd(MinecraftServer server) {
         String current = server.getMotd() == null ? "" : server.getMotd().strip();
         String lower = current.toLowerCase(Locale.ROOT);
-        if (!current.isEmpty() && !lower.contains("minecraft server") && !lower.contains("falix") && !lower.startsWith("terracraft")) {
+        if (!current.isEmpty() && !lower.contains("minecraft server") && !lower.contains("falix") && !lower.contains("terracraft")) {
             return;
         }
-        server.setMotd("§6§lTerraCraft §r§7· §fla Terre réelle après la chute\n§b" + GeoMod.version()
-                + " §8| §7villes · métiers · fusées · stations lunaires");
+        server.setMotd("§6§l✦ TerraCraft ✦ §r§7· §fla Terre réelle après la chute\n§b" + GeoMod.version()
+                + " §8│ §avilles §8· §eindustrie §8· §bLune §8· §cMars");
     }
 
     // --- Liste des joueurs (Tab) -------------------------------------------------------------
@@ -118,8 +118,9 @@ final class Welcome {
         towns.syncTeams(server);
         towns.checkGoals(server);
         int online = server.getPlayerList().getPlayerCount();
-        Component header = Component.literal("\n").append(Component.literal("TerraCraft").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
-                .append(Component.literal("\nla Terre réelle après la chute\n").withStyle(ChatFormatting.GRAY));
+        Component header = Component.literal("\n").append(Component.literal("✦ TerraCraft ✦").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
+                .append(Component.literal("\nla Terre réelle après la chute").withStyle(ChatFormatting.GRAY))
+                .append(Component.literal("\n─────────────────────\n").withStyle(ChatFormatting.DARK_GRAY));
         Component footer = Component.literal("\n" + online + (online > 1 ? " survivants" : " survivant") + " en ligne · "
                         + GeoMod.version()).withStyle(ChatFormatting.AQUA)
                 .append(Component.literal("\nO : menu  ·  J : combinaison  ·  /aide  ·  /regles  ·  /signaler\n").withStyle(ChatFormatting.DARK_GRAY));

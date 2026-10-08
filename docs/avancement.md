@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.37.0**.
+Dernière passe : 7 octobre 2026 — version **0.37.1**.
 
 ## Fonctionnel et raccordé
 
@@ -41,6 +41,7 @@ Dernière passe : 7 octobre 2026 — version **0.37.0**.
 - [x] Terminal logistique (stock commun de ville, Terre ↔ Lune) ; contrats du jour liés aux lieux réels.
 - [x] Ceinture d'astéroïdes ; récupération dans le vide des orbites ; collections de lieux ; grande station de ville.
 - [x] Réputation de métier, mobilier selon le lieu, serre hydroponique.
+- [x] Esthétique : contour commun à toutes les icônes, châssis, moteur, turbo et jerricans redessinés ; MOTD et liste Tab.
 - [x] Stations : kit de module pressurisé 7×5×7, balise de station (arrivée des fusées), `/station`.
 - [x] Plans de fusée (`/plans`) et atelier de station : réservoir étendu, moteur ionique, soute (touche V), navigation martienne.
 - [x] Combinaison spatiale (touche `J` et panneau de l'inventaire `E`) : casque, combinaison, bottes magnétiques, jetpack, deux réserves d'oxygène, rendu en armure, HUD O₂.

@@ -1,6 +1,6 @@
 # État du projet TerraCraft
 
-Analyse au 8 octobre 2026, version **0.37.0**. Ce document dit ce que nous avons, à quel point c'est vérifié, ce qui
+Analyse au 8 octobre 2026, version **0.37.1**. Ce document dit ce que nous avons, à quel point c'est vérifié, ce qui
 reste fragile et dans quel ordre continuer. Tâches : [`feuille-de-route.md`](feuille-de-route.md) · commandes :
 [`commandes.md`](commandes.md) · mesures : [`mesures-generation.md`](mesures-generation.md).
 

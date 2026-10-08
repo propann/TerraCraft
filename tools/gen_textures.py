@@ -122,9 +122,28 @@ def vehicle(name, size, body, parts, seed):
     c.save(f"entity/{name}.png")
 
 
-def icon(name, draw, seed=1):
+def outline(c):
+    """Contour d'un pixel autour du dessin : version assombrie de la couleur voisine (style commun des icônes)."""
+    edge = {}
+    for y in range(c.h):
+        for x in range(c.w):
+            if c.px[y][x][3] > 0:
+                continue
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nx, ny = x + dx, y + dy
+                if 0 <= nx < c.w and 0 <= ny < c.h and c.px[ny][nx][3] > 0:
+                    r, g, b, _ = c.px[ny][nx]
+                    edge[(x, y)] = (int(r * 0.3), int(g * 0.3), int(b * 0.3), 255)
+                    break
+    for (x, y), colour in edge.items():
+        c.px[y][x] = colour
+
+
+def icon(name, draw, seed=1, contour=True):
     c = Canvas(16, 16, seed)
     draw(c)
+    if contour:
+        outline(c)
     c.save(f"item/{name}.png")
 
 
@@ -990,7 +1009,7 @@ def industry_textures():
             c.rect(6, 7, 4, 4, (24, 24, 28))
             c.rect(7, 8, 2, 2, fill)
         return draw
-    icon("empty_fuel_can", can((120, 122, 130)))
+    icon("empty_fuel_can", can((120, 122, 130)), contour=False)
 
     def detector(c):
         c.rect(3, 1, 10, 14, (24, 24, 28))
@@ -1000,7 +1019,117 @@ def industry_textures():
         c.rect(7, 4, 1, 3, (90, 230, 120))
         c.rect(6, 10, 2, 2, (24, 24, 28))
         c.rect(9, 10, 2, 2, (180, 40, 30))
-    icon("oil_detector", detector)
+    icon("oil_detector", detector, contour=False)
+
+
+VEHICLE_PALETTE = {"r": (170, 45, 40), "R": (210, 80, 70), "g": (78, 98, 78), "G": (110, 135, 108), "w": (150, 190, 210),
+                   "t": (30, 30, 32), "h": (160, 165, 175), "m": (90, 92, 100), "o": (230, 160, 50), "y": (235, 210, 90),
+                   "b": (60, 110, 190), "B": (120, 170, 235), "s": (200, 200, 205), "k": (28, 28, 32)}
+CAR = [
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    ".....RRRRRR.....",
+    "....RwwwRwwwR...",
+    "...RwwwwRwwwwR..",
+    ".rrrrrrrrrrrrrr.",
+    ".ryrrrrrrrrrrrr.",
+    ".rrrrrrrrrrrrrr.",
+    "..ttt......ttt..",
+    ".tthtt....tthtt.",
+    "..ttt......ttt..",
+    "................",
+    "................",
+]
+TRUCK = [
+    "................",
+    "................",
+    "................",
+    "..........GGGG..",
+    "..........GwwG..",
+    "..........GwwGG.",
+    "mmmmmmmmm.GGGGG.",
+    "mgggggggm.GGGGG.",
+    "mgggggggmGGGGGG.",
+    "mmmmmmmmmGGGGGy.",
+    "gggggggggggggGG.",
+    ".ttt..ttt...ttt.",
+    "tthttthtt..tthtt",
+    ".ttt..ttt...ttt.",
+    "................",
+    "................",
+]
+MOTO = [
+    "................",
+    "................",
+    "................",
+    "................",
+    "...........h....",
+    "..........hh....",
+    "....rrrr..h.....",
+    "...rRRRRrhh.....",
+    "..mmmmmmmmh.....",
+    ".ttt.mm..ttt....",
+    "tt.tt...tt.tt...",
+    "t.h.t...t.h.t...",
+    "tt.tt...tt.tt...",
+    ".ttt.....ttt....",
+    "................",
+    "................",
+]
+ENGINE = [
+    "................",
+    "................",
+    "....h.h.h.h.....",
+    "...mmmmmmmmm....",
+    "...mhhhhhhhm....",
+    "..mmmmmmmmmmm...",
+    "..mtmtmtmtmtm.o.",
+    "..mmmmmmmmmmmoo.",
+    ".tmmmmmmmmmmm...",
+    ".tmmhhhhhhmmm...",
+    ".tmmmmmmmmmmm...",
+    "..mmmmmmmmmmm...",
+    "...t.......t....",
+    "................",
+    "................",
+    "................",
+]
+TURBO = [
+    "................",
+    "................",
+    "................",
+    ".....hhhhh......",
+    "....hmmmmmh.....",
+    "...hmmhhhmmh....",
+    "...hmhtttmhmmmmo",
+    "...hmhttthmmmmmo",
+    "...hmmhhhmmh....",
+    "....hmmmmmh.....",
+    ".....hhhhh......",
+    ".......mm.......",
+    ".......mm.......",
+    "................",
+    "................",
+    "................",
+]
+
+
+def jerrycan(fill, light, mark):
+    """Jerrican détouré (le contour automatique s'en charge) : corps, poignée, bouchon, marque."""
+    def draw(c):
+        c.rect(4, 4, 8, 11, fill)
+        c.rect(4, 4, 8, 1, light)
+        c.rect(4, 4, 1, 11, light)
+        c.rect(6, 2, 4, 2, (60, 62, 70))
+        c.rect(7, 2, 2, 1, (25, 25, 28))
+        c.rect(10, 1, 2, 3, (150, 150, 158))
+        for k in range(3):
+            c.set(6 + k, 8 + k, mark)
+            c.set(9 - k, 8 + k, mark)
+    return draw
 
 
 def main():
@@ -1014,19 +1143,20 @@ def main():
         ("body", 0, 0, 6, 4, 28), ("tank", 0, 32, 8, 4, 14), ("frame", 100, 0, 2, 12, 2),
         ("frame", 70, 24, 14, 1, 1), ("wheel", 70, 0, 4, 10, 10), ("turbo", 70, 40, 2, 2, 8)], seed=13)
     icon("wheel", draw_wheel)
-    icon("engine", draw_engine)
+    icon("engine", sprite(ENGINE, VEHICLE_PALETTE))
     icon("radiator", draw_radiator)
     icon("battery", draw_battery)
-    icon("turbo", draw_turbo)
-    icon("fuel_can", draw_fuel)
-    icon("car_chassis", draw_chassis(False))
-    icon("truck_chassis", draw_chassis(True))
-    icon("pistol", sprite(PISTOL))
-    icon("rifle", sprite(RIFLE))
-    icon("shotgun", sprite(SHOTGUN))
+    icon("turbo", sprite(TURBO, VEHICLE_PALETTE))
+    icon("fuel_can", jerrycan((185, 40, 35), (225, 90, 80), (240, 200, 60)))
+    icon("car_chassis", sprite(CAR, VEHICLE_PALETTE))
+    icon("truck_chassis", sprite(TRUCK, VEHICLE_PALETTE))
+    icon("motorcycle_chassis", sprite(MOTO, VEHICLE_PALETTE))
+    icon("pistol", sprite(PISTOL), contour=False)
+    icon("rifle", sprite(RIFLE), contour=False)
+    icon("shotgun", sprite(SHOTGUN), contour=False)
     icon("ammo", draw_ammo)
-    icon("smg", sprite(SMG))
-    icon("sniper", sprite(SNIPER))
+    icon("smg", sprite(SMG), contour=False)
+    icon("sniper", sprite(SNIPER), contour=False)
     icon("grenade", draw_grenade)
     icon("machete", draw_machete)
     rocket()
@@ -1035,7 +1165,7 @@ def main():
     icon("rocket_tank", draw_rocket_tank)
     icon("nose_cone", draw_nose)
     icon("fins", draw_fins)
-    icon("rocket_fuel", draw_rocket_fuel)
+    icon("rocket_fuel", jerrycan((40, 110, 170), (100, 170, 230), (240, 240, 245)))
     icon("space_helmet", draw_helmet)
     icon("oxygen_tank", draw_oxygen)
     icon("space_suit", draw_space_suit)
