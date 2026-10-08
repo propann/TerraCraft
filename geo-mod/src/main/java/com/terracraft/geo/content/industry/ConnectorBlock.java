@@ -38,7 +38,7 @@ public class ConnectorBlock extends PipeBlock {
             return neighbour.getBlock() instanceof SolarPanelBlock
                     || neighbour.getBlock() instanceof MachineBlock machine && machine.kind.powered;
         }
-        return neighbour.getBlock() instanceof MachineBlock;
+        return neighbour.getBlock() instanceof MachineBlock machine && machine.kind != MachineKind.BATTERY;
     }
 
     @Override

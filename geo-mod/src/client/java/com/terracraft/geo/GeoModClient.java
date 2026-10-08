@@ -85,6 +85,15 @@ public final class GeoModClient implements ClientModInitializer {
                 context.client().gui.setScreen(new CharacterSheetScreen(payload.json())));
         ClientPlayNetworking.registerGlobalReceiver(MissionPayload.TYPE, (payload, context) ->
                 context.client().gui.setScreen(new MissionsScreen(payload.json())));
+        ClientPlayNetworking.registerGlobalReceiver(MachinePayload.TYPE, (payload, context) -> {
+            // Écran déjà ouvert sur cette machine : mise à jour sans le rouvrir.
+            if (context.client().gui.screen() instanceof MachineScreen open
+                    && open.pos().equals(new MachineScreen(payload.json()).pos())) {
+                open.update(payload.json());
+            } else {
+                context.client().gui.setScreen(new MachineScreen(payload.json()));
+            }
+        });
         ClientPlayNetworking.registerGlobalReceiver(StarMapPayload.TYPE, (payload, context) ->
                 context.client().gui.setScreen(new StarMapScreen(payload.json())));
         ClientPlayNetworking.registerGlobalReceiver(WorkshopPayload.TYPE, (payload, context) ->

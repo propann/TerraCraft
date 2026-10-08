@@ -556,6 +556,59 @@ public final class GeoChunkGenerator extends ChunkGenerator {
         return roll < 40 ? TreeFeatures.OAK : roll < 70 ? TreeFeatures.FANCY_OAK : roll < 90 ? TreeFeatures.BIRCH : TreeFeatures.DARK_OAK;
     }
 
+    /**
+     * Station-service en ruine à l'emplacement d'une vraie station (OSM amenity=fuel) : parvis, quatre piliers, auvent
+     * troué, deux pompes à essence reliées par des tuyaux à une cuve enterrée qui contient encore un peu d'essence.
+     * Les pompes fonctionnent : bidon vide en main, clic droit.
+     */
+    private void fuelStation(WorldGenLevel level, OsmCells.Cell cell, int x, int z) {
+        int ground = terrain.surfaceY(x, z);
+        if (ground < EarthTerrain.SEA_LEVEL || cell.surface(x, z) == OsmCells.WATER || cell.building(x, z) != null) {
+            return;
+        }
+        net.minecraft.util.RandomSource random = net.minecraft.util.RandomSource.create(x * 341873128712L + z);
+        BlockState slab = net.minecraft.world.level.block.Blocks.SMOOTH_STONE_SLAB.defaultBlockState();
+        BlockState pillar = net.minecraft.world.level.block.Blocks.POLISHED_ANDESITE.defaultBlockState();
+        BlockState floor = net.minecraft.world.level.block.Blocks.SMOOTH_STONE.defaultBlockState();
+        for (int dx = -4; dx <= 4; dx++) {
+            for (int dz = -3; dz <= 3; dz++) {
+                int bx = x + dx;
+                int bz = z + dz;
+                if (cell.building(bx, bz) != null || cell.surface(bx, bz) == OsmCells.WATER) {
+                    continue;
+                }
+                if (random.nextInt(6) != 0) {
+                    level.setBlock(new BlockPos(bx, ground, bz), floor, 2);
+                }
+                for (int dy = 1; dy <= 5; dy++) {
+                    BlockPos at = new BlockPos(bx, ground + dy, bz);
+                    if (dy == 5 && random.nextInt(4) != 0 || Math.abs(dx) == 3 && Math.abs(dz) == 2 && dy < 5) {
+                        level.setBlock(at, dy == 5 ? slab : pillar, 2);
+                    } else if (!level.getBlockState(at).isAir() && dy < 5) {
+                        level.setBlock(at, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), 2);
+                    }
+                }
+            }
+        }
+        var props = net.minecraft.world.level.block.PipeBlock.PROPERTY_BY_DIRECTION;
+        BlockState pipe = com.terracraft.geo.content.industry.IndustryBlocks.PIPE.defaultBlockState();
+        level.setBlock(new BlockPos(x - 1, ground + 1, z), com.terracraft.geo.content.industry.IndustryBlocks.FUEL_PUMP.defaultBlockState(), 2);
+        level.setBlock(new BlockPos(x + 1, ground + 1, z), com.terracraft.geo.content.industry.IndustryBlocks.FUEL_PUMP.defaultBlockState(), 2);
+        level.setBlock(new BlockPos(x, ground + 1, z), pipe.setValue(props.get(net.minecraft.core.Direction.EAST), true)
+                .setValue(props.get(net.minecraft.core.Direction.WEST), true).setValue(props.get(net.minecraft.core.Direction.DOWN), true), 2);
+        for (int dy = 0; dy >= -1; dy--) {
+            level.setBlock(new BlockPos(x, ground + dy, z), pipe.setValue(props.get(net.minecraft.core.Direction.UP), true)
+                    .setValue(props.get(net.minecraft.core.Direction.DOWN), true), 2);
+        }
+        BlockPos tank = new BlockPos(x, ground - 2, z);
+        level.setBlock(tank, com.terracraft.geo.content.industry.IndustryBlocks.FUEL_TANK.defaultBlockState(), 2);
+        if (level.getBlockEntity(tank) instanceof com.terracraft.geo.content.industry.MachineBlockEntity machine) {
+            var gasoline = com.terracraft.geo.content.industry.FluidKind.GASOLINE;
+            int left = 2_000 + 1_000 * random.nextInt(7); // Ce qu'il reste dans la cuve (fixé, jamais cumulé).
+            machine.add(gasoline, left - machine.amount(gasoline));
+        }
+    }
+
     /** Flaques de pétrole au-dessus du centre d'un gisement (seulement dans les chunks neufs). */
     private void oilPuddles(WorldGenLevel level, ChunkPos pos) {
         var deposit = com.terracraft.geo.content.industry.Oil.deposit(pos.getMinBlockX() + 8, pos.getMinBlockZ() + 8);
@@ -588,6 +641,11 @@ public final class GeoChunkGenerator extends ChunkGenerator {
         }
         ChunkPos pos = chunk.getPos();
         OsmCells.Cell cell = terrain.osm().cellAt(pos.getMinBlockX(), pos.getMinBlockZ());
+        for (int[] station : cell.fuelStations()) {
+            if (Math.floorDiv(station[0], 16) == pos.x() && Math.floorDiv(station[1], 16) == pos.z()) {
+                fuelStation(level, cell, station[0], station[1]);
+            }
+        }
         HolderLookup.RegistryLookup<Feature> features = level.registryAccess().lookupOrThrow(Registries.FEATURE);
         BlockPos.MutableBlockPos below = new BlockPos.MutableBlockPos();
         for (int x = 0; x < 16; x++) {

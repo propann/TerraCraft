@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.30). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.31). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -28,9 +28,11 @@ Référence de TerraCraft (version 0.30). Tout est en français ; `/aide` en don
 | Raffinerie | 2 panneaux : 200 mB de brut → 140 mB d'essence + 60 mB de kérosène par seconde |
 | Réservoir | 16 000 mB d'un seul liquide |
 | Pompe à essence | Bidon vide en main : clic droit = essence, Maj + clic droit = carburant de fusée (1 000 mB) |
+| Batterie de stockage | Se charge le jour avec les panneaux reliés (20 min d'un panneau) ; alimente les machines la nuit |
+| Station-service en ruine | Aux vraies adresses : les pompes puisent dans la cuve enterrée (2 000 à 8 000 mB d'essence) |
 | Bidon vide | 2 fer + 1 seau ; rendu après chaque plein ; à défaut, bidon artisanal : bidon vide + 4 charbons |
 
-Clic droit main vide sur une machine : son état (contenu, gisement, énergie).
+Clic droit main vide sur une machine : écran à jauges (contenu, énergie, charge, gisement), rafraîchi chaque seconde.
 
 ## Joueurs
 
@@ -80,6 +82,7 @@ Clic droit main vide sur une machine : son état (contenu, gisement, énergie).
 | `/moderateurs [ajouter|retirer <joueur>]` | Nommer ou retirer des modérateurs (sans les rendre opérateurs) |
 | `/terracraft course demarrer|arreter` | Ouvrir ou fermer la course à l'espace (événement d'ouverture) |
 | `/terracraft aller <lat> <lon>` | Se rendre à des coordonnées réelles |
+| `/terracraft station-service [aller]` | Station-service la plus proche (et s'y rendre) |
 | `/terracraft petrole [aller]` | Gisement de pétrole le plus proche (et s'y rendre) |
 | `/terracraft generation [reset]` | Mesures de génération : chunks, temps par chunk, téléchargements retentés ou ratés |
 | `/terracraft suivi` | Joueurs uniques, actifs 24 h / 7 j, retour, temps de jeu, tick moyen |

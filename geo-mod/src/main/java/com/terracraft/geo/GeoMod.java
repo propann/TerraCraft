@@ -115,6 +115,45 @@ public final class GeoMod implements ModInitializer {
     }
 
     /** Coffre du véhicule où l'on est assis, sinon du véhicule accessible le plus proche (6 blocs). */
+    /** /terracraft station-service [aller] : station-service (ruine) la plus proche d'après les données OSM chargées. */
+    private static int stationCommand(net.minecraft.commands.CommandSourceStack source, boolean go)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        var generator = StartPoints.generator(source.getServer());
+        if (generator == null || player.level() != source.getServer().overworld()) {
+            source.sendFailure(Component.literal("Seulement sur la Terre réelle."));
+            return 0;
+        }
+        int[] best = null;
+        double distance = Double.MAX_VALUE;
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                var cell = generator.terrain().osm().cellAt(player.getBlockX() + dx * 512, player.getBlockZ() + dz * 512);
+                for (int[] station : cell.fuelStations()) {
+                    double d = Math.hypot(station[0] - player.getX(), station[1] - player.getZ());
+                    if (d < distance) {
+                        distance = d;
+                        best = station;
+                    }
+                }
+            }
+        }
+        if (best == null) {
+            source.sendFailure(Component.literal("Aucune station-service connue à moins de ~700 blocs."));
+            return 0;
+        }
+        int x = best[0];
+        int z = best[1];
+        int ground = generator.terrain().surfaceY(x, z);
+        if (go) {
+            player.teleportTo(source.getServer().overworld(), x + 0.5, ground + 1, z + 2.5, java.util.Set.of(), 180, 20, true);
+        }
+        LOGGER.info("[CARBURANT] station-service la plus proche de {} : {} {} {} ({} blocs)", player.getName().getString(), x, ground, z,
+                (int) distance);
+        source.sendSuccess(() -> Component.literal("Station-service : " + x + " / " + z + " (sol " + ground + ")"), false);
+        return 1;
+    }
+
     /** /terracraft petrole [aller] : gisement de pétrole le plus proche (et s'y rendre, en hauteur). */
     private static int oilCommand(net.minecraft.commands.CommandSourceStack source, boolean go)
             throws com.mojang.brigadier.exceptions.CommandSyntaxException {
@@ -225,6 +264,9 @@ public final class GeoMod implements ModInitializer {
         PayloadTypeRegistry.clientboundPlay().register(WorkshopPayload.TYPE, WorkshopPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(InstallUpgradePayload.TYPE, InstallUpgradePayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(StarMapPayload.TYPE, StarMapPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(MachinePayload.TYPE, MachinePayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(RequestMachinePayload.TYPE, RequestMachinePayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(RequestMachinePayload.TYPE, (payload, context) -> Industry.refresh(context.player(), payload.pos()));
         PayloadTypeRegistry.serverboundPlay().register(StarMapActionPayload.TYPE, StarMapActionPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(StarMapActionPayload.TYPE, (payload, context) -> {
             if (GUI_RATE.allow(context.player())) {
@@ -531,6 +573,10 @@ public final class GeoMod implements ModInitializer {
                                     }
                                     return 1;
                                 }))
+                        .then(Commands.literal("station-service")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> stationCommand(command.getSource(), false))
+                                .then(Commands.literal("aller").executes(command -> stationCommand(command.getSource(), true))))
                         .then(Commands.literal("petrole")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> oilCommand(command.getSource(), false))

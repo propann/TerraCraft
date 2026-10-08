@@ -86,8 +86,9 @@ génération ni perte d'objet.
 - [x] **Industrie du carburant** : gisements (flaques, détecteur), pompe à pétrole, panneaux solaires et câbles,
       tuyaux, raffinerie (brut → essence + kérosène), réservoirs, pompe à essence ; bidon vide rendu après chaque
       plein. Rendement : ~1 bidon par minute sur un riche gisement avec 2 panneaux, ~5 min sur un petit.
-- [ ] **Industrie, suite** : stations-service à piller dans les ruines, batteries pour la nuit, oléoducs plus longs,
-      écran de machine (jauges) au lieu du message.
+- [x] **Industrie, suite** : stations-service en ruine aux emplacements réels (OSM amenity=fuel : auvent, pompes
+      reliées à une cuve enterrée de 2 000 à 8 000 mB), batteries de stockage pour la nuit, écran à jauges des machines.
+- [ ] **Industrie, plus loin** : oléoducs plus longs (au-delà de 256 blocs), générateur à essence, éclairage électrique.
 - [ ] **État détaillé** dans l'écran du véhicule : moteur, roues, carburant, dégâts.
 - [ ] **Garage de ville** : réparation et plein contre crédits.
 - [ ] **Rôles clairs** : moto rapide et fragile, voiture polyvalente, camion lent à grand coffre (réglages chiffrés).

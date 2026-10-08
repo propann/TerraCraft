@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "terracraft_geo:block/battery_bank_top",
+    "bottom": "terracraft_geo:block/battery_bank_top",
+    "side": "terracraft_geo:block/battery_bank_side"
+  }
+}

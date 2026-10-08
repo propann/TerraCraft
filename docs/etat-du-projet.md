@@ -1,6 +1,6 @@
 # État du projet TerraCraft
 
-Analyse au 8 octobre 2026, version **0.30.0**. Ce document dit ce que nous avons, à quel point c'est vérifié, ce qui
+Analyse au 8 octobre 2026, version **0.31.0**. Ce document dit ce que nous avons, à quel point c'est vérifié, ce qui
 reste fragile et dans quel ordre continuer. Tâches : [`feuille-de-route.md`](feuille-de-route.md) · commandes :
 [`commandes.md`](commandes.md) · mesures : [`mesures-generation.md`](mesures-generation.md).
 
@@ -10,7 +10,7 @@ TerraCraft est un serveur survie sur la Terre réelle (relief, climats, routes, 
 une économie entre joueurs, des villes, des véhicules, des événements dangereux et un volet spatial jusqu'à Mars. Le
 mod `terracraft-geo` compte **137 fichiers Java (≈ 20 500 lignes)** et **301 ressources**. Le déploiement est
 automatisé (GitHub Actions → branche `falix` → serveur Falix) ; chaque version passe un contrôle des ressources, un
-test de démarrage puis un test de scénario de **74 vérifications** avant publication.
+test de démarrage puis un test de scénario de **75 vérifications** avant publication.
 
 **Point de vigilance principal : depuis la 0.15, aucune version n'a été jouée en séance réelle.** Tout le côté
 serveur est vérifié automatiquement ; les écrans, l'équilibrage et le ressenti ne le sont pas.

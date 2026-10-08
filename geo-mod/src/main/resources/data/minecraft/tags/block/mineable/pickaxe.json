@@ -15,6 +15,7 @@
     "terracraft_geo:fuel_tank",
     "terracraft_geo:fuel_pump",
     "terracraft_geo:pipe",
-    "terracraft_geo:solar_panel"
+    "terracraft_geo:solar_panel",
+    "terracraft_geo:battery_bank"
   ]
 }

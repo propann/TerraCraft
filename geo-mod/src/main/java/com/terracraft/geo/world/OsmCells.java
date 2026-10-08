@@ -86,6 +86,13 @@ public final class OsmCells {
         /** Distance (en blocs) au mur le plus proche, à l'intérieur d'un bâtiment : sert aux toits. */
         final byte[] inset = new byte[GRID * GRID];
         final List<Building> buildings = new ArrayList<>();
+        /** Stations-service réelles (OSM amenity=fuel) : {x, z} en blocs. */
+        final List<int[]> fuelStations = new ArrayList<>();
+
+        /** Stations-service de cette cellule (ruines à piller). */
+        public List<int[]> fuelStations() {
+            return fuelStations;
+        }
 
         Cell(int originX, int originZ) {
             this.originX = originX;
@@ -422,6 +429,17 @@ public final class OsmCells {
                         }
                     }
                     case "waterway" -> waterways.add(shape);
+                    case "poi" -> {
+                        for (double[] point : shape.parts()) {
+                            int x = (int) Math.floor(point[0]);
+                            int z = (int) Math.floor(point[1]);
+                            boolean known = cell.fuelStations.stream().anyMatch(s -> Math.abs(s[0] - x) < 24 && Math.abs(s[1] - z) < 24);
+                            // Une même station figure dans les tuiles voisines (marges) : une seule ruine par station.
+                            if (!known && x >= cell.originX && x < cell.originX + CELL_SIZE && z >= cell.originZ && z < cell.originZ + CELL_SIZE) {
+                                cell.fuelStations.add(new int[]{x, z});
+                            }
+                        }
+                    }
                     case "landcover", "landuse" -> {
                         if (landCode(shape) != LAND_NONE) {
                             land.add(shape);

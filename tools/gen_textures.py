@@ -919,6 +919,14 @@ def industry_textures():
             c.rect(1, k, 14, 1, (110, 130, 190))
         c.rect(3, 3, 2, 1, (170, 190, 240))
     block_tex("solar_panel_top", (25, 40, 95), panel, seed=109)
+    def battery(c):
+        c.rect(1, 1, 14, 14, (40, 42, 48))
+        c.rect(3, 3, 10, 10, (25, 25, 28))
+        for k, colour in enumerate([(80, 220, 110)] * 3 + [(60, 70, 64)] * 2):
+            c.rect(4, 11 - 2 * k, 8, 1, colour)
+        c.rect(6, 0, 4, 1, (190, 110, 60))
+    block_tex("battery_bank_side", (60, 62, 70), battery, seed=114)
+    block_tex("battery_bank_top", (60, 62, 70), lambda c: [c.rect(3, 3, 3, 3, (190, 110, 60)), c.rect(10, 3, 3, 3, (30, 30, 34))], seed=115)
     block_tex("solar_panel_side", (175, 180, 190), lambda c: c.rect(0, 0, 16, 2, (120, 125, 135)), seed=110)
     block_tex("pipe", (135, 138, 148), lambda c: [c.rect(0, 0, 16, 1, (175, 178, 188)), c.rect(0, 7, 16, 2, (95, 98, 108)),
                                                  c.rect(0, 15, 16, 1, (90, 92, 100))], seed=111)

@@ -83,5 +83,6 @@
   "block.terracraft_geo.cable": "Power cable",
   "block.terracraft_geo.oil_puddle": "Oil puddle",
   "item.terracraft_geo.empty_fuel_can": "Empty fuel can",
-  "item.terracraft_geo.oil_detector": "Oil detector"
+  "item.terracraft_geo.oil_detector": "Oil detector",
+  "block.terracraft_geo.battery_bank": "Battery bank"
 }

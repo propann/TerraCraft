@@ -131,7 +131,7 @@ final class MvtDecoder {
                 skip(key & 7);
             }
         }
-        if (type == POINT || type == 0) {
+        if (type == 0 || type == POINT && !"poi".equals(layer)) {
             return null;
         }
         Map<String, Object> map = new HashMap<>();
@@ -140,7 +140,32 @@ final class MvtDecoder {
                 map.put(keys.get(tags[i]), values.get(tags[i + 1]));
             }
         }
+        if (type == POINT) {
+            // Points d'intérêt : seules les stations-service servent (ruines à piller), le reste est ignoré.
+            return "fuel".equals(map.get("class")) ? new Feature(layer, id, type, map, points(geometry, extent)) : null;
+        }
         return new Feature(layer, id, type, map, geometry(geometry, extent));
+    }
+
+    /** Commandes MoveTo d'un point (ou multipoint) → une partie de deux coordonnées par point. */
+    private static List<double[]> points(int[] commands, int extent) {
+        List<double[]> parts = new ArrayList<>();
+        int x = 0;
+        int y = 0;
+        int i = 0;
+        while (i < commands.length) {
+            int command = commands[i] & 7;
+            int count = commands[i] >>> 3;
+            i++;
+            for (int c = 0; c < count && i + 1 < commands.length; c++) {
+                x += zigzag(commands[i++]);
+                y += zigzag(commands[i++]);
+                if (command == 1) {
+                    parts.add(new double[]{(double) x / extent, (double) y / extent});
+                }
+            }
+        }
+        return parts;
     }
 
     /** Commandes MoveTo/LineTo/ClosePath → parties (lignes ou anneaux fermés). */

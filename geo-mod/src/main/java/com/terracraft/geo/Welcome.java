@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.31", "Stations-service en ruine (vraies adresses), batteries pour la nuit, écran des machines"),
             new Change("0.30", "Industrie du carburant : pétrole, pompes, raffinerie, panneaux solaires, bidons à remplir"),
             new Change("0.29", "Moto réparée (affichage), nouvelles armes en pixel art"),
             new Change("0.28", "Stations et bases protégées autour de leur balise ; serveur mesuré jusqu'à 10 joueurs"),

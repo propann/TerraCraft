@@ -34,8 +34,14 @@ public class MachineBlockEntity extends BlockEntity {
     static final int PIPE_RATE = 1_000;
     private static final int SEARCH_LIMIT = 256;
 
+    /** Charge maximale d'une batterie : 20 minutes d'un panneau (unités · seconde). */
+    public static final int BATTERY_CAPACITY = 1_200;
+    /** Énergie utile au plus par machine (une pompe ou une raffinerie ne tire pas plus de 2 unités). */
+    static final int MAX_DRAW = 2;
+
     private final Map<FluidKind, Integer> fluids = new EnumMap<>(FluidKind.class);
     private int power;
+    private int charge;
     private int ticks;
 
     public MachineBlockEntity(BlockPos pos, BlockState state) {
@@ -52,6 +58,10 @@ public class MachineBlockEntity extends BlockEntity {
 
     public int power() {
         return power;
+    }
+
+    public int charge() {
+        return charge;
     }
 
     /** Ajoute (ou retire si négatif) du liquide ; renvoie la quantité réellement transférée. */
@@ -85,8 +95,24 @@ public class MachineBlockEntity extends BlockEntity {
         if (++ticks % 20 != 0) {
             return;
         }
+        if (kind() == MachineKind.BATTERY) {
+            // Le jour, les panneaux reliés rechargent la batterie (énergie en surplus, simplifiée).
+            int panels = power(level, worldPosition);
+            if (panels > 0 && charge < BATTERY_CAPACITY) {
+                charge = Math.min(BATTERY_CAPACITY, charge + panels);
+                setChanged();
+            }
+            return;
+        }
         if (kind().powered) {
-            power = power(level, worldPosition);
+            // N'utilise l'énergie (et ne vide les batteries) que s'il y a du travail.
+            boolean busy = switch (kind()) {
+                case OIL_PUMP -> amount(FluidKind.CRUDE) < kind().capacity
+                        && Oil.richness(worldPosition.getX(), worldPosition.getZ()) > 0;
+                case REFINERY -> amount(FluidKind.CRUDE) >= REFINE_INPUT;
+                default -> false;
+            };
+            power = energy(level, worldPosition, busy ? MAX_DRAW : 0);
         }
         switch (kind()) {
             case OIL_PUMP -> {
@@ -164,6 +190,29 @@ public class MachineBlockEntity extends BlockEntity {
         return found;
     }
 
+    /**
+     * Énergie d'une machine pour cette seconde : panneaux d'abord, puis batteries reliées pour combler le manque
+     * (jusqu'à {@code need} unités). Les unités prises aux batteries sont consommées.
+     */
+    public static int energy(ServerLevel level, BlockPos start, int need) {
+        int panels = power(level, start);
+        int deficit = need - Math.min(need, panels);
+        if (deficit > 0) {
+            for (MachineBlockEntity battery : connected(level, start, true)) {
+                if (deficit <= 0) {
+                    break;
+                }
+                if (battery.kind() == MachineKind.BATTERY && battery.charge > 0) {
+                    int taken = Math.min(deficit, battery.charge);
+                    battery.charge -= taken;
+                    battery.setChanged();
+                    deficit -= taken;
+                }
+            }
+        }
+        return need - deficit;
+    }
+
     /** Énergie disponible : panneaux solaires reliés (câbles) qui voient le ciel, en plein jour. */
     public static int power(ServerLevel level, BlockPos start) {
         if (!level.isBrightOutside()) {
@@ -200,6 +249,7 @@ public class MachineBlockEntity extends BlockEntity {
             output.putInt(fluid.name(), amount(fluid));
         }
         output.putInt("Power", power);
+        output.putInt("Charge", charge);
     }
 
     @Override
@@ -213,5 +263,6 @@ public class MachineBlockEntity extends BlockEntity {
             }
         }
         power = input.getIntOr("Power", 0);
+        charge = input.getIntOr("Charge", 0);
     }
 }
