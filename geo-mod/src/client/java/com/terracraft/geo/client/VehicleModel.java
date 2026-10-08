@@ -45,17 +45,24 @@ public class VehicleModel extends EntityModel<VehicleRenderState> {
         return LayerDefinition.create(mesh, 256, 128);
     }
 
-    /** Moto : cadre étroit, selle et deux roues alignées. */
+    /**
+     * Moto : cadre fin, réservoir et selle, fourche et guidon, pot d'échappement, deux roues de 10 px alignées (seules
+     * les deux premières roues sont visibles : la moto en exige deux). Texture 128 × 64 (motorcycle.png).
+     */
     public static LayerDefinition motorcycle() {
         MeshDefinition mesh = new MeshDefinition();
         PartDefinition root = mesh.getRoot();
-        root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-5, -9, -16, 10, 5, 32), PartPose.ZERO);
-        root.addOrReplaceChild("cabin", CubeListBuilder.create().texOffs(0, 20).addBox(-4, -15, -5, 8, 6, 12), PartPose.ZERO);
-        root.addOrReplaceChild("wheel_fl", CubeListBuilder.create().texOffs(48, 0).addBox(-2, -10, -3, 4, 20, 6), PartPose.offset(0, 0, 15));
-        root.addOrReplaceChild("wheel_fr", CubeListBuilder.create().texOffs(48, 0).addBox(-2, -10, -3, 4, 20, 6), PartPose.offset(0, 0, -15));
-        root.addOrReplaceChild("wheel_bl", CubeListBuilder.create().texOffs(48, 0).addBox(-2, -10, -3, 4, 20, 6), PartPose.offset(0, 0, 15));
-        root.addOrReplaceChild("wheel_br", CubeListBuilder.create().texOffs(48, 0).addBox(-2, -10, -3, 4, 20, 6), PartPose.offset(0, 0, -15));
-        root.addOrReplaceChild("turbo", CubeListBuilder.create().texOffs(48, 26).addBox(-2, -12, 8, 4, 2, 4), PartPose.ZERO);
+        root.addOrReplaceChild("body", CubeListBuilder.create().texOffs(0, 0).addBox(-3, -12, -14, 6, 4, 28), PartPose.ZERO);
+        root.addOrReplaceChild("cabin", CubeListBuilder.create().texOffs(0, 32).addBox(-4, -16, -6, 8, 4, 14), PartPose.ZERO);
+        root.addOrReplaceChild("fork", CubeListBuilder.create().texOffs(100, 0).addBox(-1, -20, 10, 2, 12, 2), PartPose.ZERO);
+        root.addOrReplaceChild("bars", CubeListBuilder.create().texOffs(70, 24).addBox(-7, -21, 10, 14, 1, 1), PartPose.ZERO);
+        // Roues : avant et arrière visibles, les deux suivantes (cachées : la moto n'en exige que deux) au même endroit.
+        float[] along = {11, -11, 11, -11};
+        for (int i = 0; i < 4; i++) {
+            root.addOrReplaceChild(WHEELS[i], CubeListBuilder.create().texOffs(70, 0).addBox(-2, -10, -5, 4, 10, 10),
+                    PartPose.offset(0, 0, along[i]));
+        }
+        root.addOrReplaceChild("turbo", CubeListBuilder.create().texOffs(70, 40).addBox(3, -9, -14, 2, 2, 8), PartPose.ZERO);
         return LayerDefinition.create(mesh, 128, 64);
     }
 

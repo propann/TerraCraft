@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.29", "Moto réparée (affichage), nouvelles armes en pixel art"),
             new Change("0.28", "Stations et bases protégées autour de leur balise ; serveur mesuré jusqu'à 10 joueurs"),
             new Change("0.27", "Course à l'espace : le premier à chaque étape gagne une prime (/course)"),
             new Change("0.26", "Règles du serveur (/regles) et modérateurs ; bêta prête"),

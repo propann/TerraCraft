@@ -36,7 +36,12 @@ public class VehicleRenderer extends EntityRenderer<Vehicle, VehicleRenderState>
             default -> CAR_LAYER;
         }));
         this.texture = Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "textures/entity/"
-                + (kind == Vehicle.Kind.TRUCK ? "truck" : kind == Vehicle.Kind.ROVER ? "rover" : "car") + ".png");
+                + switch (kind) {
+                    case TRUCK -> "truck";
+                    case ROVER -> "rover";
+                    case MOTORCYCLE -> "motorcycle"; // Avant 0.29 : texture de la voiture, aux mauvaises dimensions.
+                    default -> "car";
+                } + ".png");
         this.shadowRadius = kind == Vehicle.Kind.TRUCK ? 1.3f : kind == Vehicle.Kind.MOTORCYCLE ? 0.65f : 1.0f;
     }
 

@@ -30,7 +30,7 @@ jour, réimporte-le. Toutes les versions : [Releases](https://github.com/propann
 
 Les mêmes règles s'affichent en jeu à la première connexion et avec `/regles`.
 
-## Ce qui est en place (0.28.2)
+## Ce qui est en place (0.29.0)
 
 - **Monde** : la Terre réelle (relief, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés), météo réelle,
   jour et nuit normaux ; ruines, bunkers, caves, épaves.

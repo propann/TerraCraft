@@ -108,6 +108,9 @@ def vehicle(name, size, body, parts, seed):
         if kind == "turbo":
             box(c, u, v, w, h, d, (170, 170, 175))
             continue
+        if kind == "frame":
+            box(c, u, v, w, h, d, (62, 62, 68))  # Cadre, fourche, guidon : métal sombre.
+            continue
         faces = box(c, u, v, w, h, d, colour)
         if kind == "cabin":
             for face in ("right", "left", "front", "back"):
@@ -763,6 +766,114 @@ def alien_patterns():
     icon("alien_artifact", artifact)
 
 
+GUN_PALETTE = {
+    "k": (24, 24, 28), "m": (58, 60, 68), "M": (92, 95, 105), "h": (160, 165, 176),
+    "w": (112, 72, 40), "W": (150, 100, 58), "g": (42, 42, 47), "b": (90, 150, 215), "B": (190, 225, 255),
+}
+
+
+def sprite(rows, palette=GUN_PALETTE):
+    """Dessin pixel par pixel : une lettre par pixel (« . » = transparent)."""
+    def draw(c):
+        for y, row in enumerate(rows):
+            for x, ch in enumerate(row):
+                if ch != ".":
+                    c.set(x, y, palette[ch])
+    return draw
+
+
+PISTOL = [
+    "................",
+    "................",
+    "................",
+    "................",
+    "....kkkkkkkkkkk.",
+    "...kMhhhhhhhhhMk",
+    "...kmMMMMMMMMMmk",
+    "...kmmmmmkkkkkk.",
+    "...kmggmk.k.....",
+    "...kgggkkk......",
+    "..kgggk.........",
+    "..kgggk.........",
+    ".kgggk..........",
+    ".kgggk..........",
+    ".kkkkk..........",
+    "................",
+]
+SMG = [
+    "................",
+    "................",
+    "................",
+    "................",
+    "......kkk.......",
+    "kkkkkkkMkkkkkkk.",
+    "kMhhhhhhhhhhhhMk",
+    "kmMMMMMMMMMMMmkk",
+    "kkkmmmmmmmmkk...",
+    "..kggkkmmkk.....",
+    "..kggk.kmmk.....",
+    "..kggk.kmmk.....",
+    "..kkkk.kmmk.....",
+    ".......kmmk.....",
+    ".......kkkk.....",
+    "................",
+]
+RIFLE = [
+    "................",
+    "................",
+    "................",
+    "................",
+    ".........kk..k..",
+    "kkkk..kkkkkkkkkk",
+    "kWWWkkMhhhhhhhhk",
+    "kWwwwwmMMMWWWkkk",
+    ".kwwwwmmmmwwwk..",
+    "..kkwwkmmkkkk...",
+    "....kwk.kmmk....",
+    "....kkk..kmmk...",
+    "..........kmmk..",
+    "...........kkk..",
+    "................",
+    "................",
+]
+SHOTGUN = [
+    "................",
+    "................",
+    "................",
+    "................",
+    "................",
+    "kkkk...kkkkkkkkk",
+    "kWWWkkkhhhhhhhhk",
+    "kWwwwwmMMMMMMMMk",
+    ".kwwwwmmkWWWWWkk",
+    "..kkwwkmkWwwwwk.",
+    "....kwk.kkkkkkk.",
+    "....kkk.........",
+    "................",
+    "................",
+    "................",
+    "................",
+]
+SNIPER = [
+    "................",
+    "................",
+    ".....kkkkkk.....",
+    "....kBmmmmbk....",
+    ".....kkkkkk.....",
+    "kkkk...kk.......",
+    "kWWWkkkMMkkkkkkk",
+    "kWwwwwMhhhhhhhhk",
+    ".kwwwwmMMMMMMMkk",
+    "..kkwwkmmkkkk...",
+    "....kwk.kmk.....",
+    "....kkk.kkk.....",
+    "................",
+    "................",
+    "................",
+    "................",
+]
+
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -770,6 +881,9 @@ def main():
     vehicle("truck", (256, 256), (70, 90, 70), [
         ("body", 0, 0, 32, 8, 72), ("cabin", 0, 80, 30, 19, 20), ("bed", 0, 120, 32, 8, 48),
         ("wheel", 210, 0, 4, 10, 10), ("turbo", 210, 24, 6, 2, 6)], seed=11)
+    vehicle("motorcycle", (128, 64), (150, 35, 30), [
+        ("body", 0, 0, 6, 4, 28), ("tank", 0, 32, 8, 4, 14), ("frame", 100, 0, 2, 12, 2),
+        ("frame", 70, 24, 14, 1, 1), ("wheel", 70, 0, 4, 10, 10), ("turbo", 70, 40, 2, 2, 8)], seed=13)
     icon("wheel", draw_wheel)
     icon("engine", draw_engine)
     icon("radiator", draw_radiator)
@@ -778,12 +892,12 @@ def main():
     icon("fuel_can", draw_fuel)
     icon("car_chassis", draw_chassis(False))
     icon("truck_chassis", draw_chassis(True))
-    icon("pistol", draw_gun(9, False))
-    icon("rifle", draw_gun(15, True))
-    icon("shotgun", draw_gun(13, True))
+    icon("pistol", sprite(PISTOL))
+    icon("rifle", sprite(RIFLE))
+    icon("shotgun", sprite(SHOTGUN))
     icon("ammo", draw_ammo)
-    icon("smg", draw_smg)
-    icon("sniper", draw_sniper)
+    icon("smg", sprite(SMG))
+    icon("sniper", sprite(SNIPER))
     icon("grenade", draw_grenade)
     icon("machete", draw_machete)
     rocket()
