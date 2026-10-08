@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.25). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.26). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -22,6 +22,7 @@ Référence de TerraCraft (version 0.25). Tout est en français ; `/aide` en don
 | Commande | Rôle |
 |---|---|
 | `/aide` (ou `/guide`) | Résumé des commandes et des touches |
+| `/regles` | Règles du serveur |
 | `/tuto` | Objectif « Premiers pas » en cours ; `/tuto passer` pour masquer le parcours |
 | `/sethome`, `/home` | Maison (refusé en combat) |
 | `/back` | Retour au lieu de la dernière mort (refusé en combat) |
@@ -45,11 +46,23 @@ Référence de TerraCraft (version 0.25). Tout est en français ; `/aide` en don
 | `/confirmer`, `/annuler` | Valider ou abandonner une action coûteuse en attente (boutons cliquables dans le chat, 30 s) |
 | `/signaler <message>` | Signaler un bug ou une perte d'objet aux administrateurs (un par minute) |
 
+## Modérateurs
+
+| Commande | Rôle |
+|---|---|
+| `/mod expulser <joueur> <raison>` | Expulser un joueur |
+| `/mod silence <joueur> <minutes>` | Réduire au silence dans le chat (0 = lever) |
+| `/mod avertir <joueur> <message>` | Avertissement officiel |
+| `/mod aller <joueur>` | Se rendre auprès d'un joueur |
+| `/mod signalements` | Dix derniers `/signaler` |
+
 ## Administrateurs (opérateurs)
 
 | Commande | Rôle |
 |---|---|
 | `/eco donner <joueur> <montant>` | Créditer un joueur (journalisé `[ECO]`) |
+| `/moderateurs [ajouter|retirer <joueur>]` | Nommer ou retirer des modérateurs (sans les rendre opérateurs) |
+| `/terracraft suivi` | Joueurs uniques, actifs 24 h / 7 j, retour, temps de jeu, tick moyen |
 | `/eco stats` | Crédits créés, détruits, en circulation et dans les trésoreries des villes |
 | `/terracraft sauvegarde [liste]` | Sauvegarde immédiate du monde ; liste des archives (`backups/`) |
 | `/terracraft largage` | Ravitaillement militaire près de soi |
@@ -67,9 +80,9 @@ Référence de TerraCraft (version 0.25). Tout est en français ; `/aide` en don
 
 ## Journal de la console
 
-Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`,
+Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`, `[MOD]`, `[SUIVI]`,
 `[STATION]`, `[ATELIER]`, `[NAV]`, `[METEORES]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
 
 Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,
 `hotel-des-ventes.json`, `economie.json`, `missions.json`, `contrats.json`, `progression.json`, `homes.json`,
-`start_points.json`, `tutorial.json`, `villes.json`, `stations.json`, `signalements.json`, `contamination.json`, `pvp-zones.json`, `primes.json`.
+`start_points.json`, `tutorial.json`, `villes.json`, `stations.json`, `signalements.json`, `contamination.json`, `pvp-zones.json`, `primes.json`, `moderateurs.json`, `activite.json`.

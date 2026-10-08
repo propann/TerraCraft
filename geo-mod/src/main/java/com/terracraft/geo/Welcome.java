@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.26", "Règles du serveur (/regles) et modérateurs ; bêta prête"),
             new Change("0.25", "Les claims des habitants agrandissent leur ville ; adjoints de maire (/ville adjoint)"),
             new Change("0.24", "Étals de marché : vends tes objets à prix fixe, même hors ligne (/etal)"),
             new Change("0.23", "Commandants de bunker (boss, insigne, prime de 300), primes sur les joueurs (/prime)"),

@@ -86,6 +86,16 @@ final class Reports {
         return 1;
     }
 
+    /** Les {@code count} derniers signalements, du plus récent au plus ancien (modération). */
+    List<String> recent(int count) {
+        List<String> lines = new ArrayList<>();
+        for (int i = reports.size() - 1; i >= 0 && lines.size() < count; i--) {
+            Report r = reports.get(i);
+            lines.add(r.date() + " · " + r.player() + " · " + r.dimension() + " " + r.x() + " " + r.y() + " " + r.z() + " · " + r.message());
+        }
+        return lines;
+    }
+
     void onLeave(ServerPlayer player) {
         rate.forget(player);
     }

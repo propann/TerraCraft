@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.25.0**.
+Dernière passe : 7 octobre 2026 — version **0.26.0**.
 
 ## Fonctionnel et raccordé
 
@@ -27,6 +27,7 @@ Dernière passe : 7 octobre 2026 — version **0.25.0**.
 - [x] Boss de bunker (Commandant), primes sur les joueurs.
 - [x] Étals de marché (magasins de joueurs).
 - [x] Villes : adjoints ; claims des habitants comptés comme territoire de la ville (à vérifier en jeu).
+- [x] Bêta : règles (`/regles`), modérateurs (`/mod`), suivi de l'activité (`/terracraft suivi`).
 - [x] Stations : kit de module pressurisé 7×5×7, balise de station (arrivée des fusées), `/station`.
 - [x] Plans de fusée (`/plans`) et atelier de station : réservoir étendu, moteur ionique, soute (touche V), navigation martienne.
 - [x] Combinaison spatiale (touche `J` et panneau de l'inventaire `E`) : casque, combinaison, bottes magnétiques, jetpack, deux réserves d'oxygène, rendu en armure, HUD O₂.
@@ -45,7 +46,7 @@ Dernière passe : 7 octobre 2026 — version **0.25.0**.
 - [x] Sauvegardes automatiques du monde, rotation, restauration testée.
 - [x] Versions des mods tiers figées (`tools/mods.lock.json`), identiques serveur et pack.
 - [x] Test de démarrage d'un vrai serveur avant chaque déploiement Falix (CI).
-- [x] Test de scénario avec faux joueurs (`tools/scenario_test.sh`, 66 vérifications) : villes, économie, combinaison, oxygène, métiers, largages, station, vol en fusée jusqu'à la balise, plans et atelier, MOTD et icône.
+- [x] Test de scénario avec faux joueurs (`tools/scenario_test.sh`, 69 vérifications) : villes, économie, combinaison, oxygène, métiers, largages, station, vol en fusée jusqu'à la balise, plans et atelier, MOTD et icône.
 
 ## À tester en jeu
 

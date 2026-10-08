@@ -57,6 +57,10 @@ cmd "execute as Bob run comptoir 1"
 cmd "item replace entity Bob weapon.mainhand with terracraft_geo:fuel_can 1"
 cmd "execute as Bob run hdv vendre 100"
 cmd "execute as Alice run hdv acheter 1"
+# Bêta : modérateur, avertissement, suivi de l'activité
+cmd "moderateurs ajouter Bob" 1
+cmd "execute as Bob run mod avertir Alice Test de moderation" 1
+cmd "terracraft suivi" 1
 # Métier, signalement, largage militaire
 cmd "execute as Bob run metier choisir pilote"
 cmd "execute as Alice run metier choisir mecanicien"
@@ -330,6 +334,11 @@ check("[VILLE] Alice nomme Bob adjoint de Bourg Neuf" in log and "[VILLE] Bob pa
       "rôles de ville : Bob nommé adjoint puis paie depuis la trésorerie")
 check(towns[0].get("deputies") == [str(uuid) for uuid in towns[0]["members"] if uuid != towns[0]["mayor"]],
       "l'adjoint est enregistré dans villes.json")
+check("nomme modérateur Bob" in log and "avertit Alice : Test de moderation" in log
+      and list(json.loads((data / "moderateurs.json").read_text()).values()) == ["Bob"], "modération : Bob nommé modérateur, avertissement journalisé")
+check("[SUIVI] 2 joueurs uniques" in log, "suivi de l'activité : 2 joueurs uniques")
+activity = json.loads((data / "activite.json").read_text())
+check(len(activity) == 2 and all(r["sessions"] >= 1 for r in activity.values()), "activite.json : sessions enregistrées")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

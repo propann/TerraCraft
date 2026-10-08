@@ -19,7 +19,18 @@ Launcher Minecraft officiel : installeurs Windows et Linux dans [`installer/`](i
 main : dossier [`mods/`](mods/LISEZMOI.md). **Le pack doit avoir la même version que le serveur** : après une mise à
 jour, réimporte-le. Toutes les versions : [Releases](https://github.com/propann/TerraCraft/releases).
 
-## Ce qui est en place (0.25.0)
+## Règles
+
+1. Respect : pas d'insultes, de harcèlement ni de propos haineux.
+2. PvE partout : on ne combat d'autres joueurs que dans les zones PvP (`/pvp`).
+3. Pas de vol ni de destruction sur le terrain d'autrui ; protège le tien avec les claims (touche `M`).
+4. Pas de triche : clients modifiés, X-ray, exploitation de bugs ou duplication. Un bug ? `/signaler`.
+5. Pas de constructions offensantes, ni de lag volontaire (machines géantes, spam d'entités).
+6. Les décisions des modérateurs s'appliquent ; contestation calme via `/signaler`.
+
+Les mêmes règles s'affichent en jeu à la première connexion et avec `/regles`.
+
+## Ce qui est en place (0.26.0)
 
 - **Monde** : relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés, carte de départ en jeu.
 - **Survie** : inventaire conservé à la mort (−25 % d'expérience), `/sethome` `/home` `/back` `/tpa` (refusés en combat).

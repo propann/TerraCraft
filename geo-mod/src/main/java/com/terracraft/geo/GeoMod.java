@@ -73,12 +73,14 @@ public final class GeoMod implements ModInitializer {
     private static final PvpZones PVP = new PvpZones();
     private static final Bounties BOUNTIES = new Bounties(AUCTION_HOUSE);
     private static final Stalls STALLS = new Stalls(AUCTION_HOUSE);
+    private static final Activity ACTIVITY = new Activity();
     private static final Contracts CONTRACTS = new Contracts(AUCTION_HOUSE);
     private static final Claims CLAIMS = new Claims();
     private static final SupplyDrops SUPPLY = new SupplyDrops();
     private static final Convoys CONVOYS = new Convoys();
     private static final Contamination CONTAMINATION = new Contamination();
     private static final Reports REPORTS = new Reports();
+    private static final Moderation MODERATION = new Moderation(REPORTS);
     private static final Welcome WELCOME = new Welcome(AUCTION_HOUSE, TOWNS, CONTRACTS, START_POINTS);
 
     private record PendingLoot(ServerPlayer player, net.minecraft.core.BlockPos pos, boolean supply) {
@@ -294,6 +296,11 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(CONTAMINATION::load);
         ServerLifecycleEvents.SERVER_STARTED.register(PVP::load);
         ServerLifecycleEvents.SERVER_STARTED.register(BOUNTIES::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(ACTIVITY::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(MODERATION::load);
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> MODERATION.register(dispatcher));
+        net.fabricmc.fabric.api.message.v1.ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) ->
+                MODERATION.allowChat(sender));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> BOUNTIES.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> STALLS.register(dispatcher));
         ServerTickEvents.END_SERVER_TICK.register(RAIDS::tick);
@@ -386,6 +393,10 @@ public final class GeoMod implements ModInitializer {
             START_POINTS.onJoin(handler.player);
             Progression.get().applyPerks(handler.player);
             WELCOME.onJoin(handler.player);
+            ACTIVITY.onJoin(handler.player);
+            if (START_POINTS.choice(handler.player.getUUID()) == null) {
+                MODERATION.sendRules(handler.player, true); // Nouveau joueur : les règles avant la carte de départ.
+            }
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             START_POINTS.onLeave(handler.player);
@@ -395,6 +406,7 @@ public final class GeoMod implements ModInitializer {
             AUCTION_HOUSE.onLeave(handler.player);
             TOWNS.onLeave(handler.player);
             PVP.onLeave(handler.player);
+            ACTIVITY.onLeave(handler.player);
             CLAIMS.onLeave(handler.player);
             REPORTS.onLeave(handler.player);
             SURVIVAL.onLeave(handler.player);
@@ -473,6 +485,9 @@ public final class GeoMod implements ModInitializer {
                                     }
                                     return 1;
                                 }))
+                        .then(Commands.literal("suivi")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> ACTIVITY.report(command.getSource())))
                         .then(Commands.literal("boss")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> {
