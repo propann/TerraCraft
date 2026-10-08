@@ -14,7 +14,10 @@ Elle est générée par `deploy/make_falix_branch.sh` depuis `main`. Ne pas la m
 
 1. **Logiciel** : Fabric, Minecraft **26.3**, loader **0.19.5**.
 2. **Java** : **25** (image Java 25 dans les paramètres de démarrage).
-3. **RAM** : le maximum de l'offre (8 Go : laisse environ 7 Go au serveur).
+3. **RAM** : le maximum de l'offre (8 Go : laisse environ 7 Go au serveur). Mesures du 2026-10-08
+   ([mesures-generation.md](../docs/mesures-generation.md)) : **3 Go minimum** jusqu'à 5 joueurs, **5 Go** pour
+   10 joueurs qui explorent en même temps (distance de vue 6). Avec 2 Go, le serveur a manqué de mémoire en
+   sauvegardant après 10 joueurs : risque pour le monde.
 4. **GitHub** : dépôt `propann/TerraCraft`, branche **`falix`**, champ « Deploy into » **vide** (racine), « Deploy on every push » activé.
 5. **Bedrock / Geyser : désactivé.** Falix installe Geyser-Fabric, qui n'existe pas en 26.3 et empêche le démarrage : supprime `mods/Geyser-Fabric*.jar` (et Floodgate).
 
