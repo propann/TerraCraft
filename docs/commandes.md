@@ -21,7 +21,7 @@ Référence de TerraCraft (version 0.28). Tout est en français ; `/aide` en don
 
 | Commande | Rôle |
 |---|---|
-| `/aide` (ou `/guide`) | Résumé des commandes et des touches |
+| `/aide [thème]` (ou `/guide`) | Aide par thèmes : survie, commerce, villes, combat, espace, touches |
 | `/regles` | Règles du serveur |
 | `/course` | Course à l'espace : étapes, primes et vainqueurs |
 | `/tuto` | Objectif « Premiers pas » en cours ; `/tuto passer` pour masquer le parcours |

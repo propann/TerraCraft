@@ -154,17 +154,17 @@ génération ni perte d'objet.
 
 ## Ordre de développement
 
-1. Séance de test à plusieurs et phase 0 (mesures, carte neuve).
-2. Uniformisation de l'interface et confirmations (phase 1).
-3. Événements et règles PvP (phase 6).
-4. Claims de ville et magasins de joueurs (phases 2 et 3).
-5. Génération enrichie et points d'intérêt, puis missions liées aux lieux (phases 7 et 4).
-6. Espace : épaves, stockage partagé, station de ville, astéroïdes (phase 8).
-7. Bêta publique (phase 9).
+Fait depuis : phase 0 (mesures), phase 1 (interface, confirmations), phase 6 (événements, PvP), phases 2 et 3
+(villes, étals), phase 9 (règles, modération, suivi, course à l'espace).
+
+1. **Séance de test à plusieurs** sur Falix, puis bêta privée (whitelist, canal de retours, course à l'espace).
+2. Génération enrichie et points d'intérêt, puis missions liées aux lieux (phases 7 et 4).
+3. Espace : stockage partagé de station, grande station de ville, astéroïdes (phase 8).
+4. Bêta publique.
 
 ## Validation avant chaque déploiement
 
-- `tools/scenario_test.sh` passe (il inclut le test de démarrage).
+- `tools/check_assets.py` passe (ressources complètes) et `tools/scenario_test.sh` aussi (il inclut le test de démarrage).
 - Le pack client est publié si le client change (nouveaux objets, écrans, paquets).
 - Après la release : `python3 tools/sync_client_mods.py` met à jour `mods/` et `TerraCraft-client.mrpack` du dépôt, puis commit.
 - `docs/avancement.md` et cette feuille de route sont à jour.

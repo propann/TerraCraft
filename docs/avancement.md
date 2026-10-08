@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.28.1**.
+Dernière passe : 7 octobre 2026 — version **0.28.2**.
 
 ## Fonctionnel et raccordé
 
@@ -31,6 +31,7 @@ Dernière passe : 7 octobre 2026 — version **0.28.1**.
 - [x] Événement d'ouverture : course à l'espace (`/course`).
 - [x] Phase 0 : mesure de génération sur 8 lieux réels et 5 / 10 joueurs simultanés (`tools/geo_bench.sh`).
 - [x] Stations et bases protégées autour de leur balise.
+- [x] Finition : aide par thèmes, menu `O` complet et adaptatif, contrôle des ressources en CI, documentation à jour.
 - [x] Stations : kit de module pressurisé 7×5×7, balise de station (arrivée des fusées), `/station`.
 - [x] Plans de fusée (`/plans`) et atelier de station : réservoir étendu, moteur ionique, soute (touche V), navigation martienne.
 - [x] Combinaison spatiale (touche `J` et panneau de l'inventaire `E`) : casque, combinaison, bottes magnétiques, jetpack, deux réserves d'oxygène, rendu en armure, HUD O₂.

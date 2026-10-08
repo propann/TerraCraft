@@ -1,74 +1,73 @@
 # État du projet TerraCraft
 
-Analyse au 7 octobre 2026, version **0.28.1**. Ce document dit ce que nous avons, à quel point c'est vérifié, ce qui
-reste fragile et dans quel ordre continuer. La liste détaillée des tâches est dans [`feuille-de-route.md`](feuille-de-route.md).
+Analyse au 8 octobre 2026, version **0.28.2**. Ce document dit ce que nous avons, à quel point c'est vérifié, ce qui
+reste fragile et dans quel ordre continuer. Tâches : [`feuille-de-route.md`](feuille-de-route.md) · commandes :
+[`commandes.md`](commandes.md) · mesures : [`mesures-generation.md`](mesures-generation.md).
 
 ## En bref
 
 TerraCraft est un serveur survie sur la Terre réelle (relief, climats, routes, bâtiments), post-apocalyptique, avec
-une économie, des villes, des véhicules et un volet spatial complet jusqu'à Mars. Le mod `terracraft-geo` compte
-**112 fichiers Java (≈ 16 000 lignes)** et **223 ressources** générées ou écrites à la main. Le déploiement est
-automatisé (GitHub Actions → branche `falix` → serveur Falix) et chaque version passe un test de démarrage puis un
-test de scénario avec faux joueurs avant publication.
+une économie entre joueurs, des villes, des véhicules, des événements dangereux et un volet spatial jusqu'à Mars. Le
+mod `terracraft-geo` compte **137 fichiers Java (≈ 20 500 lignes)** et **301 ressources**. Le déploiement est
+automatisé (GitHub Actions → branche `falix` → serveur Falix) ; chaque version passe un contrôle des ressources, un
+test de démarrage puis un test de scénario de **72 vérifications** avant publication.
+
+**Point de vigilance principal : depuis la 0.15, aucune version n'a été jouée en séance réelle.** Tout le côté
+serveur est vérifié automatiquement ; les écrans, l'équilibrage et le ressenti ne le sont pas.
 
 ## Ce que nous avons
 
-Légende du niveau de vérification :
-**A** = vérifié automatiquement (test de scénario ou de démarrage) · **C** = compilé et chargé, à tester en jeu ·
+Légende : **A** = vérifié automatiquement (scénario, démarrage, mesure) · **C** = compilé et chargé, à voir en jeu ·
 **J** = testé en jeu par l'équipe.
 
 | Domaine | Contenu | Niveau |
 |---|---|---|
-| Monde | Relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés, bunkers, caves | J |
-| Entrée | Carte de départ en jeu, largage, kit, carnet de survie, parcours « Premiers pas », accueil des habitués, MOTD et icône | A (MOTD, icône) / J (carte) |
-| Survie | Inventaire conservé, `/home` `/back` `/tpa` refusés en combat | C |
-| Économie | Comptes, hôtel des ventes par catégories, prix moyens, comptoir, frais 2 %, `/eco stats` | A |
-| Missions | Missions permanentes, contrats du jour, métiers, ravitaillements militaires | A |
-| Villes | Maire, habitants, trésorerie, retour au centre, titres d'entrée | A |
-| Claims | Open Parties and Claims, propriétaire affiché en changeant de zone | C |
-| Véhicules | Voiture, camion, moto (assemblage, carburant, coffre, propriétaire), avion au clavier | C (avion) / J (voitures) |
-| Combat | Armes à chargeur, sniper, grenades, anti-triche vol | C |
-| Espace | Fusées à 1-4 réservoirs, orbites terrestre et lunaire, Lune, Mars ; Lune et Mars au départ d'une station | A (Terre → orbite → orbite lunaire → Lune) |
-| Sous-sol lunaire | Cavernes géantes, sanctuaires (pyramide, gardiens, trésor), donjons, cristaux | A (sanctuaire, découverte) / C (cavernes à voir en jeu) |
-| Équipement spatial | Combinaison (5 pièces + jetpack), oxygène automatique, panneau dans l'inventaire, rendu en armure | A (port, oxygène) / C (écrans, rendu) |
-| Stations et bases | Station orbitale en kit, bases lunaire et martienne en kit, modules, sas, quai, `/station` | A |
-| Rover lunaire | Électrique, recharge solaire, déposé par la fusée, remballable | A (dépôt) / C (conduite) |
-| Plans et atelier | Quatre améliorations de fusée débloquées en explorant, atelier de station | A |
-| Exploitation | Sauvegardes automatiques et restauration testée, données atomiques, journaux, `/signaler`, spark | A (sauvegarde, restauration) |
+| Monde | Relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture, bunkers, caves ; météo réelle, jour et nuit normaux | J (monde) / A (horloge) |
+| Performance | Génération hors du fil principal : tick 2 / 9 / 11 ms à 1 / 5 / 10 joueurs ; 3 Go de RAM minimum, 5 Go pour 10 | A (banc de mesure) |
+| Entrée | Pack dans le dépôt (serveur déjà dans la liste), installeurs, carte de départ, règles, carnet, « Premiers pas », accueil | A (MOTD, icône, règles) / J (carte) |
+| Interface | Un seul style (menu `O`, fiche `K`, marché, missions, atelier, carte des étoiles), barres de vie, chat, préfixes de ville, aide par thèmes | C |
+| Économie | Comptes, hôtel des ventes, comptoir, frais 2 %, étals, primes, confirmations, `/eco stats` (argent bloqué compris) | A (bilan au crédit près) |
+| Villes | Maire, adjoints, trésorerie, vagues nocturnes récompensées, territoire étendu par les claims | A (rôles, vagues) / C (claims) |
+| Protection | Claims Open Parties and Claims (tout protégé par défaut) ; stations et bases protégées autour de leur balise | A (bases) / C (claims) |
+| Combat et danger | PvE partout, zones PvP, armes, convois, zones contaminées, boss de bunker, micrométéorites, nuit lunaire | A |
+| Missions | Missions permanentes, contrats du jour, métiers, découvertes, course à l'espace | A |
+| Véhicules | Voiture, camion, moto, avion au clavier, rover lunaire | A (rover) / C (avion) / J (voitures) |
+| Espace | Fusées 1 à 4 réservoirs, station orbitale d'abord, Lune, Mars, carte des étoiles, plans et atelier | A |
+| Lune | Bases en kit, cavernes, sanctuaires extraterrestres, donjons, cristaux | A (sanctuaire) / C (cavernes) |
+| Exploitation | Sauvegardes et restauration testée, données atomiques, journaux, `/signaler`, modérateurs, `/terracraft suivi` | A |
 
 ## Outillage et qualité
 
-- **Intégration continue** : compilation, test de démarrage d'un vrai serveur (`tools/smoke_server.sh`), mise à jour
-  de la branche `falix`, publication d'une release avec le pack client sur tag.
-- **Test de scénario** (`tools/scenario_test.sh`) : deux faux joueurs (Carpet, test uniquement) jouent une partie
-  courte ; **72 vérifications** (villes, économie au crédit près, combinaison et oxygène, métiers, contrats, largage,
-  module de station, balise, vol en fusée posé à la balise, carburant consommé, plans et atelier, MOTD et icône).
-- **Versions figées** des mods tiers (`tools/mods.lock.json`), identiques sur le serveur et dans le pack.
-- **Données joueurs** écrites de façon atomique avec copie `.bak` ; **sauvegardes** du monde toutes les 6 h.
-- **Liste des serveurs vérifiable** : `tools/ping_server.py` interroge le serveur comme le jeu.
+- **Intégration continue** : contrôle des ressources (`tools/check_assets.py` : traductions, modèles, textures,
+  états de bloc et butins de chaque objet et bloc), compilation, test de démarrage d'un vrai serveur
+  (`tools/smoke_server.sh`), mise à jour de la branche `falix`, release avec le pack client sur tag.
+- **Test de scénario** (`tools/scenario_test.sh`) : trois faux joueurs (Carpet, test uniquement) jouent une partie
+  complète — villes et rôles, économie au crédit près, étal, primes, PvP, vagues, convoi, contamination, boss,
+  combinaison et oxygène, trois vols jusqu'à la Lune, base, rover, sanctuaire, météorites, protection, course.
+- **Banc de génération** (`tools/geo_bench.sh`) : 8 lieux réels puis 5 et 10 joueurs simultanés.
+- **Versions figées** des mods tiers (`tools/mods.lock.json`) ; pack et dossier `mods/` resynchronisés à chaque
+  version (`tools/sync_client_mods.py`).
+- **Données** écrites de façon atomique avec copie `.bak` ; **sauvegardes** du monde toutes les 6 h.
 
 ## Points fragiles et risques
 
-1. **L'interface client n'est pas testée automatiquement.** Écrans (missions, marché, atelier, combinaison), mixins
-   d'inventaire, rendu de la combinaison, HUD : seules les signatures sont vérifiées. Il faut des séances de jeu.
-2. **La génération à grande échelle n'est pas mesurée** (phase 0) : temps de génération des villes, erreurs de
-   téléchargement, TPS et mémoire avec plusieurs joueurs. La machine de développement n'a que 7 Go de RAM.
-3. **Espace disque Falix** : trois archives du monde s'ajoutent au monde lui-même (`keep` réglable).
-4. **Équilibrage de l'économie** non mesuré : sources (missions, contrats, tutoriel) contre dépenses (comptoir, frais,
-   villes). `/eco stats` donne les chiffres ; il faut les relever après une semaine de jeu.
-5. **Anti-triche limité au vol** (`allow-flight` est forcé pour l'espace). Vitesse, X-ray et duplication par d'autres
-   mods ne sont pas couverts. Pas de système de permissions fin (LuckPerms) : seulement les niveaux d'opérateur.
-6. **Dette technique** : `GeoMod.java` centralise ≈ 70 enregistrements ; `OsmCells` (≈ 980 lignes) et
-   `GeoChunkGenerator` (≈ 700 lignes) mériteraient un découpage. Les fichiers JSON sont écrits sur le thread serveur,
-   ce qui suffit pour une bêta mais pas pour une centaine de joueurs.
-7. **Réseau** : une nouvelle version qui ajoute objets, écrans ou paquets impose de mettre à jour le pack client ;
-   les joueurs doivent le savoir (README, message d'accueil « nouveautés »).
+1. **Rien n'a été joué en vrai depuis la 0.15** : écrans, mixins d'inventaire, rendu de la combinaison, HUD, barres
+   de vie, carte des étoiles, équilibrage des combats et des primes. C'est le premier risque du projet.
+2. **Mémoire** : avec 2 Go, le serveur a manqué de mémoire en sauvegardant après 10 joueurs. Respecter les seuils de
+   `deploy/FALIX.md` ; surveiller `/spark health` pendant les premières soirées.
+3. **Claims de ville** et **accès des modérateurs non opérateurs** : non couverts par le test automatique (les faux
+   joueurs ne tapent pas de commandes) ; à vérifier une fois en jeu.
+4. **Équilibrage de l'économie** non mesuré en conditions réelles : relever `/eco stats` après une semaine.
+5. **Anti-triche limité au vol** : vitesse, X-ray et duplication par d'autres mods ne sont pas couverts.
+6. **Dette technique** : `GeoMod.java` centralise les enregistrements (≈ 650 lignes) ; `OsmCells` et
+   `GeoChunkGenerator` mériteraient un découpage ; les fichiers JSON sont écrits sur le fil du serveur (suffisant
+   pour une bêta, pas pour une centaine de joueurs).
+7. **Espace disque Falix** : trois archives du monde s'ajoutent au monde lui-même.
 
 ## Priorités recommandées
 
-1. **Séance de test à plusieurs** sur Falix : interface client, véhicules, avion, combinaison, villes ; relevés
-   `/spark tps` et `/spark health`. Corriger ce qui en sort avant d'ajouter du contenu.
-2. **Phase 0 de génération** : dix points réels (centre-ville, banlieue, montagne, côte) sur une carte neuve.
-3. **Événements et danger** (phase 6) : convoi, contamination, zones PvP explicites, primes.
-4. **Volet spatial** : épaves et dangers lunaires, stockage partagé de station, astéroïdes.
-5. **Bêta privée** (phase 9) : whitelist, règles publiées, événement d'ouverture.
+1. **Séance de test à plusieurs** sur Falix (RAM réglée selon `deploy/FALIX.md`) : écrans, véhicules, combinaison,
+   villes et claims, étals, événements ; relevés `/terracraft suivi` et `/spark health`. Corriger ce qui en sort.
+2. **Bêta privée** : whitelist, canal de retours, `/terracraft course demarrer` le soir de l'ouverture.
+3. **Phase 7** : classification des bâtiments, points d'intérêt, puis missions liées aux lieux réels.
+4. **Espace** : stockage partagé de station, grande station de ville, astéroïdes.

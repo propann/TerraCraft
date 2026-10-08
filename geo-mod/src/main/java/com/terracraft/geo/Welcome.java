@@ -112,7 +112,7 @@ final class Welcome {
                 .append(Component.literal("\nla Terre réelle après la chute\n").withStyle(ChatFormatting.GRAY));
         Component footer = Component.literal("\n" + online + (online > 1 ? " survivants" : " survivant") + " en ligne · "
                         + GeoMod.version()).withStyle(ChatFormatting.AQUA)
-                .append(Component.literal("\nO : menu  ·  J : combinaison  ·  /aide  ·  /signaler\n").withStyle(ChatFormatting.DARK_GRAY));
+                .append(Component.literal("\nO : menu  ·  J : combinaison  ·  /aide  ·  /regles  ·  /signaler\n").withStyle(ChatFormatting.DARK_GRAY));
         ClientboundTabListPacket packet = new ClientboundTabListPacket(header, footer);
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             player.connection.send(packet);

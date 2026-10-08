@@ -28,6 +28,9 @@ jobs:
         with:
           gradle-version: '9.7.1'
 
+      - name: Ressources complètes (traductions, modèles, textures)
+        run: python3 tools/check_assets.py
+
       - name: Compiler le mod
         working-directory: geo-mod
         run: gradle --no-daemon build

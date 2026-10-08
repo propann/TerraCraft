@@ -21,7 +21,8 @@ import java.util.List;
 public final class TerraCraftMenuScreen extends Screen {
     private static final int COLUMNS = 3;
     private static final int TILE_W = 132;
-    private static final int TILE_H = 34;
+    private static final int MAX_TILE_H = 34;
+    private int tileH = MAX_TILE_H;
     private static final int GAP = 6;
     private static final int TILE = 0xC0182430;
     private static final int TILE_HOVER = 0xE0233847;
@@ -67,11 +68,17 @@ public final class TerraCraftMenuScreen extends Screen {
                         () -> runCommand("plans")),
                 new Tile("Claims", "Protéger son terrain", "M / '", new ItemStack(Items.SHIELD), () -> closeWithMessage(
                         "Claims : ouvre M pour la carte Xaero, puis clic droit sur les chunks. La touche ' ouvre le menu des claims.")),
+                new Tile("Course à l'espace", "Primes pour les premiers", "", new ItemStack(Items.FIREWORK_ROCKET),
+                        () -> runCommand("course")),
+                new Tile("PvP et primes", "Zones de combat, têtes à prix", "", new ItemStack(Items.IRON_SWORD), () -> runCommand("primes")),
+                new Tile("Règles", "Les règles du serveur", "", new ItemStack(Items.PAPER), () -> runCommand("regles")),
                 new Tile("Guide", "Commandes et touches", "", new ItemStack(Items.BOOK), () -> runCommand("aide")));
         columns = width >= COLUMNS * (TILE_W + GAP) + 24 ? COLUMNS : 2;
         int rows = (tiles.size() + columns - 1) / columns;
         panelWidth = columns * TILE_W + (columns - 1) * GAP + 20;
-        panelHeight = 40 + rows * (TILE_H + GAP) + 16;
+        // Tuiles moins hautes si l'écran est petit (grande échelle d'interface) : le menu reste entier.
+        tileH = Math.max(22, Math.min(MAX_TILE_H, (height - 8 - 40 - 16) / rows - GAP));
+        panelHeight = 40 + rows * (tileH + GAP) + 16;
         left = (width - panelWidth) / 2;
         top = Math.max(4, (height - panelHeight) / 2);
     }
@@ -81,14 +88,14 @@ public final class TerraCraftMenuScreen extends Screen {
     }
 
     private int tileY(int index) {
-        return top + 40 + (index / columns) * (TILE_H + GAP);
+        return top + 40 + (index / columns) * (tileH + GAP);
     }
 
     private int tileAt(double mouseX, double mouseY) {
         for (int i = 0; i < tiles.size(); i++) {
             int x = tileX(i);
             int y = tileY(i);
-            if (mouseX >= x && mouseX < x + TILE_W && mouseY >= y && mouseY < y + TILE_H) {
+            if (mouseX >= x && mouseX < x + TILE_W && mouseY >= y && mouseY < y + tileH) {
                 return i;
             }
         }
@@ -131,22 +138,29 @@ public final class TerraCraftMenuScreen extends Screen {
             int x = tileX(i);
             int y = tileY(i);
             boolean hover = i == hovered;
-            g.fill(x, y, x + TILE_W, y + TILE_H, hover ? TILE_HOVER : TILE);
-            g.outline(x, y, TILE_W, TILE_H, hover ? SuitScreen.CYAN : SuitScreen.SLOT_EDGE);
+            g.fill(x, y, x + TILE_W, y + tileH, hover ? TILE_HOVER : TILE);
+            g.outline(x, y, TILE_W, tileH, hover ? SuitScreen.CYAN : SuitScreen.SLOT_EDGE);
             if (hover) {
-                g.fill(x, y, x + 2, y + TILE_H, SuitScreen.CYAN);
+                g.fill(x, y, x + 2, y + tileH, SuitScreen.CYAN);
             }
-            g.fill(x + 6, y + 7, x + 26, y + 27, SuitScreen.SLOT_BG);
-            g.item(tile.icon(), x + 8, y + 9);
+            // Tuile compacte (petit écran) : icône et titre centrés, sans sous-titre.
+            boolean compact = tileH < 30;
+            int iconY = y + (tileH - 16) / 2;
+            g.fill(x + 6, iconY - 2, x + 26, iconY + 18, SuitScreen.SLOT_BG);
+            g.item(tile.icon(), x + 8, iconY);
             int textWidth = TILE_W - 36 - (tile.key().isEmpty() ? 0 : font.width(tile.key()) + 8);
-            g.text(font, font.plainSubstrByWidth(tile.title(), textWidth), x + 32, y + 7, hover ? SuitScreen.GOLD : SuitScreen.TEXT, false);
-            g.text(font, font.plainSubstrByWidth(tile.subtitle(), TILE_W - 36), x + 32, y + 19, SuitScreen.GREY, false);
+            int titleY = compact ? y + (tileH - 8) / 2 : y + 7;
+            g.text(font, font.plainSubstrByWidth(tile.title(), textWidth), x + 32, titleY, hover ? SuitScreen.GOLD : SuitScreen.TEXT, false);
+            if (!compact) {
+                g.text(font, font.plainSubstrByWidth(tile.subtitle(), TILE_W - 36), x + 32, y + 19, SuitScreen.GREY, false);
+            }
             if (!tile.key().isEmpty()) {
                 int kw = font.width(tile.key()) + 6;
                 int kx = x + TILE_W - kw - 4;
-                g.fill(kx, y + 5, kx + kw, y + 16, SuitScreen.SLOT_BG);
-                g.outline(kx, y + 5, kw, 11, SuitScreen.SLOT_EDGE);
-                g.text(font, tile.key(), kx + 3, y + 7, SuitScreen.CYAN, false);
+                int ky = compact ? titleY - 2 : y + 5;
+                g.fill(kx, ky, kx + kw, ky + 11, SuitScreen.SLOT_BG);
+                g.outline(kx, ky, kw, 11, SuitScreen.SLOT_EDGE);
+                g.text(font, tile.key(), kx + 3, ky + 2, SuitScreen.CYAN, false);
             }
         }
         g.centeredText(font, Component.literal("O : ouvrir ce menu · Échap : fermer"), width / 2, top + panelHeight - 12, SuitScreen.GREY);
