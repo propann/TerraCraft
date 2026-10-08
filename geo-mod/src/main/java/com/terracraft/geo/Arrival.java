@@ -80,6 +80,9 @@ final class Arrival {
                         + "À l'atterrissage, la base se déploie (aire, sas, salle de vie) et le rover est déposé. Maj + clic gauche : remballer le rover.",
                 "SOUS LA LUNE\n\nSous la croûte : cavernes géantes, cristaux, donjons enfouis. Des puits marqués de "
                         + "quatre piliers lumineux mènent aux SANCTUAIRES : pyramide, gardiens, artefacts extraterrestres.",
+                "CARBURANT\n\nFLAQUES DE PÉTROLE et DÉTECTEUR : trouve un gisement. Pose une POMPE À PÉTROLE dessus, avec des "
+                        + "PANNEAUX SOLAIRES (câbles). TUYAUX → RAFFINERIE (2 panneaux) → RÉSERVOIR → POMPE À ESSENCE : "
+                        + "bidon vide = essence, Maj = carburant de fusée. Un plein rend le bidon vide.",
                 "DANGERS SUR TERRE\n\nCONVOI MILITAIRE : un camion en panne, annoncé à tous, gardé par une escorte armée. "
                         + "Caisse de matériel à côté ; le camion (une roue à remplacer) revient au premier qui le prend.\n"
                         + "☢ ZONE CONTAMINÉE : poison sans casque et combinaison spatiaux (J). Une cache t'attend au cœur.",

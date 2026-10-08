@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.28). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.30). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -16,6 +16,21 @@ Référence de TerraCraft (version 0.28). Tout est en français ; `/aide` en don
 | Avion | `Z`/`S` gaz, `Q`/`D` tourner, `Espace` monter, `Ctrl` descendre, `Maj` sortir |
 | Rover lunaire | Clic droit avec la caisse : déballer ; conduite comme une voiture ; `Maj` + clic gauche : remballer |
 | Fusée | `Espace` décoller ; à pied, `Maj` + clic droit main vide : **carte des étoiles** (aussi menu `O`) ; clic droit avec un réservoir : réservoir en plus, avec un kit : charge utile |
+
+## Industrie du carburant
+
+| Bloc ou objet | Usage |
+|---|---|
+| Détecteur de pétrole | Clic droit : distance et direction du gisement le plus proche (les flaques de pétrole le signalent aussi) |
+| Pompe à pétrole | Sur un gisement, alimentée : extrait le brut (5 mB/s par point de richesse et par panneau, 2 panneaux au plus) |
+| Panneau solaire, câble électrique | Un panneau = une unité d'énergie le jour, s'il voit le ciel ; les câbles le relient aux machines |
+| Tuyau | Relie les machines ; les liquides vont vers les réservoirs (et le brut vers les raffineries) |
+| Raffinerie | 2 panneaux : 200 mB de brut → 140 mB d'essence + 60 mB de kérosène par seconde |
+| Réservoir | 16 000 mB d'un seul liquide |
+| Pompe à essence | Bidon vide en main : clic droit = essence, Maj + clic droit = carburant de fusée (1 000 mB) |
+| Bidon vide | 2 fer + 1 seau ; rendu après chaque plein ; à défaut, bidon artisanal : bidon vide + 4 charbons |
+
+Clic droit main vide sur une machine : son état (contenu, gisement, énergie).
 
 ## Joueurs
 
@@ -65,6 +80,7 @@ Référence de TerraCraft (version 0.28). Tout est en français ; `/aide` en don
 | `/moderateurs [ajouter|retirer <joueur>]` | Nommer ou retirer des modérateurs (sans les rendre opérateurs) |
 | `/terracraft course demarrer|arreter` | Ouvrir ou fermer la course à l'espace (événement d'ouverture) |
 | `/terracraft aller <lat> <lon>` | Se rendre à des coordonnées réelles |
+| `/terracraft petrole [aller]` | Gisement de pétrole le plus proche (et s'y rendre) |
 | `/terracraft generation [reset]` | Mesures de génération : chunks, temps par chunk, téléchargements retentés ou ratés |
 | `/terracraft suivi` | Joueurs uniques, actifs 24 h / 7 j, retour, temps de jeu, tick moyen |
 | `/eco stats` | Crédits créés, détruits, en circulation et dans les trésoreries des villes |
@@ -84,7 +100,7 @@ Référence de TerraCraft (version 0.28). Tout est en français ; `/aide` en don
 
 ## Journal de la console
 
-Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`, `[MOD]`, `[SUIVI]`, `[COURSE]`, `[GEN]`, `[PROTECTION]`,
+Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`, `[MOD]`, `[SUIVI]`, `[COURSE]`, `[GEN]`, `[PROTECTION]`, `[CARBURANT]`,
 `[STATION]`, `[ATELIER]`, `[NAV]`, `[METEORES]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
 
 Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass",
+    "L": "minecraft:lapis_lazuli",
+    "D": "minecraft:daylight_detector",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "GGG",
+    "LDL",
+    "III"
+  ],
+  "result": {
+    "id": "terracraft_geo:solar_panel",
+    "count": 1
+  }
+}

@@ -1,0 +1,150 @@
+package com.terracraft.geo;
+
+import com.terracraft.geo.content.ModContent;
+import com.terracraft.geo.content.industry.FluidKind;
+import com.terracraft.geo.content.industry.IndustryBlocks;
+import com.terracraft.geo.content.industry.MachineBlock;
+import com.terracraft.geo.content.industry.MachineBlockEntity;
+import com.terracraft.geo.content.industry.MachineKind;
+import com.terracraft.geo.content.industry.Oil;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+
+import java.util.List;
+
+/**
+ * Industrie du carburant, côté jeu : état des machines au clic droit, pompe à essence (bidon vide → bidon d'essence,
+ * ou carburant de fusée avec Maj), détecteur de pétrole. Les machines elles-mêmes sont dans content.industry.
+ */
+final class Industry {
+    static final int CAN = 1_000;
+
+    private Industry() {
+    }
+
+    static void register() {
+        IndustryBlocks.init();
+        MachineBlock.interaction = Industry::use;
+        UseItemCallback.EVENT.register((player, level, hand) -> {
+            ItemStack stack = player.getItemInHand(hand);
+            if (stack.is(IndustryBlocks.OIL_DETECTOR) && player instanceof ServerPlayer server) {
+                detect(server);
+                return InteractionResult.SUCCESS;
+            }
+            return InteractionResult.PASS;
+        });
+    }
+
+    private static InteractionResult use(ServerPlayer player, MachineBlockEntity machine, ItemStack stack, InteractionHand hand) {
+        if (machine.kind() == MachineKind.FUEL_PUMP && stack.is(IndustryBlocks.EMPTY_FUEL_CAN)) {
+            FluidKind fluid = player.isShiftKeyDown() ? FluidKind.KEROSENE : FluidKind.GASOLINE;
+            if (!draw(player.level(), machine, fluid, CAN)) {
+                player.sendOverlayMessage(Component.literal("Pas assez de " + fluid.label.toLowerCase() + " dans les réservoirs reliés (1 000 mB).")
+                        .withStyle(ChatFormatting.RED));
+                return InteractionResult.FAIL;
+            }
+            stack.consume(1, player);
+            ItemStack full = new ItemStack(fluid == FluidKind.KEROSENE ? ModContent.ROCKET_FUEL : ModContent.FUEL_CAN);
+            if (!player.getInventory().add(full)) {
+                player.spawnAtLocation(player.level(), full);
+            }
+            player.level().playSound(null, machine.getBlockPos(), SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 0.8f, 1f);
+            GeoMod.LOGGER.info("[CARBURANT] {} remplit un bidon de {} à la pompe {}", player.getName().getString(), fluid.label,
+                    machine.getBlockPos().toShortString());
+            player.sendOverlayMessage(Component.literal(fluid == FluidKind.KEROSENE ? "Carburant de fusée prêt (1 dose)."
+                    : "Bidon d'essence rempli. Maj + clic droit : carburant de fusée.").withStyle(ChatFormatting.GREEN));
+            return InteractionResult.SUCCESS;
+        }
+        if (!stack.isEmpty()) {
+            return InteractionResult.PASS; // Poser un bloc contre une machine reste possible.
+        }
+        player.sendSystemMessage(status(player.level(), machine));
+        return InteractionResult.SUCCESS;
+    }
+
+    /** Prélève {@code amount} d'un liquide dans les réservoirs reliés par des tuyaux (tout ou rien). */
+    static boolean draw(net.minecraft.server.level.ServerLevel level, MachineBlockEntity pump, FluidKind fluid, int amount) {
+        List<MachineBlockEntity> tanks = MachineBlockEntity.connected(level, pump.getBlockPos(), false).stream()
+                .filter(m -> m.kind() == MachineKind.FUEL_TANK || m.kind() == MachineKind.REFINERY).toList();
+        int available = tanks.stream().mapToInt(m -> m.amount(fluid)).sum();
+        if (available < amount) {
+            return false;
+        }
+        int left = amount;
+        for (MachineBlockEntity tank : tanks) {
+            left += tank.add(fluid, -left);
+            if (left <= 0) {
+                break;
+            }
+        }
+        return true;
+    }
+
+    static Component status(net.minecraft.server.level.ServerLevel level, MachineBlockEntity machine) {
+        MachineKind kind = machine.kind();
+        StringBuilder text = new StringBuilder(kind.label + " · ");
+        switch (kind) {
+            case OIL_PUMP -> {
+                int richness = Oil.richness(machine.getBlockPos().getX(), machine.getBlockPos().getZ());
+                text.append(richness == 0 ? "aucun gisement ici (détecteur de pétrole)" : "gisement " + switch (richness) {
+                    case 1 -> "faible";
+                    case 2 -> "moyen";
+                    default -> "riche";
+                }).append(" · brut ").append(machine.amount(FluidKind.CRUDE)).append("/").append(kind.capacity).append(" mB");
+            }
+            case REFINERY -> text.append("brut ").append(machine.amount(FluidKind.CRUDE)).append(" · essence ")
+                    .append(machine.amount(FluidKind.GASOLINE)).append(" · kérosène ").append(machine.amount(FluidKind.KEROSENE))
+                    .append(" mB (2 panneaux requis)");
+            case FUEL_TANK -> {
+                FluidKind content = machine.content();
+                text.append(content == null ? "vide" : content.label + " " + machine.amount(content) + "/" + kind.capacity + " mB");
+            }
+            case FUEL_PUMP -> {
+                List<MachineBlockEntity> tanks = MachineBlockEntity.connected(level, machine.getBlockPos(), false);
+                text.append("essence ").append(tanks.stream().mapToInt(m -> m.amount(FluidKind.GASOLINE)).sum())
+                        .append(" · kérosène ").append(tanks.stream().mapToInt(m -> m.amount(FluidKind.KEROSENE)).sum())
+                        .append(" mB disponibles · bidon vide : clic droit (Maj : carburant de fusée)");
+            }
+        }
+        if (kind.powered) {
+            int power = MachineBlockEntity.power(level, machine.getBlockPos());
+            text.append(" · énergie : ").append(power).append(power > 1 ? " panneaux" : " panneau").append(power == 0 ? " (nuit, ou câbles ?)" : "");
+        }
+        return Component.literal(text.toString()).withStyle(ChatFormatting.AQUA);
+    }
+
+    private static void detect(ServerPlayer player) {
+        if (player.level().dimension() != Level.OVERWORLD) {
+            player.sendOverlayMessage(Component.literal("Pas de pétrole ici : seulement sur Terre.").withStyle(ChatFormatting.GRAY));
+            return;
+        }
+        int x = player.getBlockX();
+        int z = player.getBlockZ();
+        int here = Oil.richness(x, z);
+        if (here > 0) {
+            player.sendOverlayMessage(Component.literal("⛽ Gisement sous tes pieds (richesse " + here + "/3) : pose une pompe à pétrole ici.")
+                    .withStyle(ChatFormatting.GREEN));
+            return;
+        }
+        Oil.Deposit d = Oil.nearest(x, z);
+        if (d == null) {
+            player.sendOverlayMessage(Component.literal("Aucun gisement à moins de 200 blocs.").withStyle(ChatFormatting.GRAY));
+            return;
+        }
+        int dx = d.x() - x;
+        int dz = d.z() - z;
+        String direction = (dz < -Math.abs(dx) / 2 ? "nord" : dz > Math.abs(dx) / 2 ? "sud" : "")
+                + (dx > Math.abs(dz) / 2 ? (dz != 0 && Math.abs(dz) > Math.abs(dx) / 2 ? "-est" : "est")
+                : dx < -Math.abs(dz) / 2 ? (Math.abs(dz) > Math.abs(dx) / 2 ? "-ouest" : "ouest") : "");
+        player.sendOverlayMessage(Component.literal("⛽ Gisement à " + (int) Math.hypot(dx, dz) + " blocs vers le " + direction
+                + " (richesse " + d.richness() + "/3)").withStyle(ChatFormatting.GOLD));
+    }
+}

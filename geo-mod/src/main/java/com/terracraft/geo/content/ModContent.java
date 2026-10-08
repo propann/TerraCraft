@@ -143,7 +143,7 @@ public final class ModContent {
         };
     }
 
-    static Item item(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {
+    public static Item item(String name, Function<Item.Properties, Item> factory, Item.Properties properties) {
         ResourceKey<Item> key = ResourceKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, name));
         return Registry.register(BuiltInRegistries.ITEM, key, factory.apply(properties.setId(key)));
     }

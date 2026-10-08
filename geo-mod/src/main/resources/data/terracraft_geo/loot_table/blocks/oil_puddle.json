@@ -1,0 +1,5 @@
+{
+  "type": "minecraft:block",
+  "pools": [],
+  "random_sequence": "terracraft_geo:blocks/oil_puddle"
+}

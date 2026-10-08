@@ -102,6 +102,27 @@ cmd "kill @e[type=minecraft:zombie]" 0
 cmd "kill @e[type=#minecraft:skeletons]" 0
 cmd "kill @e[type=minecraft:spider]" 0
 cmd "kill @e[type=minecraft:vindicator]" 3
+# Chaîne du carburant au-dessus du gisement le plus proche : pompe à pétrole → raffinerie → réservoir → pompe à essence
+cmd "time set 6000" 1
+cmd "effect give Alice minecraft:slow_falling 30 0 true" 0
+cmd "execute as Alice run terracraft petrole aller" 8
+cmd "execute as Alice run terracraft petrole aller" 0
+cmd "execute at Alice run fill ~-2 ~-1 ~-2 ~8 ~-1 ~2 minecraft:stone" 2
+cmd "execute at Alice run setblock ~1 ~ ~ terracraft_geo:fuel_pump" 0
+cmd "execute at Alice run setblock ~2 ~ ~ terracraft_geo:fuel_tank" 0
+cmd "execute at Alice run setblock ~3 ~ ~ terracraft_geo:pipe" 0
+cmd "execute at Alice run setblock ~4 ~ ~ terracraft_geo:refinery" 0
+cmd "execute at Alice run setblock ~4 ~1 ~ terracraft_geo:solar_panel" 0
+cmd "execute at Alice run setblock ~4 ~ ~1 terracraft_geo:solar_panel" 0
+cmd "execute at Alice run setblock ~5 ~ ~ terracraft_geo:pipe" 0
+cmd "execute at Alice run setblock ~6 ~ ~ terracraft_geo:oil_pump" 0
+cmd "execute at Alice run setblock ~6 ~1 ~ terracraft_geo:solar_panel" 0
+cmd "execute at Alice run setblock ~6 ~ ~1 terracraft_geo:solar_panel" 70
+cmd "execute at Alice run data get block ~2 ~ ~ GASOLINE" 1
+cmd "item replace entity Alice weapon.mainhand with terracraft_geo:empty_fuel_can" 1
+cmd "player Alice use once" 2
+cmd "clear Alice terracraft_geo:fuel_can 0" 1
+cmd "tp Alice 0 201 0" 2
 # Étal de marché : Bob vend des diamants à 25 l'unité, Alice en achète 2 (50 crédits passent d'Alice à Bob)
 cmd "tp Bob 3 201 3" 1
 cmd "setblock 6 201 0 terracraft_geo:market_stall" 1
@@ -356,6 +377,11 @@ check(sorted(race["winners"]) == sorted(["orbit", "orbital_station", "moon", "lu
       and race_bob == 1300 and race["active"], f"course à l'espace : Bob remporte 5 étapes, 1 300 crédits (obtenu {sorted(race['winners'])})")
 check("PROTECTION_ETRANGERE_OK" in log and "[protection] eve bloqué" in log.lower(), "base lunaire protégée : Eve (étrangère) ne casse rien")
 check("PROTECTION_PROPRIETAIRE_OK" in log, "base lunaire : le propriétaire Bob casse librement")
+gasoline = re.findall(r"has the following block data: (\d+)", log)
+check("[CARBURANT] gisement le plus proche de Alice" in log and gasoline and int(gasoline[0]) >= 1000,
+      f"chaîne du carburant : essence raffinée dans le réservoir (obtenu {gasoline[:1]} mB)")
+check("[CARBURANT] Alice remplit un bidon de Essence" in log and re.search(r"Found 1 matching item\(s\) on player (\[Bourg Neuf\] )?Alice", log),
+      "pompe à essence : Alice remplit un bidon vide")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

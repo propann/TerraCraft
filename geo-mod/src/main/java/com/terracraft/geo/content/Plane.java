@@ -124,6 +124,7 @@ public class Plane extends VehicleEntity {
                 } else {
                     entityData.set(DATA_FUEL, fuel() + FUEL_PER_CAN);
                     stack.consume(1, player);
+                    com.terracraft.geo.content.industry.IndustryBlocks.returnEmptyCan(player);
                     level().playSound(null, getX(), getY(), getZ(), SoundEvents.BUCKET_EMPTY, SoundSource.NEUTRAL, 0.7f, 1f);
                     player.sendOverlayMessage(status());
                 }

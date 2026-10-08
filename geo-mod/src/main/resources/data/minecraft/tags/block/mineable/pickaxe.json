@@ -9,6 +9,12 @@
     "terracraft_geo:station_light",
     "terracraft_geo:oxygen_distributor",
     "terracraft_geo:alien_stone",
-    "terracraft_geo:alien_glyph"
+    "terracraft_geo:alien_glyph",
+    "terracraft_geo:oil_pump",
+    "terracraft_geo:refinery",
+    "terracraft_geo:fuel_tank",
+    "terracraft_geo:fuel_pump",
+    "terracraft_geo:pipe",
+    "terracraft_geo:solar_panel"
   ]
 }

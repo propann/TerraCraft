@@ -223,6 +223,7 @@ public class Rocket extends VehicleEntity {
                 } else if (stack.is(ModContent.ROCKET_FUEL) && fuel() < maxFuel()) {
                     entityData.set(DATA_FUEL, fuel() + 1);
                     used = true;
+                    com.terracraft.geo.content.industry.IndustryBlocks.returnEmptyCan(player); // Le bidon de kérosène se vide.
                 }
                 if (used) {
                     stack.consume(1, player);

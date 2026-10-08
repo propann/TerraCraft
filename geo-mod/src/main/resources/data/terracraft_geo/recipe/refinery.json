@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_block",
+    "T": "terracraft_geo:pipe",
+    "F": "minecraft:blast_furnace",
+    "B": "minecraft:bucket"
+  },
+  "pattern": [
+    "ITI",
+    "FBF",
+    "III"
+  ],
+  "result": {
+    "id": "terracraft_geo:refinery",
+    "count": 1
+  }
+}

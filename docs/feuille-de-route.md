@@ -83,6 +83,11 @@ génération ni perte d'objet.
 ## Phase 5 — Véhicules et transport
 
 - [x] Propriétaire, verrou, partage, coffre (touche `V`), démontage sûr, avion au clavier, jetpack.
+- [x] **Industrie du carburant** : gisements (flaques, détecteur), pompe à pétrole, panneaux solaires et câbles,
+      tuyaux, raffinerie (brut → essence + kérosène), réservoirs, pompe à essence ; bidon vide rendu après chaque
+      plein. Rendement : ~1 bidon par minute sur un riche gisement avec 2 panneaux, ~5 min sur un petit.
+- [ ] **Industrie, suite** : stations-service à piller dans les ruines, batteries pour la nuit, oléoducs plus longs,
+      écran de machine (jauges) au lieu du message.
 - [ ] **État détaillé** dans l'écran du véhicule : moteur, roues, carburant, dégâts.
 - [ ] **Garage de ville** : réparation et plein contre crédits.
 - [ ] **Rôles clairs** : moto rapide et fragile, voiture polyvalente, camion lent à grand coffre (réglages chiffrés).

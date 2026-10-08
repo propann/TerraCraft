@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "P": "minecraft:piston",
+    "T": "terracraft_geo:pipe",
+    "B": "minecraft:iron_block"
+  },
+  "pattern": [
+    "IPI",
+    "ITI",
+    "IBI"
+  ],
+  "result": {
+    "id": "terracraft_geo:oil_pump",
+    "count": 1
+  }
+}

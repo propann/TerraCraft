@@ -89,6 +89,7 @@ public final class Jetpack {
         jetpack.setDamageValue(Math.max(0, jetpack.getDamageValue() - REFUEL));
         SpaceSuit.changed(player);
         player.getItemInHand(hand).consume(1, player);
+        com.terracraft.geo.content.industry.IndustryBlocks.returnEmptyCan(player);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS, 0.7f, 1.2f);
         int percent = 100 - 100 * jetpack.getDamageValue() / jetpack.getMaxDamage();
         player.sendOverlayMessage(Component.literal("Jetpack rechargé : " + percent + " %").withStyle(ChatFormatting.AQUA));

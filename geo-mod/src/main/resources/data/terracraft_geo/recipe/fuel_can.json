@@ -2,7 +2,15 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    "minecraft:iron_ingot",
+    "terracraft_geo:empty_fuel_can",
+    [
+      "minecraft:coal",
+      "minecraft:charcoal"
+    ],
+    [
+      "minecraft:coal",
+      "minecraft:charcoal"
+    ],
     [
       "minecraft:coal",
       "minecraft:charcoal"

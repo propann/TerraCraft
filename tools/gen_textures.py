@@ -874,6 +874,87 @@ SNIPER = [
 ]
 
 
+def industry_textures():
+    """Industrie du carburant : machines, panneau solaire, tuyau, câble, flaque, bidon vide, détecteur."""
+    def stripes(c):
+        for x in range(0, 16, 4):
+            c.rect(x, 12, 2, 4, (25, 25, 25))
+        c.rect(0, 12, 16, 1, (25, 25, 25))
+        c.rect(3, 2, 10, 7, (70, 70, 76))
+        c.rect(5, 4, 6, 3, (35, 35, 38))
+    block_tex("oil_pump_side", (215, 170, 40), stripes, seed=101)
+    block_tex("oil_pump_top", (70, 70, 76), lambda c: [c.rect(5, 5, 6, 6, (30, 30, 32)), c.rect(6, 6, 4, 4, (15, 15, 15))], seed=102)
+    def refinery(c):
+        for x in (2, 7, 12):
+            c.rect(x, 0, 2, 16, (150, 152, 160))
+            c.rect(x, 0, 1, 16, (190, 192, 200))
+        c.rect(0, 6, 16, 2, (120, 70, 40))
+        c.rect(4, 10, 3, 3, (40, 40, 44))
+        c.rect(5, 11, 1, 1, (230, 60, 40))
+    block_tex("refinery_side", (95, 98, 108), refinery, seed=103)
+    block_tex("refinery_top", (80, 82, 90), lambda c: [c.rect(x, y, 3, 3, (30, 30, 34)) for x in (2, 10) for y in (2, 10)], seed=104)
+    def tank(c):
+        c.rect(0, 0, 16, 2, (150, 150, 158))
+        c.rect(0, 14, 16, 2, (150, 150, 158))
+        c.rect(7, 3, 2, 10, (30, 30, 34))
+        c.rect(7, 8, 2, 5, (230, 170, 40))
+        for x in (2, 13):
+            c.rect(x, 2, 1, 12, (200, 200, 208))
+    block_tex("fuel_tank_side", (175, 178, 186), tank, seed=105)
+    block_tex("fuel_tank_top", (150, 152, 160), lambda c: [c.rect(5, 5, 6, 6, (110, 112, 120)), c.rect(7, 7, 2, 2, (40, 40, 44))], seed=106)
+    def pump(c):
+        c.rect(3, 2, 10, 5, (235, 235, 225))
+        c.rect(4, 3, 3, 1, (40, 40, 40))
+        c.rect(9, 3, 3, 1, (40, 40, 40))
+        c.rect(4, 5, 8, 1, (40, 40, 40))
+        c.rect(12, 8, 3, 6, (30, 30, 32))
+        c.rect(3, 9, 6, 1, (255, 210, 60))
+    block_tex("fuel_pump_side", (185, 35, 30), pump, seed=107)
+    block_tex("fuel_pump_top", (90, 92, 100), lambda c: c.rect(2, 2, 12, 12, (185, 35, 30)), seed=108)
+    def panel(c):
+        c.rect(0, 0, 16, 16, (190, 195, 205))
+        c.rect(1, 1, 14, 14, (25, 40, 95))
+        for k in range(1, 15, 7):
+            c.rect(k, 1, 1, 14, (110, 130, 190))
+            c.rect(1, k, 14, 1, (110, 130, 190))
+        c.rect(3, 3, 2, 1, (170, 190, 240))
+    block_tex("solar_panel_top", (25, 40, 95), panel, seed=109)
+    block_tex("solar_panel_side", (175, 180, 190), lambda c: c.rect(0, 0, 16, 2, (120, 125, 135)), seed=110)
+    block_tex("pipe", (135, 138, 148), lambda c: [c.rect(0, 0, 16, 1, (175, 178, 188)), c.rect(0, 7, 16, 2, (95, 98, 108)),
+                                                 c.rect(0, 15, 16, 1, (90, 92, 100))], seed=111)
+    block_tex("cable", (28, 28, 30), lambda c: [c.rect(0, 7, 16, 2, (190, 110, 60))], seed=112)
+    def puddle(c):
+        for x in range(16):
+            for y in range(16):
+                if (x * 7 + y * 3) % 11 == 0:
+                    c.set(x, y, (60, 40, 90))
+                elif (x + y * 5) % 13 == 0:
+                    c.set(x, y, (40, 70, 80))
+    block_tex("oil_puddle", (12, 10, 14), puddle, seed=113)
+
+    def can(fill):
+        def draw(c):
+            c.rect(4, 3, 8, 12, (24, 24, 28))
+            c.rect(5, 4, 6, 10, fill)
+            c.rect(5, 4, 6, 1, (200, 200, 205))
+            c.rect(9, 1, 3, 3, (24, 24, 28))
+            c.rect(10, 2, 1, 1, (150, 150, 155))
+            c.rect(6, 7, 4, 4, (24, 24, 28))
+            c.rect(7, 8, 2, 2, fill)
+        return draw
+    icon("empty_fuel_can", can((120, 122, 130)))
+
+    def detector(c):
+        c.rect(3, 1, 10, 14, (24, 24, 28))
+        c.rect(4, 2, 8, 12, (215, 170, 40))
+        c.rect(5, 3, 6, 5, (20, 40, 25))
+        c.rect(6, 5, 4, 1, (90, 230, 120))
+        c.rect(7, 4, 1, 3, (90, 230, 120))
+        c.rect(6, 10, 2, 2, (24, 24, 28))
+        c.rect(9, 10, 2, 2, (180, 40, 30))
+    icon("oil_detector", detector)
+
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -932,6 +1013,7 @@ def main():
     rover()
     icon("rover_kit", draw_rover_kit)
     alien_patterns()
+    industry_textures()
     block_tex("market_stall_top", (200, 40, 40), lambda c: [c.rect(x, 0, 2, 16, (235, 230, 220)) for x in range(0, 16, 4)], seed=95)
     block_tex("market_stall_side", (150, 105, 60), lambda c: [c.rect(0, 0, 16, 4, (200, 40, 40)), c.rect(0, 4, 16, 1, (90, 60, 35)),
                                                               c.rect(0, 9, 16, 1, (110, 75, 45)), c.rect(0, 15, 16, 1, (90, 60, 35))]

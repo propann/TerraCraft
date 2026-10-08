@@ -37,6 +37,8 @@ final class ServerGuide {
                 new Entry("[Premiers pas]", "/tuto", "Ton objectif en cours"),
                 new Entry("[Missions]", "/missions", "Contrats du jour et missions récompensées"),
                 new Entry("[Métier]", "/metier", "Mécanicien, éclaireur, récupérateur, combattant, pilote"),
+                new Entry("", "", "Carburant : détecteur de pétrole → pompe sur un gisement (panneaux solaires, câbles) → tuyaux → "
+                        + "raffinerie → réservoir → pompe à essence (bidon vide ; Maj : carburant de fusée)."),
                 new Entry("", "", "Dangers : convois militaires, zones contaminées ☢ (combinaison requise), bunkers gardés.")));
         THEMES.put("commerce", java.util.List.of(
                 new Entry("[Solde]", "/argent", "Tes crédits"),

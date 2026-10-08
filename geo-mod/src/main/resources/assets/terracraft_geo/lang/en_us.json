@@ -73,5 +73,15 @@
   "multiplayer.player.joined.renamed": "§a➜ §f%s §7(formerly %s) joined TerraCraft",
   "multiplayer.player.left": "§c← §7%s left the server",
   "item.terracraft_geo.commander_badge": "Commander's badge",
-  "block.terracraft_geo.market_stall": "Market stall"
+  "block.terracraft_geo.market_stall": "Market stall",
+  "block.terracraft_geo.oil_pump": "Oil pump",
+  "block.terracraft_geo.refinery": "Refinery",
+  "block.terracraft_geo.fuel_tank": "Fuel tank",
+  "block.terracraft_geo.fuel_pump": "Fuel pump",
+  "block.terracraft_geo.solar_panel": "Solar panel",
+  "block.terracraft_geo.pipe": "Pipe",
+  "block.terracraft_geo.cable": "Power cable",
+  "block.terracraft_geo.oil_puddle": "Oil puddle",
+  "item.terracraft_geo.empty_fuel_can": "Empty fuel can",
+  "item.terracraft_geo.oil_detector": "Oil detector"
 }

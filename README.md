@@ -30,7 +30,7 @@ jour, réimporte-le. Toutes les versions : [Releases](https://github.com/propann
 
 Les mêmes règles s'affichent en jeu à la première connexion et avec `/regles`.
 
-## Ce qui est en place (0.29.0)
+## Ce qui est en place (0.30.0)
 
 - **Monde** : la Terre réelle (relief, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés), météo réelle,
   jour et nuit normaux ; ruines, bunkers, caves, épaves.
@@ -46,6 +46,8 @@ Les mêmes règles s'affichent en jeu à la première connexion et avec `/regles
 - **Villes** : maire, adjoints, trésorerie, territoire étendu par les claims des habitants ; claims Open Parties and
   Claims, cartes Xaero.
 - **Véhicules** : voiture, camion, moto, avion, rover lunaire, jetpack.
+- **Industrie du carburant** : gisements de pétrole, pompes, panneaux solaires, câbles, tuyaux, raffinerie, réservoirs,
+  pompe à essence ; bidons à remplir et à rendre.
 - **Espace** : station orbitale d'abord, fusées à 1-4 réservoirs, carte des étoiles, orbite lunaire, Lune, Mars ;
   bases en kit, protégées autour de leur balise ; plans et atelier de station ; sous-sol lunaire (cavernes,
   sanctuaires, pyramides), micrométéorites ; combinaison spatiale ; course à l'espace (`/course`).

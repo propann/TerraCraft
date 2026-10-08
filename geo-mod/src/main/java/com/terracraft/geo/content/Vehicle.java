@@ -266,6 +266,9 @@ public class Vehicle extends VehicleEntity implements Container {
         }
         if (used) {
             stack.consume(1, player);
+            if (item == ModContent.FUEL_CAN) {
+                com.terracraft.geo.content.industry.IndustryBlocks.returnEmptyCan(player);
+            }
             level().playSound(null, getX(), getY(), getZ(),
                     item == ModContent.FUEL_CAN ? SoundEvents.BUCKET_EMPTY : SoundEvents.ANVIL_USE,
                     SoundSource.NEUTRAL, 0.6f, 1.2f);

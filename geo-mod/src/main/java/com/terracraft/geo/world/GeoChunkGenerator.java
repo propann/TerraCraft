@@ -556,9 +556,33 @@ public final class GeoChunkGenerator extends ChunkGenerator {
         return roll < 40 ? TreeFeatures.OAK : roll < 70 ? TreeFeatures.FANCY_OAK : roll < 90 ? TreeFeatures.BIRCH : TreeFeatures.DARK_OAK;
     }
 
+    /** Flaques de pétrole au-dessus du centre d'un gisement (seulement dans les chunks neufs). */
+    private void oilPuddles(WorldGenLevel level, ChunkPos pos) {
+        var deposit = com.terracraft.geo.content.industry.Oil.deposit(pos.getMinBlockX() + 8, pos.getMinBlockZ() + 8);
+        if (deposit == null || Math.floorDiv(deposit.x(), 16) != pos.x() || Math.floorDiv(deposit.z(), 16) != pos.z()) {
+            return;
+        }
+        net.minecraft.util.RandomSource random = net.minecraft.util.RandomSource.create(deposit.x() * 31L + deposit.z());
+        BlockState puddle = com.terracraft.geo.content.industry.IndustryBlocks.OIL_PUDDLE.defaultBlockState();
+        int count = 5 + random.nextInt(5);
+        for (int i = 0; i < count; i++) {
+            int x = deposit.x() + random.nextInt(13) - 6;
+            int z = deposit.z() + random.nextInt(13) - 6;
+            int ground = terrain.surfaceY(x, z);
+            if (ground < EarthTerrain.SEA_LEVEL) {
+                continue;
+            }
+            BlockPos at = new BlockPos(x, ground + 1, z);
+            if (level.getBlockState(at).isAir() && level.getBlockState(at.below()).isFaceSturdy(level, at.below(), net.minecraft.core.Direction.UP)) {
+                level.setBlock(at, puddle, 2);
+            }
+        }
+    }
+
     @Override
     public void applyBiomeDecoration(WorldGenLevel level, ChunkAccess chunk, StructureManager structureManager) {
         super.applyBiomeDecoration(level, chunk, structureManager);
+        oilPuddles(level, chunk.getPos());
         if (!osm) {
             return;
         }

@@ -115,6 +115,25 @@ public final class GeoMod implements ModInitializer {
     }
 
     /** Coffre du véhicule où l'on est assis, sinon du véhicule accessible le plus proche (6 blocs). */
+    /** /terracraft petrole [aller] : gisement de pétrole le plus proche (et s'y rendre, en hauteur). */
+    private static int oilCommand(net.minecraft.commands.CommandSourceStack source, boolean go)
+            throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        var deposit = com.terracraft.geo.content.industry.Oil.nearest(player.getBlockX(), player.getBlockZ());
+        if (deposit == null) {
+            source.sendFailure(Component.literal("Aucun gisement à moins de 200 blocs."));
+            return 0;
+        }
+        if (go) {
+            player.teleportTo(source.getServer().overworld(), deposit.x() + 0.5, 230, deposit.z() + 0.5, java.util.Set.of(), -90, 45, true);
+        }
+        LOGGER.info("[CARBURANT] gisement le plus proche de {} : {} {} (richesse {})", player.getName().getString(),
+                deposit.x(), deposit.z(), deposit.richness());
+        source.sendSuccess(() -> Component.literal("Gisement : " + deposit.x() + " / " + deposit.z() + ", richesse " + deposit.richness()
+                + "/3, rayon " + com.terracraft.geo.content.industry.Oil.RADIUS + " blocs"), false);
+        return 1;
+    }
+
     private static void openVehicleStorage(ServerPlayer player) {
         if (player.getVehicle() instanceof com.terracraft.geo.content.Rocket rocket) {
             if (!rocket.openCargo(player)) {
@@ -169,6 +188,7 @@ public final class GeoMod implements ModInitializer {
     public void onInitialize() {
         ModContent.init();
         ModBlocks.init();
+        Industry.register();
         ModMobs.init();
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR, Identifier.fromNamespaceAndPath(MOD_ID, "earth"), GeoChunkGenerator.CODEC);
         Registry.register(BuiltInRegistries.BIOME_SOURCE, Identifier.fromNamespaceAndPath(MOD_ID, "earth"), GeoBiomeSource.CODEC);
@@ -511,6 +531,10 @@ public final class GeoMod implements ModInitializer {
                                     }
                                     return 1;
                                 }))
+                        .then(Commands.literal("petrole")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> oilCommand(command.getSource(), false))
+                                .then(Commands.literal("aller").executes(command -> oilCommand(command.getSource(), true))))
                         .then(Commands.literal("generation")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> {

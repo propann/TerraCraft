@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "terracraft_geo:block/oil_pump"
+    }
+  }
+}
