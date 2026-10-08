@@ -1,6 +1,6 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.27.0**.
+Dernière passe : 7 octobre 2026 — version **0.28.0**.
 
 ## Fonctionnel et raccordé
 
@@ -29,6 +29,7 @@ Dernière passe : 7 octobre 2026 — version **0.27.0**.
 - [x] Villes : adjoints ; claims des habitants comptés comme territoire de la ville (à vérifier en jeu).
 - [x] Bêta : règles (`/regles`), modérateurs (`/mod`), suivi de l'activité (`/terracraft suivi`).
 - [x] Événement d'ouverture : course à l'espace (`/course`).
+- [x] Phase 0 : mesure de génération sur 8 lieux réels (`tools/geo_bench.sh`, `docs/mesures-generation.md`).
 - [x] Stations : kit de module pressurisé 7×5×7, balise de station (arrivée des fusées), `/station`.
 - [x] Plans de fusée (`/plans`) et atelier de station : réservoir étendu, moteur ionique, soute (touche V), navigation martienne.
 - [x] Combinaison spatiale (touche `J` et panneau de l'inventaire `E`) : casque, combinaison, bottes magnétiques, jetpack, deux réserves d'oxygène, rendu en armure, HUD O₂.

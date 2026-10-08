@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.27). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.28). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -64,6 +64,8 @@ Référence de TerraCraft (version 0.27). Tout est en français ; `/aide` en don
 | `/eco donner <joueur> <montant>` | Créditer un joueur (journalisé `[ECO]`) |
 | `/moderateurs [ajouter|retirer <joueur>]` | Nommer ou retirer des modérateurs (sans les rendre opérateurs) |
 | `/terracraft course demarrer|arreter` | Ouvrir ou fermer la course à l'espace (événement d'ouverture) |
+| `/terracraft aller <lat> <lon>` | Se rendre à des coordonnées réelles |
+| `/terracraft generation [reset]` | Mesures de génération : chunks, temps par chunk, téléchargements retentés ou ratés |
 | `/terracraft suivi` | Joueurs uniques, actifs 24 h / 7 j, retour, temps de jeu, tick moyen |
 | `/eco stats` | Crédits créés, détruits, en circulation et dans les trésoreries des villes |
 | `/terracraft sauvegarde [liste]` | Sauvegarde immédiate du monde ; liste des archives (`backups/`) |
@@ -82,7 +84,7 @@ Référence de TerraCraft (version 0.27). Tout est en français ; `/aide` en don
 
 ## Journal de la console
 
-Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`, `[MOD]`, `[SUIVI]`, `[COURSE]`,
+Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`, `[MOD]`, `[SUIVI]`, `[COURSE]`, `[GEN]`,
 `[STATION]`, `[ATELIER]`, `[NAV]`, `[METEORES]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
 
 Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,

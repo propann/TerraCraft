@@ -20,13 +20,13 @@ génération ni perte d'objet.
 
 - [x] Sauvegardes automatiques du monde, rotation, restauration testée.
 - [x] Données joueurs atomiques (`.bak`), versions de mods figées, test de démarrage et test de scénario en CI.
-- [ ] **Carte neuve sur 10 à 20 points réels** (centre-ville dense, banlieue, zone industrielle, campagne, montagne,
-      côte). Intention : un script admin qui téléporte un bot sur une liste de coordonnées, attend la génération et
-      relève le temps par chunk, les erreurs de téléchargement et les bâtiments suspects.
+- [x] **Carte neuve sur des points réels** : `tools/geo_bench.sh` (bot spectateur, `/terracraft aller <lat> <lon>`,
+      `/terracraft generation`) ; 8 lieux mesurés le 2026-10-08, voir [mesures-generation.md](mesures-generation.md)
+      (Paris 31 ms/chunk au pire, tick < 2 ms, aucun téléchargement raté). Ajouter des lieux au besoin.
 - [ ] **Avec et sans cache Overture** : comparer temps et rendu ; documenter quand préparer le cache.
 - [ ] **Bâtiments géants, vides ou dupliqués** : rapport de génération (voir phase 7) pour les repérer.
-- [ ] **Mesures** : `/spark tps`, `/spark health`, mémoire et taille du monde avec 1, 5 et 10 joueurs ; seuils notés
-      dans `deploy/FALIX.md` (distance de vue, mémoire).
+- [~] **Mesures** : un joueur mesuré (tick, temps par chunk, `/terracraft suivi`) ; reste 5 et 10 joueurs, mémoire et
+      taille du monde, seuils dans `deploy/FALIX.md`.
 - [~] Véhicules, armes, claims, économie, combinaison, avion : vérifiés côté serveur, à valider en séance de jeu.
 
 ## Phase 1 — Accueil et interface joueur

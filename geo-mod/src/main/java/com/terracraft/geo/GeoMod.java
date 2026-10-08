@@ -488,6 +488,43 @@ public final class GeoMod implements ModInitializer {
                                     }
                                     return 1;
                                 }))
+                        .then(Commands.literal("generation")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> {
+                                    String summary = com.terracraft.geo.world.GenStats.summary();
+                                    GeoMod.LOGGER.info("[GEN] {}", summary);
+                                    command.getSource().sendSuccess(() -> Component.literal("Génération : " + summary), false);
+                                    return 1;
+                                })
+                                .then(Commands.literal("reset").executes(command -> {
+                                    com.terracraft.geo.world.GenStats.reset();
+                                    command.getSource().sendSuccess(() -> Component.literal("Mesures de génération remises à zéro."), false);
+                                    return 1;
+                                })))
+                        .then(Commands.literal("aller")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .then(Commands.argument("latitude", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(-85, 85))
+                                        .then(Commands.argument("longitude", com.mojang.brigadier.arguments.DoubleArgumentType.doubleArg(-180, 180))
+                                                .executes(command -> {
+                                                    ServerPlayer player = command.getSource().getPlayerOrException();
+                                                    var generator = StartPoints.generator(command.getSource().getServer());
+                                                    if (generator == null) {
+                                                        command.getSource().sendFailure(Component.literal("Ce monde n'utilise pas la Terre réelle."));
+                                                        return 0;
+                                                    }
+                                                    double lat = com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(command, "latitude");
+                                                    double lon = com.mojang.brigadier.arguments.DoubleArgumentType.getDouble(command, "longitude");
+                                                    double scale = generator.terrain().scale();
+                                                    double x = com.terracraft.geo.world.WebMercator.blockX(lon, scale);
+                                                    double z = com.terracraft.geo.world.WebMercator.blockZ(lat, scale);
+                                                    player.teleportTo(command.getSource().getServer().overworld(), x, 320, z, java.util.Set.of(),
+                                                            player.getYRot(), 0, true);
+                                                    GeoMod.LOGGER.info("[GEN] {} va en {} {} (bloc {} {})", player.getName().getString(),
+                                                            lat, lon, (long) x, (long) z);
+                                                    command.getSource().sendSuccess(() -> Component.literal(String.format(java.util.Locale.ROOT,
+                                                            "Direction %.4f, %.4f (bloc %d / %d)", lat, lon, (long) x, (long) z)), false);
+                                                    return 1;
+                                                }))))
                         .then(Commands.literal("course")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .then(Commands.literal("demarrer").executes(command -> RACE.start(command.getSource())))

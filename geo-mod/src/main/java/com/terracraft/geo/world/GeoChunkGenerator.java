@@ -189,7 +189,9 @@ public final class GeoChunkGenerator extends ChunkGenerator {
                                                        @Nullable WorldGenRegion carverBiomeRegion,
                                                        Set<Holder<Biome>> possibleBiomes) {
         return CompletableFuture.supplyAsync(() -> {
+            long start = System.nanoTime();
             fill(chunk);
+            GenStats.chunk(System.nanoTime() - start);
             return chunk;
         }, Util.backgroundExecutor().forName("terracraftTerrain"));
     }

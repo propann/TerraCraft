@@ -160,12 +160,14 @@ public final class ElevationTiles {
                 Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
                 return data;
             } catch (IOException | RuntimeException e) {
+                GenStats.RETRIES.incrementAndGet();
                 GeoMod.LOGGER.warn("Tuile relief {}/{}/{} : essai {}/{} échoué ({})", zoom, tx, ty, attempt, ATTEMPTS, e.toString());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
             }
         }
+        GenStats.FAILURES.incrementAndGet();
         GeoMod.LOGGER.error("Tuile relief {}/{}/{} indisponible : la zone sera générée à plat.", zoom, tx, ty);
         return new float[0];
     }

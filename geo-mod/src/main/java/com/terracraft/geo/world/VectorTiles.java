@@ -111,6 +111,7 @@ final class VectorTiles {
                 Files.move(tmp, file, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
                 return response.body();
             } catch (IOException e) {
+                GenStats.RETRIES.incrementAndGet();
                 GeoMod.LOGGER.warn("Tuile vectorielle {}/{}/{} : essai {}/{} ({})", ZOOM, x, y, attempt, ATTEMPTS, e.toString());
                 try {
                     Thread.sleep(1000L * attempt);
@@ -123,6 +124,7 @@ final class VectorTiles {
                 return null;
             }
         }
+        GenStats.FAILURES.incrementAndGet();
         GeoMod.LOGGER.error("Tuile vectorielle {}/{}/{} indisponible : zone sans routes ni bâtiments.", ZOOM, x, y);
         return null;
     }
