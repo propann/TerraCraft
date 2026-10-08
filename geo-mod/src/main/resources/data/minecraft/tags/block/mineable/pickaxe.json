@@ -17,6 +17,7 @@
     "terracraft_geo:pipe",
     "terracraft_geo:solar_panel",
     "terracraft_geo:battery_bank",
-    "terracraft_geo:generator"
+    "terracraft_geo:generator",
+    "terracraft_geo:logistics_terminal"
   ]
 }

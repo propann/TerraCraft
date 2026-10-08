@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:chest",
+    "R": "minecraft:redstone",
+    "E": "minecraft:ender_pearl"
+  },
+  "pattern": [
+    "ICI",
+    "RER",
+    "III"
+  ],
+  "result": {
+    "id": "terracraft_geo:logistics_terminal",
+    "count": 1
+  }
+}

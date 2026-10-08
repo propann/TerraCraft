@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.35", "Terminal logistique : stock commun de la ville, de la Terre à la Lune ; contrats de lieux réels"),
             new Change("0.34", "Lieux réels : /lieux (hôpitaux, gares, commissariats…), butin selon le lieu, découvertes"),
             new Change("0.33", "Lampes électriques, réseaux de tuyaux et câbles jusqu'à ~1 000 blocs"),
             new Change("0.32", "Groupe électrogène, tableau de bord des véhicules (vitesse, carburant, autonomie)"),

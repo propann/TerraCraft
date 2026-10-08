@@ -943,6 +943,16 @@ def industry_textures():
                 c.rect(2, k, 12, 1, (70, 72, 80))
         return draw
     block_tex("electric_lamp_off", (70, 72, 80), lamp((110, 110, 100)), seed=118)
+    def terminal(c):
+        c.rect(2, 2, 12, 8, (20, 30, 40))
+        c.rect(3, 3, 10, 6, (40, 120, 140))
+        for y in (4, 6):
+            c.rect(4, y, 7, 1, (140, 230, 240))
+        c.rect(3, 11, 10, 3, (90, 92, 100))
+        for x in (4, 7, 10):
+            c.rect(x, 12, 2, 1, (215, 170, 40))
+    block_tex("logistics_terminal_side", (120, 124, 132), terminal, seed=120)
+    block_tex("logistics_terminal_top", (120, 124, 132), lambda c: c.rect(4, 4, 8, 8, (215, 170, 40)), seed=121)
     block_tex("electric_lamp_on", (70, 72, 80), lamp((255, 240, 190)), seed=119)
     block_tex("generator_top", (60, 120, 60), lambda c: [c.rect(5, 5, 3, 3, (30, 30, 30)), c.rect(10, 9, 3, 3, (190, 40, 30))], seed=117)
     block_tex("battery_bank_top", (60, 62, 70), lambda c: [c.rect(3, 3, 3, 3, (190, 110, 60)), c.rect(10, 3, 3, 3, (30, 30, 34))], seed=115)

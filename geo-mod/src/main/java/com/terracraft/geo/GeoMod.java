@@ -75,6 +75,7 @@ public final class GeoMod implements ModInitializer {
     private static final Stalls STALLS = new Stalls(AUCTION_HOUSE);
     private static final Activity ACTIVITY = new Activity();
     private static final SpaceRace RACE = new SpaceRace(AUCTION_HOUSE);
+    private static final Logistics LOGISTICS = new Logistics(TOWNS);
     private static final Contracts CONTRACTS = new Contracts(AUCTION_HOUSE);
     private static final Claims CLAIMS = new Claims();
     private static final SupplyDrops SUPPLY = new SupplyDrops();
@@ -364,6 +365,12 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(BOUNTIES::load);
         ServerLifecycleEvents.SERVER_STARTED.register(ACTIVITY::load);
         ServerLifecycleEvents.SERVER_STARTED.register(RACE::load);
+        ServerLifecycleEvents.SERVER_STARTED.register(LOGISTICS::load);
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> LOGISTICS.save());
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> dispatcher.register(Commands.literal("ville")
+                .then(Commands.literal("stock").executes(c -> LOGISTICS.list(c.getSource().getPlayerOrException()))
+                        .then(Commands.literal("deposer").executes(c -> LOGISTICS.deposit(c.getSource().getPlayerOrException())))
+                        .then(Commands.literal("retirer").executes(c -> LOGISTICS.withdraw(c.getSource().getPlayerOrException()))))));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> RACE.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Places.register(dispatcher));
         ServerTickEvents.END_SERVER_TICK.register(Places::tick);

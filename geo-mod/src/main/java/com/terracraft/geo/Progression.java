@@ -138,6 +138,9 @@ public final class Progression {
 
     static {
         STAT_LABELS.put("zones", "Zones explorées");
+        STAT_LABELS.put("lieux", "Lieux réels visités");
+        STAT_LABELS.put("lieux_soins", "Hôpitaux et pharmacies visités");
+        STAT_LABELS.put("lieux_transport", "Gares et stations-service visitées");
         STAT_LABELS.put("bunkers", "Bunkers découverts");
         STAT_LABELS.put("caves", "Caves découvertes");
         STAT_LABELS.put("loot", "Coffres fouillés");
@@ -344,6 +347,15 @@ public final class Progression {
     // --- Points, compteurs et découvertes ----------------------------------------------------------
 
     /** Ajoute un compteur et des points, puis vérifie les découvertes liées. */
+    /** Premier passage du joueur en ce lieu (identifiant libre, ex. « lieu:hospital:x,z ») : vrai une seule fois. */
+    public boolean firstVisit(ServerPlayer player, String place) {
+        boolean first = record(player).places.add(place);
+        if (first) {
+            dirty = true;
+        }
+        return first;
+    }
+
     public void count(ServerPlayer player, String stat, long amount, int points) {
         Record r = record(player);
         long value = r.stats.merge(stat, amount, Long::sum);

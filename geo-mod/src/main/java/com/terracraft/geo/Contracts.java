@@ -48,7 +48,10 @@ final class Contracts {
             new Contract("ravitaillement", "Ravitaillement", "Achète 1 offre au comptoir", "shop", 1, 80),
             new Contract("titane", "Minerai lunaire", "Mine 4 minerais de titane", "titanium", 4, 300),
             new Contract("speleologie", "Spéléologie", "Découvre 1 cave à monstres", "caves", 1, 220),
-            new Contract("caisse", "Largage militaire", "Ouvre 1 caisse de ravitaillement", "supplies", 1, 250));
+            new Contract("caisse", "Largage militaire", "Ouvre 1 caisse de ravitaillement", "supplies", 1, 250),
+            new Contract("tournee", "Tournée des ruines", "Visite 3 lieux réels (/lieux)", "lieux", 3, 220),
+            new Contract("urgences", "Urgences", "Visite 1 hôpital ou pharmacie (/lieux)", "lieux_soins", 1, 180),
+            new Contract("transports", "Réseau de transport", "Visite 1 gare ou station-service (/lieux)", "lieux_transport", 1, 180));
 
     /** État d'un joueur pour la journée : compteurs au début du jour et contrats réclamés. */
     private static final class Daily {

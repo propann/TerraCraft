@@ -50,6 +50,7 @@ final class ServerGuide {
         THEMES.put("villes", java.util.List.of(
                 new Entry("[Ville]", "/ville", "Fonder, rejoindre, trésorerie, /ville tp"),
                 new Entry("[Adjoint]", "/ville adjoint ", "Le maire nomme des adjoints"),
+                new Entry("[Stock]", "/ville stock", "Stock commun : le même dans chaque terminal logistique, Terre comme Lune"),
                 new Entry("", "", "Claims : touche M, clic droit sur les chunks ; les claims des habitants agrandissent la ville."),
                 new Entry("", "", "Certaines nuits, des hordes attaquent les villes : tenez jusqu'à l'aube !")));
         THEMES.put("combat", java.util.List.of(

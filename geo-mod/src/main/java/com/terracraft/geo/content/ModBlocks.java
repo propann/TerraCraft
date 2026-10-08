@@ -67,6 +67,9 @@ public final class ModBlocks {
             BlockBehaviour.Properties.of().mapColor(MapColor.DIAMOND).strength(1.5f).sound(SoundType.AMETHYST)
                     .lightLevel(state -> 12).noOcclusion());
 
+    /** Terminal logistique : stock commun de la ville, le même partout (Terre, stations, bases). */
+    public static final Block LOGISTICS_TERMINAL = block("logistics_terminal", LogisticsTerminalBlock::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(3f, 6f).sound(SoundType.METAL));
     /** Étal de marché : vend un objet à prix fixe, même vendeur hors ligne (voir Stalls). */
     public static final Block MARKET_STALL = block("market_stall", MarketStallBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(2.5f, 1200f).sound(SoundType.WOOD));
@@ -92,6 +95,7 @@ public final class ModBlocks {
             output.accept(TITANIUM_ORE);
             output.accept(HELIUM3_CRYSTALS);
             output.accept(MARKET_STALL);
+            output.accept(LOGISTICS_TERMINAL);
             output.accept(ALIEN_STONE);
             output.accept(ALIEN_GLYPH);
             output.accept(LUNAR_CRYSTAL);

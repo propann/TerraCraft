@@ -105,9 +105,23 @@ final class Places {
         for (ServerPlayer player : server.overworld().players()) {
             for (OsmCells.Poi poi : around(player)) {
                 Kind kind = KINDS.get(poi.kind());
-                if (kind != null && Math.hypot(poi.x() - player.getX(), poi.z() - player.getZ()) < 14
-                        && !Progression.get().hasDiscovered(player, kind.discovery())) {
+                if (kind == null || Math.hypot(poi.x() - player.getX(), poi.z() - player.getZ()) >= 14) {
+                    continue;
+                }
+                if (!Progression.get().hasDiscovered(player, kind.discovery())) {
                     Progression.get().discover(player, kind.discovery());
+                }
+                // Chaque lieu réel ne compte qu'une fois par joueur (contrats « visite des lieux »).
+                if (Progression.get().firstVisit(player, "lieu:" + poi.kind() + ":" + poi.x() + "," + poi.z())) {
+                    Progression.get().count(player, "lieux", 1, 2);
+                    switch (poi.kind()) {
+                        case "hospital", "pharmacy" -> Progression.get().count(player, "lieux_soins", 1, 0);
+                        case "railway", "fuel" -> Progression.get().count(player, "lieux_transport", 1, 0);
+                        default -> {
+                        }
+                    }
+                    player.sendOverlayMessage(net.minecraft.network.chat.Component.literal(kind.label()
+                            + (poi.name().isBlank() ? "" : " « " + poi.name() + " »") + " — lieu visité").withStyle(ChatFormatting.AQUA));
                 }
             }
         }

@@ -74,8 +74,9 @@ génération ni perte d'objet.
 
 - [x] Journal des missions, contrats du jour, familles (exploration, combat, véhicules, économie, villes, espace).
 - [x] Métiers avec bonus réels.
-- [~] **Missions liées aux lieux réels** : découvertes par type de lieu (premier passage) ; reste les contrats du jour
-      « rejoindre l'hôpital le plus proche ».
+- [x] **Missions liées aux lieux réels** : découverte par type de lieu, contrats du jour « Tournée des ruines » (3 lieux),
+      « Urgences » (hôpital ou pharmacie), « Réseau de transport » (gare ou station-service) ; chaque lieu compte une
+      fois par joueur.
 - [ ] **Collections** : villes réelles visitées, bunkers, véhicules réparés, minerais ; récompense par palier.
 - [ ] **Missions de ville** : objectifs communs (déposer X crédits, poser N modules) avec récompense partagée.
 - [ ] **Réputation** : un niveau par métier, débloquant des offres du comptoir.
@@ -141,7 +142,8 @@ génération ni perte d'objet.
       clic ; `/fusee carte`, `/fusee cap <destination>`.
 - [x] Stations en kit (modules pressurisés), balise d'arrivée, `/station`.
 - [x] Plans de fusée et atelier de station ; Mars exige la navigation martienne.
-- [ ] **Stockage partagé de station** entre habitants d'une même ville.
+- [x] **Stockage partagé** : terminal logistique, stock commun de 54 cases par ville, le même dans tous les terminaux
+      (Terre, stations, bases) ; `/ville stock [deposer|retirer]` devant un terminal.
 - [x] **Dangers lunaires** : épaves de satellites avec butin, pluies de micrométéorites annoncées (un toit protège,
       fragments à ramasser), rôdeurs plus rapides et plus forts la nuit lunaire.
 - [ ] **Objectifs coopératifs** : grande station de ville (N modules, laboratoire, serre) avec récompense collective.

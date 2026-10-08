@@ -79,6 +79,10 @@ cmd "execute as Alice run terracraft contamination" 1
 cmd "execute as Alice run terracraft contamination aller" 8
 cmd "effect clear Alice minecraft:poison" 1
 cmd "tp Alice 0 201 0" 2
+# Stock commun de la ville : Alice dépose sur Terre (Bob le retirera sur la Lune)
+cmd "setblock 2 201 -2 terracraft_geo:logistics_terminal" 1
+cmd "item replace entity Alice weapon.mainhand with minecraft:emerald 7" 1
+cmd "execute as Alice run ville stock deposer" 1
 # PvE par défaut : Alice ne peut pas blesser Bob ; dans une zone PvP, si
 cmd "tp Bob 3 201 3" 2
 cmd "damage Bob 2 minecraft:player_attack by Alice" 1
@@ -233,6 +237,8 @@ cmd "execute in terracraft_geo:moon run tp Bob 3 151 -6 0 0" 2
 cmd "player Bob attack continuous" 3
 cmd "player Bob stop" 1
 cmd "execute in terracraft_geo:moon if block 3 152 -4 minecraft:air run say PROTECTION_PROPRIETAIRE_OK" 1
+cmd "execute in terracraft_geo:moon run setblock 1 151 -8 terracraft_geo:logistics_terminal" 1
+cmd "execute as Bob run ville stock retirer" 1
 # Carte des étoiles (mêmes règles via /fusee cap) : Mars refusé sans navigation martienne, orbite lunaire prête
 cmd "execute as Bob run fusee cap mars" 1
 cmd "execute as Bob run fusee cap lune" 1
@@ -396,6 +402,9 @@ check("[CARBURANT] gisement le plus proche de Alice" in log and gasoline and int
       f"chaîne du carburant : essence raffinée dans le réservoir (obtenu {gasoline[:1]} mB)")
 check("[CARBURANT] Alice remplit un bidon de Essence" in log and re.search(r"Found 1 matching item\(s\) on player (\[Bourg Neuf\] )?Alice", log),
       "pompe à essence : Alice remplit un bidon vide")
+check("[LOGISTIQUE] Alice dépose Emerald ×7 dans le stock de Bourg Neuf (minecraft:overworld)" in log
+      and "[LOGISTIQUE] Bob retire Emerald ×7 du stock de Bourg Neuf (terracraft_geo:moon)" in log,
+      "stock commun de ville : déposé sur Terre, retiré sur la Lune")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")
