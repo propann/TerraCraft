@@ -55,6 +55,8 @@ final class Towns {
         long founded;
         /** Adjoints : invitent, excluent les simples habitants et paient depuis la trésorerie. */
         Set<UUID> deputies = new LinkedHashSet<>();
+        /** Objectifs de ville déjà récompensés (une seule fois chacun). */
+        Set<String> goals = new LinkedHashSet<>();
 
         boolean canManage(UUID player) {
             return mayor.equals(player) || deputies != null && deputies.contains(player);
@@ -121,6 +123,36 @@ final class Towns {
      * Seules les équipes du mod ({@code tc_…}) sont gérées ; un joueur placé dans une autre équipe par un
      * administrateur n'est pas touché. Les équipes de villes disparues ou vides sont supprimées.
      */
+    /** Grande station de ville : modules posés par tous les habitants réunis. */
+    static final int CITY_STATION_MODULES = 10;
+    static final long CITY_STATION_REWARD = 1_500;
+
+    /**
+     * Objectifs collectifs : quand les habitants réunis ont posé {@link #CITY_STATION_MODULES} modules de station, la
+     * trésorerie reçoit {@link #CITY_STATION_REWARD} crédits (une fois). Vérifié toutes les 5 s avec la liste Tab.
+     */
+    void checkGoals(net.minecraft.server.MinecraftServer server) {
+        for (Town town : towns.values()) {
+            if (town.goals == null) {
+                town.goals = new LinkedHashSet<>();
+            }
+            if (town.goals.contains("grande_station")) {
+                continue;
+            }
+            long modules = 0;
+            for (UUID member : town.members) {
+                modules += Progression.get().stat(member, "modules");
+            }
+            if (modules >= CITY_STATION_MODULES) {
+                town.goals.add("grande_station");
+                reward(town, CITY_STATION_REWARD, "objectif_ville");
+                GeoMod.LOGGER.info("[VILLE] {} achève sa grande station ({} modules) : +{} crédits", town.name, modules, CITY_STATION_REWARD);
+                server.getPlayerList().broadcastSystemMessage(Component.literal("✦ " + town.name + " achève sa grande station spatiale ("
+                        + modules + " modules) : +" + CITY_STATION_REWARD + " crédits pour la trésorerie !").withStyle(ChatFormatting.GOLD), false);
+            }
+        }
+    }
+
     void syncTeams(net.minecraft.server.MinecraftServer server) {
         net.minecraft.world.scores.Scoreboard scoreboard = server.getScoreboard();
         java.util.Set<String> used = new java.util.HashSet<>();

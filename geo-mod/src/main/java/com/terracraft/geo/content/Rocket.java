@@ -544,6 +544,7 @@ public class Rocket extends VehicleEntity {
                             case Space.ORBIT_ID -> "Amarrage réussi";
                             case Space.MARS_ID -> "Atterrissage sur Mars réussi";
                             case Space.MARS_ORBIT_ID -> "Amarrage à l'orbite de Mars réussi";
+                            case Space.ASTEROIDS_ID -> "Amarrage dans la ceinture d'astéroïdes réussi";
                             default -> "Retour sur Terre";
                         })
                         .withStyle(ChatFormatting.AQUA));

@@ -46,7 +46,13 @@ final class Missions {
             new Mission("lunar_miner", "Mineur lunaire", "Mine 5 minerais de titane", "titanium", 5, 400),
             new Mission("orbital_builder", "Bâtisseur orbital", "Pose 1 module de station dans l'espace", "modules", 1, 500),
             new Mission("space_station", "Station spatiale", "Pose 4 modules de station", "modules", 4, 1_200),
-            new Mission("engineer", "Ingénieur spatial", "Installe 1 amélioration de fusée à l'atelier", "upgrades", 1, 400));
+            new Mission("engineer", "Ingénieur spatial", "Installe 1 amélioration de fusée à l'atelier", "upgrades", 1, 400),
+            // Collections : paliers de lieux réels visités (chacun ne compte qu'une fois).
+            new Mission("guide", "Guide des ruines", "Visite 5 lieux réels (/lieux)", "lieux", 5, 300),
+            new Mission("cartographer", "Cartographe", "Visite 20 lieux réels", "lieux", 20, 800),
+            new Mission("memory", "Mémoire du monde", "Visite 50 lieux réels", "lieux", 50, 2_000),
+            new Mission("medic", "Infirmier de fortune", "Visite 5 hôpitaux ou pharmacies", "lieux_soins", 5, 400),
+            new Mission("traveller_net", "Routard", "Visite 5 gares ou stations-service", "lieux_transport", 5, 400));
 
     private final Map<UUID, Set<String>> claimed = new HashMap<>();
     private Contracts contracts;

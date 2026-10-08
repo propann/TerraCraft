@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.36", "Ceinture d'astéroïdes, collections de lieux, grande station de ville (objectif commun)"),
             new Change("0.35", "Terminal logistique : stock commun de la ville, de la Terre à la Lune ; contrats de lieux réels"),
             new Change("0.34", "Lieux réels : /lieux (hôpitaux, gares, commissariats…), butin selon le lieu, découvertes"),
             new Change("0.33", "Lampes électriques, réseaux de tuyaux et câbles jusqu'à ~1 000 blocs"),
@@ -114,6 +115,7 @@ final class Welcome {
             return;
         }
         towns.syncTeams(server);
+        towns.checkGoals(server);
         int online = server.getPlayerList().getPlayerCount();
         Component header = Component.literal("\n").append(Component.literal("TerraCraft").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
                 .append(Component.literal("\nla Terre réelle après la chute\n").withStyle(ChatFormatting.GRAY));

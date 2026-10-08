@@ -229,7 +229,9 @@ cmd "say ABRI_DEBUT" 12
 cmd "say ABRI_FIN" 1
 # Protection de la base lunaire de Bob : Eve (étrangère, créatif, non opératrice) ne peut pas casser ; Bob oui
 cmd "execute in terracraft_geo:moon run setblock 3 152 -4 minecraft:glass" 1
-cmd "player Eve spawn at 3 151 -6 facing 0 0 in terracraft_geo:moon in creative" 4
+cmd "player Eve spawn at 3 151 -6 facing 0 0 in terracraft_geo:moon in creative" 2
+# Attendre qu'Eve soit vraiment connectée (le faux joueur met parfois plus de 4 s) avant de la faire frapper.
+for _ in $(seq 20); do grep -q "eve\[local\] logged in\|Eve\[local\] logged in" scenario.log && break; sleep 1; done
 cmd "player Eve attack once" 2
 cmd "execute in terracraft_geo:moon if block 3 152 -4 minecraft:glass run say PROTECTION_ETRANGERE_OK" 1
 cmd "player Eve kill" 1
@@ -242,6 +244,7 @@ cmd "execute as Bob run ville stock retirer" 1
 # Carte des étoiles (mêmes règles via /fusee cap) : Mars refusé sans navigation martienne, orbite lunaire prête
 cmd "execute as Bob run fusee cap mars" 1
 cmd "execute as Bob run fusee cap lune" 1
+cmd "execute as Bob run fusee cap asteroides" 1
 cmd "execute as Bob run fusee cap orbite_lunaire" 1
 cmd "execute as Bob at Bob run data get entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] Target" 1
 # Sous-sol lunaire : visite du sanctuaire le plus proche (téléportation au pied du puits, face à la pyramide)
@@ -261,6 +264,11 @@ cmd "time query time" 5
 cmd "time query time" 1
 python3 "$ROOT/tools/ping_server.py" localhost 25599 > ping.json 2>&1 || true
 cmd "save-all flush" 3
+# Ceinture d'astéroïdes : un rocher sous les pieds, puis récupération dans le vide
+cmd "execute as Bob run terracraft asteroide" 10
+cmd "execute at Bob unless block ~ ~-1 ~ minecraft:air run say ASTEROIDE_SOL" 1
+cmd "execute in terracraft_geo:asteroids run tp Bob 0 10 0" 4
+cmd "execute as Bob at Bob if entity @s[y=140,dy=40] run say SAUVETAGE_OK" 1
 cmd "stop" 2
 # Laisser le serveur finir sa sauvegarde avant de quitter (sinon le monde reste à moitié écrit).
 for _ in $(seq 60); do
@@ -405,6 +413,10 @@ check("[CARBURANT] Alice remplit un bidon de Essence" in log and re.search(r"Fou
 check("[LOGISTIQUE] Alice dépose Emerald ×7 dans le stock de Bourg Neuf (minecraft:overworld)" in log
       and "[LOGISTIQUE] Bob retire Emerald ×7 du stock de Bourg Neuf (terracraft_geo:moon)" in log,
       "stock commun de ville : déposé sur Terre, retiré sur la Lune")
+check("[NAV] Bob met le cap sur la ceinture d'astéroïdes : 7 dose(s)" in log and "navigation martienne" in
+      log.split("[NAV] Bob met le cap sur la ceinture d'astéroïdes")[1].split("\n")[0], "ceinture d'astéroïdes : 7 doses depuis la Lune, navigation martienne requise")
+check("[ESPACE] Bob se rend sur l'astéroïde" in log and "ASTEROIDE_SOL" in log, "ceinture d'astéroïdes : rochers générés (Bob posé sur un astéroïde)")
+check("[ESPACE] Bob récupéré dans le vide" in log and "SAUVETAGE_OK" in log, "vide de l'espace : la combinaison ramène Bob au quai")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

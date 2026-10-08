@@ -33,6 +33,7 @@ public final class StarMap {
         DESTINATIONS.put("lune", Space.MOON_ID);
         DESTINATIONS.put("orbite_mars", Space.MARS_ORBIT_ID);
         DESTINATIONS.put("mars", Space.MARS_ID);
+        DESTINATIONS.put("asteroides", Space.ASTEROIDS_ID);
     }
 
     private static final double REACH = 8;

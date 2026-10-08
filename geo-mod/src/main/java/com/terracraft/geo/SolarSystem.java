@@ -15,12 +15,12 @@ public final class SolarSystem {
     public static final Body MERCURY_ORBIT = new Body((byte) 6, "mercury_orbit", "l'orbite de Mercure", false);
     public static final Body VENUS = new Body((byte) 7, "venus", "Vénus", false);
     public static final Body VENUS_ORBIT = new Body((byte) 8, "venus_orbit", "l'orbite de Vénus", false);
-    public static final Body ASTEROIDS = new Body((byte) 9, "asteroids", "la ceinture d'astéroïdes", false);
+    public static final Body ASTEROIDS = new Body((byte) 9, "asteroids", "la ceinture d'astéroïdes", true);
     public static final Body ASTEROIDS_ORBIT = new Body((byte) 10, "asteroids_orbit", "l'orbite des astéroïdes", false);
     public static final Body MOON_ORBIT = new Body((byte) 11, "moon_orbit", "l'orbite lunaire", true);
 
     /** Ordre de choix des destinations dans la fusée : du plus proche au plus lointain. */
-    private static final List<Body> ACTIVE = List.of(EARTH, EARTH_ORBIT, MOON_ORBIT, MOON, MARS_ORBIT, MARS);
+    private static final List<Body> ACTIVE = List.of(EARTH, EARTH_ORBIT, MOON_ORBIT, MOON, MARS_ORBIT, MARS, ASTEROIDS);
     private static final List<Body> ALL = List.of(EARTH, MOON, EARTH_ORBIT, MARS, MARS_ORBIT, MOON_ORBIT,
             MERCURY, MERCURY_ORBIT, VENUS, VENUS_ORBIT, ASTEROIDS, ASTEROIDS_ORBIT);
 

@@ -1,0 +1,10 @@
+{
+  "type": "terracraft_geo:asteroids",
+  "generator": {
+    "type": "terracraft_geo:asteroids",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "terracraft_geo:orbit"
+    }
+  }
+}

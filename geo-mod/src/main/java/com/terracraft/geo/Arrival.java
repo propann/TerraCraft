@@ -94,6 +94,8 @@ final class Arrival {
                         + "VAGUE NOCTURNE : certaines nuits, des hordes attaquent une ville dont un habitant est présent. Tenez jusqu'à "
                         + "l'aube : la trésorerie est récompensée.\nPRIMES : /prime <joueur> <montant> ; gagnées en zone PvP.\n"
                         + "☠ Certains BUNKERS sont gardés par un Commandant : butin unique et 300 crédits.",
+                "ASTÉROÏDES\n\nDepuis l'orbite de Mars (3 doses, navigation martienne) : rochers flottants à miner — fer, or, "
+                        + "titane, diamants, hélium-3. Jetpack conseillé. Tomber dans le vide : la combinaison te ramène au quai (1 bouteille d'O₂).",
                 "DANGERS LUNAIRES\n\nPLUIE DE MICROMÉTÉORITES : annoncée 30 s avant, elle dure une minute. Mets-toi sous un toit "
                         + "(base, module, grotte, cabine de fusée). Les impacts laissent parfois des fragments.\nLa NUIT LUNAIRE, les rôdeurs sont plus rapides et plus forts.",
                 "STATIONS\n\nBalise de station : tes fusées s'y posent.\nKit de module : clic droit sur le sol "

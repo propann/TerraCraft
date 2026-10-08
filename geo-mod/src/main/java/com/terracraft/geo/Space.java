@@ -38,12 +38,16 @@ public final class Space {
             Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "mars_orbit"));
     public static final ResourceKey<Level> MOON_ORBIT = ResourceKey.create(Registries.DIMENSION,
             Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "moon_orbit"));
+    public static final ResourceKey<Level> ASTEROIDS = ResourceKey.create(Registries.DIMENSION,
+            Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "asteroids"));
     public static final byte EARTH = 0;
     public static final byte MOON_ID = 1;
     public static final byte ORBIT_ID = 2;
     public static final byte MARS_ID = 3;
     public static final byte MARS_ORBIT_ID = 4;
     public static final byte MOON_ORBIT_ID = 11;
+    /** Ceinture d'astéroïdes : dimension de vide comme une orbite (quai à l'arrivée), rochers à miner. */
+    public static final byte ASTEROIDS_ID = 9;
     /** Altitude de la plateforme d'amarrage en orbite. */
     public static final int DOCK_Y = 150;
     /** Rayon de la bulle d'air d'un distributeur d'oxygène. */
@@ -64,11 +68,12 @@ public final class Space {
 
     /** Orbite (terrestre, lunaire ou martienne) : vide, quai d'amarrage, stations. */
     public static boolean isOrbit(Level level) {
-        return level.dimension() == ORBIT || level.dimension() == MOON_ORBIT || level.dimension() == MARS_ORBIT;
+        return level.dimension() == ORBIT || level.dimension() == MOON_ORBIT || level.dimension() == MARS_ORBIT
+                || level.dimension() == ASTEROIDS;
     }
 
     public static boolean isOrbitId(byte id) {
-        return id == ORBIT_ID || id == MOON_ORBIT_ID || id == MARS_ORBIT_ID;
+        return id == ORBIT_ID || id == MOON_ORBIT_ID || id == MARS_ORBIT_ID || id == ASTEROIDS_ID;
     }
 
     /**
@@ -79,10 +84,11 @@ public final class Space {
      */
     /** Trajets directs {départ, arrivée, doses} : aussi dessinés sur la carte des étoiles. */
     public static final int[][] ROUTES = {{EARTH, ORBIT_ID, 3}, {ORBIT_ID, MOON_ORBIT_ID, 2}, {MOON_ORBIT_ID, MOON_ID, 1},
-            {ORBIT_ID, MARS_ORBIT_ID, 5}, {MOON_ORBIT_ID, MARS_ORBIT_ID, 4}, {MARS_ORBIT_ID, MARS_ID, 2}};
+            {ORBIT_ID, MARS_ORBIT_ID, 5}, {MOON_ORBIT_ID, MARS_ORBIT_ID, 4}, {MARS_ORBIT_ID, MARS_ID, 2},
+            {MARS_ORBIT_ID, ASTEROIDS_ID, 3}};
 
     public static int travelCost(byte from, byte to) {
-        byte[] nodes = {EARTH, ORBIT_ID, MOON_ORBIT_ID, MOON_ID, MARS_ORBIT_ID, MARS_ID};
+        byte[] nodes = {EARTH, ORBIT_ID, MOON_ORBIT_ID, MOON_ID, MARS_ORBIT_ID, MARS_ID, ASTEROIDS_ID};
         int[][] edges = ROUTES;
         java.util.Map<Byte, Integer> best = new java.util.HashMap<>();
         for (byte node : nodes) {
@@ -102,7 +108,7 @@ public final class Space {
 
     /** Destination réservée aux pilotes qui ont déjà marché sur la Lune (Mars et son orbite). */
     public static boolean requiresMoon(byte destination) {
-        return destination == MARS_ID || destination == MARS_ORBIT_ID;
+        return destination == MARS_ID || destination == MARS_ORBIT_ID || destination == ASTEROIDS_ID;
     }
 
     public static byte id(Level level) {
@@ -111,6 +117,7 @@ public final class Space {
         if (level.dimension() == MARS) return MARS_ID;
         if (level.dimension() == MARS_ORBIT) return MARS_ORBIT_ID;
         if (level.dimension() == MOON_ORBIT) return MOON_ORBIT_ID;
+        if (level.dimension() == ASTEROIDS) return ASTEROIDS_ID;
         return EARTH;
     }
 
@@ -133,12 +140,40 @@ public final class Space {
             case ORBIT_ID -> server.getLevel(ORBIT);
             case MARS_ID -> server.getLevel(MARS);
             case MARS_ORBIT_ID -> server.getLevel(MARS_ORBIT);
+            case ASTEROIDS_ID -> server.getLevel(ASTEROIDS);
             case MOON_ORBIT_ID -> server.getLevel(MOON_ORBIT);
             default -> server.overworld();
         };
     }
 
     /** Plateforme d'amarrage 9×9 en orbite (construite une fois), avec lampes et distributeur d'oxygène. */
+    /**
+     * Récupération dans le vide (orbites, ceinture d'astéroïdes) : la combinaison ramène le joueur au-dessus de la
+     * fusée la plus proche (sinon d'un quai au point 0, 0), au prix d'une réserve d'oxygène.
+     */
+    private static void rescue(ServerPlayer player) {
+        ServerLevel level = player.level();
+        var rockets = level.getEntitiesOfClass(com.terracraft.geo.content.Rocket.class, player.getBoundingBox().inflate(2_000));
+        double x = 0.5;
+        double z = 0.5;
+        if (!rockets.isEmpty()) {
+            var rocket = rockets.stream().min(java.util.Comparator.comparingDouble(r -> r.distanceToSqr(player))).get();
+            x = rocket.getX() + 2;
+            z = rocket.getZ();
+            buildDock(level, (int) Math.floor(x), (int) Math.floor(z));
+        } else {
+            buildDock(level, 0, 0);
+        }
+        player.teleportTo(level, x, DOCK_Y + 2, z, java.util.Set.of(), player.getYRot(), 0, true);
+        player.resetFallDistance();
+        if (!player.isCreative()) {
+            SpaceSuit.consumeReserve(player);
+        }
+        GeoMod.LOGGER.info("[ESPACE] {} récupéré dans le vide de {}", player.getName().getString(), level.dimension().identifier());
+        player.sendSystemMessage(Component.literal("⚠ Dérive dans le vide : ta combinaison t'a ramené au quai (une réserve d'oxygène consommée).")
+                .withStyle(ChatFormatting.GOLD));
+    }
+
     public static void buildDock(ServerLevel orbit, int x, int z) {
         orbit.getChunk(x >> 4, z >> 4);
         if (!orbit.getBlockState(new BlockPos(x, DOCK_Y, z)).isAir()) {
@@ -190,6 +225,9 @@ public final class Space {
             gravity(player, inSpace, gravity, SpaceSuit.hasBoots(player) ? 1000 : 15);
             if (inSpace && everySecond && !player.isCreative() && !player.isSpectator()) {
                 breathe(player);
+            }
+            if (orbit && player.getY() < 20 && !player.isSpectator()) {
+                rescue(player);
             }
             if (everySecond && player.level().dimension() == MOON && player.getBlockY() < 40
                     && !Progression.get().hasDiscovered(player, "alien_sanctuary")
@@ -263,6 +301,8 @@ public final class Space {
             Progression.get().discover(player, "moon_orbit");
         } else if (destination == MARS_ID || destination == MARS_ORBIT_ID) {
             Progression.get().discover(player, "mars");
+        } else if (destination == ASTEROIDS_ID) {
+            Progression.get().discover(player, "asteroids");
         }
         String title = switch (destination) {
             case MOON_ID -> "La Lune";
@@ -270,6 +310,7 @@ public final class Space {
             case MARS_ID -> "Mars";
             case MARS_ORBIT_ID -> "Orbite de Mars";
             case MOON_ORBIT_ID -> "Orbite lunaire";
+            case ASTEROIDS_ID -> "Ceinture d'astéroïdes";
             default -> "La Terre";
         };
         String subtitle = switch (destination) {
@@ -278,6 +319,7 @@ public final class Space {
             case MARS_ID -> "Gravité 38 % — atmosphère irrespirable";
             case MARS_ORBIT_ID -> "Orbite de Mars — prépare la descente";
             case MOON_ORBIT_ID -> "La Lune sous tes pieds — 1 dose pour descendre";
+            case ASTEROIDS_ID -> "Rochers flottants : fer, or, titane, hélium-3 — jetpack conseillé";
             default -> "Bon retour parmi les ruines";
         };
         player.connection.send(new ClientboundSetTitlesAnimationPacket(20, 80, 30));

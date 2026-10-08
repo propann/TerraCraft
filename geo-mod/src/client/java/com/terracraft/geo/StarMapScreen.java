@@ -38,7 +38,7 @@ public final class StarMapScreen extends Screen {
     };
     private static final Map<Byte, String> SHORT = Map.of(Space.EARTH, "Terre", Space.ORBIT_ID, "Orbite",
             Space.MOON_ORBIT_ID, "Orbite lunaire", Space.MOON_ID, "Lune", Space.MARS_ORBIT_ID, "Orbite de Mars",
-            Space.MARS_ID, "Mars");
+            Space.MARS_ID, "Mars", Space.ASTEROIDS_ID, "Astéroïdes");
 
     private final JsonObject data;
     private final Map<Byte, JsonObject> destinations = new HashMap<>();
@@ -102,6 +102,8 @@ public final class StarMapScreen extends Screen {
             double a = Math.toRadians(body.angle);
             nodes.put(body.orbit, new int[]{cx + (int) Math.round(body.ring * Math.cos(a)), cy + (int) Math.round(body.ring * Math.sin(a))});
         }
+        // Ceinture d'astéroïdes : au-delà de Mars, en haut à droite.
+        nodes.put(Space.ASTEROIDS_ID, new int[]{mapLeft() + (int) (0.86 * mapWidth()), mapTop() + (int) (0.22 * mapHeight())});
         int sx = left + panelWidth - SIDE;
         int rocket = data.get("rocket").getAsInt();
         course = addRenderableWidget(Button.builder(Component.literal("Mettre le cap"), b -> send(rocket, false))
@@ -138,6 +140,7 @@ public final class StarMapScreen extends Screen {
         stars(g, mx, my);
         // Le Soleil, en haut à gauche : la face éclairée des planètes est tournée vers lui.
         disc(g, mx + 4, my + 4, 12, 0xFFFFD34A, 0xFFFFD34A, false);
+        belt(g);
         for (int[] route : routes()) {
             route(g, (byte) route[0], (byte) route[1], route[2]);
         }
@@ -178,6 +181,19 @@ public final class StarMapScreen extends Screen {
             routes.add(new int[]{r.get(0).getAsInt(), r.get(1).getAsInt(), r.get(2).getAsInt()});
         }
         return routes;
+    }
+
+    /** Nuage de petits rochers autour du nœud de la ceinture d'astéroïdes. */
+    private void belt(GuiGraphicsExtractor g) {
+        int[] c = nodes.get(Space.ASTEROIDS_ID);
+        long seed = 91;
+        for (int i = 0; i < 40; i++) {
+            seed = seed * 6364136223846793005L + 1442695040888963407L;
+            int dx = (int) Math.floorMod(seed >>> 20, 45) - 22;
+            int dy = (int) Math.floorMod(seed >>> 40, 17) - 8;
+            int size = (seed >>> 60) > 10 ? 2 : 1;
+            g.fill(c[0] + dx, c[1] + dy, c[0] + dx + size, c[1] + dy + size, 0xFF8C8478);
+        }
     }
 
     private void stars(GuiGraphicsExtractor g, int mx, int my) {

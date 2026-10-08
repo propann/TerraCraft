@@ -252,6 +252,20 @@ public final class SpaceSuit {
     }
 
     /** Casque spatial avec de l'air, ou au moins une bouteille prête à se brancher. */
+    /** Retire une bouteille d'oxygène des réserves de la combinaison ; faux s'il n'y en a plus. */
+    static boolean consumeReserve(Player player) {
+        for (int slot : new int[]{TANK_A, TANK_B}) {
+            ItemStack stack = get(player, slot);
+            if (stack.is(ModContent.OXYGEN_TANK) && !stack.isEmpty()) {
+                stack.shrink(1);
+                set(player, slot, stack);
+                changed(player);
+                return true;
+            }
+        }
+        return false;
+    }
+
     static boolean hasAirSupply(Player player) {
         ItemStack helmet = helmet(player);
         return !helmet.isEmpty() && (helmet.getDamageValue() < helmet.getMaxDamage() - 1 || tanks(player) > 0);

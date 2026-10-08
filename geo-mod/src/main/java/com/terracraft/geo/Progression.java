@@ -128,6 +128,7 @@ public final class Progression {
             new Discovery("lieu_fire_station", "Grande échelle — une caserne de pompiers", 15),
             new Discovery("lieu_school", "Salle de classe — une école", 10),
             new Discovery("lieu_town_hall", "Hôtel de ville — une mairie", 15),
+            new Discovery("asteroids", "Mineur de l'espace — atteindre la ceinture d'astéroïdes", 120),
             new Discovery("bunker_boss", "Chasseur de commandants — abattre un boss de bunker", 80),
             new Discovery("rampart", "Rempart — repousser une vague nocturne sur sa ville", 50),
             new Discovery("contamination", "Compteur Geiger — entrer dans une zone contaminée", 30),
@@ -416,6 +417,12 @@ public final class Progression {
             default -> {
             }
         }
+    }
+
+    /** Compteur d'un joueur même hors ligne (objectifs de ville) ; 0 s'il n'a jamais joué. */
+    public long stat(UUID player, String stat) {
+        Record r = records.get(player);
+        return r == null ? 0 : r.stats.getOrDefault(stat, 0L);
     }
 
     /** Valeur actuelle d'un compteur pour les systèmes de missions et d'objectifs. */

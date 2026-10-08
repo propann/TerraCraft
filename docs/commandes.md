@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.35). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.36). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -57,7 +57,7 @@ Clic droit main vide sur une machine : écran à jauges (contenu, énergie, char
 | `/station` | Ses stations spatiales ; `nom <nom>` pour renommer la plus proche |
 | `/plans` | Plans de fusée débloqués, matériaux, comment débloquer les autres |
 | `/fusee carte` | Carte des étoiles de la fusée où l'on est assis (ou à moins de 8 blocs) |
-| `/fusee cap <destination>` | Mettre le cap : `terre`, `orbite`, `orbite_lunaire`, `lune`, `orbite_mars`, `mars` |
+| `/fusee cap <destination>` | Mettre le cap : `terre`, `orbite`, `orbite_lunaire`, `lune`, `orbite_mars`, `mars`, `asteroides` |
 | `/atelier installer <plan>` | Installer une amélioration sur la fusée garée près d'un atelier de station |
 | `/terracraft ou` | Latitude, longitude et altitude réelles de sa position |
 | `/lieux` | Lieux réels les plus proches (hôpital, pharmacie, commissariat, gare, supermarché, école…) : nom, distance, direction |
@@ -86,6 +86,7 @@ Clic droit main vide sur une machine : écran à jauges (contenu, énergie, char
 | `/terracraft course demarrer|arreter` | Ouvrir ou fermer la course à l'espace (événement d'ouverture) |
 | `/terracraft aller <lat> <lon>` | Se rendre à des coordonnées réelles |
 | `/terracraft station-service [aller]` | Station-service la plus proche (et s'y rendre) |
+| `/terracraft asteroide` | Se rendre sur l'astéroïde le plus proche (ceinture d'astéroïdes) |
 | `/terracraft petrole [aller]` | Gisement de pétrole le plus proche (et s'y rendre) |
 | `/terracraft generation [reset]` | Mesures de génération : chunks, temps par chunk, téléchargements retentés ou ratés |
 | `/terracraft suivi` | Joueurs uniques, actifs 24 h / 7 j, retour, temps de jeu, tick moyen |
@@ -106,7 +107,7 @@ Clic droit main vide sur une machine : écran à jauges (contenu, énergie, char
 
 ## Journal de la console
 
-Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`, `[MOD]`, `[SUIVI]`, `[COURSE]`, `[GEN]`, `[PROTECTION]`, `[CARBURANT]`, `[LIEUX]`, `[LOGISTIQUE]`,
+Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`, `[MOD]`, `[SUIVI]`, `[COURSE]`, `[GEN]`, `[PROTECTION]`, `[CARBURANT]`, `[LIEUX]`, `[LOGISTIQUE]`, `[ESPACE]`,
 `[STATION]`, `[ATELIER]`, `[NAV]`, `[METEORES]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
 
 Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,

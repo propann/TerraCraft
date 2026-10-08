@@ -77,7 +77,8 @@ génération ni perte d'objet.
 - [x] **Missions liées aux lieux réels** : découverte par type de lieu, contrats du jour « Tournée des ruines » (3 lieux),
       « Urgences » (hôpital ou pharmacie), « Réseau de transport » (gare ou station-service) ; chaque lieu compte une
       fois par joueur.
-- [ ] **Collections** : villes réelles visitées, bunkers, véhicules réparés, minerais ; récompense par palier.
+- [x] **Collections** : paliers de lieux réels visités (5, 20, 50), de soins (5) et de transports (5), en missions
+      permanentes. Reste : bunkers, véhicules réparés, minerais.
 - [ ] **Missions de ville** : objectifs communs (déposer X crédits, poser N modules) avec récompense partagée.
 - [ ] **Réputation** : un niveau par métier, débloquant des offres du comptoir.
 
@@ -146,8 +147,11 @@ génération ni perte d'objet.
       (Terre, stations, bases) ; `/ville stock [deposer|retirer]` devant un terminal.
 - [x] **Dangers lunaires** : épaves de satellites avec butin, pluies de micrométéorites annoncées (un toit protège,
       fragments à ramasser), rôdeurs plus rapides et plus forts la nuit lunaire.
-- [ ] **Objectifs coopératifs** : grande station de ville (N modules, laboratoire, serre) avec récompense collective.
-- [ ] **Astéroïdes** : petites zones instanciées, minage de métaux rares, jetpack obligatoire.
+- [x] **Objectif coopératif** : grande station de ville — 10 modules posés par les habitants réunis : 1 500 crédits pour
+      la trésorerie, une fois (non couvert par le test automatique). Reste : laboratoire, serre.
+- [x] **Ceinture d'astéroïdes** : nouvelle destination (depuis l'orbite de Mars, 3 doses, navigation martienne), rochers
+      flottants rocheux, métalliques et glacés (fer, or, titane, diamants, hélium-3), quai à l'arrivée, carte des
+      étoiles, découverte et étape de la course ; récupération dans le vide (toutes les orbites).
 - [ ] **Garder la Terre utile** : ressources terrestres indispensables aux améliorations avancées (commerce Terre ↔ espace).
 
 ## Phase 9 — Bêta publique et exploitation

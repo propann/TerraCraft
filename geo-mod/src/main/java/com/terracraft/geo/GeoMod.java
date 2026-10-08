@@ -237,6 +237,8 @@ public final class GeoMod implements ModInitializer {
         Registry.register(BuiltInRegistries.BIOME_SOURCE, Identifier.fromNamespaceAndPath(MOD_ID, "earth"), GeoBiomeSource.CODEC);
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR, Identifier.fromNamespaceAndPath(MOD_ID, "moon"), MoonChunkGenerator.CODEC);
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR, Identifier.fromNamespaceAndPath(MOD_ID, "mars"), MarsChunkGenerator.CODEC);
+        Registry.register(BuiltInRegistries.CHUNK_GENERATOR, Identifier.fromNamespaceAndPath(MOD_ID, "asteroids"),
+                com.terracraft.geo.world.AsteroidChunkGenerator.CODEC);
 
         SpaceSuit.register();
         Welcome.installIcon();
@@ -589,6 +591,23 @@ public final class GeoMod implements ModInitializer {
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> stationCommand(command.getSource(), false))
                                 .then(Commands.literal("aller").executes(command -> stationCommand(command.getSource(), true))))
+                        .then(Commands.literal("asteroide")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> {
+                                    ServerPlayer player = command.getSource().getPlayerOrException();
+                                    var level = command.getSource().getServer().getLevel(Space.ASTEROIDS);
+                                    if (level == null) {
+                                        return 0;
+                                    }
+                                    int[] a = com.terracraft.geo.world.AsteroidChunkGenerator.nearest(player.getBlockX(), 150, player.getBlockZ());
+                                    if (a == null) {
+                                        command.getSource().sendFailure(Component.literal("Aucun astéroïde trouvé."));
+                                        return 0;
+                                    }
+                                    player.teleportTo(level, a[0] + 0.5, a[1] + a[3] + 2, a[2] + 0.5, java.util.Set.of(), 0, 0, true);
+                                    LOGGER.info("[ESPACE] {} se rend sur l'astéroïde {} {} {} (rayon {})", player.getName().getString(), a[0], a[1], a[2], a[3]);
+                                    return 1;
+                                }))
                         .then(Commands.literal("petrole")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> oilCommand(command.getSource(), false))

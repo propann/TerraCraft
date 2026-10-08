@@ -64,7 +64,8 @@ final class ServerGuide {
                 new Entry("[Stations]", "/station", "Tes stations et bases (protégées autour de leur balise)"),
                 new Entry("[Plans]", "/plans", "Plans de fusée et matériaux (atelier de station)"),
                 new Entry("", "", "Terre → orbite avec un kit de station ; la Lune et Mars partent du quai de la station."),
-                new Entry("", "", "Lune : sanctuaires sous la surface, micrométéorites (abrite-toi), rover en caisse.")));
+                new Entry("", "", "Lune : sanctuaires sous la surface, micrométéorites (abrite-toi), rover en caisse."),
+                new Entry("", "", "Ceinture d'astéroïdes (depuis l'orbite de Mars) : fer, or, titane, hélium-3 ; jetpack conseillé.")));
         THEMES.put("touches", java.util.List.of(
                 new Entry("", "", "O menu · J combinaison · V coffre du véhicule · K fiche · M carte et claims · ' menu des claims"),
                 new Entry("", "", "E : inventaire avec le panneau de la combinaison (casque, combinaison, bottes, jetpack, O₂)"),

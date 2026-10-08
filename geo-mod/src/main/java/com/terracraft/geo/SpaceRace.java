@@ -42,7 +42,8 @@ public final class SpaceRace {
             new Milestone("moon", "Premier pas sur la Lune", 300),
             new Milestone("lunar_base", "Première base lunaire", 300),
             new Milestone("alien_sanctuary", "Premier sanctuaire extraterrestre", 200),
-            new Milestone("mars", "Premier sur Mars", 500));
+            new Milestone("mars", "Premier sur Mars", 500),
+            new Milestone("asteroids", "Premier dans la ceinture d'astéroïdes", 400));
 
     static final class Winner {
         String name;
