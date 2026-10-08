@@ -25,8 +25,8 @@ génération ni perte d'objet.
       (Paris 31 ms/chunk au pire, tick < 2 ms, aucun téléchargement raté). Ajouter des lieux au besoin.
 - [ ] **Avec et sans cache Overture** : comparer temps et rendu ; documenter quand préparer le cache.
 - [ ] **Bâtiments géants, vides ou dupliqués** : rapport de génération (voir phase 7) pour les repérer.
-- [~] **Mesures** : un joueur mesuré (tick, temps par chunk, `/terracraft suivi`) ; reste 5 et 10 joueurs, mémoire et
-      taille du monde, seuils dans `deploy/FALIX.md`.
+- [x] **Mesures** : 1, 5 et 10 joueurs simultanés (tick 2 / 9 / 11 ms), mémoire, taille du monde ; seuils de RAM
+      dans `deploy/FALIX.md` (3 Go jusqu'à 5 joueurs, 5 Go pour 10). Reste : mémoire après une heure de jeu réel.
 - [~] Véhicules, armes, claims, économie, combinaison, avion : vérifiés côté serveur, à valider en séance de jeu.
 
 ## Phase 1 — Accueil et interface joueur
@@ -54,6 +54,9 @@ génération ni perte d'objet.
       territoire. À vérifier en jeu avec de vrais claims (non couvert par le test automatique).
 - [x] **Rôles de ville** : le maire nomme des adjoints (`/ville adjoint <joueur>`, bascule) qui invitent, excluent
       les simples habitants et paient depuis la trésorerie ; centre-ville et passation restent au maire.
+- [x] **Protection des stations et bases** : 48 blocs autour de chaque balise, réservés au propriétaire, aux habitants
+      de sa ville et aux opérateurs en créatif (casser, poser, ouvrir) ; journal `[PROTECTION]`. Sur Terre, les claims
+      Open Parties and Claims protègent tout (exceptions réglées sur « personne »).
 - [ ] **Protection des véhicules et coffres** dans les claims d'autrui (aujourd'hui : verrou du propriétaire).
 - [ ] **Taxe de ville légère** seulement si elle finance un service visible (balise de ville, garage, téléporteur).
 

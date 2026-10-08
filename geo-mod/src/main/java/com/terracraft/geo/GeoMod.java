@@ -348,6 +348,29 @@ public final class GeoMod implements ModInitializer {
                 }
             }
         });
+        // Stations et bases : protégées autour de leur balise (propriétaire, sa ville, opérateurs en créatif).
+        net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) -> {
+            Stations.Beacon beacon = Stations.get().protectedFrom(player, level, pos);
+            if (beacon != null) {
+                Stations.get().deny(player, beacon, "casser");
+                return false;
+            }
+            return true;
+        });
+        UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            if (level.isClientSide()) {
+                return InteractionResult.PASS;
+            }
+            Stations.Beacon beacon = Stations.get().protectedFrom(player, level, hit.getBlockPos());
+            if (beacon == null) {
+                beacon = Stations.get().protectedFrom(player, level, hit.getBlockPos().relative(hit.getDirection()));
+            }
+            if (beacon != null) {
+                Stations.get().deny(player, beacon, "utiliser ou poser");
+                return InteractionResult.FAIL;
+            }
+            return InteractionResult.PASS;
+        });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
             // Coffre jamais ouvert (table de butin encore présente) : on vérifie à la fin du tick
             // que le butin a réellement été généré. Un clic refusé (claim, spectateur, accroupi

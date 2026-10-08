@@ -34,7 +34,9 @@ public final class GenStats {
     public static String summary() {
         long chunks = CHUNKS.get();
         double mean = chunks == 0 ? 0 : NANOS.get() / 1e6 / chunks;
-        return String.format(java.util.Locale.ROOT, "chunks=%d moyenne=%.1fms max=%.1fms reessais=%d echecs=%d",
-                chunks, mean, MAX_NANOS.get() / 1e6, RETRIES.get(), FAILURES.get());
+        Runtime runtime = Runtime.getRuntime();
+        long usedMb = (runtime.totalMemory() - runtime.freeMemory()) / (1024 * 1024);
+        return String.format(java.util.Locale.ROOT, "chunks=%d moyenne=%.1fms max=%.1fms reessais=%d echecs=%d memoire=%d/%dMo",
+                chunks, mean, MAX_NANOS.get() / 1e6, RETRIES.get(), FAILURES.get(), usedMb, runtime.maxMemory() / (1024 * 1024));
     }
 }

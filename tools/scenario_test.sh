@@ -192,6 +192,16 @@ cmd "execute as Bob run terracraft meteores" 25
 cmd "execute in terracraft_geo:moon run fill -3 154 -6 -1 154 -4 minecraft:stone" 1
 cmd "say ABRI_DEBUT" 12
 cmd "say ABRI_FIN" 1
+# Protection de la base lunaire de Bob : Eve (étrangère, créatif, non opératrice) ne peut pas casser ; Bob oui
+cmd "execute in terracraft_geo:moon run setblock 3 152 -4 minecraft:glass" 1
+cmd "player Eve spawn at 3 151 -6 facing 0 0 in terracraft_geo:moon in creative" 4
+cmd "player Eve attack once" 2
+cmd "execute in terracraft_geo:moon if block 3 152 -4 minecraft:glass run say PROTECTION_ETRANGERE_OK" 1
+cmd "player Eve kill" 1
+cmd "execute in terracraft_geo:moon run tp Bob 3 151 -6 0 0" 2
+cmd "player Bob attack continuous" 3
+cmd "player Bob stop" 1
+cmd "execute in terracraft_geo:moon if block 3 152 -4 minecraft:air run say PROTECTION_PROPRIETAIRE_OK" 1
 # Carte des étoiles (mêmes règles via /fusee cap) : Mars refusé sans navigation martienne, orbite lunaire prête
 cmd "execute as Bob run fusee cap mars" 1
 cmd "execute as Bob run fusee cap lune" 1
@@ -263,13 +273,13 @@ health = [float(h) for h in re.findall(r"Bob has the following entity data: (\d+
 # Santé pleine (20, ou plus si un palier a ajouté des cœurs) : l'oxygène a protégé Bob sur la Lune.
 check(bool(health) and health[0] >= 20, f"Bob respire (aucun dégât, santé {health[:1]})")
 progression = json.loads((data / "progression.json").read_text())
-jobs = sorted(r.get("job") or "" for r in progression.values())
+jobs = sorted(r.get("job") for r in progression.values() if r.get("job"))  # Eve (test de protection) n'a pas de métier
 check(jobs == ["MECANICIEN", "PILOTE"], f"métiers enregistrés (obtenu {jobs})")
 stats = [r.get("stats", {}) for r in progression.values()]
 check(any(s.get("listings") == 1 for s in stats) and any(s.get("shop") == 1 for s in stats), "compteurs vente et comptoir")
 check(any(s.get("town") == 1 for s in stats) and any(s.get("job") == 1 for s in stats), "compteurs ville et métier")
 contracts = json.loads((data / "contrats.json").read_text())
-check(len(contracts) == 2 and all("baseline" in c for c in contracts.values()), "journée de contrats ouverte pour les deux joueurs")
+check(len(contracts) >= 2 and all("baseline" in c for c in contracts.values()), "journée de contrats ouverte pour chaque joueur")
 reports = json.loads((data / "signalements.json").read_text())
 check(len(reports) == 1 and reports[0]["player"] == "Bob", "signalement enregistré")
 check("[LARGAGE] Caisse en" in log, "caisse de ravitaillement larguée sur la plateforme")
@@ -341,9 +351,11 @@ check("nomme modérateur Bob" in log and "avertit Alice : Test de moderation" in
       and list(json.loads((data / "moderateurs.json").read_text()).values()) == ["Bob"], "modération : Bob nommé modérateur, avertissement journalisé")
 check("[SUIVI] 2 joueurs uniques" in log, "suivi de l'activité : 2 joueurs uniques")
 activity = json.loads((data / "activite.json").read_text())
-check(len(activity) == 2 and all(r["sessions"] >= 1 for r in activity.values()), "activite.json : sessions enregistrées")
+check(len(activity) == 3 and all(r["sessions"] >= 1 for r in activity.values()), "activite.json : sessions enregistrées (Alice, Bob, Eve)")
 check(sorted(race["winners"]) == sorted(["orbit", "orbital_station", "moon", "lunar_base", "alien_sanctuary"])
       and race_bob == 1300 and race["active"], f"course à l'espace : Bob remporte 5 étapes, 1 300 crédits (obtenu {sorted(race['winners'])})")
+check("PROTECTION_ETRANGERE_OK" in log and "[protection] eve bloqué" in log.lower(), "base lunaire protégée : Eve (étrangère) ne casse rien")
+check("PROTECTION_PROPRIETAIRE_OK" in log, "base lunaire : le propriétaire Bob casse librement")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

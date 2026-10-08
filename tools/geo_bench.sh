@@ -62,6 +62,25 @@ for place in "${PLACES[@]}"; do
   cmd "terracraft generation" 1
   cmd "terracraft suivi" 1
 done
+# Charge : 5 puis 10 joueurs génèrent en même temps, chacun dans une ville différente (les premiers lieux sont déjà
+# en mémoire : les suivants s'ajoutent, comme sur un vrai serveur).
+CITIES=("51.5074;-0.1278" "52.5200;13.4050" "41.9028;12.4964" "40.4168;-3.7038" "50.8503;4.3517"
+        "45.4642;9.1900" "48.2082;16.3738" "52.3676;4.9041" "47.3769;8.5417" "38.7223;-9.1393")
+for count in 5 10; do
+  echo "== $count joueurs simultanés"
+  cmd "say BENCH_DEBUT $count joueurs simultanés" 0
+  cmd "terracraft generation reset" 0
+  for i in $(seq 1 "$count"); do
+    IFS=';' read -r lat lon <<< "${CITIES[$((i - 1))]}"
+    cmd "player Charge$i spawn at 0 300 0" 2
+    cmd "gamemode spectator Charge$i" 0
+    cmd "execute as Charge$i run terracraft aller $lat $lon" 0
+  done
+  sleep "$((WAIT + 30))"
+  cmd "terracraft generation" 1
+  cmd "terracraft suivi" 1
+  cmd "say BENCH_MONDE $(du -sm world | cut -f1)" 1
+done
 cmd "stop" 2
 for _ in $(seq 120); do pgrep -f "server.jar nogui" >/dev/null || break; sleep 1; done
 
@@ -72,17 +91,19 @@ log = open(log_path, errors="replace").read()
 rows = []
 for block in log.split("BENCH_DEBUT ")[1:]:
     name = block.split("\n", 1)[0].strip()
-    gen = re.search(r"\[GEN\] chunks=(\d+) moyenne=([\d.]+)ms max=([\d.]+)ms reessais=(\d+) echecs=(\d+)", block)
+    gen = re.search(r"\[GEN\] chunks=(\d+) moyenne=([\d.]+)ms max=([\d.]+)ms reessais=(\d+) echecs=(\d+) memoire=(\d+)/\d+Mo", block)
     tick = re.search(r"\[SUIVI\].*tick ([\d.]+) ms", block)
     if gen:
         rows.append((name, *gen.groups(), tick.group(1) if tick else "?"))
 errors = len(re.findall(r"/ERROR\]", log))
 lines = [f"# Mesures de génération — {datetime.date.today().isoformat()}", "",
          f"Commit `{sha}` · distance de vue {view} · {wait} s par lieu · monde neuf, sans cache de tuiles.", "",
-         "| Lieu | Chunks | Moyenne (ms/chunk) | Max (ms) | Réessais | Échecs | Tick moyen (ms) |",
-         "|---|---:|---:|---:|---:|---:|---:|"]
-lines += [f"| {n} | {c} | {m} | {x} | {r} | {e} | {t} |" for n, c, m, x, r, e, t in rows]
-lines += ["", f"Erreurs dans le journal du serveur : {errors}."]
+         "| Lieu | Chunks | Moyenne (ms/chunk) | Max (ms) | Réessais | Échecs | Mémoire (Mo) | Tick moyen (ms) |",
+         "|---|---:|---:|---:|---:|---:|---:|---:|"]
+lines += [f"| {n} | {c} | {m} | {x} | {r} | {e} | {mem} | {t} |" for n, c, m, x, r, e, mem, t in rows]
+sizes = re.findall(r"BENCH_MONDE (\d+)", log)
+lines += ["", f"Erreurs dans le journal du serveur : {errors}. Taille du monde après 5 puis 10 joueurs : "
+          + " puis ".join(f"{x} Mo" for x in sizes) + "."]
 text = "\n".join(lines) + "\n"
 print(text)
 if report:

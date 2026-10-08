@@ -86,6 +86,57 @@ public final class Stations {
     }
 
     /** Station déployée par un kit : enregistrée au nom du pilote, sans message de pose. */
+    /** Protection des stations et bases : rayon horizontal et demi-hauteur autour de chaque balise. */
+    static final int PROTECTED_RADIUS = 48;
+    static final int PROTECTED_HEIGHT = 24;
+    private final java.util.Map<java.util.UUID, Long> lastWarning = new java.util.HashMap<>();
+
+    /**
+     * Station ou base protégée à cette position, si le joueur n'y a pas droit : seuls le propriétaire, les habitants
+     * de sa ville et les opérateurs en créatif peuvent casser, poser ou ouvrir près d'une balise. Renvoie la balise
+     * qui protège, ou null si le joueur peut agir.
+     */
+    Beacon protectedFrom(net.minecraft.world.entity.player.Player player, net.minecraft.world.level.Level level, BlockPos pos) {
+        if (!(player instanceof ServerPlayer server) || !Space.isSpace(level)) {
+            return null;
+        }
+        String dimension = level.dimension().identifier().toString();
+        for (Beacon beacon : beacons) {
+            if (!beacon.dimension().equals(dimension) || Math.abs(pos.getY() - beacon.y()) > PROTECTED_HEIGHT
+                    || Math.hypot(pos.getX() - beacon.x(), pos.getZ() - beacon.z()) > PROTECTED_RADIUS) {
+                continue;
+            }
+            UUID owner = UUID.fromString(beacon.owner());
+            if (owner.equals(player.getUUID())) {
+                return null;
+            }
+            Towns.Town town = towns == null ? null : towns.townOf(owner);
+            if (town != null && town.members.contains(player.getUUID())) {
+                return null;
+            }
+            if (player.isCreative() && server.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER)) {
+                return null;
+            }
+            return beacon;
+        }
+        return null;
+    }
+
+    /** Refus prévenu (au plus toutes les 5 s) et journalisé. */
+    void deny(net.minecraft.world.entity.player.Player player, Beacon beacon, String action) {
+        long now = System.currentTimeMillis();
+        Long last = lastWarning.get(player.getUUID());
+        if (last != null && now - last < 5000) {
+            return;
+        }
+        lastWarning.put(player.getUUID(), now);
+        GeoMod.LOGGER.info("[PROTECTION] {} bloqué ({}) dans {} de {}", player.getName().getString(), action, beacon.name(), beacon.ownerName());
+        if (player instanceof ServerPlayer server) {
+            server.sendOverlayMessage(Component.literal("🔒 " + beacon.name() + " : protégée (propriétaire et habitants de sa ville).")
+                    .withStyle(ChatFormatting.RED));
+        }
+    }
+
     public void registerBuilt(ServerPlayer owner, ServerLevel level, BlockPos pos, String name) {
         beacons.add(new Beacon(owner.getUUID().toString(), owner.getName().getString(),
                 level.dimension().identifier().toString(), pos.getX(), pos.getY(), pos.getZ(), name));
