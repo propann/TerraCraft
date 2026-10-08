@@ -934,6 +934,16 @@ def industry_textures():
         c.rect(10, 6, 3, 3, (200, 200, 205))
         c.rect(0, 13, 16, 3, (45, 45, 50))
     block_tex("generator_side", (70, 72, 78), generator, seed=116)
+    def lamp(glow):
+        def draw(c):
+            c.rect(0, 0, 16, 16, (70, 72, 80))
+            c.rect(2, 2, 12, 12, glow)
+            for k in (5, 10):
+                c.rect(k, 2, 1, 12, (70, 72, 80))
+                c.rect(2, k, 12, 1, (70, 72, 80))
+        return draw
+    block_tex("electric_lamp_off", (70, 72, 80), lamp((110, 110, 100)), seed=118)
+    block_tex("electric_lamp_on", (70, 72, 80), lamp((255, 240, 190)), seed=119)
     block_tex("generator_top", (60, 120, 60), lambda c: [c.rect(5, 5, 3, 3, (30, 30, 30)), c.rect(10, 9, 3, 3, (190, 40, 30))], seed=117)
     block_tex("battery_bank_top", (60, 62, 70), lambda c: [c.rect(3, 3, 3, 3, (190, 110, 60)), c.rect(10, 3, 3, 3, (30, 30, 34))], seed=115)
     block_tex("solar_panel_side", (175, 180, 190), lambda c: c.rect(0, 0, 16, 2, (120, 125, 135)), seed=110)

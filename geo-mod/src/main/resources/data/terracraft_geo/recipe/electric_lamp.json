@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass",
+    "I": "minecraft:iron_ingot",
+    "S": "minecraft:glowstone_dust",
+    "C": "terracraft_geo:cable"
+  },
+  "pattern": [
+    "IGI",
+    "GSG",
+    "ICI"
+  ],
+  "result": {
+    "id": "terracraft_geo:electric_lamp",
+    "count": 2
+  }
+}

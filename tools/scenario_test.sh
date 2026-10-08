@@ -119,6 +119,7 @@ cmd "execute at Alice run setblock ~6 ~ ~ terracraft_geo:oil_pump" 0
 cmd "execute at Alice run setblock ~6 ~1 ~ terracraft_geo:solar_panel" 0
 cmd "execute at Alice run setblock ~6 ~ ~-1 terracraft_geo:battery_bank" 0
 cmd "execute at Alice run setblock ~6 ~1 ~-1 terracraft_geo:solar_panel" 0
+cmd "execute at Alice run setblock ~4 ~ ~2 terracraft_geo:electric_lamp" 0
 cmd "execute at Alice run setblock ~-1 ~ ~ terracraft_geo:oil_pump" 0
 cmd "execute at Alice run setblock ~-2 ~ ~ terracraft_geo:generator" 0
 cmd "execute at Alice run data merge block ~-2 ~ ~ {GASOLINE:2000}" 0
@@ -127,6 +128,7 @@ cmd "execute at Alice run data get block ~2 ~ ~ GASOLINE" 1
 cmd "execute at Alice run data get block ~6 ~ ~-1 Charge" 1
 cmd "execute at Alice run data get block ~-1 ~ ~ CRUDE" 1
 cmd "execute at Alice run data get block ~-2 ~ ~ GASOLINE" 1
+cmd "execute at Alice if block ~4 ~ ~2 terracraft_geo:electric_lamp[lit=true] run say LAMPE_OK" 1
 cmd "item replace entity Alice weapon.mainhand with terracraft_geo:empty_fuel_can" 1
 cmd "player Alice use once" 2
 cmd "clear Alice terracraft_geo:fuel_can 0" 1
@@ -388,6 +390,7 @@ check("PROTECTION_PROPRIETAIRE_OK" in log, "base lunaire : le propriétaire Bob 
 gasoline = re.findall(r"has the following block data: (\d+)", log)
 check(len(gasoline) >= 4 and int(gasoline[2]) >= 1000 and int(gasoline[3]) < 2000,
       f"groupe électrogène : une pompe sans panneau extrait grâce à l'essence (brut, essence restante : {gasoline[2:4]})")
+check("LAMPE_OK" in log, "lampe électrique allumée par un panneau au soleil")
 check(len(gasoline) >= 2 and int(gasoline[1]) >= 40, f"batterie chargée par son panneau au soleil (obtenu {gasoline[1:2]})")
 check("[CARBURANT] gisement le plus proche de Alice" in log and gasoline and int(gasoline[0]) >= 1000,
       f"chaîne du carburant : essence raffinée dans le réservoir (obtenu {gasoline[:1]} mB)")

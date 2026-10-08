@@ -89,7 +89,8 @@ génération ni perte d'objet.
 - [x] **Industrie, suite** : stations-service en ruine aux emplacements réels (OSM amenity=fuel : auvent, pompes
       reliées à une cuve enterrée de 2 000 à 8 000 mB), batteries de stockage pour la nuit, écran à jauges des machines.
 - [x] **Groupe électrogène** : brûle de l'essence quand panneaux et batteries manquent (5 mB par unité et par seconde).
-- [ ] **Industrie, plus loin** : oléoducs plus longs (au-delà de 256 blocs), éclairage électrique.
+- [x] **Éclairage électrique** (lampe allumée quand le réseau a de l'énergie) et **réseaux d'environ 1 000 blocs**
+      (oléoducs, lignes électriques).
 - [x] **Tableau de bord** des véhicules terrestres : vitesse, carburant ou batterie, autonomie, état, pièces manquantes.
 - [ ] **Garage de ville** : réparation et plein contre crédits.
 - [ ] **Rôles clairs** : moto rapide et fragile, voiture polyvalente, camion lent à grand coffre (réglages chiffrés).

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "terracraft_geo:block/electric_lamp_off"
+    },
+    "lit=true": {
+      "model": "terracraft_geo:block/electric_lamp_on"
+    }
+  }
+}

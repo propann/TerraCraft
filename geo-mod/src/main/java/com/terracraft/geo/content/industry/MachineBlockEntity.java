@@ -32,7 +32,8 @@ public class MachineBlockEntity extends BlockEntity {
     static final int REFINE_KEROSENE = 60;
     /** Débit maximal d'un tuyau par seconde et par liquide. */
     static final int PIPE_RATE = 1_000;
-    private static final int SEARCH_LIMIT = 256;
+    /** Taille maximale d'un réseau de tuyaux ou de câbles parcouru (oléoducs d'environ 1 000 blocs). */
+    private static final int SEARCH_LIMIT = 1_024;
 
     /** Charge maximale d'une batterie : 20 minutes d'un panneau (unités · seconde). */
     public static final int BATTERY_CAPACITY = 1_200;

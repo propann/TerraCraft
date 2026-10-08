@@ -85,5 +85,6 @@
   "item.terracraft_geo.empty_fuel_can": "Empty fuel can",
   "item.terracraft_geo.oil_detector": "Oil detector",
   "block.terracraft_geo.battery_bank": "Battery bank",
-  "block.terracraft_geo.generator": "Generator"
+  "block.terracraft_geo.generator": "Generator",
+  "block.terracraft_geo.electric_lamp": "Electric lamp"
 }
