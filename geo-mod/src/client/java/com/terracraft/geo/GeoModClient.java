@@ -75,6 +75,8 @@ public final class GeoModClient implements ClientModInitializer {
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "jetpack"), new JetpackHud());
         net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "plane"), new PlaneHud());
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
+                Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "vehicle"), new VehicleHud());
         // Parcours « Premiers pas » : le serveur envoie l'objectif en cours, affiché à droite.
         ClientPlayNetworking.registerGlobalReceiver(TutorialPayload.TYPE, (payload, context) -> TutorialHud.update(payload));
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->

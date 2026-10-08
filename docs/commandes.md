@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.31). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.32). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -29,6 +29,7 @@ Référence de TerraCraft (version 0.31). Tout est en français ; `/aide` en don
 | Réservoir | 16 000 mB d'un seul liquide |
 | Pompe à essence | Bidon vide en main : clic droit = essence, Maj + clic droit = carburant de fusée (1 000 mB) |
 | Batterie de stockage | Se charge le jour avec les panneaux reliés (20 min d'un panneau) ; alimente les machines la nuit |
+| Groupe électrogène | Relié par tuyau (essence) et câbles : brûle 5 mB par unité d'énergie et par seconde quand panneaux et batteries manquent |
 | Station-service en ruine | Aux vraies adresses : les pompes puisent dans la cuve enterrée (2 000 à 8 000 mB d'essence) |
 | Bidon vide | 2 fer + 1 seau ; rendu après chaque plein ; à défaut, bidon artisanal : bidon vide + 4 charbons |
 

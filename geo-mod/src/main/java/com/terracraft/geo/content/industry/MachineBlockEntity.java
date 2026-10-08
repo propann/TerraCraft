@@ -38,6 +38,8 @@ public class MachineBlockEntity extends BlockEntity {
     public static final int BATTERY_CAPACITY = 1_200;
     /** Énergie utile au plus par machine (une pompe ou une raffinerie ne tire pas plus de 2 unités). */
     static final int MAX_DRAW = 2;
+    /** Essence brûlée par un groupe électrogène, par unité d'énergie et par seconde (un bidon ≈ 3 min à 1 unité). */
+    static final int GENERATOR_BURN = 5;
 
     private final Map<FluidKind, Integer> fluids = new EnumMap<>(FluidKind.class);
     private int power;
@@ -82,6 +84,7 @@ public class MachineBlockEntity extends BlockEntity {
             case FUEL_TANK -> fluids.entrySet().stream().allMatch(e -> e.getKey() == fluid || e.getValue() == 0)
                     && amount(fluid) < kind().capacity;
             case REFINERY -> fluid == FluidKind.CRUDE && amount(fluid) < kind().capacity;
+            case GENERATOR -> fluid == FluidKind.GASOLINE && amount(fluid) < kind().capacity;
             default -> false;
         };
     }
@@ -198,7 +201,8 @@ public class MachineBlockEntity extends BlockEntity {
         int panels = power(level, start);
         int deficit = need - Math.min(need, panels);
         if (deficit > 0) {
-            for (MachineBlockEntity battery : connected(level, start, true)) {
+            List<MachineBlockEntity> grid = connected(level, start, true);
+            for (MachineBlockEntity battery : grid) {
                 if (deficit <= 0) {
                     break;
                 }
@@ -207,6 +211,19 @@ public class MachineBlockEntity extends BlockEntity {
                     battery.charge -= taken;
                     battery.setChanged();
                     deficit -= taken;
+                }
+            }
+            // En dernier recours, les groupes électrogènes brûlent de l'essence (2 unités au plus chacun).
+            for (MachineBlockEntity generator : grid) {
+                if (deficit <= 0) {
+                    break;
+                }
+                if (generator.kind() == MachineKind.GENERATOR) {
+                    int units = Math.min(Math.min(deficit, 2), generator.amount(FluidKind.GASOLINE) / GENERATOR_BURN);
+                    if (units > 0) {
+                        generator.add(FluidKind.GASOLINE, -units * GENERATOR_BURN);
+                        deficit -= units;
+                    }
                 }
             }
         }

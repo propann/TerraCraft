@@ -189,6 +189,11 @@
               "max": 3
             }
           }
+        },
+        {
+          "type": "minecraft:item",
+          "name": "terracraft_geo:empty_fuel_can",
+          "weight": 6
         }
       ]
     },

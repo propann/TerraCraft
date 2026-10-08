@@ -107,6 +107,7 @@ final class Industry {
             }
             case BATTERY -> {
             }
+            case GENERATOR -> gauge.accept(FluidKind.GASOLINE, kind.capacity);
         }
         data.add("gauges", gauges);
         if (kind.powered) {
@@ -126,6 +127,7 @@ final class Industry {
             case FUEL_TANK -> "Contient un seul liquide. Relié à une pompe à essence par tuyaux.";
             case FUEL_PUMP -> "Bidon vide en main : clic droit = essence, Maj + clic droit = carburant de fusée.";
             case BATTERY -> "Se charge le jour avec les panneaux reliés ; alimente les machines la nuit (câbles).";
+            case GENERATOR -> "Brûle de l'essence (tuyau) quand panneaux et batteries ne suffisent pas : 5 mB par unité et par seconde.";
         });
         net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player, new MachinePayload(data.toString()));
     }
@@ -182,6 +184,7 @@ final class Industry {
                 FluidKind content = machine.content();
                 text.append(content == null ? "vide" : content.label + " " + machine.amount(content) + "/" + kind.capacity + " mB");
             }
+            case GENERATOR -> text.append("essence ").append(machine.amount(FluidKind.GASOLINE)).append("/").append(kind.capacity).append(" mB");
             case BATTERY -> text.append("charge ").append(machine.charge()).append("/").append(MachineBlockEntity.BATTERY_CAPACITY);
             case FUEL_PUMP -> {
                 List<MachineBlockEntity> tanks = MachineBlockEntity.connected(level, machine.getBlockPos(), false);

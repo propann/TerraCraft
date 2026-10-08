@@ -30,6 +30,7 @@ public final class IndustryBlocks {
     public static final Block REFINERY = block("refinery", p -> new MachineBlock(MachineKind.REFINERY, p), metal());
     public static final Block FUEL_TANK = block("fuel_tank", p -> new MachineBlock(MachineKind.FUEL_TANK, p), metal());
     public static final Block FUEL_PUMP = block("fuel_pump", p -> new MachineBlock(MachineKind.FUEL_PUMP, p), metal().noOcclusion());
+    public static final Block GENERATOR = block("generator", p -> new MachineBlock(MachineKind.GENERATOR, p), metal());
     public static final Block BATTERY = block("battery_bank", p -> new MachineBlock(MachineKind.BATTERY, p), metal());
     public static final Block SOLAR_PANEL = block("solar_panel", SolarPanelBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLUE).strength(1.5f).sound(SoundType.GLASS).noOcclusion());
@@ -41,7 +42,7 @@ public final class IndustryBlocks {
 
     public static final BlockEntityType<MachineBlockEntity> MACHINE_ENTITY = Registry.register(BuiltInRegistries.BLOCK_ENTITY_TYPE,
             Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "machine"),
-            new BlockEntityType<>(MachineBlockEntity::new, Set.of(OIL_PUMP, REFINERY, FUEL_TANK, FUEL_PUMP, BATTERY)));
+            new BlockEntityType<>(MachineBlockEntity::new, Set.of(OIL_PUMP, REFINERY, FUEL_TANK, FUEL_PUMP, BATTERY, GENERATOR)));
 
     /** Bidon vide : rempli à la pompe à essence (essence, ou kérosène avec Maj) ; rendu après chaque plein. */
     public static final Item EMPTY_FUEL_CAN = ModContent.item("empty_fuel_can", Item::new, new Item.Properties().stacksTo(16));
@@ -54,7 +55,7 @@ public final class IndustryBlocks {
     public static void init() {
         net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents.modifyOutputEvent(net.minecraft.world.item.CreativeModeTabs.FUNCTIONAL_BLOCKS)
                 .register(output -> {
-                    for (Block block : new Block[]{OIL_PUMP, REFINERY, FUEL_TANK, FUEL_PUMP, BATTERY, SOLAR_PANEL, PIPE, CABLE, OIL_PUDDLE}) {
+                    for (Block block : new Block[]{OIL_PUMP, REFINERY, FUEL_TANK, FUEL_PUMP, BATTERY, GENERATOR, SOLAR_PANEL, PIPE, CABLE, OIL_PUDDLE}) {
                         output.accept(block);
                     }
                     output.accept(EMPTY_FUEL_CAN);

@@ -7,7 +7,9 @@ public enum MachineKind {
     FUEL_TANK("Réservoir", false, 16_000),
     FUEL_PUMP("Pompe à essence", false, 0),
     /** Batterie : stocke l'énergie des panneaux le jour, la rend aux machines la nuit (relié par câbles, pas par tuyaux). */
-    BATTERY("Batterie", true, 0);
+    BATTERY("Batterie", true, 0),
+    /** Groupe électrogène : brûle de l'essence (5 mB par unité d'énergie et par seconde) quand panneaux et batteries manquent. */
+    GENERATOR("Groupe électrogène", true, 4_000);
 
     public final String label;
     public final boolean powered;

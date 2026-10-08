@@ -84,5 +84,6 @@
   "block.terracraft_geo.oil_puddle": "Flaque de pétrole",
   "item.terracraft_geo.empty_fuel_can": "Bidon vide",
   "item.terracraft_geo.oil_detector": "Détecteur de pétrole",
-  "block.terracraft_geo.battery_bank": "Batterie de stockage"
+  "block.terracraft_geo.battery_bank": "Batterie de stockage",
+  "block.terracraft_geo.generator": "Groupe électrogène"
 }
