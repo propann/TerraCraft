@@ -48,6 +48,16 @@ public final class Jobs {
     }
 
     /** Métier du joueur, ou null s'il n'en a pas encore choisi. */
+    /** Compétence qui mesure la réputation d'un métier (offres réservées du comptoir). */
+    public static Progression.Skill skillOf(Job job) {
+        return switch (job) {
+            case MECANICIEN -> Progression.Skill.MECHANICS;
+            case COMBATTANT -> Progression.Skill.COMBAT;
+            case PILOTE -> Progression.Skill.SPACE;
+            case ECLAIREUR, RECUPERATEUR -> Progression.Skill.EXPLORATION;
+        };
+    }
+
     public static Job of(ServerPlayer player) {
         return Job.parse(Progression.get().jobName(player));
     }

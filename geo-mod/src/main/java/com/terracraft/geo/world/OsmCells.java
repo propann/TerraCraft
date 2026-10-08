@@ -99,6 +99,22 @@ public final class OsmCells {
             return pois;
         }
 
+        /** Type de lieu réel du bâtiment (classe OpenMapTiles), mis en cache ; null pour un bâtiment ordinaire. */
+        private java.util.Map<Building, String> placeKinds;
+
+        public synchronized String placeKind(Building building) {
+            if (placeKinds == null) {
+                placeKinds = new java.util.IdentityHashMap<>();
+                for (Poi poi : pois) {
+                    Building b = building(poi.x(), poi.z());
+                    if (b != null) {
+                        placeKinds.putIfAbsent(b, poi.kind());
+                    }
+                }
+            }
+            return placeKinds.get(building);
+        }
+
         /** Stations-service de cette cellule (ruines à piller). */
         public List<int[]> fuelStations() {
             return fuelStations;

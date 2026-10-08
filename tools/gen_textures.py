@@ -934,6 +934,17 @@ def industry_textures():
         c.rect(10, 6, 3, 3, (200, 200, 205))
         c.rect(0, 13, 16, 3, (45, 45, 50))
     block_tex("generator_side", (70, 72, 78), generator, seed=116)
+    def greenhouse(c):
+        c.rect(0, 0, 16, 16, (190, 225, 230))
+        for x in (0, 7, 15):
+            c.rect(x, 0, 1, 16, (150, 152, 160))
+        c.rect(0, 0, 16, 1, (150, 152, 160))
+        c.rect(1, 11, 14, 4, (90, 60, 35))
+        for x in (2, 5, 9, 12):
+            c.rect(x, 6, 1, 5, (70, 160, 60))
+            c.rect(x - 1, 7, 3, 1, (100, 190, 80))
+    block_tex("greenhouse_side", (190, 225, 230), greenhouse, seed=122)
+    block_tex("greenhouse_top", (190, 225, 230), lambda c: [c.rect(x, 0, 1, 16, (150, 152, 160)) for x in (0, 7, 15)], seed=123)
     def lamp(glow):
         def draw(c):
             c.rect(0, 0, 16, 16, (70, 72, 80))

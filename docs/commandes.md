@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.36). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.37). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -30,6 +30,7 @@ Référence de TerraCraft (version 0.36). Tout est en français ; `/aide` en don
 | Pompe à essence | Bidon vide en main : clic droit = essence, Maj + clic droit = carburant de fusée (1 000 mB) |
 | Batterie de stockage | Se charge le jour avec les panneaux reliés (20 min d'un panneau) ; alimente les machines la nuit |
 | Groupe électrogène | Relié par tuyau (essence) et câbles : brûle 5 mB par unité d'énergie et par seconde quand panneaux et batteries manquent |
+| Serre hydroponique | Alimentée par câbles : une récolte (blé, pommes de terre, carottes, betteraves) toutes les ~45 unités d'énergie, dans un coffre ou tonneau collé |
 | Lampe électrique | Reliée par câbles : allumée quand le réseau a de l'énergie (la nuit : 1 unité de batterie ou d'essence toutes les 2 s) |
 | Station-service en ruine | Aux vraies adresses : les pompes puisent dans la cuve enterrée (2 000 à 8 000 mB d'essence) |
 | Bidon vide | 2 fer + 1 seau ; rendu après chaque plein ; à défaut, bidon artisanal : bidon vide + 4 charbons |
@@ -50,7 +51,7 @@ Clic droit main vide sur une machine : écran à jauges (contenu, énergie, char
 | `/argent` | Solde (1 000 crédits au départ) |
 | `/hdv` | Hôtel des ventes (aussi menu `O`) : `vendre <prix>` (objet en main, frais 2 %), `acheter <n°>`, `retirer <n°>`, `page <n>` |
 | `/etal`, `/etal prix <n>`, `/etal ajouter`, `/etal acheter [n]` | Étal le plus proche (4 blocs) : offre ; fixer le prix et garnir (propriétaire) ; acheter. Clic droit : stock (propriétaire) ou offre ; Maj + clic droit : acheter 1 |
-| `/comptoir [n]` | Comptoir du serveur : carburant, oxygène, munitions, vivres à prix fixe |
+| `/comptoir [n]` | Comptoir du serveur : carburant, oxygène, munitions, vivres à prix fixe ; offres réservées (★) selon le métier et la réputation |
 | `/missions` | Contrats du jour et missions ; `reclamer <id>` |
 | `/metier` | Métiers (mécanicien, éclaireur, récupérateur, combattant, pilote) ; `choisir <métier>` (un changement par 24 h) |
 | `/ville` | Sa ville : `creer <nom>` (500 crédits), `inviter`, `rejoindre`, `quitter`, `exclure`, `maire`, `adjoint`, `centre`, `tp`, `deposer`, `payer`, `liste` (adjoints : inviter, exclure, payer) ; `stock [deposer|retirer]` devant un terminal logistique |

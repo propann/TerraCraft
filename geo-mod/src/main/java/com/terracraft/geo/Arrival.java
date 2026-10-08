@@ -86,7 +86,8 @@ final class Arrival {
                         + "PANNEAUX SOLAIRES (câbles). TUYAUX → RAFFINERIE (2 panneaux) → RÉSERVOIR → POMPE À ESSENCE : "
                         + "bidon vide = essence, Maj = carburant de fusée. Un plein rend le bidon vide.\n"
                         + "BATTERIE : se charge le jour, alimente la nuit. GROUPE ÉLECTROGÈNE : brûle de l'essence.\n"
-                        + "STATIONS-SERVICE en ruine : il reste de l'essence dans la cuve.",
+                        + "STATIONS-SERVICE en ruine : il reste de l'essence dans la cuve.\n"
+                        + "SERRE HYDROPONIQUE : alimentée, elle récolte dans un coffre collé — de quoi manger dans l'espace.",
                 "DANGERS SUR TERRE\n\nCONVOI MILITAIRE : un camion en panne, annoncé à tous, gardé par une escorte armée. "
                         + "Caisse de matériel à côté ; le camion (une roue à remplacer) revient au premier qui le prend.\n"
                         + "☢ ZONE CONTAMINÉE : poison sans casque et combinaison spatiaux (J). Une cache t'attend au cœur.",

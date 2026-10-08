@@ -54,6 +54,7 @@ cmd "execute as Bob run tp Bob 900 220 900" 2
 cmd "execute as Bob run ville tp" 2
 # Économie
 cmd "execute as Bob run comptoir 1"
+cmd "execute as Alice run comptoir 7" 1
 cmd "item replace entity Bob weapon.mainhand with terracraft_geo:fuel_can 1"
 cmd "execute as Bob run hdv vendre 100"
 cmd "execute as Alice run hdv acheter 1"
@@ -124,6 +125,9 @@ cmd "execute at Alice run setblock ~6 ~1 ~ terracraft_geo:solar_panel" 0
 cmd "execute at Alice run setblock ~6 ~ ~-1 terracraft_geo:battery_bank" 0
 cmd "execute at Alice run setblock ~6 ~1 ~-1 terracraft_geo:solar_panel" 0
 cmd "execute at Alice run setblock ~4 ~ ~2 terracraft_geo:electric_lamp" 0
+cmd "execute at Alice run setblock ~4 ~ ~-1 terracraft_geo:greenhouse" 0
+cmd "execute at Alice run setblock ~4 ~1 ~-1 terracraft_geo:solar_panel" 0
+cmd "execute at Alice run setblock ~3 ~ ~-1 minecraft:barrel" 0
 cmd "execute at Alice run setblock ~-1 ~ ~ terracraft_geo:oil_pump" 0
 cmd "execute at Alice run setblock ~-2 ~ ~ terracraft_geo:generator" 0
 cmd "execute at Alice run data merge block ~-2 ~ ~ {GASOLINE:2000}" 0
@@ -133,6 +137,7 @@ cmd "execute at Alice run data get block ~6 ~ ~-1 Charge" 1
 cmd "execute at Alice run data get block ~-1 ~ ~ CRUDE" 1
 cmd "execute at Alice run data get block ~-2 ~ ~ GASOLINE" 1
 cmd "execute at Alice if block ~4 ~ ~2 terracraft_geo:electric_lamp[lit=true] run say LAMPE_OK" 1
+cmd "execute at Alice run data get block ~3 ~ ~-1 Items" 1
 cmd "item replace entity Alice weapon.mainhand with terracraft_geo:empty_fuel_can" 1
 cmd "player Alice use once" 2
 cmd "clear Alice terracraft_geo:fuel_can 0" 1
@@ -245,6 +250,7 @@ cmd "execute as Bob run ville stock retirer" 1
 cmd "execute as Bob run fusee cap mars" 1
 cmd "execute as Bob run fusee cap lune" 1
 cmd "execute as Bob run fusee cap asteroides" 1
+cmd "execute as Bob run comptoir 7" 1
 cmd "execute as Bob run fusee cap orbite_lunaire" 1
 cmd "execute as Bob at Bob run data get entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] Target" 1
 # Sous-sol lunaire : visite du sanctuaire le plus proche (téléportation au pied du puits, face à la pyramide)
@@ -304,11 +310,11 @@ check(towns[0]["treasury"] == 140 + eco_created.get("vague_nocturne", 0), "trés
 balances = sorted(json.loads((data / "balances.json").read_text()).values())
 race = json.loads((data / "course.json").read_text())
 race_bob = sum(w["reward"] for w in race["winners"].values() if w["name"] == "Bob")
-check(balances == sorted([660, 938 + race_bob]), f"soldes Alice 400 + 10 de l'adjoint + 300 de boss - 50 à l'étal / Bob 888 + 50 de l'étal + {race_bob} de course (prime de 100 posée puis gagnée) (obtenu {balances})")
+check(balances == sorted([660, 938 + race_bob - 180]), f"soldes Alice 400 + 10 de l'adjoint + 300 de boss - 50 à l'étal / Bob 888 + 50 de l'étal + {race_bob} de course (prime de 100 posée puis gagnée) (obtenu {balances})")
 eco = json.loads((data / "economie.json").read_text())
 created, destroyed = sum(eco["created"].values()), sum(eco["destroyed"].values())
 check(created == sum(balances) + towns[0]["treasury"] + destroyed, "aucun crédit perdu ni créé : créés = comptes + trésorerie + détruits")
-check(eco["destroyed"].get("frais_hdv") == 2 and eco["destroyed"].get("comptoir") == 60, "frais de 2 % et comptoir")
+check(eco["destroyed"].get("frais_hdv") == 2 and eco["destroyed"].get("comptoir") == 60 + 180, "frais de 2 % et comptoir (dont l'offre réservée du pilote)")
 check(re.search(r"Teleported Bob|Bienvenue au centre", log) is not None or "ville tp" in log, "retour au centre-ville")
 suit = re.findall(r'"terracraft_geo:space_suit": \[(.*?)\]\}', log)
 check(bool(suit) and "space_helmet" in suit[-1] and "jetpack" in suit[-1] and "oxygen_tank" in suit[-1],
@@ -321,7 +327,7 @@ progression = json.loads((data / "progression.json").read_text())
 jobs = sorted(r.get("job") for r in progression.values() if r.get("job"))  # Eve (test de protection) n'a pas de métier
 check(jobs == ["MECANICIEN", "PILOTE"], f"métiers enregistrés (obtenu {jobs})")
 stats = [r.get("stats", {}) for r in progression.values()]
-check(any(s.get("listings") == 1 for s in stats) and any(s.get("shop") == 1 for s in stats), "compteurs vente et comptoir")
+check(any(s.get("listings") == 1 for s in stats) and any(s.get("shop", 0) >= 1 for s in stats), "compteurs vente et comptoir")
 check(any(s.get("town") == 1 for s in stats) and any(s.get("job") == 1 for s in stats), "compteurs ville et métier")
 contracts = json.loads((data / "contrats.json").read_text())
 check(len(contracts) >= 2 and all("baseline" in c for c in contracts.values()), "journée de contrats ouverte pour chaque joueur")
@@ -405,6 +411,8 @@ gasoline = re.findall(r"has the following block data: (\d+)", log)
 check(len(gasoline) >= 4 and int(gasoline[2]) >= 1000 and int(gasoline[3]) < 2000,
       f"groupe électrogène : une pompe sans panneau extrait grâce à l'essence (brut, essence restante : {gasoline[2:4]})")
 check("LAMPE_OK" in log, "lampe électrique allumée par un panneau au soleil")
+check(re.search(r"has the following block data: \[\{.*minecraft:(wheat|potato|carrot|beetroot)", log) is not None,
+      "serre hydroponique : une récolte déposée dans le tonneau collé")
 check(len(gasoline) >= 2 and int(gasoline[1]) >= 40, f"batterie chargée par son panneau au soleil (obtenu {gasoline[1:2]})")
 check("[CARBURANT] gisement le plus proche de Alice" in log and gasoline and int(gasoline[0]) >= 1000,
       f"chaîne du carburant : essence raffinée dans le réservoir (obtenu {gasoline[:1]} mB)")
@@ -417,6 +425,8 @@ check("[NAV] Bob met le cap sur la ceinture d'astéroïdes : 7 dose(s)" in log a
       log.split("[NAV] Bob met le cap sur la ceinture d'astéroïdes")[1].split("\n")[0], "ceinture d'astéroïdes : 7 doses depuis la Lune, navigation martienne requise")
 check("[ESPACE] Bob se rend sur l'astéroïde" in log and "ASTEROIDE_SOL" in log, "ceinture d'astéroïdes : rochers générés (Bob posé sur un astéroïde)")
 check("[ESPACE] Bob récupéré dans le vide" in log and "SAUVETAGE_OK" in log, "vide de l'espace : la combinaison ramène Bob au quai")
+check("[ECO] Bob achète au comptoir : Carburant de fusée x1 pour 180" in log and "[ECO] Alice achète au comptoir : Carburant de fusée" not in log,
+      "réputation : offre réservée achetée par le pilote, refusée à la mécanicienne")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

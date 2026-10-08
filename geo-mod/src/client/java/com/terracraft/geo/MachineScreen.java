@@ -52,6 +52,9 @@ public final class MachineScreen extends Screen {
         if (data.has("richness")) {
             lines += 12;
         }
+        if (data.has("growth")) {
+            lines += 22;
+        }
         return 30 + lines + 30 + 26;
     }
 
@@ -109,6 +112,13 @@ public final class MachineScreen extends Screen {
             int max = Math.max(1, data.get("chargeMax").getAsInt());
             g.text(font, "Charge : " + charge * 100 / max + " % (" + charge + " / " + max + ")", left + 8, y, SuitScreen.TEXT, false);
             Ui.bar(g, left + 8, y + 11, barWidth, 6, (double) charge / max, 0xFF7EE08A);
+            y += 22;
+        }
+        if (data.has("growth")) {
+            int growth = data.get("growth").getAsInt();
+            int max = Math.max(1, data.get("growthMax").getAsInt());
+            g.text(font, "Prochaine récolte : " + growth * 100 / max + " %", left + 8, y, SuitScreen.TEXT, false);
+            Ui.bar(g, left + 8, y + 11, barWidth, 6, (double) growth / max, 0xFF6FCF5A);
             y += 22;
         }
         if (data.has("richness")) {

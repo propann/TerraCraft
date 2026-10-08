@@ -79,11 +79,18 @@ final class BuildingInterior {
      * Meuble posé sur un plancher (environ 2 % des cases libres) : {bloc au sol, bloc au-dessus}
      * ou null. Une table est faite d'une barrière surmontée d'une plaque de pression.
      */
-    static BlockState @Nullable [] furniture(int x, int y, int z) {
+    static BlockState @Nullable [] furniture(int x, int y, int z, @Nullable String place) {
         int roll = Apocalypse.roll(x * 13L + y, z, 241);
         // Un peu plus de mobilier donne des intérieurs vivants sans remplir les pièces.
-        if (roll >= 5) {
+        if (roll >= (place == null ? 5 : 8)) {
             return null;
+        }
+        int pick = Math.floorMod((int) Apocalypse.hash(x, z * 7L + y, 257), 4);
+        if (place != null) {
+            BlockState[] special = placeFurniture(place, pick, x, z);
+            if (special != null) {
+                return special;
+            }
         }
         int kind = Math.floorMod((int) Apocalypse.hash(x, z * 7L + y, 251), 7);
         return switch (kind) {
@@ -95,6 +102,46 @@ final class BuildingInterior {
             case 4 -> new BlockState[]{Blocks.CAULDRON.defaultBlockState(), null};
             case 5 -> new BlockState[]{Blocks.POTTED_FERN.defaultBlockState(), null};
             default -> new BlockState[]{Blocks.LOOM.defaultBlockState(), null};
+        };
+    }
+
+    /** Mobilier d'un lieu réel (hôpital, commissariat, supermarché…) : {bloc au sol, bloc au-dessus} ou null. */
+    private static BlockState @Nullable [] placeFurniture(String place, int pick, int x, int z) {
+        BlockState desk = Blocks.OAK_FENCE.defaultBlockState();
+        BlockState top = Blocks.SMOOTH_STONE_SLAB.defaultBlockState();
+        return switch (place) {
+            case "hospital" -> switch (pick) {
+                case 0, 1 -> new BlockState[]{Blocks.QUARTZ_SLAB.defaultBlockState(), null}; // Lits.
+                case 2 -> new BlockState[]{Blocks.CAULDRON.defaultBlockState(), null};
+                default -> new BlockState[]{Blocks.BREWING_STAND.defaultBlockState(), null};
+            };
+            case "pharmacy" -> pick < 2 ? new BlockState[]{Blocks.BOOKSHELF.defaultBlockState(), Blocks.BARREL.defaultBlockState()}
+                    : new BlockState[]{Blocks.BREWING_STAND.defaultBlockState(), null};
+            case "police" -> switch (pick) {
+                case 0, 1 -> new BlockState[]{Blocks.IRON_BARS.defaultBlockState(), Blocks.IRON_BARS.defaultBlockState()}; // Cellules.
+                case 2 -> new BlockState[]{desk, top};
+                default -> new BlockState[]{Blocks.LECTERN.defaultBlockState(), null};
+            };
+            case "grocery" -> switch (pick) {
+                case 0, 1 -> new BlockState[]{Blocks.BARREL.defaultBlockState(), Blocks.BARREL.defaultBlockState()}; // Rayons.
+                case 2 -> new BlockState[]{Blocks.MELON.defaultBlockState(), null};
+                default -> new BlockState[]{Blocks.PUMPKIN.defaultBlockState(), null};
+            };
+            case "school", "college" -> switch (pick) {
+                case 0, 1 -> new BlockState[]{desk, Blocks.OAK_PRESSURE_PLATE.defaultBlockState()}; // Pupitres.
+                case 2 -> new BlockState[]{Blocks.LECTERN.defaultBlockState(), null};
+                default -> new BlockState[]{Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState()};
+            };
+            case "fire_station" -> switch (pick) {
+                case 0 -> new BlockState[]{Blocks.CAULDRON.defaultBlockState(), null};
+                case 1 -> new BlockState[]{Blocks.ANVIL.defaultBlockState(), null};
+                default -> new BlockState[]{Blocks.BARREL.defaultBlockState(), null};
+            };
+            case "railway" -> pick < 2 ? new BlockState[]{Blocks.RAIL.defaultBlockState(), null}
+                    : new BlockState[]{Blocks.OAK_STAIRS.defaultBlockState().setValue(StairBlock.FACING, SIDES[Math.floorMod(x + z, 4)]), null};
+            case "town_hall" -> pick < 2 ? new BlockState[]{Blocks.LECTERN.defaultBlockState(), null}
+                    : new BlockState[]{Blocks.BOOKSHELF.defaultBlockState(), Blocks.BOOKSHELF.defaultBlockState()};
+            default -> null;
         };
     }
 

@@ -81,9 +81,31 @@ final class Economy {
     // --- Comptoir du serveur -----------------------------------------------------------------
 
     /** Offre permanente du comptoir : des consommables utiles, pour donner un usage aux crédits. */
-    record Offer(String label, Supplier<Item> item, int count, long price) {
+    /**
+     * Offre du comptoir. {@code job} et {@code level} non nuls : offre réservée (réputation) aux joueurs de ce métier
+     * ayant ce niveau dans la compétence du métier.
+     */
+    record Offer(String label, Supplier<Item> item, int count, long price, Jobs.Job job, int level) {
+        Offer(String label, Supplier<Item> item, int count, long price) {
+            this(label, item, count, price, null, 0);
+        }
+
         ItemStack stack() {
             return new ItemStack(item.get(), count);
+        }
+
+        /** Pourquoi ce joueur ne peut pas acheter (réputation), ou null. */
+        String locked(net.minecraft.server.level.ServerPlayer player) {
+            if (job == null) {
+                return null;
+            }
+            if (Jobs.of(player) != job) {
+                return "réservé aux " + job.label.toLowerCase(java.util.Locale.ROOT) + "s";
+            }
+            Progression.Skill skill = Jobs.skillOf(job);
+            int have = Progression.get().skillLevel(player, skill);
+            return have >= level ? null : "réputation " + job.label.toLowerCase(java.util.Locale.ROOT) + " " + level
+                    + " requise (" + skill.label + " " + have + ")";
         }
     }
 
@@ -93,7 +115,15 @@ final class Economy {
             new Offer("Munitions", () -> ModContent.AMMO, 16, 45),
             new Offer("Pain", () -> Items.BREAD, 8, 25),
             new Offer("Torches", () -> Items.TORCH, 16, 15),
-            new Offer("Pomme dorée", () -> Items.GOLDEN_APPLE, 1, 150));
+            new Offer("Pomme dorée", () -> Items.GOLDEN_APPLE, 1, 150),
+            // Réputation : offres réservées à un métier, à partir d'un niveau dans sa compétence.
+            new Offer("Carburant de fusée", () -> ModContent.ROCKET_FUEL, 1, 180, Jobs.Job.PILOTE, 2),
+            new Offer("Caisse de munitions", () -> ModContent.AMMO, 64, 140, Jobs.Job.COMBATTANT, 2),
+            new Offer("Moteur", () -> ModContent.ENGINE, 1, 220, Jobs.Job.MECANICIEN, 2),
+            new Offer("Roues", () -> ModContent.WHEEL, 2, 90, Jobs.Job.MECANICIEN, 1),
+            new Offer("Détecteur de pétrole", () -> com.terracraft.geo.content.industry.IndustryBlocks.OIL_DETECTOR, 1, 150,
+                    Jobs.Job.ECLAIREUR, 1),
+            new Offer("Batterie", () -> ModContent.BATTERY, 1, 120, Jobs.Job.RECUPERATEUR, 2));
 
     // --- Historique des prix et journal --------------------------------------------------------
 

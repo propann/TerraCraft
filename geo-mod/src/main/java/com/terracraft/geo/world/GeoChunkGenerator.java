@@ -476,7 +476,7 @@ public final class GeoChunkGenerator extends ChunkGenerator {
             }
             // Mobilier posé sur le plancher (pas sur les cloisons ni dans les trous).
             if (!wall && ladder == null && !partition && level == 1 && state.isAir() && y + 1 < top) {
-                BlockState[] furniture = BuildingInterior.furniture(blockX, y, blockZ);
+                BlockState[] furniture = BuildingInterior.furniture(blockX, y, blockZ, osm.placeKind(building));
                 if (furniture != null) {
                     state = furniture[0];
                     furnitureTop = furniture[1];

@@ -87,5 +87,6 @@
   "block.terracraft_geo.battery_bank": "Batterie de stockage",
   "block.terracraft_geo.generator": "Groupe électrogène",
   "block.terracraft_geo.electric_lamp": "Lampe électrique",
-  "block.terracraft_geo.logistics_terminal": "Terminal logistique"
+  "block.terracraft_geo.logistics_terminal": "Terminal logistique",
+  "block.terracraft_geo.greenhouse": "Serre hydroponique"
 }

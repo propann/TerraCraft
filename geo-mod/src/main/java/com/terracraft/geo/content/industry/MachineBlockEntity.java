@@ -45,6 +45,9 @@ public class MachineBlockEntity extends BlockEntity {
     private final Map<FluidKind, Integer> fluids = new EnumMap<>(FluidKind.class);
     private int power;
     private int charge;
+    /** Croissance de la serre (unités d'énergie reçues depuis la dernière récolte). */
+    private int growth;
+    public static final int GROWTH_PER_HARVEST = 45;
     private int ticks;
 
     public MachineBlockEntity(BlockPos pos, BlockState state) {
@@ -65,6 +68,10 @@ public class MachineBlockEntity extends BlockEntity {
 
     public int charge() {
         return charge;
+    }
+
+    public int growth() {
+        return growth;
     }
 
     /** Ajoute (ou retire si négatif) du liquide ; renvoie la quantité réellement transférée. */
@@ -114,6 +121,7 @@ public class MachineBlockEntity extends BlockEntity {
                 case OIL_PUMP -> amount(FluidKind.CRUDE) < kind().capacity
                         && Oil.richness(worldPosition.getX(), worldPosition.getZ()) > 0;
                 case REFINERY -> amount(FluidKind.CRUDE) >= REFINE_INPUT;
+                case GREENHOUSE -> output(level) != null;
                 default -> false;
             };
             power = energy(level, worldPosition, busy ? MAX_DRAW : 0);
@@ -137,6 +145,16 @@ public class MachineBlockEntity extends BlockEntity {
                 push(level, FluidKind.GASOLINE);
                 push(level, FluidKind.KEROSENE);
             }
+            case GREENHOUSE -> {
+                growth += power;
+                if (growth >= GROWTH_PER_HARVEST) {
+                    net.minecraft.world.Container container = output(level);
+                    if (container != null && insert(container, harvest(level))) {
+                        growth = 0;
+                    }
+                }
+                setChanged();
+            }
             case FUEL_TANK -> {
                 if (amount(FluidKind.CRUDE) > 0) {
                     push(level, FluidKind.CRUDE); // Un réservoir de brut alimente les raffineries reliées.
@@ -145,6 +163,40 @@ public class MachineBlockEntity extends BlockEntity {
             default -> {
             }
         }
+    }
+
+    /** Coffre ou tonneau collé à la serre (récolte), ou null. */
+    private net.minecraft.world.Container output(ServerLevel level) {
+        for (Direction direction : Direction.values()) {
+            if (level.getBlockEntity(worldPosition.relative(direction)) instanceof net.minecraft.world.Container container
+                    && !(level.getBlockEntity(worldPosition.relative(direction)) instanceof MachineBlockEntity)) {
+                return container;
+            }
+        }
+        return null;
+    }
+
+    private static net.minecraft.world.item.ItemStack harvest(ServerLevel level) {
+        net.minecraft.world.item.Item[] crops = {net.minecraft.world.item.Items.WHEAT, net.minecraft.world.item.Items.POTATO,
+                net.minecraft.world.item.Items.CARROT, net.minecraft.world.item.Items.BEETROOT};
+        return new net.minecraft.world.item.ItemStack(crops[level.getRandom().nextInt(crops.length)], 2 + level.getRandom().nextInt(3));
+    }
+
+    /** Range une pile dans un conteneur (complète les piles identiques, puis les cases vides) ; tout ou rien. */
+    private static boolean insert(net.minecraft.world.Container container, net.minecraft.world.item.ItemStack stack) {
+        for (int i = 0; i < container.getContainerSize() && !stack.isEmpty(); i++) {
+            net.minecraft.world.item.ItemStack slot = container.getItem(i);
+            if (slot.isEmpty()) {
+                container.setItem(i, stack.copy());
+                stack.setCount(0);
+            } else if (net.minecraft.world.item.ItemStack.isSameItemSameComponents(slot, stack) && slot.getCount() < slot.getMaxStackSize()) {
+                int moved = Math.min(stack.getCount(), slot.getMaxStackSize() - slot.getCount());
+                slot.grow(moved);
+                stack.shrink(moved);
+            }
+        }
+        container.setChanged();
+        return stack.isEmpty();
     }
 
     /** Pousse un liquide vers les machines reliées par des tuyaux qui l'acceptent (les plus proches d'abord). */
@@ -268,6 +320,7 @@ public class MachineBlockEntity extends BlockEntity {
         }
         output.putInt("Power", power);
         output.putInt("Charge", charge);
+        output.putInt("Growth", growth);
     }
 
     @Override
@@ -282,5 +335,6 @@ public class MachineBlockEntity extends BlockEntity {
         }
         power = input.getIntOr("Power", 0);
         charge = input.getIntOr("Charge", 0);
+        growth = input.getIntOr("Growth", 0);
     }
 }

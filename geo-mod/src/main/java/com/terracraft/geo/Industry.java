@@ -108,8 +108,14 @@ final class Industry {
             case BATTERY -> {
             }
             case GENERATOR -> gauge.accept(FluidKind.GASOLINE, kind.capacity);
+            case GREENHOUSE -> {
+            }
         }
         data.add("gauges", gauges);
+        if (kind == MachineKind.GREENHOUSE) {
+            data.addProperty("growth", machine.growth());
+            data.addProperty("growthMax", MachineBlockEntity.GROWTH_PER_HARVEST);
+        }
         if (kind.powered) {
             data.addProperty("panels", MachineBlockEntity.power(level, machine.getBlockPos()));
             data.addProperty("power", machine.power());
@@ -128,6 +134,7 @@ final class Industry {
             case FUEL_PUMP -> "Bidon vide en main : clic droit = essence, Maj + clic droit = carburant de fusée.";
             case BATTERY -> "Se charge le jour avec les panneaux reliés ; alimente les machines la nuit (câbles).";
             case GENERATOR -> "Brûle de l'essence (tuyau) quand panneaux et batteries ne suffisent pas : 5 mB par unité et par seconde.";
+            case GREENHOUSE -> "Alimentée (câbles), elle récolte blé, pommes de terre, carottes, betteraves dans un coffre ou tonneau collé.";
         });
         net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player, new MachinePayload(data.toString()));
     }
@@ -184,6 +191,7 @@ final class Industry {
                 FluidKind content = machine.content();
                 text.append(content == null ? "vide" : content.label + " " + machine.amount(content) + "/" + kind.capacity + " mB");
             }
+            case GREENHOUSE -> text.append("croissance ").append(machine.growth()).append("/").append(MachineBlockEntity.GROWTH_PER_HARVEST);
             case GENERATOR -> text.append("essence ").append(machine.amount(FluidKind.GASOLINE)).append("/").append(kind.capacity).append(" mB");
             case BATTERY -> text.append("charge ").append(machine.charge()).append("/").append(MachineBlockEntity.BATTERY_CAPACITY);
             case FUEL_PUMP -> {

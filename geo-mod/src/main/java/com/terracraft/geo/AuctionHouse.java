@@ -417,6 +417,13 @@ public final class AuctionHouse {
             o.addProperty("itemId", BuiltInRegistries.ITEM.getKey(offer.item().get()).toString());
             o.addProperty("count", offer.count());
             o.addProperty("price", offer.price());
+            String locked = offer.locked(player);
+            if (offer.job() != null) {
+                o.addProperty("label", (locked == null ? "★ " : "🔒 ") + offer.label() + " (" + offer.job().label + " " + offer.level() + ")");
+            }
+            if (locked != null) {
+                o.addProperty("locked", locked);
+            }
             shop.add(o);
         }
         root.add("shop", shop);
@@ -451,14 +458,21 @@ public final class AuctionHouse {
             int number = i + 1;
             player.sendSystemMessage(Component.literal("[Acheter] ").withStyle(style -> style.withColor(ChatFormatting.GREEN)
                             .withClickEvent(new ClickEvent.RunCommand("/comptoir " + number)))
-                    .append(Component.literal(offer.label() + " x" + offer.count() + " — " + offer.price() + " crédits")
-                            .withStyle(ChatFormatting.WHITE)));
+                    .append(Component.literal((offer.job() == null ? "" : (offer.locked(player) == null ? "★ " : "🔒 ")) + offer.label()
+                            + " x" + offer.count() + " — " + offer.price() + " crédits"
+                            + (offer.job() == null ? "" : " (" + offer.job().label + " " + offer.level() + ")"))
+                            .withStyle(offer.locked(player) == null ? ChatFormatting.WHITE : ChatFormatting.DARK_GRAY)));
         }
         return 1;
     }
 
     private int buyShop(ServerPlayer player, int index) {
         Economy.Offer offer = Economy.SHOP.get(index);
+        String locked = offer.locked(player);
+        if (locked != null) {
+            player.sendSystemMessage(Component.literal("Offre " + locked + ".").withStyle(ChatFormatting.RED));
+            return 0;
+        }
         if (balanceOf(player.getUUID()) < offer.price()) {
             player.sendSystemMessage(Component.literal("Solde insuffisant : il te faut " + offer.price() + " crédits.").withStyle(ChatFormatting.RED));
             return 0;

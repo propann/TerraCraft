@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass",
+    "S": "minecraft:wheat_seeds",
+    "D": "minecraft:dirt",
+    "W": "minecraft:water_bucket",
+    "C": "terracraft_geo:cable"
+  },
+  "pattern": [
+    "GGG",
+    "SWS",
+    "DCD"
+  ],
+  "result": {
+    "id": "terracraft_geo:greenhouse",
+    "count": 1
+  }
+}

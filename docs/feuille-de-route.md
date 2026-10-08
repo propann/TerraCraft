@@ -80,7 +80,8 @@ génération ni perte d'objet.
 - [x] **Collections** : paliers de lieux réels visités (5, 20, 50), de soins (5) et de transports (5), en missions
       permanentes. Reste : bunkers, véhicules réparés, minerais.
 - [ ] **Missions de ville** : objectifs communs (déposer X crédits, poser N modules) avec récompense partagée.
-- [ ] **Réputation** : un niveau par métier, débloquant des offres du comptoir.
+- [x] **Réputation** : offres réservées du comptoir par métier et niveau de compétence (carburant de fusée pour les
+      pilotes, munitions en gros, moteur et roues, détecteur de pétrole, batterie).
 
 ## Phase 5 — Véhicules et transport
 
@@ -121,8 +122,8 @@ génération ni perte d'objet.
 - [ ] **Hauteurs Overture** seulement quand la donnée est fiable ; plafond par type sinon.
 - [ ] **Refus des géométries aberrantes** et rapport de génération (`/terracraft rapport`) listant les bâtiments
       suspects avec leurs coordonnées.
-- [~] **Intérieurs par type** : butin contextualisé fait (soins, armes, vivres, livres, matériel de pompier, rails),
-      deux fois plus de coffres dans ces bâtiments ; reste le mobilier et l'éclairage par type.
+- [x] **Intérieurs par type** : butin contextualisé, deux fois plus de coffres, mobilier selon le lieu (lits et
+      alambics à l'hôpital, cellules au commissariat, rayons au supermarché, pupitres à l'école, rails à la gare…).
 - [x] **Points d'intérêt** : hôpitaux, pharmacies, commissariats, écoles, gares, supermarchés, casernes, mairies,
       stations-service (OSM, avec leur nom) ; `/lieux` ; découverte au premier passage (vérifié : 68 lieux au centre
       de Paris).
@@ -148,7 +149,8 @@ génération ni perte d'objet.
 - [x] **Dangers lunaires** : épaves de satellites avec butin, pluies de micrométéorites annoncées (un toit protège,
       fragments à ramasser), rôdeurs plus rapides et plus forts la nuit lunaire.
 - [x] **Objectif coopératif** : grande station de ville — 10 modules posés par les habitants réunis : 1 500 crédits pour
-      la trésorerie, une fois (non couvert par le test automatique). Reste : laboratoire, serre.
+      la trésorerie, une fois (non couvert par le test automatique). Serre hydroponique (nourriture dans l'espace) ;
+      reste : laboratoire.
 - [x] **Ceinture d'astéroïdes** : nouvelle destination (depuis l'orbite de Mars, 3 doses, navigation martienne), rochers
       flottants rocheux, métalliques et glacés (fer, or, titane, diamants, hélium-3), quai à l'arrivée, carte des
       étoiles, découverte et étape de la course ; récupération dans le vide (toutes les orbites).
