@@ -30,7 +30,7 @@ jour, réimporte-le. Toutes les versions : [Releases](https://github.com/propann
 
 Les mêmes règles s'affichent en jeu à la première connexion et avec `/regles`.
 
-## Ce qui est en place (0.34.0)
+## Ce qui est en place (0.35.0)
 
 - **Monde** : la Terre réelle (relief, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés), météo réelle,
   jour et nuit normaux ; ruines, bunkers, caves, épaves ; lieux réels (`/lieux` : hôpitaux, gares, commissariats…)
@@ -44,7 +44,8 @@ Les mêmes règles s'affichent en jeu à la première connexion et avec `/regles
 - **Combat** : PvE partout, PvP seulement dans les zones déclarées (`/pvp`), primes sur les joueurs, armes à chargeur.
 - **Économie** : 1 000 crédits au départ, hôtel des ventes, comptoir, étals de joueurs (`/etal`), missions, contrats
   du jour, métiers, confirmations avant les actions coûteuses.
-- **Villes** : maire, adjoints, trésorerie, territoire étendu par les claims des habitants ; claims Open Parties and
+- **Villes** : maire, adjoints, trésorerie, stock commun (terminal logistique, de la Terre à la Lune), territoire étendu
+  par les claims des habitants ; claims Open Parties and
   Claims, cartes Xaero.
 - **Véhicules** : voiture, camion, moto, avion, rover lunaire, jetpack ; tableau de bord (vitesse, carburant, autonomie).
 - **Industrie du carburant** : gisements de pétrole, pompes, panneaux solaires, câbles, tuyaux, raffinerie, réservoirs,

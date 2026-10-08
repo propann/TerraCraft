@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.34). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.35). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 
@@ -53,7 +53,7 @@ Clic droit main vide sur une machine : écran à jauges (contenu, énergie, char
 | `/comptoir [n]` | Comptoir du serveur : carburant, oxygène, munitions, vivres à prix fixe |
 | `/missions` | Contrats du jour et missions ; `reclamer <id>` |
 | `/metier` | Métiers (mécanicien, éclaireur, récupérateur, combattant, pilote) ; `choisir <métier>` (un changement par 24 h) |
-| `/ville` | Sa ville : `creer <nom>` (500 crédits), `inviter`, `rejoindre`, `quitter`, `exclure`, `maire`, `adjoint`, `centre`, `tp`, `deposer`, `payer`, `liste` (adjoints : inviter, exclure, payer) |
+| `/ville` | Sa ville : `creer <nom>` (500 crédits), `inviter`, `rejoindre`, `quitter`, `exclure`, `maire`, `adjoint`, `centre`, `tp`, `deposer`, `payer`, `liste` (adjoints : inviter, exclure, payer) ; `stock [deposer|retirer]` devant un terminal logistique |
 | `/station` | Ses stations spatiales ; `nom <nom>` pour renommer la plus proche |
 | `/plans` | Plans de fusée débloqués, matériaux, comment débloquer les autres |
 | `/fusee carte` | Carte des étoiles de la fusée où l'on est assis (ou à moins de 8 blocs) |
@@ -106,9 +106,9 @@ Clic droit main vide sur une machine : écran à jauges (contenu, énergie, char
 
 ## Journal de la console
 
-Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`, `[MOD]`, `[SUIVI]`, `[COURSE]`, `[GEN]`, `[PROTECTION]`, `[CARBURANT]`, `[LIEUX]`,
+Préfixes à surveiller : `[HDV]`, `[ECO]`, `[MISSION]`, `[CONTRAT]`, `[VILLE]`, `[METIER]`, `[VEHICULE]`, `[LARGAGE]`, `[CONVOI]`, `[CONTAMINATION]`, `[VAGUE]`, `[PVP]`, `[BOSS]`, `[PRIME]`, `[ETAL]`, `[MOD]`, `[SUIVI]`, `[COURSE]`, `[GEN]`, `[PROTECTION]`, `[CARBURANT]`, `[LIEUX]`, `[LOGISTIQUE]`,
 `[STATION]`, `[ATELIER]`, `[NAV]`, `[METEORES]`, `[PLAN]`, `[SAUVEGARDE]`, `[ANTITRICHE]`, `[SIGNALEMENT]`.
 
 Fichiers de données du monde (`<monde>/terracraft_geo/`, écriture atomique avec copie `.bak`) : `balances.json`,
 `hotel-des-ventes.json`, `economie.json`, `missions.json`, `contrats.json`, `progression.json`, `homes.json`,
-`start_points.json`, `tutorial.json`, `villes.json`, `stations.json`, `signalements.json`, `contamination.json`, `pvp-zones.json`, `primes.json`, `moderateurs.json`, `activite.json`, `course.json`.
+`start_points.json`, `tutorial.json`, `villes.json`, `stations.json`, `signalements.json`, `contamination.json`, `pvp-zones.json`, `primes.json`, `moderateurs.json`, `activite.json`, `course.json`, `logistique.json`.
