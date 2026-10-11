@@ -9,6 +9,9 @@ Référence de TerraCraft (version 0.38). Tout est en français ; `/aide` en don
 | `O` | Menu TerraCraft : carte, hôtel des ventes, argent, fiche, missions, combinaison, coffre du véhicule, ville, **catalogue** (objets, usages, recettes), guide |
 | `J` | Combinaison spatiale : casque, combinaison, bottes, jetpack, deux réserves d'oxygène |
 | `E` | Inventaire, avec le panneau de la combinaison spatiale à droite (survie et créatif) |
+| Bouton du milieu (maintenu) | Viser avec l'arme en main si elle porte un viseur (point rouge, lunette x2, x4, x6) : zoom, souris ralentie, tir plus groupé et moins de recul. Arc et arbalète : zoom pendant qu'on les bande |
+| `R` | Recharger l'arme à feu en main |
+| Viseurs (inventaire) | Poser le viseur sur l'arme pour le monter (l'ancien revient) ; clic droit main vide sur l'arme pour le récupérer |
 | `V` | Coffre du véhicule où l'on est assis (ou du sien à moins de 6 blocs) ; soute de la fusée |
 | `K` | Fiche de personnage : paliers, compétences, découvertes, compteurs |
 | `M` / `'` | Carte Xaero ; menu des claims (Open Parties and Claims) |
@@ -57,6 +60,9 @@ Clic droit main vide sur une machine : écran à jauges (contenu, énergie, char
 | `/metier` | Métiers (mécanicien, éclaireur, récupérateur, combattant, pilote) ; `choisir <métier>` (un changement par 24 h) |
 | `/ville` | Sa ville : `creer <nom>` (500 crédits), `inviter`, `rejoindre`, `quitter`, `exclure`, `maire`, `adjoint`, `centre`, `tp`, `deposer`, `payer`, `liste` (adjoints : inviter, exclure, payer) ; `stock [deposer|retirer]` devant un terminal logistique |
 | `/ville election`, `candidat`, `voter <joueur>`, `defiance` | Élection du maire : état du scrutin et boutons de vote ; se présenter ; voter (on peut changer d'avis) ; signer la motion de défiance (un tiers des habitants ouvre un scrutin). Tous les 14 jours, scrutin de 48 h, 3 habitants au moins ; le maire peut `election convoquer` |
+| `/canal [global|ville|local]` | Canal des messages ordinaires : tout le serveur, ta ville, ou 100 blocs autour de toi. `!message` écrit à ta ville quel que soit le canal |
+| `/v <message>`, `/l <message>` | Message à ta ville, message local (100 blocs) |
+| `/mp <joueur> <message>`, `/r <message>` | Message privé ; répondre au dernier. `@Pseudo` dans un message : le joueur est prévenu (son et bandeau) |
 | `/station` | Ses stations spatiales ; `nom <nom>` pour renommer la plus proche |
 | `/plans` | Plans de fusée débloqués, matériaux, comment débloquer les autres |
 | `/fusee carte` | Carte des étoiles de la fusée où l'on est assis (ou à moins de 24 blocs), ou du vaisseau dont on occupe le siège de pilote |

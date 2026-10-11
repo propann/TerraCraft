@@ -141,7 +141,7 @@
   "desc.terracraft_geo.titanium_ingot": "Métal léger et solide : stations, bases martiennes, plans de fusée.",
   "desc.terracraft_geo.helium3_shard": "Combustible lunaire : 4 éclats font une dose de carburant de fusée ; utile aux plans.",
   "desc.terracraft_geo.smg": "Mitraillette : cadence élevée, peu précise de loin.",
-  "desc.terracraft_geo.sniper": "Fusil de précision avec lunette (zoom en visant). Très puissant, lent à recharger.",
+  "desc.terracraft_geo.sniper": "Fusil de précision : très puissant, lent à recharger. Monte une lunette (x4, x6) pour viser loin.",
   "desc.terracraft_geo.grenade": "À lancer (clic droit) : explose après un court délai.",
   "desc.terracraft_geo.machete": "Arme de mêlée rapide, utile contre les zombies.",
   "desc.terracraft_geo.space_suit": "Combinaison spatiale : protège du vide et du froid (touche J).",
@@ -190,5 +190,15 @@
   "desc.terracraft_geo.ship_fuel_tank": "Réservoir de vaisseau : 5 doses de carburant de fusée. Garde son carburant une fois démonté.",
   "desc.terracraft_geo.ship_airlock": "Sas du vaisseau : à l'amarrage, il se colle au sas de la station.",
   "block.terracraft_geo.town_registry": "Registre de la mairie",
-  "desc.terracraft_geo.town_registry": "Clic droit : la ville, l'élection du maire en cours et le vote. À poser à la mairie."
+  "desc.terracraft_geo.town_registry": "Clic droit : la ville, l'élection du maire en cours et le vote. À poser à la mairie.",
+  "item.terracraft_geo.red_dot_sight": "Viseur point rouge",
+  "item.terracraft_geo.scope_x2": "Lunette x2",
+  "item.terracraft_geo.scope_x4": "Lunette x4",
+  "item.terracraft_geo.scope_x6": "Lunette x6",
+  "desc.terracraft_geo.red_dot_sight": "Pose-le sur une arme à feu, un arc ou une arbalète (inventaire). Bouton du milieu : viser, tir deux fois plus groupé.",
+  "desc.terracraft_geo.scope_x2": "Grossit x2. Pose-la sur une arme (inventaire) ; bouton du milieu pour viser. Clic droit main vide sur l'arme : la récupérer.",
+  "desc.terracraft_geo.scope_x4": "Grossit x4 : tir précis à moyenne distance. Se fabrique à partir de la lunette x2.",
+  "desc.terracraft_geo.scope_x6": "Grossit x6 : la lunette du tireur d'élite. Se fabrique à partir de la lunette x4.",
+  "key.terracraft_geo.aim": "Viser (viseur monté)",
+  "key.terracraft_geo.reload": "Recharger l'arme"
 }

@@ -43,6 +43,11 @@ public final class OsmCells {
     public static final byte TRACK = 4;
     public static final byte RAIL = 5;
     public static final byte WATER = 6;
+    /** Aéroports : tarmacs et voies de circulation, pistes, marquages blancs des pistes, axe jaune des voies. */
+    public static final byte AIRFIELD = 7;
+    public static final byte RUNWAY = 8;
+    public static final byte RUNWAY_MARK = 9;
+    public static final byte TAXI_MARK = 10;
 
     // Codes d'occupation du sol.
     public static final byte LAND_NONE = 0;
@@ -86,7 +91,11 @@ public final class OsmCells {
      * ({@code minecraft:bricks}) résolus par le générateur.
      */
     public record Building(int baseY, int topY, int floorStep, String wall, String roof, String window,
-                           RoofShape shape, boolean shopFront, boolean curtain, long seed, boolean block) {
+                           RoofShape shape, boolean shopFront, boolean curtain, long seed, boolean block, String type) {
+        Building withShopFront(boolean front) {
+            return new Building(baseY, topY, floorStep, wall, roof, window, shape, front, curtain, seed, block, type);
+        }
+
         /** Taille des lots d'un îlot (environ la largeur d'un immeuble de rapport). */
         static final int LOT = 16;
 
@@ -523,6 +532,10 @@ public final class OsmCells {
         private final Cell cell;
         private final int gridX;
         private final int gridZ;
+        /** Zones d'urbanisme (industrielle, commerciale, ferroviaire), le temps de classer les bâtiments. */
+        private final byte[] zone = new byte[GRID * GRID];
+        /** Commerces réels (points), le temps de placer les vitrines. */
+        private final List<double[]> shops = new ArrayList<>();
 
         Rasterizer(int originX, int originZ) {
             this.cell = new Cell(originX, originZ);
@@ -553,6 +566,7 @@ public final class OsmCells {
             List<Shape> waterways = new ArrayList<>();
             List<Shape> roads = new ArrayList<>();
             List<Shape> buildings = new ArrayList<>();
+            List<Shape> aeroways = new ArrayList<>();
             for (Shape shape : shapes) {
                 if (!touches(shape) || "tunnel".equals(shape.get("brunnel"))) {
                     continue;
@@ -564,6 +578,7 @@ public final class OsmCells {
                         }
                     }
                     case "transportation" -> roads.add(shape);
+                    case "aeroway" -> aeroways.add(shape);
                     case "water" -> {
                         if (!shape.feature().bool("intermittent")) {
                             water.add(shape);
@@ -572,6 +587,12 @@ public final class OsmCells {
                     case "waterway" -> waterways.add(shape);
                     case "poi" -> {
                         String kind = shape.get("class");
+                        if (MvtDecoder.COMMERCE_CLASSES.contains(kind)) {
+                            shops.addAll(shape.parts());
+                            if (!MvtDecoder.POI_CLASSES.contains(kind)) {
+                                continue;
+                            }
+                        }
                         Object rawName = shape.feature().tags().get("name:fr");
                         if (rawName == null) {
                             rawName = shape.feature().tags().get("name");
@@ -595,7 +616,7 @@ public final class OsmCells {
                         }
                     }
                     case "landcover", "landuse" -> {
-                        if (landCode(shape) != LAND_NONE) {
+                        if (landCode(shape) != LAND_NONE || BuildingStyles.zone(shape.layer(), shape.get("class")) != BuildingStyles.ZONE_NONE) {
                             land.add(shape);
                         }
                     }
@@ -607,7 +628,13 @@ public final class OsmCells {
             land.sort((x, y) -> Boolean.compare("landcover".equals(x.layer()), "landcover".equals(y.layer())));
             for (Shape shape : land) {
                 byte code = landCode(shape);
-                fillPolygon(shape.parts(), i -> cell.land[i] = code);
+                if (code != LAND_NONE) {
+                    fillPolygon(shape.parts(), i -> cell.land[i] = code);
+                }
+                byte kind = BuildingStyles.zone(shape.layer(), shape.get("class"));
+                if (kind != BuildingStyles.ZONE_NONE) {
+                    fillPolygon(shape.parts(), i -> zone[i] = kind);
+                }
             }
             for (Shape shape : water) {
                 short level = waterLevel(shape.parts());
@@ -625,6 +652,9 @@ public final class OsmCells {
                     strokeLine(line, width, i -> setWater(i, level));
                 }
             }
+            for (Shape shape : aeroways) {
+                aeroway(shape);
+            }
             for (Shape shape : roads) {
                 road(shape);
             }
@@ -633,12 +663,50 @@ public final class OsmCells {
             if (carveCourtyards()) {
                 computeInsets();
             }
+            placeShopFronts();
             return cell;
         }
 
         private void setWater(int i, short level) {
             cell.surface[i] = WATER;
             cell.water[i] = cell.water[i] == NO_LEVEL ? level : (short) Math.min(cell.water[i], level);
+        }
+
+        /**
+         * Aéroport : pistes (45 m, axe en pointillés et bords blancs), voies de circulation (18 m, axe jaune), tarmacs.
+         * Posé avant les routes, qui gardent la priorité là où elles croisent l'aéroport.
+         */
+        private void aeroway(Shape shape) {
+            String type = shape.get("class");
+            if (shape.feature().type() == MvtDecoder.POLYGON) {
+                if (type.equals("apron") || type.equals("runway") || type.equals("taxiway")) {
+                    fillPolygon(shape.parts(), i -> {
+                        if (cell.surface[i] == NONE) {
+                            cell.surface[i] = AIRFIELD;
+                        }
+                    });
+                }
+                return;
+            }
+            boolean runway = type.equals("runway");
+            if (!runway && !type.equals("taxiway")) {
+                return;
+            }
+            double half = width(runway ? 45 : 18) / 2;
+            for (double[] line : shape.parts()) {
+                strokeDetailed(line, half, (i, along, lateral, length) -> {
+                    if (cell.surface[i] != NONE && cell.surface[i] != AIRFIELD) {
+                        return;
+                    }
+                    double side = Math.abs(lateral);
+                    if (runway) {
+                        boolean axis = side < 1 && Math.floorMod((int) along, 30) < 15;
+                        cell.surface[i] = axis || side > half - 2 && side <= half - 1 ? RUNWAY_MARK : RUNWAY;
+                    } else {
+                        cell.surface[i] = side < 0.6 ? TAXI_MARK : AIRFIELD;
+                    }
+                });
+            }
         }
 
         private void road(Shape shape) {
@@ -785,11 +853,48 @@ public final class OsmCells {
         private void buildings(List<Shape> shapes) {
             Map<Long, List<Shape>> groups = new java.util.LinkedHashMap<>();
             for (Shape shape : shapes) {
+                List<Shape> polygons = polygons(shape);
                 long id = shape.feature().id();
-                groups.computeIfAbsent(id != 0 ? id : anonymousId(shape), k -> new ArrayList<>()).add(shape);
+                for (Shape polygon : polygons) {
+                    // Un seul polygone : identifiant OSM (morceaux de tuiles voisines regroupés). Plusieurs (bâtiments
+                    // fusionnés par les tuiles) : chacun devient un bâtiment, identifié par sa géométrie.
+                    long key = id != 0 && polygons.size() == 1 ? id : anonymousId(polygon);
+                    groups.computeIfAbsent(key, k -> new ArrayList<>()).add(polygon);
+                }
             }
             groups.forEach(this::building);
             cleanFootprints();
+        }
+
+        /**
+         * Découpe un multipolygone en polygones (contour extérieur et ses trous). Les tuiles fusionnent souvent des
+         * dizaines de bâtiments en un seul objet (halles de Rungis, îlots de Paris) : chacun doit garder son emprise,
+         * sa zone et sa hauteur. Format MVT : contour extérieur dans le sens horaire (aire positive, z vers le bas),
+         * trous dans l'autre sens, chaque trou après son contour.
+         */
+        private static List<Shape> polygons(Shape shape) {
+            List<double[]> rings = shape.parts();
+            if (rings.size() <= 1) {
+                return List.of(shape);
+            }
+            List<Shape> polygons = new ArrayList<>();
+            List<double[]> current = null;
+            for (double[] ring : rings) {
+                if (signedArea(ring) > 0 || current == null) {
+                    current = new ArrayList<>();
+                    polygons.add(new Shape(shape.feature(), current));
+                }
+                current.add(ring);
+            }
+            return polygons;
+        }
+
+        private static double signedArea(double[] ring) {
+            double area = 0;
+            for (int k = 0, j = ring.length - 2; k < ring.length; j = k, k += 2) {
+                area += ring[j] * ring[k + 1] - ring[k] * ring[j + 1];
+            }
+            return area / 2;
         }
 
         /**
@@ -832,7 +937,11 @@ public final class OsmCells {
             int ground = groundLevel(rings, minX, maxX, minZ, maxZ);
             MvtDecoder.Feature feature = parts.get(0).feature();
             String rawType = firstString(feature, "building", "building:type", "class", "subclass", "type");
-            String type = rawType.isEmpty()
+            // Les tuiles ne donnent presque jamais le type : on le déduit d'un lieu réel dans le bâtiment (hôpital,
+            // école, gare…) ou de la zone (industrielle, commerciale, ferroviaire).
+            String classified = BuildingStyles.classify(rawType, footprint <= BuildingStyles.PLACE_MAX_AREA ? poiIn(rings) : "",
+                    zoneAt((minX + maxX) / 2, (minZ + maxZ) / 2), footprint);
+            String type = !classified.isEmpty() ? classified : rawType.isEmpty()
                     ? BuildingStyles.guessType(firstNumber(feature, 9, "render_height"), footprint, latitude, longitude)
                     : rawType;
             String styleType = BuildingStyles.normaliseType(type, firstNumber(feature, 9, "render_height"),
@@ -858,6 +967,72 @@ public final class OsmCells {
             for (Shape part : parts) {
                 fillPolygon(part.parts(), i -> cell.building[i] = id);
             }
+        }
+
+        /** Au-delà de ce nombre de commerces dans la cellule, les données suffisent : les vitrines suivent les commerces. */
+        private static final int SHOP_DATA_RICH = 20;
+
+        /**
+         * Vitrines au rez-de-chaussée là où sont les vrais commerces (point dans le bâtiment ou à 2 blocs de sa façade).
+         * Là où les commerces sont bien cartographiés, un immeuble sans commerce n'a plus de vitrine devinée.
+         */
+        private void placeShopFronts() {
+            if (cell.buildings.isEmpty()) {
+                return;
+            }
+            boolean[] shop = new boolean[cell.buildings.size() + 1];
+            for (double[] point : shops) {
+                int px = (int) Math.floor(point[0]) - gridX;
+                int pz = (int) Math.floor(point[1]) - gridZ;
+                search:
+                for (int dz = -2; dz <= 2; dz++) {
+                    for (int dx = -2; dx <= 2; dx++) {
+                        int x = px + dx;
+                        int z = pz + dz;
+                        if (x >= 0 && z >= 0 && x < GRID && z < GRID && cell.building[z * GRID + x] > 0) {
+                            shop[cell.building[z * GRID + x]] = true;
+                            break search;
+                        }
+                    }
+                }
+            }
+            boolean rich = shops.size() >= SHOP_DATA_RICH;
+            for (int id = 1; id < shop.length; id++) {
+                Building b = cell.buildings.get(id - 1);
+                boolean residential = b.type().equals("apartments") || b.type().equals("modern") || b.type().equals("house");
+                boolean front = residential && rich ? shop[id] : b.shopFront() || shop[id];
+                if (front != b.shopFront()) {
+                    cell.buildings.set(id - 1, b.withShopFront(front));
+                }
+            }
+        }
+
+        /** Zone d'urbanisme sous ce point (voir BuildingStyles.ZONE_*). */
+        private byte zoneAt(double x, double z) {
+            int lx = (int) Math.floor(x) - gridX;
+            int lz = (int) Math.floor(z) - gridZ;
+            return lx < 0 || lz < 0 || lx >= GRID || lz >= GRID ? BuildingStyles.ZONE_NONE : zone[lz * GRID + lx];
+        }
+
+        /** Classe du premier lieu réel situé dans le polygone du bâtiment (trous compris), ou chaîne vide. */
+        private String poiIn(List<double[]> rings) {
+            for (Poi poi : cell.pois) {
+                double px = poi.x() + 0.5;
+                double pz = poi.z() + 0.5;
+                boolean inside = false;
+                for (double[] ring : rings) {
+                    for (int k = 0, j = ring.length - 2; k < ring.length; j = k, k += 2) {
+                        if ((ring[k + 1] > pz) != (ring[j + 1] > pz)
+                                && px < (ring[j] - ring[k]) * (pz - ring[k + 1]) / (ring[j + 1] - ring[k + 1]) + ring[k]) {
+                            inside = !inside;
+                        }
+                    }
+                }
+                if (inside) {
+                    return poi.kind();
+                }
+            }
+            return "";
         }
 
         /** Nombre d'étages pour une hauteur réelle (au moins {@code min}). */
@@ -1203,3 +1378,4 @@ public final class OsmCells {
         };
     }
 }
+

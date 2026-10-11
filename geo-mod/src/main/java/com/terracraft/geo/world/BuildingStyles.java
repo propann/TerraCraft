@@ -65,8 +65,8 @@ final class BuildingStyles {
 
     /**
      * Type de bâtiment déduit de la hauteur réelle et de l'emprise (le schéma OpenMapTiles ne
-     * donne pas le type) : tour au-delà de 40 m, entrepôt bas et large, maison petite et basse,
-     * immeuble haussmannien en Europe tempérée, immeuble moderne ailleurs.
+     * donne pas le type) : tour au-delà de 40 m, maison petite et basse, immeuble haussmannien en
+     * Europe tempérée, immeuble moderne (ou grande surface s'il est bas et large) ailleurs.
      */
     static String guessType(double metres, double footprint, double latitude, double longitude) {
         if (metres >= 40) {
@@ -75,11 +75,66 @@ final class BuildingStyles {
         if (metres <= 8 && footprint < 250) {
             return "house";
         }
-        if (metres <= 15 && footprint > 2500) {
-            return "industrial";
-        }
         boolean europe = latitude > 36 && latitude < 60 && longitude > -10 && longitude < 30;
+        if (metres <= 15 && footprint > 2500) {
+            // Grand et bas : îlot ancien en Europe, grande surface ailleurs. Les vraies usines viennent des zones
+            // industrielles (classify), pas de la taille : un îlot du Marais n'est pas un entrepôt.
+            return europe ? "apartments" : "retail";
+        }
         return europe ? "apartments" : "modern";
+    }
+
+    /** Au-delà (m²), une emprise est plutôt un îlot entier qu'un seul bâtiment : un lieu réel n'en fixe pas le type. */
+    static final double PLACE_MAX_AREA = 4000;
+    static final byte ZONE_NONE = 0;
+    static final byte ZONE_INDUSTRIAL = 1;
+    static final byte ZONE_COMMERCIAL = 2;
+    static final byte ZONE_RAILWAY = 3;
+    static final byte ZONE_SCHOOL = 4;
+    static final byte ZONE_HOSPITAL = 5;
+
+    /** Zone d'urbanisme d'une forme de la couche landuse, ou ZONE_NONE. */
+    static byte zone(String layer, String landClass) {
+        if (!"landuse".equals(layer)) {
+            return ZONE_NONE;
+        }
+        return switch (landClass) {
+            case "industrial", "quarry", "garages" -> ZONE_INDUSTRIAL;
+            case "commercial", "retail" -> ZONE_COMMERCIAL;
+            case "railway" -> ZONE_RAILWAY;
+            case "school", "university", "college", "kindergarten" -> ZONE_SCHOOL;
+            case "hospital" -> ZONE_HOSPITAL;
+            default -> ZONE_NONE;
+        };
+    }
+
+    /**
+     * Type déduit d'un lieu réel dans le bâtiment ({@code poi}, classe OpenMapTiles) ou de la zone, quand les données
+     * n'en donnent pas ({@code raw} vide ou générique). Chaîne vide : rien à déduire.
+     */
+    static String classify(String raw, String poi, byte zone, double footprint) {
+        if (!raw.isEmpty() && !raw.equals("yes") && !raw.equals("building")) {
+            return "";
+        }
+        String fromPlace = switch (poi) {
+            case "hospital" -> "hospital";
+            case "school", "college" -> "school";
+            case "police", "fire_station", "town_hall" -> "civic";
+            case "railway" -> zone == ZONE_RAILWAY ? "train_station" : ""; // Hors emprise ferroviaire : une station de métro.
+            case "grocery" -> footprint > 400 ? "supermarket" : "";
+            default -> "";
+        };
+        if (!fromPlace.isEmpty()) {
+            return fromPlace;
+        }
+        return switch (zone) {
+            case ZONE_INDUSTRIAL -> footprint > 150 ? "industrial" : "garage";
+            case ZONE_COMMERCIAL -> footprint > 600 ? "retail" : "";
+            case ZONE_RAILWAY -> footprint > 300 ? "transportation" : "shed";
+            case ZONE_SCHOOL -> footprint > 120 ? "school" : "shed";
+            case ZONE_HOSPITAL -> footprint > 120 ? "hospital" : "shed";
+            default -> "";
+        };
     }
 
     static String normaliseType(String raw, double metres, double footprint, double latitude, double longitude) {
@@ -168,6 +223,9 @@ final class BuildingStyles {
             wall = MATERIALS.get(material);
         }
         Integer colour = colour(tag(tags, "building:colour"));
+        if (colour == null) {
+            colour = colour(tag(tags, "colour")); // Couleur calculée par OpenMapTiles (couleur ou matériau réels).
+        }
         if (colour != null) {
             wall = nearest(colour);
         }
@@ -191,7 +249,7 @@ final class BuildingStyles {
                 ? pick(hash >> 5, new String[]{"light_blue_stained_glass", "gray_stained_glass", "cyan_stained_glass", "black_stained_glass"})
                 : wall.contains("glass") ? "light_blue_stained_glass" : "glass";
         return new OsmCells.Building(base, top, floorStep, "minecraft:" + wall, "minecraft:" + roof,
-                "minecraft:" + window, shape, shop, curtain, osmId, block);
+                "minecraft:" + window, shape, shop, curtain, osmId, block, type);
     }
 
     /** Façades voisines (même famille de teinte) : les lots d'un îlot varient sans jurer entre eux. */

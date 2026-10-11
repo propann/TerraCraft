@@ -28,7 +28,8 @@ import net.minecraft.world.phys.Vec3;
  * Arme à feu à tir instantané avec chargeur. La barre de l'objet montre les balles restantes
  * (le « dommage » de l'objet compte les tirs depuis le dernier rechargement). Chargeur vide :
  * rechargement automatique avec les munitions de l'inventaire ; accroupi + clic : recharger.
- * Tirs à la tête ×1,75, dégâts réduits au-delà de la moitié de la portée, recul de la visée.
+ * Tirs à la tête ×1,75, dégâts réduits au-delà de la moitié de la portée, recul de la visée. Un viseur monté
+ * (voir {@link Sights}) réduit dispersion et recul quand on vise ; touche R : recharger.
  */
 public class GunItem extends Item {
     /** Caractéristiques d'une arme. {@code fireInterval} : ticks entre deux tirs. */
@@ -95,13 +96,17 @@ public class GunItem extends Item {
             return;
         }
         if (level.isClientSide()) {
-            // Recul : la visée remonte un peu à chaque tir (côté client, qui commande la caméra).
-            player.setXRot(player.getXRot() - stats.recoil() * (0.7f + level.getRandom().nextFloat() * 0.6f));
+            // Recul : la visée remonte un peu à chaque tir (côté client, qui commande la caméra) ; moins en visée.
+            Sights.Sight sight = Sights.aimingWith(player, gun);
+            float recoil = stats.recoil() * (sight != null ? sight.recoil : 1f);
+            player.setXRot(player.getXRot() - recoil * (0.7f + level.getRandom().nextFloat() * 0.6f));
             return;
         }
         ServerLevel server = (ServerLevel) level;
+        Sights.Sight sight = Sights.aimingWith(player, gun);
+        double spread = stats.spread() * (sight != null ? sight.spread : 1);
         for (int i = 0; i < stats.pellets(); i++) {
-            fire(server, player);
+            fire(server, player, spread);
         }
         if (!infinite) {
             gun.setDamageValue(gun.getDamageValue() + 1);
@@ -117,12 +122,12 @@ public class GunItem extends Item {
         }
     }
 
-    private void fire(ServerLevel level, Player player) {
+    private void fire(ServerLevel level, Player player, double spread) {
         Vec3 from = player.getEyePosition();
         Vec3 look = player.getViewVector(1f).add(
-                (level.getRandom().nextDouble() - 0.5) * stats.spread(),
-                (level.getRandom().nextDouble() - 0.5) * stats.spread(),
-                (level.getRandom().nextDouble() - 0.5) * stats.spread()).normalize();
+                (level.getRandom().nextDouble() - 0.5) * spread,
+                (level.getRandom().nextDouble() - 0.5) * spread,
+                (level.getRandom().nextDouble() - 0.5) * spread).normalize();
         Vec3 to = from.add(look.scale(stats.range()));
         BlockHitResult block = level.clip(new ClipContext(from, to, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         if (block.getType() != HitResult.Type.MISS) {
@@ -167,6 +172,22 @@ public class GunItem extends Item {
         Vec3 muzzle = player.getEyePosition().add(look.scale(0.9)).add(right).add(0, -0.25, 0);
         level.sendParticles(ParticleTypes.FLAME, muzzle.x, muzzle.y, muzzle.z, 2, 0.02, 0.02, 0.02, 0.01);
         level.sendParticles(ParticleTypes.SMOKE, muzzle.x, muzzle.y, muzzle.z, 3, 0.03, 0.03, 0.03, 0.01);
+    }
+
+    /** Clic droit main vide sur l'arme dans l'inventaire : son viseur revient en main. */
+    @Override
+    public boolean overrideOtherStackedOnMe(ItemStack self, ItemStack other, net.minecraft.world.inventory.Slot slot,
+                                            net.minecraft.world.inventory.ClickAction action, Player player,
+                                            net.minecraft.world.entity.SlotAccess carried) {
+        return Sights.detach(self, other, action, player, carried);
+    }
+
+    /** Touche de rechargement (R) : recharge l'arme en main si son chargeur n'est pas plein. */
+    public static void reloadHeld(ServerPlayer player) {
+        ItemStack gun = player.getMainHandItem();
+        if (gun.getItem() instanceof GunItem item && gun.getDamageValue() > 0 && !player.getCooldowns().isOnCooldown(gun)) {
+            item.reload(player, gun);
+        }
     }
 
     /** Recharge le chargeur avec les munitions de l'inventaire (ou indique qu'il n'y en a plus). */

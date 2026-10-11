@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "R": "minecraft:redstone",
+    "I": "minecraft:iron_ingot",
+    "G": "minecraft:glass_pane"
+  },
+  "pattern": [
+    " R ",
+    "IGI"
+  ],
+  "result": {
+    "id": "terracraft_geo:red_dot_sight",
+    "count": 1
+  }
+}

@@ -85,6 +85,9 @@ public final class GeoChunkGenerator extends ChunkGenerator {
     private static final BlockState ROAD_MAJOR = Blocks.CONCRETE.pick(DyeColor.GRAY).defaultBlockState();
     private static final BlockState ROAD_MINOR = Blocks.POLISHED_ANDESITE.defaultBlockState();
     private static final BlockState FOOTWAY = Blocks.SMOOTH_STONE.defaultBlockState();
+    private static final BlockState AIRFIELD = Blocks.CONCRETE.pick(DyeColor.LIGHT_GRAY).defaultBlockState();
+    private static final BlockState RUNWAY_MARK = Blocks.CONCRETE.pick(DyeColor.WHITE).defaultBlockState();
+    private static final BlockState TAXI_MARK = Blocks.CONCRETE.pick(DyeColor.YELLOW).defaultBlockState();
     private static final BlockState TRACK = Blocks.COARSE_DIRT.defaultBlockState();
     private static final BlockState BRIDGE = Blocks.STONE_BRICKS.defaultBlockState();
     private static final BlockState PARAPET = Blocks.STONE_BRICK_WALL.defaultBlockState();
@@ -179,6 +182,10 @@ public final class GeoChunkGenerator extends ChunkGenerator {
             case OsmCells.FOOTWAY -> FOOTWAY;
             case OsmCells.TRACK -> TRACK;
             case OsmCells.RAIL -> GRAVEL;
+            case OsmCells.AIRFIELD -> AIRFIELD;
+            case OsmCells.RUNWAY -> ROAD_MAJOR;
+            case OsmCells.RUNWAY_MARK -> RUNWAY_MARK;
+            case OsmCells.TAXI_MARK -> TAXI_MARK;
             default -> null;
         };
     }

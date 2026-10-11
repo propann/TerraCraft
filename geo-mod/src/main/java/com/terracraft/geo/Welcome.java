@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.39", "Villes fidèles (vrais bâtiments séparés, vrais commerces, couleurs réelles, écoles, hôpitaux), aéroports ; viseurs x2, x4, x6 et point rouge (bouton du milieu), touche R ; chat : canaux ville et local, mentions @, /mp et /r"),
             new Change("0.38", "Nouveau monde (1 bloc = 1 m à Paris, étages de 4 blocs) ; vaisseaux construits bloc par bloc, amarrage sas contre sas ; catalogue des objets (menu O) ; élection du maire"),
             new Change("0.37", "Réputation de métier, intérieurs selon le lieu, serre hydroponique, icônes redessinées"),
             new Change("0.36", "Ceinture d'astéroïdes, collections de lieux, grande station de ville (objectif commun)"),

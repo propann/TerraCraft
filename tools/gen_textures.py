@@ -250,6 +250,28 @@ def draw_ammo(c):
         c.rect(x, 3, 3, 2, (150, 90, 50))
 
 
+def draw_scope(power):
+    """Lunette : tube noir, lentilles bleutées, bagues dorées (une par cran de grossissement)."""
+    def draw(c):
+        c.rect(1, 6, 14, 4, (46, 48, 54), 4)
+        c.rect(0, 5, 3, 6, (60, 62, 70))
+        c.rect(13, 5, 3, 6, (60, 62, 70))
+        c.rect(0, 6, 1, 4, (90, 150, 205))
+        c.rect(15, 6, 1, 4, (120, 175, 225))
+        for k in range(power):
+            c.rect(5 + 2 * k, 6, 1, 4, (220, 180, 70))
+        c.rect(6, 10, 4, 3, (70, 72, 80))
+    return draw
+
+
+def draw_red_dot(c):
+    c.rect(3, 6, 10, 6, (46, 48, 54), 4)
+    c.rect(4, 3, 8, 4, (70, 72, 80))
+    c.rect(5, 4, 6, 2, (110, 160, 200))
+    c.rect(7, 4, 2, 2, (240, 40, 40))
+    c.rect(5, 12, 6, 2, (70, 72, 80))
+
+
 def rocket():
     c = Canvas(128, 128, 23)
     hull = box(c, 0, 0, 12, 44, 12, (225, 225, 228), top=(200, 200, 205))
@@ -1361,6 +1383,10 @@ def main():
     icon("rifle", sprite(RIFLE), contour=False)
     icon("shotgun", sprite(SHOTGUN), contour=False)
     icon("ammo", draw_ammo)
+    icon("red_dot_sight", draw_red_dot)
+    icon("scope_x2", draw_scope(1))
+    icon("scope_x4", draw_scope(2))
+    icon("scope_x6", draw_scope(3))
     icon("smg", sprite(SMG), contour=False)
     icon("sniper", sprite(SNIPER), contour=False)
     icon("grenade", draw_grenade)

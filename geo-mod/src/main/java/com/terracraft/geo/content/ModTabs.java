@@ -58,7 +58,8 @@ public final class ModTabs {
                 ModContent.WHEEL, ModContent.ENGINE, ModContent.RADIATOR, ModContent.BATTERY, ModContent.TURBO, ModContent.FUEL_CAN));
         tab("combat", () -> ModContent.RIFLE, () -> List.of(
                 ModContent.PISTOL, ModContent.SMG, ModContent.RIFLE, ModContent.SNIPER, ModContent.SHOTGUN, ModContent.AMMO,
-                ModContent.GRENADE, ModContent.MACHETE, ModBlocks.COMMANDER_BADGE));
+                ModContent.GRENADE, ModContent.MACHETE, Sights.RED_DOT_SIGHT, Sights.SCOPE_X2, Sights.SCOPE_X4, Sights.SCOPE_X6,
+                ModBlocks.COMMANDER_BADGE));
         tab("materials", () -> ModBlocks.TITANIUM_INGOT, () -> List.of(
                 ModBlocks.TITANIUM_ORE, ModBlocks.TITANIUM_INGOT, ModBlocks.HELIUM3_CRYSTALS, ModBlocks.HELIUM3_SHARD,
                 ModBlocks.LUNAR_CRYSTAL, ModBlocks.ALIEN_STONE, ModBlocks.ALIEN_GLYPH, ModBlocks.ALIEN_ARTIFACT));

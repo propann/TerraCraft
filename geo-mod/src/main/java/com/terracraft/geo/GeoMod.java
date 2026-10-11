@@ -70,6 +70,7 @@ public final class GeoMod implements ModInitializer {
         };
     }
     private static final TownPolitics POLITICS = new TownPolitics(TOWNS);
+    private static final Chat CHAT = new Chat(TOWNS, player -> GeoMod.MODERATION.allowChat(player));
     private static final NightRaids RAIDS = new NightRaids(TOWNS);
     private static final PvpZones PVP = new PvpZones();
     private static final Bounties BOUNTIES = new Bounties(AUCTION_HOUSE);
@@ -250,6 +251,7 @@ public final class GeoMod implements ModInitializer {
         ModBlocks.init();
         com.terracraft.geo.content.ShipBlocks.init();
         com.terracraft.geo.content.ship.ShipEntities.init();
+        com.terracraft.geo.content.Sights.init();
         com.terracraft.geo.content.ModTabs.init();
         Industry.register();
         ModMobs.init();
@@ -289,6 +291,12 @@ public final class GeoMod implements ModInitializer {
         PayloadTypeRegistry.serverboundPlay().register(OpenVehicleStoragePayload.TYPE, OpenVehicleStoragePayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(WorkshopPayload.TYPE, WorkshopPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(InstallUpgradePayload.TYPE, InstallUpgradePayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(AimPayload.TYPE, AimPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(ReloadPayload.TYPE, ReloadPayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(AimPayload.TYPE, (payload, context) ->
+                com.terracraft.geo.content.Sights.setAiming(context.player(), payload.aiming()));
+        ServerPlayNetworking.registerGlobalReceiver(ReloadPayload.TYPE, (payload, context) ->
+                com.terracraft.geo.content.GunItem.reloadHeld(context.player()));
         PayloadTypeRegistry.clientboundPlay().register(StarMapPayload.TYPE, StarMapPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(MachinePayload.TYPE, MachinePayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RequestMachinePayload.TYPE, RequestMachinePayload.CODEC);
@@ -399,7 +407,8 @@ public final class GeoMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(MODERATION::load);
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> MODERATION.register(dispatcher));
         net.fabricmc.fabric.api.message.v1.ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) ->
-                MODERATION.allowChat(sender));
+                CHAT.allow(message, sender));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> CHAT.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> BOUNTIES.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> STALLS.register(dispatcher));
         ServerTickEvents.END_SERVER_TICK.register(RAIDS::tick);
@@ -528,6 +537,8 @@ public final class GeoMod implements ModInitializer {
             Tutorial.get().onLeave(handler.player);
             AUCTION_HOUSE.onLeave(handler.player);
             TOWNS.onLeave(handler.player);
+            com.terracraft.geo.content.Sights.forget(handler.player);
+            CHAT.onLeave(handler.player);
             PVP.onLeave(handler.player);
             ACTIVITY.onLeave(handler.player);
             CLAIMS.onLeave(handler.player);

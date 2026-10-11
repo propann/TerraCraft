@@ -35,6 +35,7 @@ public final class GenerationReport {
         int shops = 0;
         int towers = 0;
         int blocks = 0;
+        Map<String, Integer> types = new java.util.TreeMap<>();
         OsmCells.Building tallest = null;
         List<OsmCells.Suspect> suspects = new ArrayList<>();
         for (OsmCells.Cell cell : cells) {
@@ -49,6 +50,7 @@ public final class GenerationReport {
                 shops += building.shopFront() ? 1 : 0;
                 towers += building.curtain() ? 1 : 0;
                 blocks += building.block() ? 1 : 0;
+                types.merge(building.type(), 1, Integer::sum);
                 if (tallest == null || building.topY() - building.baseY() > tallest.topY() - tallest.baseY()) {
                     tallest = building;
                 }
@@ -59,12 +61,26 @@ public final class GenerationReport {
                 }
             }
         }
+        int airfield = 0;
+        int runway = 0;
+        for (int bx = x - radius; bx <= x + radius; bx += 2) {
+            for (int bz = z - radius; bz <= z + radius; bz += 2) {
+                OsmCells.Cell cell = osm.cellIfLoaded(bx, bz);
+                byte surface = cell == null ? OsmCells.NONE : cell.surface(bx, bz);
+                airfield += surface == OsmCells.AIRFIELD || surface == OsmCells.TAXI_MARK ? 1 : 0;
+                runway += surface == OsmCells.RUNWAY || surface == OsmCells.RUNWAY_MARK ? 1 : 0;
+            }
+        }
         List<String> lines = new ArrayList<>();
         lines.add("cellules chargées " + cells.size() + " · bâtiments " + total + " · îlots (cour et lots) " + blocks
                 + " · vitrines " + shops + " · tours vitrées " + towers);
         lines.add("étages : 1 → " + floors[0] + " · 2-3 → " + floors[1] + " · 4-6 → " + floors[2] + " · 7-10 → " + floors[3]
                 + " · 11+ → " + floors[4]);
         lines.add("toits : " + roofs);
+        if (airfield + runway > 0) {
+            lines.add("aéroport (une colonne sur 4) : pistes " + runway + " · tarmacs et voies " + airfield);
+        }
+        lines.add("types : " + types);
         if (tallest != null) {
             lines.add("plus haut : " + (tallest.topY() - tallest.baseY()) / tallest.floorStep() + " étages (y " + tallest.baseY()
                     + " → " + tallest.topY() + ")");

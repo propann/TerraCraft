@@ -6,7 +6,8 @@
   "mixins": [
     "AbstractContainerMenuInvoker",
     "InventoryMenuMixin",
-    "ServerCreativeSlotMixin"
+    "ServerCreativeSlotMixin",
+    "ItemMixin"
   ],
   "injectors": {
     "defaultRequire": 1

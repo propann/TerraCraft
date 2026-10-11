@@ -25,8 +25,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.Minecraft;
 
 public final class GeoModClient implements ClientModInitializer {
-    private static final int SNIPER_FOV = 22;
-    private static Integer fovBeforeSniper = null;
 
     static void openVehicleStorage(Minecraft client) {
         if (client.player != null && ClientPlayNetworking.canSend(OpenVehicleStoragePayload.TYPE)) {
@@ -55,6 +53,13 @@ public final class GeoModClient implements ClientModInitializer {
                 InputConstants.KEY_J, KeyMapping.Category.GAMEPLAY));
         KeyMapping storageKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.terracraft_geo.vehicle_storage",
                 InputConstants.KEY_V, KeyMapping.Category.GAMEPLAY));
+        // Viseurs : viser (bouton du milieu, maintenu) et recharger.
+        KeyMapping aimKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.terracraft_geo.aim",
+                InputConstants.Type.MOUSE, InputConstants.MOUSE_BUTTON_MIDDLE, KeyMapping.Category.GAMEPLAY));
+        KeyMapping reloadKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.terracraft_geo.reload",
+                InputConstants.KEY_R, KeyMapping.Category.GAMEPLAY));
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
+                Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "sight"), new SightClient());
         // Combinaison spatiale : fenêtre (le serveur ouvre le menu) et bandeau d'oxygène hors de la Terre.
         net.minecraft.client.gui.screens.MenuScreens.register(SpaceSuit.MENU, SuitScreen::new);
         // Équipement spatial dessiné sur le joueur comme une armure (par-dessus l'armure normale).
@@ -84,6 +89,12 @@ public final class GeoModClient implements ClientModInitializer {
         net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> {
             net.minecraft.resources.Identifier id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem());
             String key = "desc." + id.toLanguageKey();
+            com.terracraft.geo.content.Sights.Sight sight = com.terracraft.geo.content.Sights.of(stack);
+            if (sight != null) {
+                lines.add(Math.min(1, lines.size()), net.minecraft.network.chat.Component.literal("Viseur : ")
+                        .append(sight.item().getName(new net.minecraft.world.item.ItemStack(sight.item())))
+                        .withStyle(net.minecraft.ChatFormatting.AQUA));
+            }
             if (id.getNamespace().equals(GeoMod.MOD_ID) && net.minecraft.locale.Language.getInstance().has(key)) {
                 int at = Math.min(1, lines.size());
                 for (String line : wrap(net.minecraft.client.resources.language.I18n.get(key), 42)) {
@@ -196,22 +207,7 @@ public final class GeoModClient implements ClientModInitializer {
                 vehicle.setInput(keys.left(), keys.right(), keys.forward(), keys.backward());
             }
 
-            // Zoom propre et réversible du sniper : clic droit maintenu, sans
-            // modifier définitivement le réglage FOV du joueur.
-            boolean zooming = client.player != null
-                    && client.options.keyUse.isDown()
-                    && client.player.getMainHandItem().is(ModContent.SNIPER);
-            if (zooming) {
-                if (fovBeforeSniper == null) {
-                    fovBeforeSniper = client.options.fov().get();
-                }
-                if (client.options.fov().get() != SNIPER_FOV) {
-                    client.options.fov().set(SNIPER_FOV);
-                }
-            } else if (fovBeforeSniper != null) {
-                client.options.fov().set(fovBeforeSniper);
-                fovBeforeSniper = null;
-            }
+            SightClient.tick(client, aimKey, reloadKey);
         });
     }
 

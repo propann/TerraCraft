@@ -9,7 +9,10 @@
     "CreativeModeInventoryScreenMixin",
     "InventoryScreenMixin",
     "LivingEntityRendererMixin",
-    "SkyRendererMixin"
+    "SkyRendererMixin",
+    "AbstractClientPlayerMixin",
+    "MouseHandlerMixin",
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

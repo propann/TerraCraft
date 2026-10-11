@@ -15,9 +15,8 @@ Légende : `[x]` fait · `[~]` fait, à tester en jeu · `[ ]` à faire (avec no
 
 ## Plan d'action (depuis la 0.38, 11 octobre 2026)
 
-Audit du 11 octobre : le serveur Falix tourne en 0.37.1 (4 CPU, 8 Go) ; la 0.38 est prête en local (vaisseau, onglets
-créatifs, monde à l'échelle 1:1 de Paris). **Le monde est remis à zéro** : comptes, villes, stations et claims
-repartent de rien sur la nouvelle carte. Chaque étape se termine par un déploiement vérifié.
+Audit du 11 octobre ; **0.38.0 en ligne sur Falix le 11 octobre** (4 CPU, 8 Go), monde neuf à l'échelle 1:1 de Paris :
+comptes, villes, stations et claims sont repartis de zéro. Chaque étape se termine par un déploiement vérifié.
 
 ### Étape 1 — Relance du monde (0.38)
 
@@ -33,16 +32,25 @@ repartent de rien sur la nouvelle carte. Chaque étape se termine par un déploi
 - [x] **Politique** : élection du maire (tous les 14 jours, motion de défiance, scrutin de 48 h), registre de la mairie.
 - [x] Cache Overture lu une fois et limité à sa zone ; cache OSM indépendant de l'échelle.
 - [~] Mémoire à 10 joueurs simultanés : banc refait sur la nouvelle échelle ([mesures](mesures-generation.md)).
-- [ ] Test de scénario complet sur la 0.38 (`tools/scenario_test.sh`), puis essai en jeu local (Paris, vaisseau,
-      onglets, carte des étoiles, ciel spatial, cockpit).
-- [ ] Déploiement : sauvegarde du panel, suppression de `world/` sur Falix ([procédure](../deploy/FALIX.md)), push
-      sur `main`, tag `v0.38.0` (pack client), `tools/sync_client_mods.py`.
+- [x] Test de scénario complet sur la 0.38 : 92 vérifications ; génération vérifiée sur 6 lieux (`/terracraft rapport`).
+- [x] Déploiement : nouveau monde sur Falix, tag `v0.38.0` (pack client), `mods/` aligné, page d'accueil du dépôt.
+- [ ] Essai en jeu (écrans et rendus non vérifiables automatiquement) : catalogue, pentes, vaisseau en vol,
+      cours intérieures de Paris, carte des étoiles, ciel spatial, cockpit.
 - [ ] Préchargement (Chunky) autour de Paris et des points de départ proposés, pour une arrivée sans attente.
 
 ### Étape 2 — Bâtiments au niveau (phase 7)
 
-- [ ] **Classification** maison / immeuble / commerce / bureau / industrie / équipement / tour à partir des tags OSM
-      et des classes OpenMapTiles ; style, toit et intérieur par classe.
+- [x] **Bâtiments fusionnés séparés** : les tuiles OpenFreeMap regroupent des dizaines de bâtiments en un multipolygone
+      (726 bâtiments en un seul objet à Rungis) ; chaque polygone devient un bâtiment (Paris centre : 89 → ~9 000).
+- [x] **Classification** : lieu réel dans le polygone (hôpital, école, gare en emprise ferroviaire, supermarché,
+      mairie…) puis zone d'urbanisme (industrielle → entrepôts et garages, commerciale → grandes surfaces,
+      ferroviaire → hangars) ; plus d'« entrepôts » devinés à la taille en plein Paris.
+- [x] **Îlots** : grands immeubles résidentiels découpés en lots (hauteurs ±1 étage, façades de la même famille), cour
+      intérieure au-delà de 12 blocs de la rue, murs pignons.
+- [x] **Tirer le maximum des tuiles (0.39)** : vitrines là où sont les vrais commerces (boutiques, restaurants, cafés…),
+      couleur réelle des façades (`colour`), zones scolaires et hospitalières, **aéroports** (pistes de 45 m avec
+      marquages, voies de circulation à axe jaune, tarmacs).
+- [ ] Intérieur par classe (atelier pour l'industrie, rayons pour les commerces…) et toits par classe.
 - [x] **Rapport de génération** `/terracraft rapport [rayon]` : bâtiments par étages et toits, le plus haut, bâtiments
       suspects (hauteur des données réduite) avec coordonnées ; journal `[GEN]`.
 - [ ] **Façades à la Minecraft** : rez-de-chaussée commerçant plus haut en centre-ville, lucarnes dans les mansardes,
@@ -54,7 +62,11 @@ repartent de rien sur la nouvelle carte. Chaque étape se termine par un déploi
 
 - [x] Onglets créatifs TerraCraft (Espace, Stations, Vaisseaux, Industrie, Véhicules, Combat, Matériaux).
 - [x] **Catalogue en survie** : nos objets par catégorie avec leur description et leur recette (menu `O`).
+- [x] **Chat** (0.39) : canaux global, ville (`!message`, `/v`) et local (`/l`, 100 blocs), `/canal`, mentions `@Pseudo`
+      (son et bandeau), messages privés `/mp` et `/r`, anti-spam ; le silence des modérateurs vaut partout.
 - [ ] Écran « Mon personnage » unifié (fiche, métier, plans, stations).
+- [x] **Viseurs** (0.39) : point rouge, lunettes x2, x4, x6, montés sur toutes les armes à feu, l'arc et l'arbalète ;
+      visée au bouton du milieu (zoom propre, sans toucher au réglage FOV), touche `R` pour recharger.
 - [ ] Textures des armes et pièces à harmoniser.
 
 ### Étape 4 — Espace (phase 8)

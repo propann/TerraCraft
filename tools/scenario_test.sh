@@ -303,6 +303,9 @@ cmd "execute if block -41 202 -50 minecraft:air run say NAVETTE_PARTIE" 22
 cmd "execute in terracraft_geo:orbit if block 4 152 10 terracraft_geo:ship_airlock if block 3 152 10 terracraft_geo:airlock_door run say VAISSEAU_AMARRE" 1
 cmd "execute in terracraft_geo:orbit if data block 6 152 11 Items[0] run say VAISSEAU_COFFRE" 1
 cmd "execute as Bob at Bob if dimension terracraft_geo:orbit run say VAISSEAU_EQUIPAGE" 1
+# Viseurs : composant « viseur » sur une arme (montage et visée se font au clavier et à la souris, testés en jeu)
+cmd 'give Bob terracraft_geo:rifle[terracraft_geo:sight="scope_x4"]' 1
+cmd 'execute if items entity Bob container.* terracraft_geo:rifle[terracraft_geo:sight="scope_x4"] run say VISEUR_MONTE' 1
 # Élection municipale : Dan rejoint Bourg Neuf (3 habitants), Alice convoque, Bob se présente et gagne
 # Alice, tuée au test PvP, a quitté le serveur (faux joueur) : elle revient pour l'élection.
 cmd "player Alice spawn at 0 201 2" 4
@@ -310,6 +313,9 @@ cmd "player Dan spawn at 2 201 2" 4
 for _ in $(seq 20); do grep -q "dan\[local\] logged in\|Dan\[local\] logged in" scenario.log && break; sleep 1; done
 cmd "execute as Alice run ville inviter Dan"
 cmd "execute as Dan run ville rejoindre" 1
+cmd "execute as Alice run v Réunion à la mairie ce soir" 1
+cmd "execute as Alice run l Quelqu'un dans le coin ?" 1
+cmd "execute as Alice run mp Dan Bienvenue @Dan" 1
 cmd "execute as Alice run ville election convoquer" 1
 cmd "execute as Bob run ville candidat" 1
 cmd "execute as Alice run ville voter Bob"
@@ -471,6 +477,10 @@ check("[ECO] Bob achète au comptoir : Carburant de fusée x1 pour 180" in log a
 check("[VILLE] scrutin ouvert à Bourg Neuf" in log and "[VILLE] Bob candidat à Bourg Neuf" in log,
       "élection municipale : scrutin convoqué par la maire, candidature")
 check("[VILLE] scrutin clos à Bourg Neuf : Bob élu avec 2 voix" in log, "élection municipale : Bob élu maire (2 voix contre 1)")
+check("[CHAT] town Alice (" in log and "Réunion à la mairie" in log, "chat : message de ville envoyé aux habitants")
+check("[CHAT] local Alice (" in log, "chat : message local (100 blocs)")
+check("[CHAT] privé Alice → Dan" in log, "chat : message privé /mp")
+check("VISEUR_MONTE" in log, "viseurs : lunette x4 montée sur un fusil (composant enregistré et sauvegardé)")
 check("NAVETTE_CONSTRUITE" in log, "kit de vaisseau : navette construite en blocs (console, siège, sas)")
 check("NAVETTE_PARTIE" in log and "[VAISSEAU] Bob décolle de minecraft:overworld" in log, "vaisseau construit : décollage, blocs prélevés du monde")
 check("VAISSEAU_AMARRE" in log, "vaisseau construit : amarré à la station, sas du vaisseau collé au sas de la station")

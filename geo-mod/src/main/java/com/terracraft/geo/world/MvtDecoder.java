@@ -18,6 +18,11 @@ final class MvtDecoder {
     /** Classes de points d'intérêt OpenMapTiles conservées. */
     static final java.util.Set<String> POI_CLASSES = java.util.Set.of("fuel", "hospital", "pharmacy", "police", "school",
             "college", "railway", "grocery", "fire_station", "town_hall");
+    /** Commerces (classes OpenMapTiles) : servent seulement à placer les vitrines là où sont les vrais commerces. */
+    static final java.util.Set<String> COMMERCE_CLASSES = java.util.Set.of("shop", "restaurant", "cafe", "bar", "fast_food",
+            "clothing_store", "bakery", "hairdresser", "grocery", "pharmacy", "bank", "ice_cream", "beer", "alcohol_shop",
+            "books", "butcher", "florist", "jewelry", "optician", "mobile_phone", "shoe_shop", "toys", "laundry", "furniture",
+            "hardware", "music", "gift", "convenience", "deli", "pastry", "post");
     static final int LINE = 2;
     static final int POLYGON = 3;
 
@@ -145,7 +150,8 @@ final class MvtDecoder {
         }
         if (type == POINT) {
             // Points d'intérêt utiles au jeu (lieux réels : butin, /lieux, découvertes) ; le reste est ignoré.
-            return POI_CLASSES.contains(String.valueOf(map.get("class"))) ? new Feature(layer, id, type, map, points(geometry, extent)) : null;
+            String kind = String.valueOf(map.get("class"));
+            return POI_CLASSES.contains(kind) || COMMERCE_CLASSES.contains(kind) ? new Feature(layer, id, type, map, points(geometry, extent)) : null;
         }
         return new Feature(layer, id, type, map, geometry(geometry, extent));
     }
