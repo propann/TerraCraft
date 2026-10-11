@@ -75,3 +75,15 @@ Pense aussi aux sauvegardes du panel Falix : une copie hors du serveur protège 
 
 Procédure testée le 7 octobre 2026 : sauvegarde, rotation, archive intègre (`unzip -t`), restauration et redémarrage sans erreur.
 
+
+## Nouveau monde (remise à zéro complète)
+
+L'échelle du monde est enregistrée dans `world/level.dat` à sa création : un changement d'échelle (0.38 : 1 bloc =
+1 m à Paris) ne s'applique qu'à un monde neuf. Toutes les données TerraCraft (comptes, hôtel des ventes, villes,
+stations, missions, points de départ…) sont dans `world/terracraft_geo/` et les claims dans `world/` : supprimer le
+dossier du monde remet donc tout à zéro.
+
+1. **Arrête** le serveur et fais une sauvegarde du panel Falix (filet de sécurité).
+2. Supprime le dossier `world/` (garde `backups/` et `terracraft-cache/` : le cache de tuiles sert toujours).
+3. Déploie la nouvelle version (push sur `main` → branche `falix`), puis démarre : le monde neuf est créé au premier
+   démarrage. Les joueurs réimportent le pack client de la même version.
