@@ -31,6 +31,9 @@ jobs:
       - name: Ressources complètes (traductions, modèles, textures)
         run: python3 tools/check_assets.py
 
+      - name: Recettes valides et objets obtenables
+        run: python3 tools/check_recipes.py
+
       - name: Compiler le mod
         working-directory: geo-mod
         run: gradle --no-daemon build
