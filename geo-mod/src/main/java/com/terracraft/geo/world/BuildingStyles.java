@@ -95,7 +95,7 @@ final class BuildingStyles {
     }
 
     static OsmCells.Building style(JsonObject tags, String type, long osmId, int base, int top, int floorStep,
-                                   double latitude) {
+                                   double latitude, boolean block) {
         int hash = (int) ((osmId * 0x9E3779B97F4A7C15L) >>> 40);
         double absLat = Math.abs(latitude);
         boolean tropical = absLat < 30;
@@ -191,7 +191,30 @@ final class BuildingStyles {
                 ? pick(hash >> 5, new String[]{"light_blue_stained_glass", "gray_stained_glass", "cyan_stained_glass", "black_stained_glass"})
                 : wall.contains("glass") ? "light_blue_stained_glass" : "glass";
         return new OsmCells.Building(base, top, floorStep, "minecraft:" + wall, "minecraft:" + roof,
-                "minecraft:" + window, shape, shop, curtain, osmId);
+                "minecraft:" + window, shape, shop, curtain, osmId, block);
+    }
+
+    /** Façades voisines (même famille de teinte) : les lots d'un îlot varient sans jurer entre eux. */
+    private static final String[][] FACADE_FAMILIES = {
+            {"minecraft:smooth_sandstone", "minecraft:calcite", "minecraft:white_terracotta", "minecraft:quartz_block"},
+            {"minecraft:bricks", "minecraft:mud_bricks", "minecraft:red_terracotta", "minecraft:brown_terracotta"},
+            {"minecraft:white_concrete", "minecraft:light_gray_concrete", "minecraft:calcite", "minecraft:white_terracotta"},
+            {"minecraft:stone_bricks", "minecraft:polished_andesite", "minecraft:light_gray_terracotta", "minecraft:calcite"},
+    };
+
+    /** Façade du lot sous cette colonne : la façade du bâtiment, ou une voisine de sa famille pour un îlot. */
+    static String lotWall(OsmCells.Building building, int x, int z) {
+        if (!building.block()) {
+            return building.wall();
+        }
+        for (String[] family : FACADE_FAMILIES) {
+            for (String facade : family) {
+                if (facade.equals(building.wall())) {
+                    return family[Math.floorMod(building.lot(x, z) >> 2, family.length)];
+                }
+            }
+        }
+        return building.wall();
     }
 
     private static String pick(int hash, String[] options) {

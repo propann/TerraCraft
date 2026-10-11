@@ -70,6 +70,9 @@ public final class ModBlocks {
     /** Terminal logistique : stock commun de la ville, le même partout (Terre, stations, bases). */
     public static final Block LOGISTICS_TERMINAL = block("logistics_terminal", LogisticsTerminalBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(3f, 6f).sound(SoundType.METAL));
+    /** Registre de la mairie : état de la ville, élection du maire et vote (voir TownPolitics). */
+    public static final Block TOWN_REGISTRY = block("town_registry", TownRegistryBlock::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(2.5f).sound(SoundType.WOOD).noOcclusion());
     /** Étal de marché : vend un objet à prix fixe, même vendeur hors ligne (voir Stalls). */
     public static final Block MARKET_STALL = block("market_stall", MarketStallBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(2.5f, 1200f).sound(SoundType.WOOD));

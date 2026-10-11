@@ -20,9 +20,6 @@ VANILLA = json.loads((ROOT / "tools/data/vanilla-26.3.json").read_text())
 OBTAINED_OTHERWISE = {
     "alien_artifact": "coffres des sanctuaires lunaires (MoonUnderground)",
     "commander_badge": "butin du Commandant du bunker (Bosses)",
-    "docking_tunnel_hull": "posé et retiré par le vaisseau, jamais obtenable",
-    "docking_tunnel_window": "posé et retiré par le vaisseau, jamais obtenable",
-    "docking_tunnel_light": "posé et retiré par le vaisseau, jamais obtenable",
     "helium3_crystals": "généré sur la Lune ; cassé, il donne des éclats d'hélium-3",
     "oil_puddle": "repère de gisement généré dans le monde, ne se ramasse pas",
 }

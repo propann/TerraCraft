@@ -1,0 +1,47 @@
+{
+  "variants": {
+    "facing=north,half=bottom": {
+      "model": "terracraft_geo:block/ship_canopy_slope",
+      "uvlock": true
+    },
+    "facing=north,half=top": {
+      "model": "terracraft_geo:block/ship_canopy_slope",
+      "x": 180,
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=east,half=bottom": {
+      "model": "terracraft_geo:block/ship_canopy_slope",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=east,half=top": {
+      "model": "terracraft_geo:block/ship_canopy_slope",
+      "x": 180,
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=south,half=bottom": {
+      "model": "terracraft_geo:block/ship_canopy_slope",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=south,half=top": {
+      "model": "terracraft_geo:block/ship_canopy_slope",
+      "x": 180,
+      "y": 0,
+      "uvlock": true
+    },
+    "facing=west,half=bottom": {
+      "model": "terracraft_geo:block/ship_canopy_slope",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=west,half=top": {
+      "model": "terracraft_geo:block/ship_canopy_slope",
+      "x": 180,
+      "y": 90,
+      "uvlock": true
+    }
+  }
+}

@@ -67,17 +67,50 @@ public final class OsmCells {
     public record Poi(String kind, int x, int z, String name) {
     }
 
-    /**
-     * Bâtiment rastérisé : hauteurs en Y Minecraft absolus, blocs en identifiants
-     * ({@code minecraft:bricks}) résolus par le générateur.
-     */
     /** Hauteur d'un étage en blocs, la même partout : plancher + 3 blocs d'air (fenêtres de 2 blocs). */
     public static final int FLOOR_STEP = 4;
     /** Hauteur réelle moyenne d'un étage. */
     static final double METRES_PER_FLOOR = 3.0;
+    /**
+     * Îlot urbain : au centre des villes européennes, les tuiles fusionnent souvent tout un pâté de maisons en un seul
+     * polygone. Au-delà de cette surface (m²), un bâtiment résidentiel est traité en îlot : cour intérieure et lots.
+     */
+    static final double BLOCK_AREA = 1500;
+    /** Profondeur des immeubles d'un îlot (blocs depuis la rue) : au-delà, cour intérieure à ciel ouvert. */
+    static final int COURTYARD_DEPTH = 12;
+    /** Bâtiments suspects gardés par cellule pour le rapport de génération. */
+    private static final int MAX_SUSPECTS = 64;
 
+    /**
+     * Bâtiment rastérisé : hauteurs en Y Minecraft absolus, blocs en identifiants
+     * ({@code minecraft:bricks}) résolus par le générateur.
+     */
     public record Building(int baseY, int topY, int floorStep, String wall, String roof, String window,
-                           RoofShape shape, boolean shopFront, boolean curtain, long seed) {
+                           RoofShape shape, boolean shopFront, boolean curtain, long seed, boolean block) {
+        /** Taille des lots d'un îlot (environ la largeur d'un immeuble de rapport). */
+        static final int LOT = 16;
+
+        /** Lot de l'îlot sous cette colonne (0 pour un bâtiment ordinaire) : varie hauteur et façade. */
+        public int lot(int x, int z) {
+            if (!block) {
+                return 0;
+            }
+            long h = UrbanTrees.mix(seed ^ Math.floorDiv(x, LOT) * 0x632BE59BD9B4E019L ^ Math.floorDiv(z, LOT) * 0x9E3779B97F4A7C15L);
+            return (int) (h >>> 33);
+        }
+
+        /** Haut des murs à cette colonne : un îlot alterne des lots d'un étage de plus ou de moins. */
+        public int topAt(int x, int z) {
+            if (!block) {
+                return topY;
+            }
+            int delta = new int[]{-1, 0, 0, 1}[Math.floorMod(lot(x, z), 4)];
+            return Math.max(baseY + 2 * floorStep, topY + delta * floorStep);
+        }
+    }
+
+    /** Bâtiment dont la hauteur donnée a été fortement réduite (donnée douteuse) : pour /terracraft rapport. */
+    public record Suspect(int x, int z, String type, int dataMetres, int keptMetres) {
     }
 
     /** Grilles d'une cellule ; indices locaux de -MARGIN à CELL_SIZE+MARGIN-1. */
@@ -95,6 +128,7 @@ public final class OsmCells {
         /** Distance (en blocs) au mur le plus proche, à l'intérieur d'un bâtiment : sert aux toits. */
         final byte[] inset = new byte[GRID * GRID];
         final List<Building> buildings = new ArrayList<>();
+        final List<Suspect> suspects = new ArrayList<>();
         /** Stations-service réelles (OSM amenity=fuel) : {x, z} en blocs. */
         final List<int[]> fuelStations = new ArrayList<>();
         /** Lieux réels utiles (hôpitaux, pharmacies, commissariats, écoles, gares, supermarchés…). */
@@ -102,6 +136,14 @@ public final class OsmCells {
 
         public List<Poi> pois() {
             return pois;
+        }
+
+        public List<Building> buildings() {
+            return buildings;
+        }
+
+        public List<Suspect> suspects() {
+            return suspects;
         }
 
         /** Type de lieu réel du bâtiment (classe OpenMapTiles), mis en cache ; null pour un bâtiment ordinaire. */
@@ -588,6 +630,9 @@ public final class OsmCells {
             }
             buildings(buildings);
             computeInsets();
+            if (carveCourtyards()) {
+                computeInsets();
+            }
             return cell;
         }
 
@@ -739,13 +784,27 @@ public final class OsmCells {
          */
         private void buildings(List<Shape> shapes) {
             Map<Long, List<Shape>> groups = new java.util.LinkedHashMap<>();
-            long anonymous = -1;
             for (Shape shape : shapes) {
                 long id = shape.feature().id();
-                groups.computeIfAbsent(id != 0 ? id : anonymous--, k -> new ArrayList<>()).add(shape);
+                groups.computeIfAbsent(id != 0 ? id : anonymousId(shape), k -> new ArrayList<>()).add(shape);
             }
             groups.forEach(this::building);
             cleanFootprints();
+        }
+
+        /**
+         * Identifiant d'un bâtiment sans identifiant OSM, tiré de sa géométrie : le même dans toutes les cellules qui le
+         * voient (sinon son style et son état de ruine changeraient à la frontière de deux cellules). Toujours négatif.
+         */
+        private static long anonymousId(Shape shape) {
+            long hash = 0x9E3779B97F4A7C15L;
+            for (double[] part : shape.parts()) {
+                hash = hash * 31 + part.length;
+                for (int k = 0; k < Math.min(part.length, 8); k++) {
+                    hash = hash * 1_000_003L + Math.round(part[k] * 4);
+                }
+            }
+            return -1 - (UrbanTrees.mix(hash) & Long.MAX_VALUE);
         }
 
         private void building(long osmId, List<Shape> parts) {
@@ -779,7 +838,12 @@ public final class OsmCells {
             String styleType = BuildingStyles.normaliseType(type, firstNumber(feature, 9, "render_height"),
                     footprint, latitude, longitude);
             double minMetres = firstNumber(feature, 0, "render_min_height", "min_height", "building:min_height");
-            double metres = buildingHeight(feature, styleType, minMetres, footprint);
+            double[] height = buildingHeight(feature, styleType, minMetres, footprint);
+            double metres = height[0];
+            if (height[1] > metres + 6 && cell.suspects.size() < MAX_SUSPECTS) {
+                cell.suspects.add(new Suspect((int) ((minX + maxX) / 2), (int) ((minZ + maxZ) / 2), styleType,
+                        (int) Math.round(height[1]), (int) Math.round(metres)));
+            }
             // Les valeurs issues de sources différentes ne doivent jamais permettre à une
             // donnée aberrante de faire monter une maison jusqu'au plafond du monde.
             double safeMinMetres = Math.max(0, Math.min(minMetres, metres - 3));
@@ -788,7 +852,8 @@ public final class OsmCells {
             int base = ground + floors(safeMinMetres, 0) * FLOOR_STEP;
             int top = Math.min(EarthTerrain.MAX_SURFACE_Y + 2, base + floors(metres - safeMinMetres, 1) * FLOOR_STEP);
             JsonObject tags = buildingTags(feature);
-            cell.buildings.add(BuildingStyles.style(tags, styleType, osmId, base, top, FLOOR_STEP, latitude));
+            boolean block = footprint > BLOCK_AREA && (styleType.equals("apartments") || styleType.equals("modern"));
+            cell.buildings.add(BuildingStyles.style(tags, styleType, osmId, base, top, FLOOR_STEP, latitude, block));
             int id = cell.buildings.size();
             for (Shape part : parts) {
                 fillPolygon(part.parts(), i -> cell.building[i] = id);
@@ -803,9 +868,9 @@ public final class OsmCells {
         /**
          * OpenFreeMap fournit parfois les valeurs calculées render_height, parfois les
          * balises OSM brutes. On privilégie les données brutes et les niveaux pour éviter
-         * que toutes les maisons deviennent des blocs de 9 m identiques.
+         * que toutes les maisons deviennent des blocs de 9 m identiques. Renvoie {hauteur retenue, hauteur des données}.
          */
-        private double buildingHeight(MvtDecoder.Feature feature, String type, double minMetres, double footprint) {
+        private double[] buildingHeight(MvtDecoder.Feature feature, String type, double minMetres, double footprint) {
             double explicit = firstNumber(feature, Double.NaN, "height", "building:height", "render_height");
             double levels = firstNumber(feature, Double.NaN, "building:levels", "levels", "building:levels:aboveground", "num_floors");
             boolean measured = Double.isFinite(explicit) || Double.isFinite(levels);
@@ -835,10 +900,12 @@ public final class OsmCells {
                 default -> measured ? 120.0 : footprint < 250 ? 8.5 : footprint < 1200 ? 12.0 : 16.0;
             };
             // Garde-fou contre les données aberrantes (partie de tour attribuée à tout l'îlot, faute de frappe) :
-            // un bâtiment ne dépasse pas six fois sa largeur moyenne (les vraies tours font 3 à 5 fois).
-            cap = Math.min(cap, Math.max(8.5, 6 * Math.sqrt(footprint)));
+            // un bâtiment ne dépasse pas six fois sa largeur moyenne (les immeubles font 3 à 5 fois). Les clochers et
+            // les tours mesurés sont plus élancés (Marienkirche de Berlin : 90 m sur 7 × 7 m) : quinze fois.
+            boolean slender = measured && type.matches("tower|skyscraper|church|cathedral|chapel|mosque|temple|synagogue");
+            cap = Math.min(cap, Math.max(8.5, (slender ? 15 : 6) * Math.sqrt(footprint)));
             double safeMin = Math.max(0, Math.min(minMetres, cap - 3));
-            return Math.max(safeMin + 3, Math.min(cap, metres));
+            return new double[]{Math.max(safeMin + 3, Math.min(cap, metres)), metres};
         }
 
         private static double firstNumber(MvtDecoder.Feature feature, double fallback, String... keys) {
@@ -958,6 +1025,23 @@ public final class OsmCells {
                     }
                 }
             }
+        }
+
+        /**
+         * Cours intérieures des îlots : les colonnes à plus de {@link #COURTYARD_DEPTH} blocs de la rue redeviennent du
+         * terrain (pavé) ; leurs bords deviennent des façades sur cour. Renvoie vrai si une cour a été creusée.
+         */
+        private boolean carveCourtyards() {
+            boolean carved = false;
+            for (int i = 0; i < cell.building.length; i++) {
+                int id = cell.building[i];
+                if (id > 0 && id <= cell.buildings.size() && cell.buildings.get(id - 1).block() && cell.inset[i] >= COURTYARD_DEPTH) {
+                    cell.building[i] = 0;
+                    cell.surface[i] = FOOTWAY;
+                    carved = true;
+                }
+            }
+            return carved;
         }
 
         /** Distance de chanfrein au contour de chaque bâtiment (deux passes). */

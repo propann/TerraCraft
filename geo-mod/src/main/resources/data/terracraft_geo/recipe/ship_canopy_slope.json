@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "G": "terracraft_geo:ship_canopy"
+  },
+  "pattern": [
+    "G  ",
+    "GG ",
+    "GGG"
+  ],
+  "result": {
+    "id": "terracraft_geo:ship_canopy_slope",
+    "count": 4
+  }
+}

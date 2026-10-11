@@ -66,6 +66,8 @@ public final class TerraCraftMenuScreen extends Screen {
                         () -> request(StarMapActionPayload.TYPE, new StarMapActionPayload(-1, (byte) -1, false))),
                 new Tile("Plans de fusée", "Améliorations débloquées", "", new ItemStack(ModContent.ROCKET_ENGINE),
                         () -> runCommand("plans")),
+                new Tile("Catalogue", "Objets, usages et recettes", "", new ItemStack(ModContent.SPACESHIP_KIT),
+                        () -> minecraft.setScreenAndShow(new CatalogScreen())),
                 new Tile("Claims", "Protéger son terrain", "M / '", new ItemStack(Items.SHIELD), () -> closeWithMessage(
                         "Claims : ouvre M pour la carte Xaero, puis clic droit sur les chunks. La touche ' ouvre le menu des claims.")),
                 new Tile("Course à l'espace", "Primes pour les premiers", "", new ItemStack(Items.FIREWORK_ROCKET),

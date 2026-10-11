@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "terracraft_geo:block/station_light"
+    "model": "terracraft_geo:block/ship_hull_slope"
   }
 }

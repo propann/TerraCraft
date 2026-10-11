@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": "minecraft:lectern",
+    "B": "minecraft:writable_book",
+    "G": "minecraft:gold_ingot"
+  },
+  "pattern": [
+    "GBG",
+    " L "
+  ],
+  "result": {
+    "id": "terracraft_geo:town_registry",
+    "count": 1
+  }
+}

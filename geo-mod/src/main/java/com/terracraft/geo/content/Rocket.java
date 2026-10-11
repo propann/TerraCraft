@@ -1,6 +1,8 @@
 package com.terracraft.geo.content;
 
+import com.terracraft.geo.Plans;
 import com.terracraft.geo.Space;
+import com.terracraft.geo.SpaceTravel;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
@@ -40,7 +42,7 @@ import java.util.List;
  * carburant de fusée. Le passager appuie sur Espace : compte à rebours, décollage, passage
  * Terre ↔ Lune, puis descente freinée jusqu'au sol. Tout le vol est piloté par le serveur.
  */
-public class Rocket extends VehicleEntity {
+public class Rocket extends VehicleEntity implements Craft {
     public static final int ENGINE = 1;
     public static final int TANK = 2;
     public static final int NOSE = 4;
@@ -106,12 +108,25 @@ public class Rocket extends VehicleEntity {
         return entityData.get(DATA_PHASE);
     }
 
-    public boolean hasUpgrade(com.terracraft.geo.Plans.Plan plan) {
+    @Override
+    public boolean hasUpgrade(Plans.Plan plan) {
         return (entityData.get(DATA_UPGRADES) & plan.flag()) != 0;
     }
 
-    public void installUpgrade(com.terracraft.geo.Plans.Plan plan) {
+    @Override
+    public boolean installUpgrade(Plans.Plan plan) {
         entityData.set(DATA_UPGRADES, (byte) (entityData.get(DATA_UPGRADES) | plan.flag()));
+        return true;
+    }
+
+    @Override
+    public int craftId() {
+        return getId();
+    }
+
+    @Override
+    public boolean isPilot(ServerPlayer player) {
+        return getFirstPassenger() == player;
     }
 
     public int tanks() {
@@ -121,7 +136,7 @@ public class Rocket extends VehicleEntity {
     /** Capacité : 8 doses avec 1 réservoir, +4 par réservoir supplémentaire, +4 avec le plan « réservoir étendu ». */
     public int maxFuel() {
         int base = MAX_FUEL + 4 * Math.max(0, tanks() - 1);
-        return hasUpgrade(com.terracraft.geo.Plans.Plan.TANK) ? base + (EXTENDED_FUEL - MAX_FUEL) : base;
+        return hasUpgrade(Plans.Plan.TANK) ? base + (EXTENDED_FUEL - MAX_FUEL) : base;
     }
 
     public String tierName() {
@@ -138,28 +153,8 @@ public class Rocket extends VehicleEntity {
                 || stack.is(ModContent.MARS_BASE_KIT) || stack.is(ModContent.ROVER_KIT);
     }
 
-    /** Appelé quand l'engin se pose (le vaisseau y déploie son tunnel-sas vers la station). */
-    protected void onLanded(ServerLevel level) {
-    }
-
-    /** Appelé au moment où l'engin quitte le sol (le vaisseau y replie son tunnel-sas). */
-    protected void onLaunch(ServerLevel level) {
-    }
-
-    /** Démonté, l'engin rend ses pièces (le vaisseau, lui, rend son kit entier). */
-    protected boolean dropsParts() {
-        return true;
-    }
-
-    /** Engin livré monté d'usine (vaisseau) : toutes les pièces et {@code tankCount} réservoirs. */
-    protected void assembleComplete(int tankCount) {
-        entityData.set(DATA_PARTS, (byte) ALL);
-        entityData.set(DATA_TANKS, (byte) Math.min(MAX_TANKS, tankCount));
-    }
-
     /** À l'atterrissage : base de surface (kit lunaire ou martien) et rover déposés à côté de la fusée. */
     private void deployOnLanding(ServerLevel level) {
-        onLanded(level);
         if (!(getFirstPassenger() instanceof ServerPlayer pilot)) {
             return;
         }
@@ -199,7 +194,7 @@ public class Rocket extends VehicleEntity {
 
     /** Soute : ouverte par la touche V (assis dans la fusée ou à côté). */
     public boolean openCargo(ServerPlayer player) {
-        if (!hasUpgrade(com.terracraft.geo.Plans.Plan.CARGO)) {
+        if (!hasUpgrade(Plans.Plan.CARGO)) {
             return false;
         }
         player.openMenu(new net.minecraft.world.SimpleMenuProvider((id, inventory, owner) ->
@@ -324,7 +319,7 @@ public class Rocket extends VehicleEntity {
     /** Doses pour aller d'ici à {@code to} (moteur ionique compris). */
     public int costTo(byte to) {
         int cost = Space.travelCost(Space.id(level()), to);
-        return hasUpgrade(com.terracraft.geo.Plans.Plan.ION) ? Math.max(1, cost - 1) : cost;
+        return hasUpgrade(Plans.Plan.ION) ? Math.max(1, cost - 1) : cost;
     }
 
     /** Fixe la destination (carte des étoiles, commande /fusee cap). */
@@ -344,7 +339,7 @@ public class Rocket extends VehicleEntity {
         if (route != null) {
             return route;
         }
-        if (Space.requiresMoon(to) && !player.isCreative() && !hasUpgrade(com.terracraft.geo.Plans.Plan.MARS_NAV)) {
+        if (SpaceTravel.needsMarsNavigation(player, to, hasUpgrade(Plans.Plan.MARS_NAV))) {
             return "Installe la navigation martienne à l'atelier de station (/plans).";
         }
         int cost = costTo(to);
@@ -395,26 +390,8 @@ public class Rocket extends VehicleEntity {
         }
     }
 
-    /**
-     * Règles de navigation : depuis la Terre on ne va qu'en orbite terrestre (la station orbitale est la porte de
-     * l'espace) ; pour aller plus loin, la fusée doit partir amarrée à une station ou une base. Rentrer sur Terre ou en
-     * orbite terrestre reste toujours possible. Renvoie le problème, ou null si la route est permise.
-     */
     private String routeProblem(ServerPlayer player, byte to) {
-        if (player.isCreative() || !(level() instanceof ServerLevel server)) {
-            return null;
-        }
-        byte from = Space.id(level());
-        if (to == Space.EARTH || to == Space.ORBIT_ID) {
-            return null;
-        }
-        if (from == Space.EARTH) {
-            return "Depuis la Terre, cap sur l'orbite terrestre : construis d'abord ta station orbitale (kit de station).";
-        }
-        if (!com.terracraft.geo.Stations.get().dockedNear(server, blockPosition(), 16)) {
-            return "Les voyages lointains partent d'une station : amarre la fusée à une balise de station.";
-        }
-        return null;
+        return level() instanceof ServerLevel server ? SpaceTravel.routeProblem(player, server, blockPosition(), to) : null;
     }
 
     /**
@@ -438,7 +415,7 @@ public class Rocket extends VehicleEntity {
             }
             return false;
         }
-        if (Space.requiresMoon(target()) && !player.isCreative() && !hasUpgrade(com.terracraft.geo.Plans.Plan.MARS_NAV)) {
+        if (SpaceTravel.needsMarsNavigation(player, target(), hasUpgrade(Plans.Plan.MARS_NAV))) {
             if (explain) {
                 player.sendOverlayMessage(Component.literal("Mars : installe la navigation martienne à l'atelier de station (/plans).")
                         .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
@@ -472,7 +449,6 @@ public class Rocket extends VehicleEntity {
             entityData.set(DATA_FUEL, Math.max(0, fuel() - cost()));
             entityData.set(DATA_PHASE, ASCENT);
             timer = 0;
-            onLaunch(level);
             if (Space.id(level) == Space.EARTH) {
                 earthX = getX();
                 earthZ = getZ();
@@ -517,21 +493,17 @@ public class Rocket extends VehicleEntity {
             com.terracraft.geo.Stations.get().deployOrbital(builder, target, x, z);
             removePayload(ModContent.ORBITAL_STATION_KIT);
         }
-        BlockPos station = getFirstPassenger() instanceof ServerPlayer pilot
-                ? com.terracraft.geo.Stations.get().landing(pilot, target) : null;
-        if (station != null) {
-            // Station du pilote (ou de sa ville) : on se pose à côté de sa balise.
-            x = station.getX() + 2.5;
-            z = station.getZ() + 0.5;
-            target.getChunk(station.getX() >> 4, station.getZ() >> 4);
-            y = station.getY() + 25;
+        SpaceTravel.Arrival arrival = SpaceTravel.arrival(target, destination,
+                getFirstPassenger() instanceof ServerPlayer pilot ? pilot : null, x, z);
+        if (arrival.beacon() != null) {
+            // Station du pilote (ou de sa ville) : on se pose sur l'aire, à côté de sa balise.
+            x = arrival.x() + 2;
+            z = arrival.z();
+            y = arrival.groundY() + 25;
         } else if (Space.isOrbitId(destination)) {
-            Space.buildDock(target, (int) Math.floor(x), (int) Math.floor(z));
             y = Space.DOCK_Y + 25;
         } else {
-            target.getChunk((int) Math.floor(x) >> 4, (int) Math.floor(z) >> 4);
-            int ground = target.getHeight(Heightmap.Types.MOTION_BLOCKING, (int) Math.floor(x), (int) Math.floor(z));
-            y = Math.min(target.getMaxY() - 4, ground + 140);
+            y = Math.min(target.getMaxY() - 4, arrival.groundY() + 140);
         }
         entityData.set(DATA_PHASE, DESCENT);
         entityData.set(DATA_TARGET, (byte) -1);
@@ -624,14 +596,14 @@ public class Rocket extends VehicleEntity {
     protected void destroy(ServerLevel level, DamageSource source) {
         super.destroy(level, source);
         for (int flag : new int[]{ENGINE, TANK, NOSE, FINS}) {
-            if (has(flag) && dropsParts()) {
+            if (has(flag)) {
                 spawnAtLocation(level, new ItemStack(ModContent.rocketPartItem(flag)));
             }
         }
         if (fuel() > 0) {
             spawnAtLocation(level, new ItemStack(ModContent.ROCKET_FUEL, fuel()));
         }
-        if (tanks() > 1 && dropsParts()) {
+        if (tanks() > 1) {
             spawnAtLocation(level, new ItemStack(ModContent.ROCKET_TANK, tanks() - 1));
         }
         for (ItemStack item : payload) {

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "terracraft_geo:block/town_registry"
+    },
+    "facing=east": {
+      "model": "terracraft_geo:block/town_registry",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "terracraft_geo:block/town_registry",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "terracraft_geo:block/town_registry",
+      "y": 270
+    }
+  }
+}

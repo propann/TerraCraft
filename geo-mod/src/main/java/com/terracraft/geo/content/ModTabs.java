@@ -17,10 +17,19 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * Onglets TerraCraft du menu créatif : chaque objet du mod est rangé dans une seule catégorie, au lieu d'être
- * dispersé dans les onglets vanilla. L'ordre suit la progression (on fabrique avant de décoller).
+ * Catégories des objets TerraCraft : onglets du menu créatif et chapitres du catalogue (menu O). Chaque objet du mod
+ * est rangé dans une seule catégorie ; l'ordre suit la progression (on fabrique avant de décoller).
  */
 public final class ModTabs {
+    /** Une catégorie : identifiant (titre itemGroup.terracraft_geo.<id>), icône et objets dans l'ordre. */
+    public record Category(String id, Supplier<ItemLike> icon, Supplier<List<ItemLike>> items) {
+        public Component title() {
+            return Component.translatable("itemGroup." + GeoMod.MOD_ID + "." + id);
+        }
+    }
+
+    public static final List<Category> CATEGORIES = new java.util.ArrayList<>();
+
     private ModTabs() {
     }
 
@@ -35,13 +44,15 @@ public final class ModTabs {
                 ModBlocks.AIRLOCK_DOOR, ModBlocks.STATION_BEACON, ModBlocks.DOCKING_CLAMP, ModBlocks.OXYGEN_DISTRIBUTOR,
                 ModBlocks.STATION_WORKSHOP));
         tab("ships", () -> ModContent.SPACESHIP_KIT, () -> List.of(
-                ModContent.SPACESHIP_KIT, ShipBlocks.NAV_CONSOLE, ShipBlocks.PILOT_SEAT, ShipBlocks.SHIP_HULL,
-                ShipBlocks.SHIP_HULL_STRIPE, ShipBlocks.SHIP_CANOPY, ShipBlocks.SHIP_THRUSTER));
+                ModContent.SPACESHIP_KIT, ShipBlocks.NAV_CONSOLE, ShipBlocks.PILOT_SEAT, ShipBlocks.SHIP_THRUSTER,
+                ShipBlocks.SHIP_FUEL_TANK, ShipBlocks.SHIP_AIRLOCK, ShipBlocks.SHIP_HULL, ShipBlocks.SHIP_HULL_STRIPE,
+                ShipBlocks.SHIP_HULL_SLOPE, ShipBlocks.SHIP_CANOPY, ShipBlocks.SHIP_CANOPY_SLOPE));
         tab("industry", () -> IndustryBlocks.REFINERY, () -> List.of(
                 IndustryBlocks.OIL_DETECTOR, IndustryBlocks.OIL_PUDDLE, IndustryBlocks.OIL_PUMP, IndustryBlocks.REFINERY,
                 IndustryBlocks.FUEL_TANK, IndustryBlocks.FUEL_PUMP, IndustryBlocks.EMPTY_FUEL_CAN, IndustryBlocks.PIPE,
                 IndustryBlocks.CABLE, IndustryBlocks.SOLAR_PANEL, IndustryBlocks.BATTERY, IndustryBlocks.GENERATOR,
-                IndustryBlocks.LAMP, IndustryBlocks.GREENHOUSE, ModBlocks.LOGISTICS_TERMINAL, ModBlocks.MARKET_STALL));
+                IndustryBlocks.LAMP, IndustryBlocks.GREENHOUSE, ModBlocks.LOGISTICS_TERMINAL, ModBlocks.MARKET_STALL,
+                ModBlocks.TOWN_REGISTRY));
         tab("vehicles", () -> ModContent.CAR_CHASSIS, () -> List.of(
                 ModContent.CAR_CHASSIS, ModContent.TRUCK_CHASSIS, ModContent.MOTORCYCLE_CHASSIS, ModContent.PLANE_KIT,
                 ModContent.WHEEL, ModContent.ENGINE, ModContent.RADIATOR, ModContent.BATTERY, ModContent.TURBO, ModContent.FUEL_CAN));
@@ -54,9 +65,11 @@ public final class ModTabs {
     }
 
     private static void tab(String name, Supplier<ItemLike> icon, Supplier<List<ItemLike>> items) {
+        Category category = new Category(name, icon, items);
+        CATEGORIES.add(category);
         Identifier id = Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, name);
         CreativeModeTab tab = FabricCreativeModeTab.builder()
-                .title(Component.translatable("itemGroup." + GeoMod.MOD_ID + "." + name))
+                .title(category.title())
                 .icon(() -> new ItemStack(icon.get()))
                 .displayItems((parameters, output) -> items.get().forEach(output::accept))
                 .build();

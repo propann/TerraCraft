@@ -57,6 +57,12 @@ final class Towns {
         Set<UUID> deputies = new LinkedHashSet<>();
         /** Objectifs de ville déjà récompensés (une seule fois chacun). */
         Set<String> goals = new LinkedHashSet<>();
+        /** Scrutin municipal en cours, ou null (voir TownPolitics). */
+        TownPolitics.Election election;
+        /** Fin du dernier scrutin (ou fondation) : le suivant s'ouvre un mandat plus tard. */
+        long lastElection;
+        /** Signataires de la motion de défiance contre le maire. */
+        Set<UUID> defiance = new LinkedHashSet<>();
 
         boolean canManage(UUID player) {
             return mayor.equals(player) || deputies != null && deputies.contains(player);
@@ -95,7 +101,7 @@ final class Towns {
         }
     }
 
-    private void save() {
+    void save() {
         if (file == null) {
             return;
         }
@@ -213,6 +219,10 @@ final class Towns {
         bank.createCredits(source, amount);
         town.treasury += amount;
         save();
+    }
+
+    MinecraftServer server() {
+        return server;
     }
 
     Town townOf(UUID player) {

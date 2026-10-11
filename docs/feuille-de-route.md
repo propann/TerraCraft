@@ -23,7 +23,14 @@ repartent de rien sur la nouvelle carte. Chaque étape se termine par un déploi
 
 - [x] Échelle 1 bloc = 1 m à Paris, une seule carte continue (un joueur parti d'Espagne et un autre d'Allemagne se
       retrouvent en France sur la même carte, sans superposition) ; étages de 4 blocs.
-- [x] Corrections de la 0.38 : tunnel-sas sans butin et aligné, recette du vaisseau rééquilibrée, onglet « Vaisseaux ».
+- [x] **Vaisseaux construits** : une construction de blocs de vaisseau (coque, pentes, verrières, réacteurs, réservoirs,
+      sas, siège, console) devient un vaisseau ; en vol, ses blocs sont des block displays vanilla (rien à installer
+      côté client), puis il est reposé à l'identique (coffres compris) ; à une station, sas contre sas (l'aire
+      d'atterrissage est un bloc sous la station). Kit de vaisseau = navette en blocs. Testé par le scénario.
+- [x] **Recettes vérifiées** en CI (`tools/check_recipes.py` : ingrédients 26.3, motifs, objets obtenables).
+- [x] **Catalogue** (menu `O`) : objets par catégorie, description, recette, « sert à fabriquer » ; descriptions aussi
+      dans les info-bulles de l'inventaire. Chaque objet doit avoir sa description et sa catégorie (CI).
+- [x] **Politique** : élection du maire (tous les 14 jours, motion de défiance, scrutin de 48 h), registre de la mairie.
 - [x] Cache Overture lu une fois et limité à sa zone ; cache OSM indépendant de l'échelle.
 - [~] Mémoire à 10 joueurs simultanés : banc refait sur la nouvelle échelle ([mesures](mesures-generation.md)).
 - [ ] Test de scénario complet sur la 0.38 (`tools/scenario_test.sh`), puis essai en jeu local (Paris, vaisseau,
@@ -36,8 +43,8 @@ repartent de rien sur la nouvelle carte. Chaque étape se termine par un déploi
 
 - [ ] **Classification** maison / immeuble / commerce / bureau / industrie / équipement / tour à partir des tags OSM
       et des classes OpenMapTiles ; style, toit et intérieur par classe.
-- [ ] **Rapport de génération** `/terracraft rapport` : bâtiments écartés ou plafonnés (élancement, hauteur), avec
-      coordonnées ; journal `[GEN]`.
+- [x] **Rapport de génération** `/terracraft rapport [rayon]` : bâtiments par étages et toits, le plus haut, bâtiments
+      suspects (hauteur des données réduite) avec coordonnées ; journal `[GEN]`.
 - [ ] **Façades à la Minecraft** : rez-de-chaussée commerçant plus haut en centre-ville, lucarnes dans les mansardes,
       cours intérieures fermées, entrées alignées sur la rue.
 - [ ] **Densité** : centre, banlieue, campagne, zones industrielles (mobilier urbain, voitures abandonnées, végétation).
@@ -46,8 +53,7 @@ repartent de rien sur la nouvelle carte. Chaque étape se termine par un déploi
 ### Étape 3 — Objets lisibles (interface)
 
 - [x] Onglets créatifs TerraCraft (Espace, Stations, Vaisseaux, Industrie, Véhicules, Combat, Matériaux).
-- [ ] **Catalogue en survie** : nos objets par catégorie avec leur recette et leur usage, depuis le menu `O`
-      (ou un mod de recettes EMI/JEI s'il existe en 26.3 et reste léger).
+- [x] **Catalogue en survie** : nos objets par catégorie avec leur description et leur recette (menu `O`).
 - [ ] Écran « Mon personnage » unifié (fiche, métier, plans, stations).
 - [ ] Textures des armes et pièces à harmoniser.
 
@@ -55,7 +61,10 @@ repartent de rien sur la nouvelle carte. Chaque étape se termine par un déploi
 
 - [ ] Test en jeu de la carte des étoiles, de la console de navigation, du cockpit et du ciel spatial ; corriger.
 - [ ] Le vaisseau sur la carte des étoiles (icône, autonomie restante) et `/station` qui montre les quais libres.
-- [ ] Vaisseau personnalisable avec les blocs de vaisseau (coque, verrière, réacteurs) autour du siège de pilote.
+- [x] Vaisseau personnalisable avec les blocs de vaisseau (coque, verrière, réacteurs) autour du siège de pilote.
+- [ ] Vaisseau : rotation en vol, plusieurs sas, cartes des vaisseaux (où est garé le mien ?).
+- [ ] Politique, suite : lois municipales votées (taxe, ville ouverte), écran de la mairie.
+- [ ] PNJ vivants (idée) : habitants et marchands dialoguant via une IA française (Mistral), avec prompts par rôle.
 - [ ] Laboratoire de station ; garder la Terre utile (ressources terrestres pour les améliorations avancées).
 
 ### Étape 5 — Dette technique (phase 10)

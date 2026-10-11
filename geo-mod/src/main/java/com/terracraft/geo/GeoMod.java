@@ -69,6 +69,7 @@ public final class GeoMod implements ModInitializer {
             return town == null ? null : town.name;
         };
     }
+    private static final TownPolitics POLITICS = new TownPolitics(TOWNS);
     private static final NightRaids RAIDS = new NightRaids(TOWNS);
     private static final PvpZones PVP = new PvpZones();
     private static final Bounties BOUNTIES = new Bounties(AUCTION_HOUSE);
@@ -177,6 +178,22 @@ public final class GeoMod implements ModInitializer {
         return 1;
     }
 
+    /** Rapport des bâtiments générés autour de la source (journal [GEN] et message). */
+    private static int generationReport(CommandSourceStack source, int radius) {
+        if (!(source.getServer().overworld().getChunkSource().getGenerator() instanceof com.terracraft.geo.world.GeoChunkGenerator generator)) {
+            source.sendFailure(Component.literal("Le monde n'est pas la Terre TerraCraft."));
+            return 0;
+        }
+        net.minecraft.core.BlockPos at = net.minecraft.core.BlockPos.containing(source.getPosition());
+        java.util.List<String> lines = com.terracraft.geo.world.GenerationReport.around(generator.terrain(), at.getX(), at.getZ(), radius);
+        LOGGER.info("[GEN] rapport en {} {} (rayon {}) :", at.getX(), at.getZ(), radius);
+        for (String line : lines) {
+            LOGGER.info("[GEN]   {}", line);
+            source.sendSuccess(() -> Component.literal(line), false);
+        }
+        return 1;
+    }
+
     private static void openVehicleStorage(ServerPlayer player) {
         if (player.getVehicle() instanceof com.terracraft.geo.content.Rocket rocket) {
             if (!rocket.openCargo(player)) {
@@ -232,6 +249,7 @@ public final class GeoMod implements ModInitializer {
         ModContent.init();
         ModBlocks.init();
         com.terracraft.geo.content.ShipBlocks.init();
+        com.terracraft.geo.content.ship.ShipEntities.init();
         com.terracraft.geo.content.ModTabs.init();
         Industry.register();
         ModMobs.init();
@@ -491,6 +509,7 @@ public final class GeoMod implements ModInitializer {
         ServerTickEvents.END_SERVER_TICK.register(WELCOME::tick);
         ServerLifecycleEvents.SERVER_STARTED.register(Welcome::motd);
         ServerTickEvents.END_SERVER_TICK.register(TOWNS::tick);
+        ServerTickEvents.END_SERVER_TICK.register(POLITICS::tick);
         ServerTickEvents.END_SERVER_TICK.register(BACKUPS::tick);
         ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
             SpaceSuit.migrate(handler.player);
@@ -521,6 +540,7 @@ public final class GeoMod implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> ServerGuide.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Tutorial.get().register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> TOWNS.register(dispatcher));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> POLITICS.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Jobs.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> REPORTS.register(dispatcher));
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> Stations.get().register(dispatcher));
@@ -566,8 +586,10 @@ public final class GeoMod implements ModInitializer {
                         .then(Commands.literal("fusee").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .then(Commands.literal("decoller").executes(command -> {
                                     ServerPlayer pilot = command.getSource().getPlayerOrException();
-                                    if (!(pilot.getVehicle() instanceof com.terracraft.geo.content.Rocket rocket)) {
-                                        command.getSource().sendFailure(Component.literal("Le joueur doit être dans une fusée."));
+                                    com.terracraft.geo.content.Craft rocket = pilot.getVehicle() instanceof com.terracraft.geo.content.Rocket r ? r
+                                            : com.terracraft.geo.content.ship.BuiltShip.piloted(pilot);
+                                    if (rocket == null) {
+                                        command.getSource().sendFailure(Component.literal("Le joueur doit être dans une fusée ou au siège de pilote d'un vaisseau."));
                                         return 0;
                                     }
                                     if (!rocket.requestLaunch(pilot, true)) {
@@ -614,6 +636,12 @@ public final class GeoMod implements ModInitializer {
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> oilCommand(command.getSource(), false))
                                 .then(Commands.literal("aller").executes(command -> oilCommand(command.getSource(), true))))
+                        .then(Commands.literal("rapport")
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(command -> generationReport(command.getSource(), 256))
+                                .then(Commands.argument("rayon", com.mojang.brigadier.arguments.IntegerArgumentType.integer(16, 2048))
+                                        .executes(command -> generationReport(command.getSource(),
+                                                com.mojang.brigadier.arguments.IntegerArgumentType.getInteger(command, "rayon")))))
                         .then(Commands.literal("generation")
                                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                                 .executes(command -> {

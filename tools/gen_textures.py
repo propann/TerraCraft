@@ -1297,41 +1297,37 @@ def ship_assets():
     block_tex("nav_console_screen", (110, 114, 124), screen, seed=137)
     block_tex("nav_console_side", (110, 114, 124), lambda c: c.rect(0, 0, 16, 2, (84, 88, 98)), seed=138)
 
-    # Entité : mêmes positions de texture que SpaceshipModel.
-    c = Canvas(256, 256, 139)
-    fus = box(c, 0, 0, 20, 18, 52, white, top=(240, 242, 246))
-    for name in ("left", "right"):
-        x, y, w, h = fus[name]
-        c.rect(x, y + 7, w, 3, orange)                   # Bande latérale.
-        c.rect(x + 14, y + 3, 7, 12, (150, 156, 166))    # Porte de sas, cerclée.
-        c.rect(x + 15, y + 4, 5, 10, (96, 102, 112))
-        c.rect(x + 17, y + 6, 1, 2, (80, 220, 255))      # Voyant.
-        for k in range(30, 48, 4):
-            c.rect(x + k, y + 3, 2, 2, (70, 110, 150))   # Hublots de soute.
-    x, y, w, h = fus["back"]
-    c.rect(x, y, w, h, (110, 114, 124), 6)
-    box(c, 0, 72, 14, 12, 10, white)
-    nose = box(c, 0, 72, 14, 12, 10, white)
-    x, y, w, h = nose["front"]
-    c.rect(x + 2, y + 1, w - 4, 2, orange)
-    canopy_box = box(c, 50, 72, 12, 6, 16, (90, 150, 205), top=(120, 180, 230))
-    for name in ("left", "right", "front"):
-        x, y, w, h = canopy_box[name]
-        c.rect(x, y, w, 1, (60, 64, 72))
-    for u in (0, 96):
-        wing = box(c, u, 96, 24, 3, 22, (220, 222, 228), top=(236, 238, 242))
-        x, y, w, h = wing["top"]
-        c.rect(x, y + h - 4, w, 2, orange)
-    eng = box(c, 0, 124, 8, 10, 8, (78, 80, 88))
-    x, y, w, h = eng["back"]
-    c.rect(x + 1, y + 1, w - 2, h - 2, (240, 120, 40))
-    c.rect(x + 2, y + 3, w - 4, h - 6, (255, 210, 120))
-    tail = box(c, 40, 124, 2, 12, 16, white)
-    for name in ("left", "right"):
-        x, y, w, h = tail[name]
-        c.rect(x, y + 2, w, 2, orange)
-    box(c, 80, 124, 3, 8, 3, (70, 72, 80))
-    c.save("entity/spaceship.png")
+    def tank_side(c):
+        plating(c)
+        c.rect(3, 2, 10, 12, (200, 204, 212), 4)            # Cuve.
+        c.rect(6, 4, 4, 8, (40, 44, 52))                    # Jauge.
+        c.rect(7, 7, 2, 5, (240, 120, 40))
+        c.rect(3, 2, 10, 1, orange)
+    block_tex("ship_fuel_tank_side", white, tank_side, seed=140)
+    block_tex("ship_fuel_tank_top", white, lambda c: [plating(c), c.rect(5, 5, 6, 6, (150, 156, 166)),
+                                                      c.rect(7, 7, 2, 2, orange)], seed=141)
+
+    for half in ("top", "bottom"):
+        c = Canvas(16, 16, 142 if half == "top" else 143)
+        c.rect(0, 0, 16, 16, white, 6)
+        c.rect(0, 0, 16, 1, seam)
+        c.rect(0, 15, 16, 1, seam)
+        c.rect(0, 0, 1, 16, seam)
+        c.rect(15, 0, 1, 16, seam)
+        if half == "top":
+            for y in range(16):
+                for x in range(16):
+                    d = (x - 7.5) ** 2 + (y - 8) ** 2
+                    if d < 14:
+                        c.set(x, y, (70, 120, 175))
+                    elif d < 22:
+                        c.set(x, y, rivet)
+        else:
+            c.rect(1, 11, 14, 2, orange)
+            c.rect(12, 5, 2, 3, rivet)
+        c.save(f"block/ship_airlock_{half}.png")
+    icon("ship_airlock", lambda c: (c.rect(4, 1, 8, 14, white, 4), c.rect(6, 3, 4, 4, (70, 120, 175)),
+                                    c.rect(4, 11, 8, 1, orange)))
 
     def draw_ship(c):
         c.rect(2, 7, 12, 3, white, 4)                    # Fuselage.

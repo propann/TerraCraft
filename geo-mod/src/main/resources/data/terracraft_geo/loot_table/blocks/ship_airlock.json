@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "condition": {
+            "type": "minecraft:match_block",
+            "blocks": "terracraft_geo:ship_airlock",
+            "state": {
+              "half": "lower"
+            }
+          },
+          "name": "terracraft_geo:ship_airlock"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "terracraft_geo:blocks/ship_airlock"
+}

@@ -347,7 +347,7 @@ public final class GeoChunkGenerator extends ChunkGenerator {
             if (b == null || b.shape() != OsmCells.RoofShape.MANSARD || !osm.isWall(blockX + d[0], blockZ + d[1])) {
                 continue;
             }
-            int top = apocalypse ? Apocalypse.effectiveTop(b, blockX + d[0], blockZ + d[1]) : b.topY();
+            int top = apocalypse ? Apocalypse.effectiveTop(b, blockX + d[0], blockZ + d[1]) : b.topAt(blockX + d[0], blockZ + d[1]);
             if (apocalypse && Apocalypse.ruin(b) == Apocalypse.Ruin.RUBBLE) {
                 return;
             }
@@ -402,7 +402,7 @@ public final class GeoChunkGenerator extends ChunkGenerator {
     private static void fillBuilding(ChunkAccess chunk, OsmCells.Cell osm, OsmCells.Building building,
                                      int blockX, int blockZ, int x, int z, int groundY, boolean apocalypse) {
         int base = building.baseY();
-        int top = building.topY();
+        int top = building.topAt(blockX, blockZ);
         Apocalypse.Ruin ruin = apocalypse ? Apocalypse.ruin(building) : Apocalypse.Ruin.INTACT;
         if (ruin == Apocalypse.Ruin.RUBBLE) {
             for (int y = groundY + 1; y < base; y++) {
@@ -422,7 +422,17 @@ public final class GeoChunkGenerator extends ChunkGenerator {
         int step = building.floorStep();
         boolean wall = osm.isWall(blockX, blockZ);
         int inset = osm.inset(blockX, blockZ);
-        BlockState wallBlock = block(building.wall());
+        BlockState wallBlock = block(BuildingStyles.lotWall(building, blockX, blockZ));
+        // Îlot découpé en lots : au-dessus d'un lot voisin plus bas, la colonne est un mur pignon plein (sinon on verrait
+        // les étages en coupe).
+        int partyTop = Integer.MAX_VALUE;
+        if (building.block() && !roofless && !wall) {
+            for (int[] d : new int[][]{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}) {
+                if (osm.building(blockX + d[0], blockZ + d[1]) == building) {
+                    partyTop = Math.min(partyTop, building.topAt(blockX + d[0], blockZ + d[1]));
+                }
+            }
+        }
         BlockState roofBlock = block(building.roof());
         BlockState windowBlock = block(building.window());
         // Bandeaux horizontaux : une ligne de contraste par étage donne une façade lisible
@@ -443,7 +453,9 @@ public final class GeoChunkGenerator extends ChunkGenerator {
             int level = (y - base) % step;
             boolean groundFloor = y - base < step;
             BlockState state;
-            if (wall) {
+            if (y >= partyTop) {
+                state = apocalypse ? Apocalypse.wall(wallBlock, blockX, y, blockZ) : wallBlock; // Mur pignon.
+            } else if (wall) {
                 boolean floorBand = level == step - 1 && y > base + step;
                 if (floorBand && !building.curtain()) {
                     state = facadeTrim;

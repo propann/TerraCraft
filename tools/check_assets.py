@@ -69,6 +69,22 @@ for name in sorted(entities):
         if f"entity.terracraft_geo.{name}" not in entries:
             problems.append(f"{name} : traduction entity.terracraft_geo.{name} absente de {file}")
 
+# Catalogue (menu O) et menu créatif : chaque objet a sa description et sa catégorie (ModTabs).
+constants = {}  # (Classe, CONSTANTE) -> identifiant
+for source in SRC.rglob("*.java"):
+    for const, ident in re.findall(r'public static final \w+(?:<[^>]*>)? ([A-Z0-9_]+) = (?:\w+\.)?(?:block|item|gun)\("([a-z0-9_]+)"',
+                                   source.read_text()):
+        constants[(source.stem, const)] = ident
+tabs = (SRC / "content/ModTabs.java").read_text()
+listed = {constants[ref] for ref in re.findall(r'\b([A-Z][A-Za-z]+)\.([A-Z0-9_]+)\b', tabs) if ref in constants}
+HIDDEN = set()  # Objets volontairement absents du catalogue.
+for name in sorted((items | blocks) - HIDDEN):
+    for file, entries in lang.items():
+        if f"desc.terracraft_geo.{name}" not in entries:
+            problems.append(f"{name} : description desc.terracraft_geo.{name} absente de {file}")
+    if name not in listed:
+        problems.append(f"{name} : rangé dans aucune catégorie de ModTabs")
+
 print(f"{len(items)} objets, {len(blocks)} blocs vérifiés.")
 for problem in problems:
     print("  MANQUE", problem)

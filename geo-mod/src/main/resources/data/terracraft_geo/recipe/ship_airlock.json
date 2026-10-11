@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "H": "terracraft_geo:ship_hull",
+    "G": "minecraft:glass_pane"
+  },
+  "pattern": [
+    "HH",
+    "GH",
+    "HH"
+  ],
+  "result": {
+    "id": "terracraft_geo:ship_airlock",
+    "count": 2
+  }
+}

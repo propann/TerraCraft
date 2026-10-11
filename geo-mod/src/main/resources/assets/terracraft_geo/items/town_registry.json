@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "terracraft_geo:block/station_window"
+    "model": "terracraft_geo:block/town_registry"
   }
 }

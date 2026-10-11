@@ -65,22 +65,18 @@ final class StationBuilder {
     /**
      * Base de surface (Lune ou Mars), déployée par un kit à l'atterrissage : aire d'atterrissage 9 × 9 avec pinces
      * et balise, tunnel avec sas, salle de vie 11 × 11 (atelier, oxygène, coffres). La balise est en {@code beacon},
-     * au niveau du sol, sous le point d'arrivée de la fusée.
+     * au niveau du sol, sous le point d'arrivée de la fusée. Le reste de la base est un bloc plus haut que l'aire :
+     * un vaisseau posé sur l'aire a son plancher au niveau de la base et sa porte en face du sas (voir ShipDocking).
      */
     static BlockPos buildSurfaceBase(ServerLevel level, BlockPos beacon) {
-        StationBuilder b = new StationBuilder(level, beacon, true);
-        // Aire d'atterrissage, dégagée sur 8 blocs de haut.
+        StationBuilder b = new StationBuilder(level, beacon.above(), true);
+        b.pad(0, 4);
         for (int dx = -4; dx <= 4; dx++) {
             for (int dz = -4; dz <= 4; dz++) {
-                boolean edge = Math.abs(dx) == 4 || Math.abs(dz) == 4;
-                b.put(dx, 0, dz, edge && Math.floorMod(dx + dz, 2) == 0 ? ModBlocks.STATION_LIGHT : ModBlocks.STATION_FLOOR);
-                for (int dy = 1; dy <= 8; dy++) {
+                for (int dy = 0; dy <= 7; dy++) {
                     b.clear(dx, dy, dz);
                 }
             }
-        }
-        for (int[] c : new int[][]{{1, -2}, {1, 2}, {4, -2}, {4, 2}}) {
-            b.put(c[0], 1, c[1], ModBlocks.DOCKING_CLAMP);
         }
         b.tunnel(-8, -5);
         for (int dz = -2; dz <= 2; dz++) {
@@ -102,11 +98,29 @@ final class StationBuilder {
     }
 
     /**
+     * Aire d'atterrissage carrée centrée en x = {@code cx}, un bloc sous le plancher de la station (dy = -1), de
+     * demi-largeur {@code half} : liseré lumineux et pinces d'amarrage encastrées autour du point d'arrivée des fusées
+     * (balise + 2,5 blocs). Rien ne dépasse de l'aire : un vaisseau peut s'y poser à plat.
+     */
+    private void pad(int cx, int half) {
+        for (int dx = -half; dx <= half; dx++) {
+            for (int dz = -half; dz <= half; dz++) {
+                boolean edge = Math.abs(dx) == half || Math.abs(dz) == half;
+                boolean clamp = Math.abs(dz) == 2 && (dx == 1 || dx == 4);
+                Block block = clamp ? ModBlocks.DOCKING_CLAMP
+                        : edge && Math.floorMod(dx + dz, 2) == 0 ? ModBlocks.STATION_LIGHT : ModBlocks.STATION_FLOOR;
+                put(cx + dx, -1, dz, block);
+            }
+        }
+    }
+
+    /**
      * Construit la station de sorte que la balise du quai soit en {@code beacon} ; renvoie la position de la
      * balise (le quai), où se posent les fusées.
      */
     static BlockPos buildOrbital(ServerLevel level, BlockPos beacon) {
-        StationBuilder b = new StationBuilder(level, beacon.offset(-DOCK_OFFSET, 0, 0));
+        // La station est un bloc plus haut que l'aire d'atterrissage (voir pad).
+        StationBuilder b = new StationBuilder(level, beacon.offset(-DOCK_OFFSET, 1, 0));
         b.room(0, 6, 6, true);                    // Salle de travail 13 × 13.
         b.tunnel(7, 16);                          // Tunnel vers le quai.
         b.tunnel(-12, -7);                        // Tunnel vers le stockage.
@@ -205,23 +219,15 @@ final class StationBuilder {
         }
     }
 
-    /** Quai d'amarrage 11 × 11 ouvert sur l'espace, pinces autour du point d'arrivée des fusées. */
+    /** Quai d'amarrage 11 × 11 ouvert sur l'espace, un bloc sous la station ; mur de raccordement avec le sas. */
     private void dock(int cx) {
-        for (int dx = -5; dx <= 5; dx++) {
-            for (int dz = -5; dz <= 5; dz++) {
-                boolean edge = Math.abs(dx) == 5 || Math.abs(dz) == 5;
-                put(cx + dx, 0, dz, edge && Math.floorMod(dx + dz, 2) == 0 ? ModBlocks.STATION_LIGHT : ModBlocks.STATION_FLOOR);
-            }
-        }
-        // Mur de raccordement côté tunnel (le sas est posé dedans).
+        pad(cx, 5);
+        // Mur de raccordement côté tunnel (le sas est posé dedans), sur un plancher au niveau de la station.
         for (int dz = -2; dz <= 2; dz++) {
+            put(cx - 5, 0, dz, ModBlocks.STATION_FLOOR);
             for (int dy = 1; dy <= 3; dy++) {
                 put(cx - 5, dy, dz, ModBlocks.STATION_HULL);
             }
-        }
-        // Pinces autour du point d'arrivée (balise + 2,5 blocs).
-        for (int[] c : new int[][]{{1, -2}, {1, 2}, {4, -2}, {4, 2}}) {
-            put(cx + c[0], 1, c[1], ModBlocks.DOCKING_CLAMP);
         }
     }
 

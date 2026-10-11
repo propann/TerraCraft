@@ -1,0 +1,27 @@
+{
+  "values": [
+    "terracraft_geo:ship_hull",
+    "terracraft_geo:ship_hull_stripe",
+    "terracraft_geo:ship_hull_slope",
+    "terracraft_geo:ship_canopy",
+    "terracraft_geo:ship_canopy_slope",
+    "terracraft_geo:ship_thruster",
+    "terracraft_geo:ship_fuel_tank",
+    "terracraft_geo:ship_airlock",
+    "terracraft_geo:pilot_seat",
+    "terracraft_geo:nav_console",
+    "terracraft_geo:oxygen_distributor",
+    "terracraft_geo:station_light",
+    "terracraft_geo:station_window",
+    "terracraft_geo:station_floor",
+    "minecraft:chest",
+    "minecraft:barrel",
+    "minecraft:crafting_table",
+    "minecraft:furnace",
+    "minecraft:lantern",
+    "minecraft:ladder",
+    "minecraft:glass_pane",
+    "#minecraft:wool_carpets",
+    "#minecraft:beds"
+  ]
+}

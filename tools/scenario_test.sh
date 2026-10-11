@@ -193,10 +193,10 @@ cmd "execute as Bob run terracraft fusee decoller" 2
 cmd 'execute as Bob at Bob run data merge entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] {Target:2b,Payload:[{id:"terracraft_geo:orbital_station_kit",count:1}]}' 1
 cmd "execute as Bob run terracraft fusee decoller" 25
 cmd "data get entity Bob Dimension" 1
-cmd "execute in terracraft_geo:orbit if block -18 151 6 terracraft_geo:station_workshop" 1
-cmd "execute in terracraft_geo:orbit if block -8 151 10 terracraft_geo:airlock_door" 1
+cmd "execute in terracraft_geo:orbit if block -18 152 6 terracraft_geo:station_workshop" 1
+cmd "execute in terracraft_geo:orbit if block -8 152 10 terracraft_geo:airlock_door" 1
 cmd "execute in terracraft_geo:orbit if block 8 150 10 terracraft_geo:station_beacon" 1
-cmd "execute in terracraft_geo:orbit if block -14 150 10 terracraft_geo:oxygen_distributor" 1
+cmd "execute in terracraft_geo:orbit if block -14 151 10 terracraft_geo:oxygen_distributor" 1
 # Vol 2 : du quai de la station vers l'orbite lunaire (balise de Bob) : 12 - 3 - 2 = 7 doses
 cmd "execute as Bob at Bob run data merge entity @e[type=terracraft_geo:rocket,limit=1,sort=nearest] {Target:11b}" 1
 cmd "execute as Bob run terracraft fusee decoller" 25
@@ -284,6 +284,38 @@ cmd "setblock 40 201 42 terracraft_geo:cable"
 cmd "setblock 40 202 42 terracraft_geo:station_workshop"
 cmd "setblock 41 201 42 terracraft_geo:pipe" 1
 cmd "execute if block 40 201 42 terracraft_geo:cable[up=true,flange_up=true,east=false] run say CABLE_BRIDE" 1
+# Vaisseau construit : kit posé devant Bob (face au nord), réservoirs remplis, coffre à bord, pilote au siège,
+# cap sur l'orbite : le vaisseau s'amarre sas contre sas à la station de Bob (balise 8 150 10, sas de station en x = 3).
+cmd "execute in minecraft:overworld run tp Bob -40.5 201 -40.5 180 60" 3
+cmd "item replace entity Bob weapon.mainhand with terracraft_geo:spaceship_kit"
+cmd "player Bob use once" 2
+cmd "execute if block -41 202 -50 terracraft_geo:nav_console if block -41 202 -49 terracraft_geo:pilot_seat if block -43 202 -48 terracraft_geo:ship_airlock run say NAVETTE_CONSTRUITE" 1
+cmd "setblock -42 202 -46 terracraft_geo:ship_fuel_tank[fuel=5]"
+cmd "setblock -40 202 -46 terracraft_geo:ship_fuel_tank[fuel=5]"
+cmd 'setblock -41 202 -47 minecraft:chest{Items:[{Slot:0b,id:"minecraft:diamond",count:3}]}' 1
+cmd "item replace entity Bob weapon.mainhand with air"
+cmd "tp Bob -40.5 202 -47.5 180 30" 2
+cmd "player Bob look at -40.5 202.3 -48.5" 1
+cmd "player Bob use once" 2
+cmd "execute as Bob run fusee cap orbite" 1
+cmd "execute as Bob run terracraft fusee decoller" 4
+cmd "execute if block -41 202 -50 minecraft:air run say NAVETTE_PARTIE" 22
+cmd "execute in terracraft_geo:orbit if block 4 152 10 terracraft_geo:ship_airlock if block 3 152 10 terracraft_geo:airlock_door run say VAISSEAU_AMARRE" 1
+cmd "execute in terracraft_geo:orbit if data block 6 152 11 Items[0] run say VAISSEAU_COFFRE" 1
+cmd "execute as Bob at Bob if dimension terracraft_geo:orbit run say VAISSEAU_EQUIPAGE" 1
+# Élection municipale : Dan rejoint Bourg Neuf (3 habitants), Alice convoque, Bob se présente et gagne
+# Alice, tuée au test PvP, a quitté le serveur (faux joueur) : elle revient pour l'élection.
+cmd "player Alice spawn at 0 201 2" 4
+cmd "player Dan spawn at 2 201 2" 4
+for _ in $(seq 20); do grep -q "dan\[local\] logged in\|Dan\[local\] logged in" scenario.log && break; sleep 1; done
+cmd "execute as Alice run ville inviter Dan"
+cmd "execute as Dan run ville rejoindre" 1
+cmd "execute as Alice run ville election convoquer" 1
+cmd "execute as Bob run ville candidat" 1
+cmd "execute as Alice run ville voter Bob"
+cmd "execute as Bob run ville voter Bob"
+cmd "execute as Dan run ville voter Alice" 1
+cmd "execute as Alice run ville election clore" 2
 cmd "stop" 2
 # Laisser le serveur finir sa sauvegarde avant de quitter (sinon le monde reste à moitié écrit).
 for _ in $(seq 60); do
@@ -314,7 +346,7 @@ def check(condition, message):
 towns = json.loads((data / "villes.json").read_text())
 eco_created = json.loads((data / "economie.json").read_text())["created"]
 check(len(towns) == 1 and towns[0]["name"] == "Bourg Neuf", "ville fondée")
-check(len(towns[0]["members"]) == 2, "Bob a rejoint la ville")
+check(len(towns[0]["members"]) == 3, "Bob puis Dan ont rejoint la ville")
 check(towns[0]["treasury"] == 140 + eco_created.get("vague_nocturne", 0), "trésorerie = 200 déposés - 50 et 10 payés (+ récompense de vague)")
 balances = sorted(json.loads((data / "balances.json").read_text()).values())
 race = json.loads((data / "course.json").read_text())
@@ -405,13 +437,13 @@ check("[ETAL] Bob fixe le prix à 25" in log and "[ETAL] Alice achète Diamond x
       "étal de marché : Bob fixe le prix, Alice achète 2 diamants (50 crédits à Bob)")
 check("[VILLE] Alice nomme Bob adjoint de Bourg Neuf" in log and "[VILLE] Bob paie 10 crédits à Alice depuis Bourg Neuf" in log,
       "rôles de ville : Bob nommé adjoint puis paie depuis la trésorerie")
-check(towns[0].get("deputies") == [str(uuid) for uuid in towns[0]["members"] if uuid != towns[0]["mayor"]],
-      "l'adjoint est enregistré dans villes.json")
+check(towns[0]["names"].get(towns[0]["mayor"]) == "Bob" and towns[0].get("deputies") == [] and towns[0].get("election") is None,
+      "villes.json : Bob élu maire (plus adjoint), scrutin clos")
 check("nomme modérateur Bob" in log and "avertit Alice : Test de moderation" in log
       and list(json.loads((data / "moderateurs.json").read_text()).values()) == ["Bob"], "modération : Bob nommé modérateur, avertissement journalisé")
 check("[SUIVI] 2 joueurs uniques" in log, "suivi de l'activité : 2 joueurs uniques")
 activity = json.loads((data / "activite.json").read_text())
-check(len(activity) == 3 and all(r["sessions"] >= 1 for r in activity.values()), "activite.json : sessions enregistrées (Alice, Bob, Eve)")
+check(len(activity) == 4 and all(r["sessions"] >= 1 for r in activity.values()), "activite.json : sessions enregistrées (Alice, Bob, Eve, Dan)")
 check(sorted(race["winners"]) == sorted(["orbit", "orbital_station", "moon", "lunar_base", "alien_sanctuary"])
       and race_bob == 1300 and race["active"], f"course à l'espace : Bob remporte 5 étapes, 1 300 crédits (obtenu {sorted(race['winners'])})")
 check("PROTECTION_ETRANGERE_OK" in log and "[protection] eve bloqué" in log.lower(), "base lunaire protégée : Eve (étrangère) ne casse rien")
@@ -436,6 +468,14 @@ check("[ESPACE] Bob se rend sur l'astéroïde" in log and "ASTEROIDE_SOL" in log
 check("[ESPACE] Bob récupéré dans le vide" in log and "SAUVETAGE_OK" in log, "vide de l'espace : la combinaison ramène Bob au quai")
 check("[ECO] Bob achète au comptoir : Carburant de fusée x1 pour 180" in log and "[ECO] Alice achète au comptoir : Carburant de fusée" not in log,
       "réputation : offre réservée achetée par le pilote, refusée à la mécanicienne")
+check("[VILLE] scrutin ouvert à Bourg Neuf" in log and "[VILLE] Bob candidat à Bourg Neuf" in log,
+      "élection municipale : scrutin convoqué par la maire, candidature")
+check("[VILLE] scrutin clos à Bourg Neuf : Bob élu avec 2 voix" in log, "élection municipale : Bob élu maire (2 voix contre 1)")
+check("NAVETTE_CONSTRUITE" in log, "kit de vaisseau : navette construite en blocs (console, siège, sas)")
+check("NAVETTE_PARTIE" in log and "[VAISSEAU] Bob décolle de minecraft:overworld" in log, "vaisseau construit : décollage, blocs prélevés du monde")
+check("VAISSEAU_AMARRE" in log, "vaisseau construit : amarré à la station, sas du vaisseau collé au sas de la station")
+check("VAISSEAU_COFFRE" in log, "vaisseau construit : le coffre de bord garde son contenu pendant le vol")
+check("VAISSEAU_EQUIPAGE" in log, "vaisseau construit : le pilote arrive en orbite avec le vaisseau")
 check("TUYAU_BRIDE" in log, "tuyau : bride sur le distributeur d'oxygène, raccord sans bride avec le tuyau voisin")
 check("CABLE_BRIDE" in log, "câble : bride sous l'atelier de station, pas de raccord avec un tuyau")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")

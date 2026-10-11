@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "H": "terracraft_geo:ship_hull",
+    "K": "terracraft_geo:rocket_tank"
+  },
+  "pattern": [
+    " H ",
+    "HKH",
+    " H "
+  ],
+  "result": {
+    "id": "terracraft_geo:ship_fuel_tank",
+    "count": 1
+  }
+}

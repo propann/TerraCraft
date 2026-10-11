@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "H": "terracraft_geo:ship_hull"
+  },
+  "pattern": [
+    "H  ",
+    "HH ",
+    "HHH"
+  ],
+  "result": {
+    "id": "terracraft_geo:ship_hull_slope",
+    "count": 4
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "terracraft_geo:block/ship_fuel_tank_top",
+    "side": "terracraft_geo:block/ship_fuel_tank_side"
+  }
+}

@@ -80,6 +80,17 @@ public final class GeoModClient implements ClientModInitializer {
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "rocket_cockpit"), new RocketCockpitHud());
         net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "vehicle"), new VehicleHud());
+        // Description de nos objets sous leur nom (inventaire, coffres, catalogue), en lignes courtes.
+        net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> {
+            net.minecraft.resources.Identifier id = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(stack.getItem());
+            String key = "desc." + id.toLanguageKey();
+            if (id.getNamespace().equals(GeoMod.MOD_ID) && net.minecraft.locale.Language.getInstance().has(key)) {
+                int at = Math.min(1, lines.size());
+                for (String line : wrap(net.minecraft.client.resources.language.I18n.get(key), 42)) {
+                    lines.add(at++, net.minecraft.network.chat.Component.literal(line).withStyle(net.minecraft.ChatFormatting.GRAY));
+                }
+            }
+        });
         // Parcours « Premiers pas » : le serveur envoie l'objectif en cours, affiché à droite.
         ClientPlayNetworking.registerGlobalReceiver(TutorialPayload.TYPE, (payload, context) -> TutorialHud.update(payload));
         net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents.DISCONNECT.register((handler, client) ->
@@ -140,8 +151,9 @@ public final class GeoModClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModContent.ROVER, context -> new VehicleRenderer(context, Vehicle.Kind.ROVER));
         ModelLayerRegistry.registerModelLayer(RocketRenderer.LAYER, RocketModel::create);
         EntityRendererRegistry.register(ModContent.ROCKET, RocketRenderer::new);
-        ModelLayerRegistry.registerModelLayer(com.terracraft.geo.client.SpaceshipRenderer.LAYER, com.terracraft.geo.client.SpaceshipModel::create);
-        EntityRendererRegistry.register(ModContent.SPACESHIP, com.terracraft.geo.client.SpaceshipRenderer::new);
+        // Vaisseau en vol : invisible, ses blocs sont des block displays vanilla qui le chevauchent.
+        EntityRendererRegistry.register(com.terracraft.geo.content.ship.ShipEntities.CARRIER, net.minecraft.client.renderer.entity.NoopRenderer::new);
+        EntityRendererRegistry.register(com.terracraft.geo.content.ship.ShipEntities.SEAT, net.minecraft.client.renderer.entity.NoopRenderer::new);
         EntityRendererRegistry.register(com.terracraft.geo.content.ShipBlocks.SEAT, net.minecraft.client.renderer.entity.NoopRenderer::new);
         ModelLayerRegistry.registerModelLayer(com.terracraft.geo.client.PlaneRenderer.LAYER, com.terracraft.geo.client.PlaneModel::create);
         EntityRendererRegistry.register(ModContent.PLANE, com.terracraft.geo.client.PlaneRenderer::new);
@@ -212,5 +224,22 @@ public final class GeoModClient implements ClientModInitializer {
         // Après un clic dans la carte, Minecraft peut laisser le curseur libre : les
         // touches fonctionnent encore mais le joueur ne peut plus tourner la caméra.
         client.mouseHandler.grabMouse();
+    }
+
+    /** Découpe un texte en lignes d'au plus {@code width} caractères, aux espaces. */
+    static java.util.List<String> wrap(String text, int width) {
+        java.util.List<String> lines = new java.util.ArrayList<>();
+        StringBuilder line = new StringBuilder();
+        for (String word : text.split(" ")) {
+            if (!line.isEmpty() && line.length() + 1 + word.length() > width) {
+                lines.add(line.toString());
+                line.setLength(0);
+            }
+            line.append(line.isEmpty() ? "" : " ").append(word);
+        }
+        if (!line.isEmpty()) {
+            lines.add(line.toString());
+        }
+        return lines;
     }
 }

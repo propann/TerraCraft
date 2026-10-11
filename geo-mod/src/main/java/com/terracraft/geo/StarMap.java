@@ -4,7 +4,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.terracraft.geo.content.Craft;
 import com.terracraft.geo.content.Rocket;
+import com.terracraft.geo.content.ship.BuiltShip;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -18,9 +20,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Carte des étoiles : écran de navigation de la fusée (Maj + clic droit, menu O, ou /fusee carte). Montre chaque
- * destination avec son coût en doses, ce qui empêche d'y aller (route, plan, carburant) et les stations du joueur.
- * Les règles sont celles du décollage ({@link Rocket#problemFor}) : la carte n'en invente aucune.
+ * Carte des étoiles : écran de navigation d'une fusée (Maj + clic droit, menu O, ou /fusee carte) ou d'un vaisseau
+ * construit (console de navigation). Montre chaque destination avec son coût en doses, ce qui empêche d'y aller
+ * (route, plan, carburant) et les stations du joueur. Les règles sont celles du décollage ({@link Craft#problemFor}) :
+ * la carte n'en invente aucune.
  */
 public final class StarMap {
     /** Ordre d'affichage, et noms acceptés par /fusee cap. */
@@ -42,24 +45,28 @@ public final class StarMap {
     private StarMap() {
     }
 
-    /** Fusée où le joueur est assis, sinon la plus proche à portée de main. */
-    static Rocket rocketOf(ServerPlayer player) {
+    /** Engin du joueur : fusée où il est assis, vaisseau dont il tient les commandes, sinon la fusée la plus proche. */
+    public static Craft craftOf(ServerPlayer player) {
         if (player.getVehicle() instanceof Rocket rocket) {
             return rocket;
+        }
+        BuiltShip ship = BuiltShip.piloted(player);
+        if (ship != null) {
+            return ship;
         }
         return player.level().getEntitiesOfClass(Rocket.class, player.getBoundingBox().inflate(REACH)).stream()
                 .min((a, b) -> Double.compare(a.distanceToSqr(player), b.distanceToSqr(player))).orElse(null);
     }
 
-    public static void open(ServerPlayer player, Rocket rocket) {
+    public static void open(ServerPlayer player, Craft rocket) {
         JsonObject data = new JsonObject();
-        data.addProperty("rocket", rocket.getId());
+        data.addProperty("rocket", rocket.craftId());
         data.addProperty("here", Space.id(player.level()));
         data.addProperty("target", rocket.target());
         data.addProperty("fuel", rocket.fuel());
         data.addProperty("maxFuel", rocket.maxFuel());
         data.addProperty("tier", rocket.tierName());
-        data.addProperty("pilot", rocket.getFirstPassenger() == player);
+        data.addProperty("pilot", rocket.isPilot(player));
         data.addProperty("complete", rocket.isComplete());
         JsonArray destinations = new JsonArray();
         for (byte id : DESTINATIONS.values()) {
@@ -90,10 +97,10 @@ public final class StarMap {
 
     /** Action de la carte : vérifie la fusée et la destination, met le cap, décolle si demandé. */
     static void act(ServerPlayer player, StarMapActionPayload action) {
-        Rocket rocket = player.level().getEntity(action.rocket()) instanceof Rocket r && r.distanceTo(player) <= REACH + 2
-                ? r : rocketOf(player);
+        Craft rocket = action.rocket() < -1 ? BuiltShip.byId(player.level().getServer(), action.rocket())
+                : player.level().getEntity(action.rocket()) instanceof Rocket r && r.distanceTo(player) <= REACH + 2 ? r : craftOf(player);
         if (rocket == null) {
-            player.sendOverlayMessage(Component.literal("Aucune fusée à portée.").withStyle(ChatFormatting.RED));
+            player.sendOverlayMessage(Component.literal("Aucune fusée ni aucun vaisseau à portée.").withStyle(ChatFormatting.RED));
             return;
         }
         if (action.destination() >= 0) {
@@ -107,12 +114,12 @@ public final class StarMap {
     }
 
     /** Met le cap (même si le vol n'est pas encore possible : le joueur voit ce qui manque). */
-    static boolean setCourse(ServerPlayer player, Rocket rocket, byte destination) {
+    static boolean setCourse(ServerPlayer player, Craft rocket, byte destination) {
         if (!DESTINATIONS.containsValue(destination) || destination == Space.id(player.level())) {
             player.sendOverlayMessage(Component.literal("Destination invalide.").withStyle(ChatFormatting.RED));
             return false;
         }
-        if (rocket.phase() != Rocket.IDLE) {
+        if (rocket instanceof Rocket r && r.phase() != Rocket.IDLE) {
             return false;
         }
         rocket.setTarget(destination);
@@ -129,9 +136,9 @@ public final class StarMap {
         dispatcher.register(Commands.literal("fusee")
                 .then(Commands.literal("carte").executes(command -> {
                     ServerPlayer player = command.getSource().getPlayerOrException();
-                    Rocket rocket = rocketOf(player);
+                    Craft rocket = craftOf(player);
                     if (rocket == null) {
-                        command.getSource().sendFailure(Component.literal("Aucune fusée à portée."));
+                        command.getSource().sendFailure(Component.literal("Aucune fusée ni aucun vaisseau à portée."));
                         return 0;
                     }
                     open(player, rocket);
@@ -142,7 +149,7 @@ public final class StarMap {
                         .executes(command -> {
                             ServerPlayer player = command.getSource().getPlayerOrException();
                             Byte destination = DESTINATIONS.get(StringArgumentType.getString(command, "destination"));
-                            Rocket rocket = rocketOf(player);
+                            Craft rocket = craftOf(player);
                             if (destination == null || rocket == null) {
                                 command.getSource().sendFailure(Component.literal(rocket == null ? "Aucune fusée à portée."
                                         : "Destinations : " + String.join(", ", DESTINATIONS.keySet())));

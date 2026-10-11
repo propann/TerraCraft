@@ -46,7 +46,7 @@ final class Apocalypse {
 
     /** Haut effectif des murs à cette colonne (sommets déchiquetés pour les bâtiments décapités). */
     static int effectiveTop(OsmCells.Building building, int x, int z) {
-        int top = building.topY();
+        int top = building.topAt(x, z);
         if (ruin(building) != Ruin.BROKEN) {
             return top;
         }
