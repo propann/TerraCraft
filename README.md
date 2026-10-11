@@ -30,9 +30,10 @@ jour, réimporte-le. Toutes les versions : [Releases](https://github.com/propann
 
 Les mêmes règles s'affichent en jeu à la première connexion et avec `/regles`.
 
-## Ce qui est en place (0.37.1)
+## Ce qui est en place (0.38.0)
 
-- **Monde** : la Terre réelle (relief, climats de Köppen, routes, eau, bâtiments OSM/Overture aménagés), météo réelle,
+- **Monde** : la Terre réelle sur une seule carte continue, 1 bloc = 1 m à Paris (relief, climats de Köppen, routes,
+  eau, bâtiments OSM/Overture aménagés, étages de 4 blocs), météo réelle,
   jour et nuit normaux ; ruines, bunkers, caves, épaves ; lieux réels (`/lieux` : hôpitaux, gares, commissariats…)
   avec un butin à leur image.
 - **Entrée** : pack à importer (serveur déjà dans la liste), carte de départ en jeu, règles, carnet de survie, parcours
@@ -50,7 +51,8 @@ Les mêmes règles s'affichent en jeu à la première connexion et avec `/regles
 - **Véhicules** : voiture, camion, moto, avion, rover lunaire, jetpack ; tableau de bord (vitesse, carburant, autonomie).
 - **Industrie du carburant** : gisements de pétrole, pompes, panneaux solaires, câbles, tuyaux, raffinerie, réservoirs,
   pompe à essence, batteries, groupe électrogène, lampes électriques, serre hydroponique ; stations-service en ruine aux vraies adresses ; bidons à remplir et à rendre.
-- **Espace** : station orbitale d'abord, fusées à 1-4 réservoirs, carte des étoiles, orbite lunaire, Lune, Mars, ceinture d'astéroïdes ;
+- **Espace** : station orbitale d'abord, fusées à 1-4 réservoirs, vaisseau spatial et blocs de vaisseau (cockpit,
+  tunnel-sas à l'amarrage), carte des étoiles et console de navigation, orbite lunaire, Lune, Mars, ceinture d'astéroïdes ;
   bases en kit, protégées autour de leur balise ; plans et atelier de station ; sous-sol lunaire (cavernes,
   sanctuaires, pyramides), micrométéorites ; combinaison spatiale ; course à l'espace (`/course`).
 - **Exploitation** : sauvegardes automatiques, modérateurs (`/mod`), suivi (`/terracraft suivi`), mesures de
@@ -85,7 +87,7 @@ Compiler et installer en local : `geo-mod/build-mod.sh` (avec `CLIENT_MODS_DIR=�
 ### Publier une version
 
 1. Monter `mod_version` dans `geo-mod/gradle.properties`.
-2. Tester : `tools/scenario_test.sh <jar>` joue une partie avec deux faux joueurs (Carpet, test uniquement) : 30 vérifications (villes, économie, espace, liste des serveurs). `tools/ping_server.py` montre ce que voit la liste des serveurs.
+2. Tester : `tools/scenario_test.sh <jar>` joue une partie avec trois faux joueurs (Carpet, test uniquement) : 85 vérifications (villes, économie, espace, industrie, liste des serveurs) ; `tools/check_assets.py` contrôle les ressources ; `tools/geo_bench.sh` mesure la génération. `tools/ping_server.py` montre ce que voit la liste des serveurs.
 3. Pousser sur `main` : la CI compile, **démarre un vrai serveur** (`tools/smoke_server.sh`) puis met à
    jour la branche **`falix`** (copiée par Falix à la racine du serveur ; redémarrer le serveur ensuite).
 4. Si le client change (objets, écrans, réseau), pousser un tag `vX.Y.Z` : la CI publie une release avec le jar

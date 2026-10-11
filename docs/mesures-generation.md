@@ -1,4 +1,33 @@
-# Mesures de génération — 2026-10-08
+# Mesures de génération — 2026-10-11 (0.38, échelle 1:1 à Paris)
+
+Monde neuf, distance de vue 6, 60 s par lieu, serveur de test à **2 Go** sur le PC de développement (client
+Minecraft ouvert en parallèle : chiffres bruités, à refaire sur Falix).
+
+| Lieu | Chunks | Moyenne (ms/chunk) | Max (ms) | Échecs | Tick moyen (ms) |
+|---|---:|---:|---:|---:|---:|
+| Paris (centre-ville) | 441 | 22 à 64 | 110 à 388 | 0 | 1,4 à 4,6 |
+| Créteil (banlieue) | 441 | 19,1 | 133 | 0 | 2,0 |
+| Le Havre (port) | 441 | 18,5 | 238 | 0 | 1,8 |
+| Beauce (campagne) | 441 | 21,6 | 152 | 0 | 2,5 |
+| Chamonix (montagne) | 441 | 24,5 | 85 | 0 | 1,8 |
+| Marseille (côte) | 441 | 8,6 | 49 | 0 | 0,7 |
+| New York | 441 | 7,6 | 34 | 0 | 1,1 |
+| Tokyo | 441 | 9,2 | 43 | 0 | 1,4 |
+| 5 joueurs simultanés | ~1 050 | 21 à 72 | 0,2 à 4,7 s | 0 | 8,6 à 10,4 |
+| 10 joueurs simultanés | ~1 100 | 16 à 241 | 0,1 à 13 s | 0 | 7,8 à 13,7 |
+
+Lecture :
+
+- **Le tick reste sain** (moins de 14 ms à 10 joueurs ; limite 50 ms) : la génération reste hors du fil principal.
+- **Un chunk coûte plus cher qu'avant** (il contient 2,3 fois plus de ville réelle), mais une même surface de ville se
+  génère plus vite : il faut moins de chunks.
+- **Mémoire** : à 2 Go, 2 passages sur 3 à 10 joueurs (dix capitales à la fois, cache vide) ont manqué de mémoire.
+  Falix a 8 Go : garder **au moins 4 Go** au serveur et vérifier `/spark health` à la relance.
+- Cache de tuiles vectorielles décodées : 6 (relectures en boucle) → 32 (mémoire saturée) → **12** retenu.
+
+---
+
+# Mesures de génération — 2026-10-08 (0.37, ancienne échelle)
 
 Commit `2df5927` · distance de vue 6 · 60 s par lieu · monde neuf, sans cache de tuiles.
 

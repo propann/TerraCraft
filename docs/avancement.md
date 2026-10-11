@@ -1,9 +1,11 @@
 # Avancement TerraCraft
 
-Dernière passe : 7 octobre 2026 — version **0.37.1**.
+Dernière passe : 11 octobre 2026 — version **0.38.0**.
 
 ## Fonctionnel et raccordé
 
+- [x] Monde 1 bloc = 1 m à Paris (carte continue), étages de 4 blocs, hauteurs mesurées conservées.
+- [x] Vaisseau spatial, blocs de vaisseau, console de navigation, tunnel-sas, onglets du menu créatif, cockpit, ciel spatial.
 - [x] Monde Terre réelle avec relief, routes, eau et bâtiments Overture/OpenFreeMap.
 - [x] Génération des bâtiments limitée par type et hauteur.
 - [x] Menu TerraCraft `O`, fiche joueur `K`, missions, `/aide` et carnet de survie avec les touches.
@@ -64,6 +66,9 @@ Dernière passe : 7 octobre 2026 — version **0.37.1**.
 
 ## À tester en jeu
 
+- [ ] Nouveau monde : Paris à l'échelle, étages et fenêtres, toits, intérieurs ; trajet Espagne → France sans coupure.
+- [ ] Vaisseau : pose du kit, vol, amarrage (tunnel-sas), console de navigation, siège, cockpit, ciel spatial.
+- [ ] Menu créatif : onglets TerraCraft, dont « Vaisseaux ».
 - [ ] Inventaire E : panneau de la combinaison, shift-clic, clic sans jeter l'objet, mode créatif.
 - [ ] Hôtel des ventes : catégories, vente depuis l'écran, comptoir, frais.
 - [ ] Jetpack : poussée, carburant, recharge, flammes, pas de faux positif anti-triche.

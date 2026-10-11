@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.37). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.38). Tout est en français ; `/aide` en donne l'essentiel en jeu.
 
 ## Touches
 

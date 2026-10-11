@@ -1,6 +1,6 @@
 # État du projet TerraCraft
 
-Analyse au 8 octobre 2026, version **0.37.1**. Ce document dit ce que nous avons, à quel point c'est vérifié, ce qui
+Analyse au 11 octobre 2026, version **0.38.0** (en production : 0.37.1 jusqu'à la relance du monde). Ce document dit ce que nous avons, à quel point c'est vérifié, ce qui
 reste fragile et dans quel ordre continuer. Tâches : [`feuille-de-route.md`](feuille-de-route.md) · commandes :
 [`commandes.md`](commandes.md) · mesures : [`mesures-generation.md`](mesures-generation.md).
 
@@ -22,7 +22,7 @@ Légende : **A** = vérifié automatiquement (scénario, démarrage, mesure) · 
 
 | Domaine | Contenu | Niveau |
 |---|---|---|
-| Monde | Relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture, bunkers, caves ; météo réelle, jour et nuit normaux | J (monde) / A (horloge) |
+| Monde | Une carte continue, 1 bloc = 1 m à Paris, étages de 4 blocs ; relief réel, climats de Köppen, routes, eau, bâtiments OSM/Overture, bunkers, caves ; météo réelle, jour et nuit normaux | J (monde) / A (horloge) |
 | Performance | Génération hors du fil principal : tick 2 / 9 / 11 ms à 1 / 5 / 10 joueurs ; 3 Go de RAM minimum, 5 Go pour 10 | A (banc de mesure) |
 | Entrée | Pack dans le dépôt (serveur déjà dans la liste), installeurs, carte de départ, règles, carnet, « Premiers pas », accueil | A (MOTD, icône, règles) / J (carte) |
 | Interface | Un seul style (menu `O`, fiche `K`, marché, missions, atelier, carte des étoiles), barres de vie, chat, préfixes de ville, aide par thèmes | C |
@@ -32,7 +32,8 @@ Légende : **A** = vérifié automatiquement (scénario, démarrage, mesure) · 
 | Combat et danger | PvE partout, zones PvP, armes, convois, zones contaminées, boss de bunker, micrométéorites, nuit lunaire | A |
 | Missions | Missions permanentes, contrats du jour, métiers, découvertes, course à l'espace | A |
 | Véhicules | Voiture, camion, moto, avion au clavier, rover lunaire | A (rover) / C (avion) / J (voitures) |
-| Espace | Fusées 1 à 4 réservoirs, station orbitale d'abord, Lune, Mars, carte des étoiles, plans et atelier | A |
+| Espace | Fusées 1 à 4 réservoirs, station orbitale d'abord, Lune, Mars, astéroïdes, carte des étoiles, plans et atelier | A |
+| Vaisseau (0.38) | Kit de vaisseau, blocs de vaisseau, console de navigation, tunnel-sas, cockpit, ciel spatial, onglets créatifs | C |
 | Lune | Bases en kit, cavernes, sanctuaires extraterrestres, donjons, cristaux | A (sanctuaire) / C (cavernes) |
 | Exploitation | Sauvegardes et restauration testée, données atomiques, journaux, `/signaler`, modérateurs, `/terracraft suivi` | A |
 
@@ -64,10 +65,18 @@ Légende : **A** = vérifié automatiquement (scénario, démarrage, mesure) · 
    pour une bêta, pas pour une centaine de joueurs).
 7. **Espace disque Falix** : trois archives du monde s'ajoutent au monde lui-même.
 
+## Audit du 11 octobre 2026
+
+- **Échelle** : l'ancien monde (échelle 1) faisait 1 bloc = 0,66 m à Paris (ville 1,5 fois trop grande). Corrigé en
+  0.38 (échelle 0,6583) ; impose un monde neuf, décidé avec une remise à zéro complète.
+- **Étages** : 4 blocs partout, nombre réel d'étages ; les hauteurs mesurées sont gardées (garde-fou d'élancement).
+- **Bugs corrigés** : tunnel-sas du vaisseau qui donnait des blocs de station gratuits ; recette du vaisseau trop bon
+  marché ; cache Overture relu à chaque cellule et qui supprimait les bâtiments OpenFreeMap hors de sa zone.
+- **Mémoire** : à la nouvelle échelle, une vue couvre 2,3 fois plus de terrain réel ; avec 2 Go, 10 joueurs dans 10
+  capitales ont saturé la mémoire du banc. Falix (8 Go) a la marge ; voir [mesures](mesures-generation.md).
+- **Non vérifié** : la 0.38 n'a pas encore passé le test de scénario ni d'essai en jeu.
+
 ## Priorités recommandées
 
-1. **Séance de test à plusieurs** sur Falix (RAM réglée selon `deploy/FALIX.md`) : écrans, véhicules, combinaison,
-   villes et claims, étals, événements ; relevés `/terracraft suivi` et `/spark health`. Corriger ce qui en sort.
-2. **Bêta privée** : whitelist, canal de retours, `/terracraft course demarrer` le soir de l'ouverture.
-3. **Phase 7** : classification des bâtiments, points d'intérêt, puis missions liées aux lieux réels.
-4. **Espace** : stockage partagé de station, grande station de ville, astéroïdes.
+Voir le [plan d'action](feuille-de-route.md#plan-daction-depuis-la-038-11-octobre-2026) : relance du monde (0.38),
+bâtiments, objets lisibles, espace, dette technique, ouverture.

@@ -13,6 +13,63 @@ Références : [état du projet](etat-du-projet.md) · [avancement](avancement.m
 
 Légende : `[x]` fait · `[~]` fait, à tester en jeu · `[ ]` à faire (avec notre intention).
 
+## Plan d'action (depuis la 0.38, 11 octobre 2026)
+
+Audit du 11 octobre : le serveur Falix tourne en 0.37.1 (4 CPU, 8 Go) ; la 0.38 est prête en local (vaisseau, onglets
+créatifs, monde à l'échelle 1:1 de Paris). **Le monde est remis à zéro** : comptes, villes, stations et claims
+repartent de rien sur la nouvelle carte. Chaque étape se termine par un déploiement vérifié.
+
+### Étape 1 — Relance du monde (0.38)
+
+- [x] Échelle 1 bloc = 1 m à Paris, une seule carte continue (un joueur parti d'Espagne et un autre d'Allemagne se
+      retrouvent en France sur la même carte, sans superposition) ; étages de 4 blocs.
+- [x] Corrections de la 0.38 : tunnel-sas sans butin et aligné, recette du vaisseau rééquilibrée, onglet « Vaisseaux ».
+- [x] Cache Overture lu une fois et limité à sa zone ; cache OSM indépendant de l'échelle.
+- [~] Mémoire à 10 joueurs simultanés : banc refait sur la nouvelle échelle ([mesures](mesures-generation.md)).
+- [ ] Test de scénario complet sur la 0.38 (`tools/scenario_test.sh`), puis essai en jeu local (Paris, vaisseau,
+      onglets, carte des étoiles, ciel spatial, cockpit).
+- [ ] Déploiement : sauvegarde du panel, suppression de `world/` sur Falix ([procédure](../deploy/FALIX.md)), push
+      sur `main`, tag `v0.38.0` (pack client), `tools/sync_client_mods.py`.
+- [ ] Préchargement (Chunky) autour de Paris et des points de départ proposés, pour une arrivée sans attente.
+
+### Étape 2 — Bâtiments au niveau (phase 7)
+
+- [ ] **Classification** maison / immeuble / commerce / bureau / industrie / équipement / tour à partir des tags OSM
+      et des classes OpenMapTiles ; style, toit et intérieur par classe.
+- [ ] **Rapport de génération** `/terracraft rapport` : bâtiments écartés ou plafonnés (élancement, hauteur), avec
+      coordonnées ; journal `[GEN]`.
+- [ ] **Façades à la Minecraft** : rez-de-chaussée commerçant plus haut en centre-ville, lucarnes dans les mansardes,
+      cours intérieures fermées, entrées alignées sur la rue.
+- [ ] **Densité** : centre, banlieue, campagne, zones industrielles (mobilier urbain, voitures abandonnées, végétation).
+- [ ] Cache Overture préparé pour Paris intramuros puis les grandes villes ; mesure avec et sans cache.
+
+### Étape 3 — Objets lisibles (interface)
+
+- [x] Onglets créatifs TerraCraft (Espace, Stations, Vaisseaux, Industrie, Véhicules, Combat, Matériaux).
+- [ ] **Catalogue en survie** : nos objets par catégorie avec leur recette et leur usage, depuis le menu `O`
+      (ou un mod de recettes EMI/JEI s'il existe en 26.3 et reste léger).
+- [ ] Écran « Mon personnage » unifié (fiche, métier, plans, stations).
+- [ ] Textures des armes et pièces à harmoniser.
+
+### Étape 4 — Espace (phase 8)
+
+- [ ] Test en jeu de la carte des étoiles, de la console de navigation, du cockpit et du ciel spatial ; corriger.
+- [ ] Le vaisseau sur la carte des étoiles (icône, autonomie restante) et `/station` qui montre les quais libres.
+- [ ] Vaisseau personnalisable avec les blocs de vaisseau (coque, verrière, réacteurs) autour du siège de pilote.
+- [ ] Laboratoire de station ; garder la Terre utile (ressources terrestres pour les améliorations avancées).
+
+### Étape 5 — Dette technique (phase 10)
+
+- [ ] Découper `GeoMod` (enregistrements), `OsmCells` (téléchargement / rastérisation) et `GeoChunkGenerator`
+      (terrain / bâtiments / décoration).
+- [ ] Écritures JSON hors du fil serveur (file d'écriture unique, toujours atomique).
+- [ ] Tests unitaires du monde (projection, hauteurs, étages, classification) exécutés en CI sans serveur.
+
+### Étape 6 — Ouverture
+
+- [ ] Séance de test à plusieurs sur Falix (`/spark health`, `/terracraft suivi`), corrections.
+- [ ] Bêta privée (whitelist, canal de retours), course à l'espace le soir de l'ouverture, puis bêta publique.
+
 ## Phase 0 — Stabilisation technique
 
 Bloquante pour l'ouverture publique. Critère de sortie : 30 minutes de jeu à plusieurs sans crash, blocage de
@@ -119,7 +176,13 @@ génération ni perte d'objet.
 ## Phase 7 — Monde vivant et génération avancée
 
 - [ ] **Classification fiable** maison / immeuble / commerce / industrie / tour à partir des tags OSM et Overture.
-- [ ] **Hauteurs Overture** seulement quand la donnée est fiable ; plafond par type sinon.
+- [x] **Échelle et étages (0.38)** : 1 bloc = 1 m à Paris (échelle 0,6583, une seule carte Mercator continue pour la
+      planète : Madrid 1,16 m, Berlin 0,93 m par bloc) ; étages de 4 blocs partout (nombre réel d'étages, ~1,3× le
+      réel en hauteur), fenêtres de 2 blocs. Monde neuf obligatoire (`deploy/FALIX.md`).
+- [x] **Hauteurs mesurées conservées** (tours jusqu'à 250 m) avec garde-fou d'élancement (≤ 6 × la largeur moyenne) ;
+      plafond par type quand la hauteur est devinée.
+- [x] **Cache Overture** lu une seule fois et appliqué seulement à la zone qu'il couvre (avant : relu à chaque
+      cellule, et les bâtiments OpenFreeMap disparaissaient partout ailleurs) ; cache indépendant de l'échelle.
 - [ ] **Refus des géométries aberrantes** et rapport de génération (`/terracraft rapport`) listant les bâtiments
       suspects avec leurs coordonnées.
 - [x] **Intérieurs par type** : butin contextualisé, deux fois plus de coffres, mobilier selon le lieu (lits et
@@ -154,6 +217,9 @@ génération ni perte d'objet.
 - [x] **Ceinture d'astéroïdes** : nouvelle destination (depuis l'orbite de Mars, 3 doses, navigation martienne), rochers
       flottants rocheux, métalliques et glacés (fer, or, titane, diamants, hélium-3), quai à l'arrivée, carte des
       étoiles, découverte et étape de la course ; récupération dans le vide (toutes les orbites).
+- [~] **Vaisseau spatial (0.38)** : kit (3 réservoirs, 2 coques, 2 moteurs, ogive, ailerons) livré monté à 4 réservoirs ;
+      tunnel-sas sans butin déployé à l'amarrage et replié au décollage ; blocs de vaisseau (coque, verrière, réacteur,
+      siège, console de navigation) ; onglets TerraCraft du menu créatif dont « Vaisseaux » ; cockpit et ciel spatial.
 - [ ] **Garder la Terre utile** : ressources terrestres indispensables aux améliorations avancées (commerce Terre ↔ espace).
 
 ## Phase 9 — Bêta publique et exploitation
@@ -171,15 +237,19 @@ génération ni perte d'objet.
 - [x] **Suivi** (`/terracraft suivi`, activite.json) : joueurs uniques, actifs 24 h / 7 j, retour après le premier
       jour, temps de jeu, joueurs en ligne, tick moyen. Reste : missions et contrats remplis, erreurs.
 
+## Phase 10 — Qualité du code et performance
+
+Serveur Falix : 4 CPU, 8 Go. Règle : génération hors du fil principal, rien de bloquant sur le fil serveur, caches
+bornés en mémoire.
+
+- [x] Génération hors du fil principal ; accès OSM depuis le fil serveur par `OsmCells.cellIfLoaded`.
+- [x] Cache Overture chargé une fois ; tuiles vectorielles décodées en mémoire (12) ; cache disque partagé.
+- [ ] Découpage des trois gros fichiers, écritures JSON asynchrones, tests unitaires du monde (voir étape 5).
+
 ## Ordre de développement
 
-Fait depuis : phase 0 (mesures), phase 1 (interface, confirmations), phase 6 (événements, PvP), phases 2 et 3
-(villes, étals), phase 9 (règles, modération, suivi, course à l'espace).
-
-1. **Séance de test à plusieurs** sur Falix, puis bêta privée (whitelist, canal de retours, course à l'espace).
-2. Génération enrichie et points d'intérêt, puis missions liées aux lieux (phases 7 et 4).
-3. Espace : stockage partagé de station, grande station de ville, astéroïdes (phase 8).
-4. Bêta publique.
+Voir le [plan d'action](#plan-daction-depuis-la-038-11-octobre-2026) : relance du monde (0.38), bâtiments, objets
+lisibles, espace, dette technique, ouverture.
 
 ## Validation avant chaque déploiement
 
