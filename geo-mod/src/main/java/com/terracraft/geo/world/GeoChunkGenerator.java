@@ -455,7 +455,7 @@ public final class GeoChunkGenerator extends ChunkGenerator {
                     // Façade rideau : verre partout, sauf les dalles d'étage et un poteau sur cinq.
                     state = level == 0 || Math.floorMod(blockX + blockZ, 5) == 0 ? wallBlock : windowBlock;
                 } else {
-                    boolean window = level >= 2 && level < step - 1 && Math.floorMod(blockX + blockZ, 3) != 0;
+                    boolean window = level >= 1 && level < step - 1 && Math.floorMod(blockX + blockZ, 3) != 0;
                     state = window ? windowBlock : wallBlock;
                 }
                 if (apocalypse) {

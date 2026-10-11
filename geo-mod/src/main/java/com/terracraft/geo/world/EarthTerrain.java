@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Le niveau de la mer réel correspond à {@link #SEA_LEVEL} (eau jusqu'à y=62). L'altitude
  * est convertie en blocs avec la même échelle que l'horizontale Mercator
  * ({@code scale / cos(latitude)} blocs par mètre), linéairement jusqu'à
- * {@link #LINEAR_LIMIT} blocs (≈ 800 m réels en France), puis compressée en racine carrée pour
+ * {@link #LINEAR_LIMIT} blocs (≈ 1 200 m réels à Paris avec l'échelle 0,6583), puis compressée en racine carrée pour
  * que l'Everest tienne sous la limite de la dimension terracraft_geo:earth (y=1471). Les fonds marins sont compressés de la même façon.
  */
 public final class EarthTerrain {
@@ -63,7 +63,7 @@ public final class EarthTerrain {
                 ? new ElevationTiles(BATHYMETRY_ZOOM, ElevationTiles.DEFAULT_URL, cacheDir.resolve("terrarium"))
                 : tiles;
         this.worldSize = WebMercator.worldSize(scale);
-        this.osm = new OsmCells(this, cacheDir.resolve("osm").resolve("scale-" + scale));
+        this.osm = new OsmCells(this, cacheDir.resolve("osm"));
     }
 
     /** Zoom de tuile visant environ 20 blocs par pixel (les données SRTM font ~30 m). */

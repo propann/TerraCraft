@@ -4,7 +4,7 @@
       "type": "terracraft_geo:earth",
       "generator": {
         "type": "terracraft_geo:earth",
-        "scale": 1.0,
+        "scale": 0.6583,
         "apocalypse": true
       }
     },

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Télécharge un cache de bâtiments Overture pour TerraCraft.
 
-Le serveur lit ensuite ``terracraft-cache/osm/scale-1.0/overture-buildings.geojson``.
+Le serveur lit ensuite ``terracraft-cache/osm/overture-buildings.geojson``.
 Les routes restent fournies par les tuiles vectorielles habituelles.
 
 Exemple :
   uvx overturemaps download --bbox=2.28,48.84,2.30,48.86 -f geojson \
-      --type=building -o serveur-local/terracraft-cache/osm/scale-1.0/overture-buildings.geojson
+      --type=building -o serveur-local/terracraft-cache/osm/overture-buildings.geojson
 
 Ce wrapper documente et vérifie le format attendu. ``overturemaps`` est le client officiel
 Overture ; il lit le GeoParquet cloud et ne télécharge que la bbox demandée.

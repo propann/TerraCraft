@@ -46,10 +46,10 @@ cp "$ROOT/deploy/FALIX.md" "$WORK/tree/TERRACRAFT-FALIX.md"
 cp "$ROOT/deploy/ops.json" "$WORK/tree/ops.json"
 # Cache bâtiments Overture préparé pour la zone de test, s'il existe. Les autres zones
 # continuent d'utiliser le fallback OpenFreeMap jusqu'à leur prochain préchargement.
-OVERTURE_CACHE="$ROOT/serveur-local/terracraft-cache/osm/scale-1.0/overture-buildings.geojson"
+OVERTURE_CACHE="$ROOT/serveur-local/terracraft-cache/osm/overture-buildings.geojson"
 if [ -f "$OVERTURE_CACHE" ]; then
-  mkdir -p "$WORK/tree/terracraft-cache/osm/scale-1.0"
-  cp "$OVERTURE_CACHE" "$WORK/tree/terracraft-cache/osm/scale-1.0/"
+  mkdir -p "$WORK/tree/terracraft-cache/osm"
+  cp "$OVERTURE_CACHE" "$WORK/tree/terracraft-cache/osm/"
 fi
 
 cd "$WORK/tree"

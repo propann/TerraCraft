@@ -5,7 +5,9 @@ package com.terracraft.geo.world;
  *
  * <p>Le monde Minecraft est une grande carte Mercator centrée sur (0°, 0°) : le bloc (0, 0)
  * est l'« Null Island » dans le golfe de Guinée, l'est est vers +X et le nord vers -Z.
- * À l'échelle 1, un bloc vaut un mètre à l'équateur et {@code cos(latitude)} mètre ailleurs.
+ * À l'échelle {@code s}, un bloc vaut {@code cos(latitude) / s} mètre. Le préréglage du monde utilise
+ * {@code s = cos(48,86°) = 0,6583} : un bloc = un mètre à Paris (Madrid 1,16 m, Berlin 0,93 m, Oslo 0,76 m).
+ * C'est une seule carte continue pour toute la planète : chaque lieu réel a une seule position en blocs.
  * Comme les tuiles sont aussi en Mercator, un pixel de tuile correspond à un nombre
  * constant de blocs : aucune reprojection n'est nécessaire pour lire le relief.
  */

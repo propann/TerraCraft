@@ -71,6 +71,11 @@ public final class OsmCells {
      * Bâtiment rastérisé : hauteurs en Y Minecraft absolus, blocs en identifiants
      * ({@code minecraft:bricks}) résolus par le générateur.
      */
+    /** Hauteur d'un étage en blocs, la même partout : plancher + 3 blocs d'air (fenêtres de 2 blocs). */
+    public static final int FLOOR_STEP = 4;
+    /** Hauteur réelle moyenne d'un étage. */
+    static final double METRES_PER_FLOOR = 3.0;
+
     public record Building(int baseY, int topY, int floorStep, String wall, String roof, String window,
                            RoofShape shape, boolean shopFront, boolean curtain, long seed) {
     }
@@ -190,7 +195,8 @@ public final class OsmCells {
 
     private final EarthTerrain terrain;
     private final VectorTiles vectorTiles;
-    private final Path cacheDir;
+    private final Path overtureFile;
+    private volatile List<OvertureBuilding> overture;
     private final ExecutorService downloads = Executors.newFixedThreadPool(3, runnable -> {
         Thread thread = new Thread(runnable, "TerraCraft-osm");
         thread.setDaemon(true);
@@ -204,10 +210,41 @@ public final class OsmCells {
         }
     };
 
+    /**
+     * {@code cacheDir} ne dépend pas de l'échelle : les tuiles et le cache Overture sont en coordonnées géographiques,
+     * la conversion en blocs se fait à la lecture.
+     */
     OsmCells(EarthTerrain terrain, Path cacheDir) {
         this.terrain = terrain;
-        this.cacheDir = cacheDir;
+        migrateLegacyCache(cacheDir);
+        this.overtureFile = cacheDir.resolve("overture-buildings.geojson");
         this.vectorTiles = new VectorTiles(cacheDir);
+    }
+
+    /** Jusqu'à la 0.37, le cache était rangé par échelle (osm/scale-1.0/) : on le récupère au lieu de tout retélécharger. */
+    private static void migrateLegacyCache(Path cacheDir) {
+        Path legacy = cacheDir.resolve("scale-1.0");
+        if (!Files.isDirectory(legacy)) {
+            return;
+        }
+        try {
+            Files.createDirectories(cacheDir);
+            for (String name : new String[]{"openfreemap", "overture-buildings.geojson"}) {
+                Path from = legacy.resolve(name);
+                Path to = cacheDir.resolve(name);
+                if (Files.exists(from) && !Files.exists(to)) {
+                    Files.move(from, to);
+                }
+            }
+            try (var rest = Files.list(legacy)) {
+                if (rest.findAny().isEmpty()) {
+                    Files.delete(legacy);
+                }
+            }
+            GeoMod.LOGGER.info("Cache OSM déplacé de {} vers {}", legacy, cacheDir);
+        } catch (IOException e) {
+            GeoMod.LOGGER.warn("Cache OSM {} non migré : il sera retéléchargé au besoin", legacy, e);
+        }
     }
 
     /** Cellule contenant le bloc ; bloquant au premier accès (téléchargement). */
@@ -281,9 +318,13 @@ public final class OsmCells {
             int maxTx = (int) Math.floor((((cx + 1) * CELL_SIZE + MARGIN) / worldSize + 0.5) * tiles);
             int minTy = (int) Math.floor(((cz * CELL_SIZE - MARGIN) / worldSize + 0.5) * tiles);
             int maxTy = (int) Math.floor((((cz + 1) * CELL_SIZE + MARGIN) / worldSize + 0.5) * tiles);
+            double minX = cx * CELL_SIZE - MARGIN, maxX = (cx + 1) * CELL_SIZE + MARGIN;
+            double minZ = cz * CELL_SIZE - MARGIN, maxZ = (cz + 1) * CELL_SIZE + MARGIN;
             List<Shape> shapes = new ArrayList<>();
-            Path overture = cacheDir.resolve("overture-buildings.geojson");
-            boolean useOvertureBuildings = Files.isRegularFile(overture);
+            // Là où le cache Overture a des bâtiments, ils remplacent ceux d'OpenFreeMap (formes plus fidèles).
+            List<OvertureBuilding> overtureHere = overtureBuildings().stream()
+                    .filter(b -> b.maxX() >= minX && b.minX() <= maxX && b.maxZ() >= minZ && b.minZ() <= maxZ).toList();
+            boolean useOvertureBuildings = !overtureHere.isEmpty();
             for (int ty = minTy; ty <= maxTy; ty++) {
                 for (int tx = minTx; tx <= maxTx; tx++) {
                     List<MvtDecoder.Feature> features = vectorTiles.tile(Math.floorMod(tx, tiles), ty);
@@ -304,9 +345,8 @@ public final class OsmCells {
                     }
                 }
             }
-            if (useOvertureBuildings) {
-                shapes.addAll(overtureShapes(overture, cx * CELL_SIZE - MARGIN, (cx + 1) * CELL_SIZE + MARGIN,
-                        cz * CELL_SIZE - MARGIN, (cz + 1) * CELL_SIZE + MARGIN));
+            for (OvertureBuilding building : overtureHere) {
+                shapes.add(new Shape(building.feature(), building.feature().parts()));
             }
             return new Rasterizer(cx * CELL_SIZE, cz * CELL_SIZE).run(shapes);
         } catch (RuntimeException e) {
@@ -315,42 +355,75 @@ public final class OsmCells {
         }
     }
 
+    /** Bâtiment Overture déjà converti en coordonnées bloc, avec son emprise. */
+    private record OvertureBuilding(MvtDecoder.Feature feature, double minX, double maxX, double minZ, double maxZ) {
+    }
+
+    /** Cache Overture lu une seule fois ; liste vide s'il est absent ou illisible. */
+    private List<OvertureBuilding> overtureBuildings() {
+        List<OvertureBuilding> loaded = overture;
+        if (loaded == null) {
+            synchronized (this) {
+                loaded = overture;
+                if (loaded == null) {
+                    loaded = readOverture(overtureFile);
+                    overture = loaded;
+                }
+            }
+        }
+        return loaded;
+    }
+
     /** Lit le cache GeoJSON produit par tools/fetch_overture_buildings.py. */
-    private List<Shape> overtureShapes(Path file, double minX, double maxX, double minZ, double maxZ) {
-        List<Shape> result = new ArrayList<>();
+    private List<OvertureBuilding> readOverture(Path file) {
+        if (!Files.isRegularFile(file)) {
+            return List.of();
+        }
+        List<OvertureBuilding> result = new ArrayList<>();
         try {
             JsonObject root = JsonParser.parseString(Files.readString(file)).getAsJsonObject();
             for (JsonElement element : root.getAsJsonArray("features")) {
                 JsonObject feature = element.getAsJsonObject();
-                JsonObject geometry = feature.getAsJsonObject("geometry");
                 JsonObject properties = feature.has("properties") && feature.get("properties").isJsonObject()
                         ? feature.getAsJsonObject("properties") : new JsonObject();
-                List<double[]> parts = overtureParts(geometry, minX, maxX, minZ, maxZ);
-                if (!parts.isEmpty()) {
-                    long id = feature.has("id") ? stableOvertureId(feature.get("id").getAsString()) : -result.size() - 1L;
-                    Map<String, Object> tags = new java.util.HashMap<>();
-                    for (Map.Entry<String, JsonElement> entry : properties.entrySet()) {
-                        JsonElement value = entry.getValue();
-                        if (value.isJsonPrimitive()) {
-                            if (value.getAsJsonPrimitive().isNumber()) {
-                                tags.put(entry.getKey(), value.getAsDouble());
-                            } else if (value.getAsJsonPrimitive().isBoolean()) {
-                                tags.put(entry.getKey(), value.getAsBoolean());
-                            } else {
-                                tags.put(entry.getKey(), value.getAsString());
-                            }
+                List<double[]> parts = overtureParts(feature.getAsJsonObject("geometry"));
+                if (parts.isEmpty()) {
+                    continue;
+                }
+                long id = feature.has("id") ? stableOvertureId(feature.get("id").getAsString()) : -result.size() - 1L;
+                Map<String, Object> tags = new java.util.HashMap<>();
+                for (Map.Entry<String, JsonElement> entry : properties.entrySet()) {
+                    JsonElement value = entry.getValue();
+                    if (value.isJsonPrimitive()) {
+                        if (value.getAsJsonPrimitive().isNumber()) {
+                            tags.put(entry.getKey(), value.getAsDouble());
+                        } else if (value.getAsJsonPrimitive().isBoolean()) {
+                            tags.put(entry.getKey(), value.getAsBoolean());
+                        } else {
+                            tags.put(entry.getKey(), value.getAsString());
                         }
                     }
-                    result.add(new Shape(new MvtDecoder.Feature("building", id, MvtDecoder.POLYGON, tags, parts), parts));
                 }
+                double minX = Double.MAX_VALUE, maxX = -Double.MAX_VALUE, minZ = Double.MAX_VALUE, maxZ = -Double.MAX_VALUE;
+                for (double[] ring : parts) {
+                    for (int k = 0; k < ring.length; k += 2) {
+                        minX = Math.min(minX, ring[k]);
+                        maxX = Math.max(maxX, ring[k]);
+                        minZ = Math.min(minZ, ring[k + 1]);
+                        maxZ = Math.max(maxZ, ring[k + 1]);
+                    }
+                }
+                result.add(new OvertureBuilding(new MvtDecoder.Feature("building", id, MvtDecoder.POLYGON, tags, parts), minX, maxX, minZ, maxZ));
             }
+            GeoMod.LOGGER.info("Cache Overture : {} bâtiments chargés depuis {}", result.size(), file);
         } catch (IOException | RuntimeException e) {
             GeoMod.LOGGER.warn("Cache Overture illisible : {}", file, e);
+            return List.of();
         }
-        return result;
+        return List.copyOf(result);
     }
 
-    private List<double[]> overtureParts(JsonObject geometry, double minX, double maxX, double minZ, double maxZ) {
+    private List<double[]> overtureParts(JsonObject geometry) {
         List<double[]> parts = new ArrayList<>();
         if (geometry == null || !geometry.has("coordinates")) {
             return parts;
@@ -358,37 +431,28 @@ public final class OsmCells {
         String type = geometry.get("type").getAsString();
         JsonArray coordinates = geometry.getAsJsonArray("coordinates");
         if ("Polygon".equals(type)) {
-            addOvertureRings(parts, coordinates, minX, maxX, minZ, maxZ);
+            addOvertureRings(parts, coordinates);
         } else if ("MultiPolygon".equals(type)) {
             for (JsonElement polygon : coordinates) {
-                addOvertureRings(parts, polygon.getAsJsonArray(), minX, maxX, minZ, maxZ);
+                addOvertureRings(parts, polygon.getAsJsonArray());
             }
         }
         return parts;
     }
 
-    private void addOvertureRings(List<double[]> parts, JsonArray rings, double minX, double maxX,
-                                  double minZ, double maxZ) {
+    private void addOvertureRings(List<double[]> parts, JsonArray rings) {
         for (JsonElement ringElement : rings) {
             JsonArray ring = ringElement.getAsJsonArray();
+            if (ring.size() < 3) {
+                continue;
+            }
             double[] points = new double[ring.size() * 2];
-            double ringMinX = Double.MAX_VALUE, ringMaxX = -Double.MAX_VALUE;
-            double ringMinZ = Double.MAX_VALUE, ringMaxZ = -Double.MAX_VALUE;
             for (int i = 0; i < ring.size(); i++) {
                 JsonArray point = ring.get(i).getAsJsonArray();
-                double x = WebMercator.blockX(point.get(0).getAsDouble(), terrain.scale());
-                double z = WebMercator.blockZ(point.get(1).getAsDouble(), terrain.scale());
-                points[i * 2] = x;
-                points[i * 2 + 1] = z;
-                ringMinX = Math.min(ringMinX, x);
-                ringMaxX = Math.max(ringMaxX, x);
-                ringMinZ = Math.min(ringMinZ, z);
-                ringMaxZ = Math.max(ringMaxZ, z);
+                points[i * 2] = WebMercator.blockX(point.get(0).getAsDouble(), terrain.scale());
+                points[i * 2 + 1] = WebMercator.blockZ(point.get(1).getAsDouble(), terrain.scale());
             }
-            boolean touches = ringMaxX >= minX && ringMinX <= maxX && ringMaxZ >= minZ && ringMinZ <= maxZ;
-            if (touches && points.length >= 6) {
-                parts.add(points);
-            }
+            parts.add(points);
         }
     }
 
@@ -719,16 +783,21 @@ public final class OsmCells {
             // Les valeurs issues de sources différentes ne doivent jamais permettre à une
             // donnée aberrante de faire monter une maison jusqu'au plafond du monde.
             double safeMinMetres = Math.max(0, Math.min(minMetres, metres - 3));
-            int floorStep = Math.max(3, (int) Math.round(3.0 * bpm));
-            int base = ground + (int) Math.round(safeMinMetres * bpm);
-            int height = Math.max(4, (int) Math.round((metres - safeMinMetres) * bpm));
-            int top = Math.min(EarthTerrain.MAX_SURFACE_Y + 2, base + height);
+            // Étages « à la Minecraft » : on garde le nombre réel d'étages, mais chacun fait FLOOR_STEP blocs partout
+            // sur la planète (plancher + 3 blocs sous plafond). Plus haut que le réel (~1,3×), toujours habitable.
+            int base = ground + floors(safeMinMetres, 0) * FLOOR_STEP;
+            int top = Math.min(EarthTerrain.MAX_SURFACE_Y + 2, base + floors(metres - safeMinMetres, 1) * FLOOR_STEP);
             JsonObject tags = buildingTags(feature);
-            cell.buildings.add(BuildingStyles.style(tags, styleType, osmId, base, top, floorStep, latitude));
+            cell.buildings.add(BuildingStyles.style(tags, styleType, osmId, base, top, FLOOR_STEP, latitude));
             int id = cell.buildings.size();
             for (Shape part : parts) {
                 fillPolygon(part.parts(), i -> cell.building[i] = id);
             }
+        }
+
+        /** Nombre d'étages pour une hauteur réelle (au moins {@code min}). */
+        private static int floors(double metres, int min) {
+            return Math.max(min, (int) Math.round(metres / METRES_PER_FLOOR));
         }
 
         /**
@@ -760,11 +829,14 @@ public final class OsmCells {
                 case "house", "detached", "semidetached_house", "terrace", "bungalow", "farm", "cabin", "hut" -> 8.5;
                 case "garage", "garages", "shed", "kiosk", "greenhouse" -> 4.5;
                 case "industrial", "warehouse", "factory", "hangar", "manufacture" -> 18.0;
-                case "tower", "skyscraper" -> 60.0;
+                case "tower", "skyscraper" -> measured ? 250.0 : 60.0;
                 // Un type générique sans hauteur/niveaux fiables doit rester un bâtiment
                 // urbain crédible, pas une tour vide issue d'une bbox trop large.
-                default -> measured ? 18.0 : footprint < 250 ? 8.5 : footprint < 1200 ? 12.0 : 16.0;
+                default -> measured ? 120.0 : footprint < 250 ? 8.5 : footprint < 1200 ? 12.0 : 16.0;
             };
+            // Garde-fou contre les données aberrantes (partie de tour attribuée à tout l'îlot, faute de frappe) :
+            // un bâtiment ne dépasse pas six fois sa largeur moyenne (les vraies tours font 3 à 5 fois).
+            cap = Math.min(cap, Math.max(8.5, 6 * Math.sqrt(footprint)));
             double safeMin = Math.max(0, Math.min(minMetres, cap - 3));
             return Math.max(safeMin + 3, Math.min(cap, metres));
         }

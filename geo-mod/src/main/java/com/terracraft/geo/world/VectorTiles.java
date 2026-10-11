@@ -28,7 +28,12 @@ final class VectorTiles {
     static final int ZOOM = 14;
     private static final String TILEJSON = "https://tiles.openfreemap.org/planet";
     private static final String FALLBACK_URL = "https://tiles.openfreemap.org/planet/20261004_113936_pt/{z}/{x}/{y}.pbf";
-    private static final int MEMORY_TILES = 6;
+    /**
+     * Tuiles décodées gardées en mémoire. Une cellule OSM (544 blocs) touche jusqu'à 4 tuiles et plusieurs joueurs
+     * génèrent en même temps : avec 6 places, les grosses tuiles de ville étaient relues et décodées en boucle ;
+     * avec 32, les tuiles décodées (des dizaines de Mo en centre-ville) saturaient 2 Go de mémoire à 10 joueurs.
+     */
+    private static final int MEMORY_TILES = 12;
     private static final int ATTEMPTS = 4;
 
     private final Path cacheDir;
