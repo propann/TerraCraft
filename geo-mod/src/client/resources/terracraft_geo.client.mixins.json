@@ -8,7 +8,8 @@
     "AbstractContainerScreenMixin",
     "CreativeModeInventoryScreenMixin",
     "InventoryScreenMixin",
-    "LivingEntityRendererMixin"
+    "LivingEntityRendererMixin",
+    "SkyRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

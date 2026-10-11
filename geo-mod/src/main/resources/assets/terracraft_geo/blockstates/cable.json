@@ -57,6 +57,59 @@
         "model": "terracraft_geo:block/cable_side",
         "x": 90
       }
+    },
+    {
+      "when": {
+        "flange_north": "true"
+      },
+      "apply": {
+        "model": "terracraft_geo:block/cable_flange"
+      }
+    },
+    {
+      "when": {
+        "flange_east": "true"
+      },
+      "apply": {
+        "model": "terracraft_geo:block/cable_flange",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "flange_south": "true"
+      },
+      "apply": {
+        "model": "terracraft_geo:block/cable_flange",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "flange_west": "true"
+      },
+      "apply": {
+        "model": "terracraft_geo:block/cable_flange",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "flange_up": "true"
+      },
+      "apply": {
+        "model": "terracraft_geo:block/cable_flange",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "flange_down": "true"
+      },
+      "apply": {
+        "model": "terracraft_geo:block/cable_flange",
+        "x": 90
+      }
     }
   ]
 }

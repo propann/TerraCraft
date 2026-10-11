@@ -86,26 +86,7 @@ public final class ModBlocks {
     public static final Item HELIUM3_SHARD = ModContent.item("helium3_shard", Item::new, new Item.Properties());
 
     public static void init() {
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS).register(output -> {
-            for (Block block : new Block[]{STATION_HULL, STATION_FLOOR, STATION_WINDOW, STATION_LIGHT, STATION_BEACON, STATION_WORKSHOP, AIRLOCK_DOOR, DOCKING_CLAMP, OXYGEN_DISTRIBUTOR}) {
-                output.accept(block);
-            }
-        });
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS).register(output -> {
-            output.accept(TITANIUM_ORE);
-            output.accept(HELIUM3_CRYSTALS);
-            output.accept(MARKET_STALL);
-            output.accept(LOGISTICS_TERMINAL);
-            output.accept(ALIEN_STONE);
-            output.accept(ALIEN_GLYPH);
-            output.accept(LUNAR_CRYSTAL);
-        });
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS).register(output -> {
-            output.accept(TITANIUM_INGOT);
-            output.accept(HELIUM3_SHARD);
-            output.accept(ALIEN_ARTIFACT);
-            output.accept(COMMANDER_BADGE);
-        });
+        // Rangement dans le menu créatif : voir ModTabs.
     }
 
     private static Block block(String name, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties properties) {

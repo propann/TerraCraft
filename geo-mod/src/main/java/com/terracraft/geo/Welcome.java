@@ -34,6 +34,7 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.38", "Nouveau monde : 1 bloc = 1 m à Paris, étages de 4 blocs ; vaisseau spatial et blocs de vaisseau, onglets du menu créatif, cockpit, ciel du système solaire"),
             new Change("0.37", "Réputation de métier, intérieurs selon le lieu, serre hydroponique, icônes redessinées"),
             new Change("0.36", "Ceinture d'astéroïdes, collections de lieux, grande station de ville (objectif commun)"),
             new Change("0.35", "Terminal logistique : stock commun de la ville, de la Terre à la Lune ; contrats de lieux réels"),

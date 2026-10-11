@@ -25,6 +25,7 @@ public final class ModContent {
     public static final EntityType<Vehicle> MOTORCYCLE = entity("motorcycle", Vehicle.Kind.MOTORCYCLE, 1.1f, 1.5f);
     public static final EntityType<Vehicle> ROVER = entity("rover", Vehicle.Kind.ROVER, 2.0f, 1.5f);
     public static final EntityType<Rocket> ROCKET = rocketType();
+    public static final EntityType<Spaceship> SPACESHIP = spaceshipType();
     public static final EntityType<Plane> PLANE = planeType();
 
     public static final Item WHEEL = item("wheel", Item::new, new Item.Properties().stacksTo(16));
@@ -52,6 +53,8 @@ public final class ModContent {
     public static final Item ROVER_KIT = item("rover_kit", RoverKitItem::new, new Item.Properties().stacksTo(1));
     /** Kit de module de station : construit un module pressurisé de 7 × 5 × 7 dans l'espace. */
     public static final Item STATION_MODULE = item("station_module", StationModuleItem::new, new Item.Properties().stacksTo(16));
+    /** Kit de vaisseau : posé au sol, il devient un petit vaisseau spatial complet (sans carburant). */
+    public static final Item SPACESHIP_KIT = item("spaceship_kit", p -> new ChassisItem(() -> SPACESHIP, p), new Item.Properties().stacksTo(1));
     public static final Item ROCKET_HULL = item("rocket_hull", p -> new ChassisItem(() -> ROCKET, p), new Item.Properties().stacksTo(1));
     public static final Item ROCKET_ENGINE = item("rocket_engine", Item::new, new Item.Properties().stacksTo(1));
     public static final Item ROCKET_TANK = item("rocket_tank", Item::new, new Item.Properties().stacksTo(1));
@@ -84,17 +87,6 @@ public final class ModContent {
     public static final EntityType<Grenade> GRENADE_ENTITY = grenadeType();
 
     public static void init() {
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES).register(output -> {
-            for (Item item : new Item[]{CAR_CHASSIS, TRUCK_CHASSIS, MOTORCYCLE_CHASSIS, PLANE_KIT, WHEEL, ENGINE, RADIATOR, BATTERY, TURBO, FUEL_CAN,
-                    ROCKET_HULL, ROCKET_ENGINE, ROCKET_TANK, NOSE_CONE, FINS, ROCKET_FUEL, SPACE_HELMET, SPACE_SUIT, MAGNETIC_BOOTS, JETPACK, OXYGEN_TANK, STATION_MODULE, ORBITAL_STATION_KIT, LUNAR_BASE_KIT, MARS_BASE_KIT, ROVER_KIT}) {
-                output.accept(item);
-            }
-        });
-        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT).register(output -> {
-            for (Item item : new Item[]{PISTOL, SMG, RIFLE, SNIPER, SHOTGUN, AMMO, GRENADE, MACHETE}) {
-                output.accept(item);
-            }
-        });
         GeoMod.LOGGER.info("TerraCraft : véhicules, pièces et armes enregistrés.");
     }
 
@@ -166,6 +158,15 @@ public final class ModContent {
         ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "rocket"));
         EntityType<Rocket> type = EntityType.Builder.<Rocket>of(Rocket::new, MobCategory.MISC)
                 .sized(1.2f, 4.0f)
+                .clientTrackingRange(16)
+                .build(key);
+        return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, type);
+    }
+
+    private static EntityType<Spaceship> spaceshipType() {
+        ResourceKey<EntityType<?>> key = ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "spaceship"));
+        EntityType<Spaceship> type = EntityType.Builder.<Spaceship>of(Spaceship::new, MobCategory.MISC)
+                .sized(2.5f, 2.4f)
                 .clientTrackingRange(16)
                 .build(key);
         return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, type);

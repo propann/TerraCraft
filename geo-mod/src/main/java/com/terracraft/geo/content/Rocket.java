@@ -138,8 +138,28 @@ public class Rocket extends VehicleEntity {
                 || stack.is(ModContent.MARS_BASE_KIT) || stack.is(ModContent.ROVER_KIT);
     }
 
+    /** Appelé quand l'engin se pose (le vaisseau y déploie son tunnel-sas vers la station). */
+    protected void onLanded(ServerLevel level) {
+    }
+
+    /** Appelé au moment où l'engin quitte le sol (le vaisseau y replie son tunnel-sas). */
+    protected void onLaunch(ServerLevel level) {
+    }
+
+    /** Démonté, l'engin rend ses pièces (le vaisseau, lui, rend son kit entier). */
+    protected boolean dropsParts() {
+        return true;
+    }
+
+    /** Engin livré monté d'usine (vaisseau) : toutes les pièces et {@code tankCount} réservoirs. */
+    protected void assembleComplete(int tankCount) {
+        entityData.set(DATA_PARTS, (byte) ALL);
+        entityData.set(DATA_TANKS, (byte) Math.min(MAX_TANKS, tankCount));
+    }
+
     /** À l'atterrissage : base de surface (kit lunaire ou martien) et rover déposés à côté de la fusée. */
     private void deployOnLanding(ServerLevel level) {
+        onLanded(level);
         if (!(getFirstPassenger() instanceof ServerPlayer pilot)) {
             return;
         }
@@ -452,6 +472,7 @@ public class Rocket extends VehicleEntity {
             entityData.set(DATA_FUEL, Math.max(0, fuel() - cost()));
             entityData.set(DATA_PHASE, ASCENT);
             timer = 0;
+            onLaunch(level);
             if (Space.id(level) == Space.EARTH) {
                 earthX = getX();
                 earthZ = getZ();
@@ -603,14 +624,14 @@ public class Rocket extends VehicleEntity {
     protected void destroy(ServerLevel level, DamageSource source) {
         super.destroy(level, source);
         for (int flag : new int[]{ENGINE, TANK, NOSE, FINS}) {
-            if (has(flag)) {
+            if (has(flag) && dropsParts()) {
                 spawnAtLocation(level, new ItemStack(ModContent.rocketPartItem(flag)));
             }
         }
         if (fuel() > 0) {
             spawnAtLocation(level, new ItemStack(ModContent.ROCKET_FUEL, fuel()));
         }
-        if (tanks() > 1) {
+        if (tanks() > 1 && dropsParts()) {
             spawnAtLocation(level, new ItemStack(ModContent.ROCKET_TANK, tanks() - 1));
         }
         for (ItemStack item : payload) {

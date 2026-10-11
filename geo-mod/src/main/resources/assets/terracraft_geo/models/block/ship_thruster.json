@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "terracraft_geo:block/ship_thruster_side",
+    "north": "terracraft_geo:block/ship_thruster_nozzle",
+    "south": "terracraft_geo:block/ship_thruster_side",
+    "east": "terracraft_geo:block/ship_thruster_side",
+    "west": "terracraft_geo:block/ship_thruster_side",
+    "up": "terracraft_geo:block/ship_thruster_side",
+    "down": "terracraft_geo:block/ship_thruster_side"
+  }
+}

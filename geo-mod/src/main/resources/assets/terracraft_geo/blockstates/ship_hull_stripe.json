@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "terracraft_geo:block/ship_hull_stripe"
+    }
+  }
+}

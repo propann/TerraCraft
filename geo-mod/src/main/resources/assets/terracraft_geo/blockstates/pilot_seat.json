@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "terracraft_geo:block/pilot_seat"
+    },
+    "facing=east": {
+      "model": "terracraft_geo:block/pilot_seat",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "terracraft_geo:block/pilot_seat",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "terracraft_geo:block/pilot_seat",
+      "y": 270
+    }
+  }
+}

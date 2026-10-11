@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "terracraft_geo:block/ship_thruster"
+    },
+    "facing=east": {
+      "model": "terracraft_geo:block/ship_thruster",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "terracraft_geo:block/ship_thruster",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "terracraft_geo:block/ship_thruster",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "terracraft_geo:block/ship_thruster",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "terracraft_geo:block/ship_thruster",
+      "x": 90
+    }
+  }
+}

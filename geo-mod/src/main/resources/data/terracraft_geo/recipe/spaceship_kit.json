@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "N": "terracraft_geo:nose_cone",
+    "H": "terracraft_geo:rocket_hull",
+    "K": "terracraft_geo:rocket_tank",
+    "E": "terracraft_geo:rocket_engine",
+    "F": "terracraft_geo:fins"
+  },
+  "pattern": [
+    "KNK",
+    "HKH",
+    "EFE"
+  ],
+  "result": {
+    "id": "terracraft_geo:spaceship_kit",
+    "count": 1
+  }
+}

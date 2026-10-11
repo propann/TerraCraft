@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "W": "minecraft:red_wool",
+    "I": "minecraft:iron_ingot"
+  },
+  "pattern": [
+    "W  ",
+    "WWW",
+    "I I"
+  ],
+  "result": {
+    "id": "terracraft_geo:pilot_seat",
+    "count": 1
+  }
+}

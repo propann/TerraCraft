@@ -58,14 +58,7 @@ public final class IndustryBlocks {
     }
 
     public static void init() {
-        net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents.modifyOutputEvent(net.minecraft.world.item.CreativeModeTabs.FUNCTIONAL_BLOCKS)
-                .register(output -> {
-                    for (Block block : new Block[]{OIL_PUMP, REFINERY, FUEL_TANK, FUEL_PUMP, BATTERY, GENERATOR, GREENHOUSE, LAMP, SOLAR_PANEL, PIPE, CABLE, OIL_PUDDLE}) {
-                        output.accept(block);
-                    }
-                    output.accept(EMPTY_FUEL_CAN);
-                    output.accept(OIL_DETECTOR);
-                });
+        // Rangement dans le menu créatif : voir ModTabs.
     }
 
     /** Après un plein (véhicule, avion, jetpack, fusée) : le bidon vide revient au joueur. */

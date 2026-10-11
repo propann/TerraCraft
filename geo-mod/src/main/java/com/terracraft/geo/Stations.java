@@ -188,6 +188,13 @@ public final class Stations {
         return beacons.stream().anyMatch(b -> b.dimension().equals(dimension) && b.pos().distSqr(pos) <= (double) radius * radius);
     }
 
+    /** Balise de station la plus proche à moins de {@code radius} blocs, ou null. */
+    public BlockPos beaconNear(ServerLevel level, BlockPos pos, int radius) {
+        String dimension = level.dimension().identifier().toString();
+        return beacons.stream().filter(b -> b.dimension().equals(dimension) && b.pos().distSqr(pos) <= (double) radius * radius)
+                .min(java.util.Comparator.comparingDouble(b -> b.pos().distSqr(pos))).map(Beacon::pos).orElse(null);
+    }
+
     /** Le joueur a-t-il déjà une station dans ce monde ? */
     public boolean hasStation(ServerPlayer owner, ServerLevel level) {
         String dimension = level.dimension().identifier().toString();

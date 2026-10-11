@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "W": "minecraft:white_dye"
+  },
+  "pattern": [
+    "III",
+    "IWI",
+    "III"
+  ],
+  "result": {
+    "id": "terracraft_geo:ship_hull",
+    "count": 8
+  }
+}

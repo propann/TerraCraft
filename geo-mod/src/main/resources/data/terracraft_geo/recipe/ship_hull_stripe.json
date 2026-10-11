@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "H": "terracraft_geo:ship_hull",
+    "D": "minecraft:orange_dye"
+  },
+  "pattern": [
+    "HHH",
+    "HDH",
+    "HHH"
+  ],
+  "result": {
+    "id": "terracraft_geo:ship_hull_stripe",
+    "count": 8
+  }
+}

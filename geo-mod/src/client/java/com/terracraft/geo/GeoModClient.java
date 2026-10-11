@@ -75,6 +75,9 @@ public final class GeoModClient implements ClientModInitializer {
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "jetpack"), new JetpackHud());
         net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "plane"), new PlaneHud());
+        // Cockpit en premier : la barre d'objets et les autres instruments se dessinent par-dessus.
+        net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addFirst(
+                Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "rocket_cockpit"), new RocketCockpitHud());
         net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry.addLast(
                 Identifier.fromNamespaceAndPath(GeoMod.MOD_ID, "vehicle"), new VehicleHud());
         // Parcours « Premiers pas » : le serveur envoie l'objectif en cours, affiché à droite.
@@ -137,6 +140,9 @@ public final class GeoModClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModContent.ROVER, context -> new VehicleRenderer(context, Vehicle.Kind.ROVER));
         ModelLayerRegistry.registerModelLayer(RocketRenderer.LAYER, RocketModel::create);
         EntityRendererRegistry.register(ModContent.ROCKET, RocketRenderer::new);
+        ModelLayerRegistry.registerModelLayer(com.terracraft.geo.client.SpaceshipRenderer.LAYER, com.terracraft.geo.client.SpaceshipModel::create);
+        EntityRendererRegistry.register(ModContent.SPACESHIP, com.terracraft.geo.client.SpaceshipRenderer::new);
+        EntityRendererRegistry.register(com.terracraft.geo.content.ShipBlocks.SEAT, net.minecraft.client.renderer.entity.NoopRenderer::new);
         ModelLayerRegistry.registerModelLayer(com.terracraft.geo.client.PlaneRenderer.LAYER, com.terracraft.geo.client.PlaneModel::create);
         EntityRendererRegistry.register(ModContent.PLANE, com.terracraft.geo.client.PlaneRenderer::new);
         com.terracraft.geo.content.Plane.crashReporter = impact -> {
@@ -162,6 +168,7 @@ public final class GeoModClient implements ClientModInitializer {
             }
         });
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            RocketCockpitHud.tick(client);
             if (client.player != null && client.player.getVehicle() instanceof com.terracraft.geo.content.Plane plane) {
                 Input keys = client.player.input.keyPresses;
                 plane.setInput(keys.forward(), keys.backward(), keys.left(), keys.right(), keys.jump(), keys.sprint());

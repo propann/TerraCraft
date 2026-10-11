@@ -231,6 +231,8 @@ public final class GeoMod implements ModInitializer {
     public void onInitialize() {
         ModContent.init();
         ModBlocks.init();
+        com.terracraft.geo.content.ShipBlocks.init();
+        com.terracraft.geo.content.ModTabs.init();
         Industry.register();
         ModMobs.init();
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR, Identifier.fromNamespaceAndPath(MOD_ID, "earth"), GeoChunkGenerator.CODEC);

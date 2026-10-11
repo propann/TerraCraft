@@ -1,0 +1,41 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "terracraft_geo:block/pipe",
+    "flange": "terracraft_geo:block/connector_flange"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        4,
+        0
+      ],
+      "to": [
+        12,
+        12,
+        1.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#flange"
+        },
+        "south": {
+          "texture": "#flange"
+        },
+        "east": {
+          "texture": "#flange"
+        },
+        "west": {
+          "texture": "#flange"
+        },
+        "up": {
+          "texture": "#flange"
+        },
+        "down": {
+          "texture": "#flange"
+        }
+      }
+    }
+  ]
+}

@@ -36,7 +36,8 @@ public final class StarMap {
         DESTINATIONS.put("asteroides", Space.ASTEROIDS_ID);
     }
 
-    private static final double REACH = 8;
+    /** Portée à pied (et depuis une console de navigation, voir ShipBlocks.NavConsoleBlock). */
+    private static final double REACH = 24;
 
     private StarMap() {
     }

@@ -275,6 +275,15 @@ cmd "execute as Bob run terracraft asteroide" 10
 cmd "execute at Bob unless block ~ ~-1 ~ minecraft:air run say ASTEROIDE_SOL" 1
 cmd "execute in terracraft_geo:asteroids run tp Bob 0 10 0" 4
 cmd "execute as Bob at Bob if entity @s[y=140,dy=40] run say SAUVETAGE_OK" 1
+# Câbles et tuyaux : raccord aux modules de station avec bride, raccord entre connecteurs sans bride
+cmd "setblock 40 201 40 terracraft_geo:pipe"
+cmd "setblock 41 201 40 terracraft_geo:oxygen_distributor"
+cmd "setblock 39 201 40 terracraft_geo:pipe" 1
+cmd "execute if block 40 201 40 terracraft_geo:pipe[east=true,flange_east=true,west=true,flange_west=false] run say TUYAU_BRIDE" 1
+cmd "setblock 40 201 42 terracraft_geo:cable"
+cmd "setblock 40 202 42 terracraft_geo:station_workshop"
+cmd "setblock 41 201 42 terracraft_geo:pipe" 1
+cmd "execute if block 40 201 42 terracraft_geo:cable[up=true,flange_up=true,east=false] run say CABLE_BRIDE" 1
 cmd "stop" 2
 # Laisser le serveur finir sa sauvegarde avant de quitter (sinon le monde reste à moitié écrit).
 for _ in $(seq 60); do
@@ -427,6 +436,8 @@ check("[ESPACE] Bob se rend sur l'astéroïde" in log and "ASTEROIDE_SOL" in log
 check("[ESPACE] Bob récupéré dans le vide" in log and "SAUVETAGE_OK" in log, "vide de l'espace : la combinaison ramène Bob au quai")
 check("[ECO] Bob achète au comptoir : Carburant de fusée x1 pour 180" in log and "[ECO] Alice achète au comptoir : Carburant de fusée" not in log,
       "réputation : offre réservée achetée par le pilote, refusée à la mécanicienne")
+check("TUYAU_BRIDE" in log, "tuyau : bride sur le distributeur d'oxygène, raccord sans bride avec le tuyau voisin")
+check("CABLE_BRIDE" in log, "câble : bride sous l'atelier de station, pas de raccord avec un tuyau")
 check("SANCTUAIRE_COFFRE" in log, "sanctuaire lunaire : coffre au trésor dans la chambre de la pyramide")
 check("SANCTUAIRE_DALLAGE" in log and "SANCTUAIRE_ECHELLE" in log, "sanctuaire lunaire : dallage extraterrestre et échelle du puits")
 check("SANCTUAIRE_GARDIENS" in log, "sanctuaire lunaire : gardiens présents")

@@ -1,0 +1,74 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "terracraft_geo:block/nav_console_side",
+    "side": "terracraft_geo:block/nav_console_side",
+    "screen": "terracraft_geo:block/nav_console_screen"
+  },
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        4
+      ],
+      "to": [
+        15,
+        10,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#side"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#side"
+        },
+        "down": {
+          "texture": "#side"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        10,
+        8
+      ],
+      "to": [
+        15,
+        20,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#screen"
+        },
+        "south": {
+          "texture": "#side"
+        },
+        "east": {
+          "texture": "#side"
+        },
+        "west": {
+          "texture": "#side"
+        },
+        "up": {
+          "texture": "#side"
+        },
+        "down": {
+          "texture": "#side"
+        }
+      }
+    }
+  ]
+}

@@ -4,6 +4,7 @@
 Usage : python3 tools/gen_textures.py   (depuis la racine du projet)
 Les textures sont procédurales et déterministes : relancer le script redonne les mêmes fichiers.
 """
+import math
 import random
 import struct
 import zlib
@@ -990,6 +991,15 @@ def industry_textures():
     block_tex("pipe", (135, 138, 148), lambda c: [c.rect(0, 0, 16, 1, (175, 178, 188)), c.rect(0, 7, 16, 2, (95, 98, 108)),
                                                  c.rect(0, 15, 16, 1, (90, 92, 100))], seed=111)
     block_tex("cable", (28, 28, 30), lambda c: [c.rect(0, 7, 16, 2, (190, 110, 60))], seed=112)
+    def flange(c):
+        # Plaque de raccordement : liseré sombre et quatre boulons (lus par les brides de tuyau et de câble).
+        c.rect(3, 3, 10, 1, (80, 83, 92))
+        c.rect(3, 12, 10, 1, (80, 83, 92))
+        c.rect(3, 3, 1, 10, (80, 83, 92))
+        c.rect(12, 3, 1, 10, (80, 83, 92))
+        for x, y in ((5, 5), (10, 5), (5, 10), (10, 10)):
+            c.set(x, y, (200, 204, 212))
+    block_tex("connector_flange", (118, 122, 132), flange, seed=122)
     def puddle(c):
         for x in range(16):
             for y in range(16):
@@ -1132,6 +1142,206 @@ def jerrycan(fill, light, mark):
     return draw
 
 
+
+def _noise(rng, octaves=4):
+    """Bruit lisse sur la sphère dépliée : somme de sinusoïdes de phases aléatoires (déterministe)."""
+    waves = [(rng.uniform(1, 3) * 2 ** o, rng.uniform(1, 3) * 2 ** o, rng.uniform(0, 6.3), rng.uniform(0, 6.3), 0.5 ** o)
+             for o in range(octaves) for _ in range(2)]
+    total = sum(w[4] for w in waves)
+    return lambda u, v: sum(a * math.sin(fu * u + pu) * math.sin(fv * v + pv) for fu, fv, pu, pv, a in waves) / total
+
+
+def planet(name, size, seed, surface, atmosphere=None, lumpy=0.0):
+    """Astre vu de l'espace (atlas des corps célestes) : disque ombré, transparent autour.
+
+    surface(u, v, rng) -> couleur RGB, avec u, v en radians (longitude, latitude) ; atmosphere = halo RGB.
+    """
+    c = Canvas(size, size, seed)
+    rng = random.Random(seed)
+    bumps = _noise(rng, 2)
+    r0 = size / 2 - (2 if atmosphere else 0.5)
+    light = (-0.45, -0.55, 0.70)  # Éclairé d'en haut à gauche.
+    for y in range(size):
+        for x in range(size):
+            dx = (x + 0.5 - size / 2) / r0
+            dy = (y + 0.5 - size / 2) / r0
+            d = math.hypot(dx, dy)
+            edge = 1 + lumpy * bumps(math.atan2(dy, dx) * 2, 1.0)
+            if d <= edge:
+                d = min(d / edge, 0.999)
+                nz = math.sqrt(1 - d * d)
+                nx, ny = dx / edge, dy / edge
+                u, v = math.atan2(nx, nz), math.asin(max(-1, min(1, ny)))
+                base = surface(u, v, rng)
+                shade = 0.35 + 0.65 * max(0.0, nx * light[0] + ny * light[1] + nz * light[2]) ** 0.8
+                c.set(x, y, tuple(max(0, min(255, int(ch * shade))) for ch in base))
+            elif atmosphere and d <= edge + 2.2 / r0:
+                glow = 1 - (d - edge) / (2.2 / r0)
+                c.set(x, y, (*atmosphere, int(150 * glow)))
+    c.save(f"environment/celestial/{name}.png")
+
+
+def planets():
+    rng_e = random.Random(301)
+    land, cloud = _noise(rng_e, 4), _noise(rng_e, 3)
+
+    def earth(u, v, rng):
+        if abs(v) > 1.25:
+            return (235, 240, 245)                                   # Calottes polaires.
+        h = land(u * 2, v * 2)
+        if cloud(u * 3 + 1, v * 4) > 0.32:
+            return (240, 242, 246)                                   # Nuages.
+        if h > 0.12:
+            return (70, 130, 60) if abs(v) < 0.9 and h < 0.4 else (150, 125, 85)
+        return (30, 70, 150) if h < -0.1 else (45, 95, 170)          # Océan profond / plateau.
+
+    rng_m = random.Random(302)
+    maria = _noise(rng_m, 3)
+    craters = [(rng_m.uniform(-3, 3), rng_m.uniform(-1.4, 1.4), rng_m.uniform(0.06, 0.22)) for _ in range(40)]
+
+    def moon(u, v, rng):
+        g = 150 if maria(u * 2, v * 2) < 0.15 else 110               # Mers lunaires plus sombres.
+        for cu, cv, cr in craters:
+            dist = math.hypot(u - cu, v - cv)
+            if dist < cr:
+                g = g - 30 if dist < cr * 0.75 else g + 25          # Fond du cratère, rebord clair.
+        return (g, g, g + 4)
+
+    rng_r = random.Random(303)
+    albedo = _noise(rng_r, 4)
+
+    def mars(u, v, rng):
+        if v < -1.3:
+            return (238, 232, 226)                                   # Calotte polaire nord.
+        a = albedo(u * 2, v * 3)
+        return (130, 62, 36) if a > 0.2 else (190, 95, 52) if a > -0.25 else (215, 128, 78)
+
+    rng_j = random.Random(304)
+    swirl = _noise(rng_j, 3)
+
+    def jupiter(u, v, rng):
+        if math.hypot(u - 0.5, (v - 0.35) * 1.6) < 0.22:
+            return (190, 90, 60)                                     # Grande tache rouge.
+        band = math.sin((v + 0.08 * swirl(u * 3, v * 6)) * 9)
+        return (215, 190, 150) if band > 0.3 else (170, 120, 85) if band > -0.4 else (235, 220, 195)
+
+    def rock(tint):
+        speck = _noise(random.Random(305 + tint[0]), 3)
+        return lambda u, v, rng: tuple(int(ch * (0.85 + 0.25 * speck(u * 4, v * 4))) for ch in tint)
+
+    planet("earth", 64, 311, earth, atmosphere=(120, 170, 255))
+    planet("moon_surface", 64, 312, moon)
+    planet("mars", 64, 313, mars, atmosphere=(230, 150, 110))
+    planet("jupiter", 64, 314, jupiter)
+    planet("phobos", 16, 315, rock((120, 105, 95)), lumpy=0.18)
+    planet("deimos", 16, 316, rock((150, 135, 120)), lumpy=0.12)
+
+
+def ship_assets():
+    """Vaisseau spatial : blocs de construction, modèle de l'entité (256 × 256) et icône du kit."""
+    white, seam, rivet = (232, 234, 238), (196, 200, 208), (150, 156, 166)
+    orange = (232, 118, 40)
+
+    def plating(c):
+        c.rect(0, 0, 16, 1, (246, 247, 250))
+        c.rect(0, 15, 16, 1, seam)
+        c.rect(0, 0, 1, 16, (246, 247, 250))
+        c.rect(15, 0, 1, 16, seam)
+        for x, y in ((2, 2), (13, 2), (2, 13), (13, 13)):
+            c.set(x, y, rivet)
+    block_tex("ship_hull", white, plating, seed=130)
+    block_tex("ship_hull_stripe", white, lambda c: [plating(c), c.rect(0, 6, 16, 4, orange, 6), c.rect(0, 6, 16, 1, (250, 150, 70))], seed=131)
+
+    def canopy(c):
+        for y in range(16):
+            for x in range(16):
+                frame = x in (0, 15) or y in (0, 15)
+                c.set(x, y, (60, 64, 72, 255) if frame else (120, 175, 225, 110))
+        for k in range(3, 7):
+            c.set(k, 9 - k, (220, 240, 255, 170))       # Reflet.
+    canopy_c = Canvas(16, 16, 132)
+    canopy(canopy_c)
+    canopy_c.save("block/ship_canopy.png")
+
+    block_tex("ship_thruster_side", (78, 80, 88), lambda c: [c.rect(0, 3, 16, 1, (58, 60, 66)), c.rect(0, 12, 16, 1, (58, 60, 66)),
+                                                             c.rect(0, 7, 16, 2, orange)], seed=133)
+
+    def nozzle(c):
+        for y in range(16):
+            for x in range(16):
+                d = math.hypot(x - 7.5, y - 7.5)
+                if d < 2.5:
+                    c.set(x, y, (255, 210, 120))
+                elif d < 4.5:
+                    c.set(x, y, (240, 120, 40))
+                elif d < 6.5:
+                    c.set(x, y, (40, 40, 46) if int(d * 2) % 2 else (70, 72, 80))
+    block_tex("ship_thruster_nozzle", (78, 80, 88), nozzle, seed=134)
+
+    def leather(c):
+        for x in (3, 12):
+            for y in range(1, 15, 2):
+                c.set(x, y, (200, 90, 75))
+    block_tex("pilot_seat", (150, 40, 35), leather, seed=135)
+    block_tex("pilot_seat_frame", (64, 66, 74), lambda c: c.rect(0, 0, 16, 1, (90, 92, 100)), seed=136)
+
+    def screen(c):
+        c.rect(1, 1, 14, 10, (12, 22, 32))
+        for y in (3, 6, 9):
+            c.rect(2, y, 6, 1, (80, 220, 255))
+        for x, y in ((11, 4), (12, 5), (11, 6), (10, 5)):
+            c.set(x, y, (120, 200, 255))
+        c.set(11, 5, (255, 210, 90))                     # Cap affiché.
+        for x in (3, 7, 11):
+            c.rect(x, 13, 2, 1, (230, 160, 40))           # Boutons.
+    block_tex("nav_console_screen", (110, 114, 124), screen, seed=137)
+    block_tex("nav_console_side", (110, 114, 124), lambda c: c.rect(0, 0, 16, 2, (84, 88, 98)), seed=138)
+
+    # Entité : mêmes positions de texture que SpaceshipModel.
+    c = Canvas(256, 256, 139)
+    fus = box(c, 0, 0, 20, 18, 52, white, top=(240, 242, 246))
+    for name in ("left", "right"):
+        x, y, w, h = fus[name]
+        c.rect(x, y + 7, w, 3, orange)                   # Bande latérale.
+        c.rect(x + 14, y + 3, 7, 12, (150, 156, 166))    # Porte de sas, cerclée.
+        c.rect(x + 15, y + 4, 5, 10, (96, 102, 112))
+        c.rect(x + 17, y + 6, 1, 2, (80, 220, 255))      # Voyant.
+        for k in range(30, 48, 4):
+            c.rect(x + k, y + 3, 2, 2, (70, 110, 150))   # Hublots de soute.
+    x, y, w, h = fus["back"]
+    c.rect(x, y, w, h, (110, 114, 124), 6)
+    box(c, 0, 72, 14, 12, 10, white)
+    nose = box(c, 0, 72, 14, 12, 10, white)
+    x, y, w, h = nose["front"]
+    c.rect(x + 2, y + 1, w - 4, 2, orange)
+    canopy_box = box(c, 50, 72, 12, 6, 16, (90, 150, 205), top=(120, 180, 230))
+    for name in ("left", "right", "front"):
+        x, y, w, h = canopy_box[name]
+        c.rect(x, y, w, 1, (60, 64, 72))
+    for u in (0, 96):
+        wing = box(c, u, 96, 24, 3, 22, (220, 222, 228), top=(236, 238, 242))
+        x, y, w, h = wing["top"]
+        c.rect(x, y + h - 4, w, 2, orange)
+    eng = box(c, 0, 124, 8, 10, 8, (78, 80, 88))
+    x, y, w, h = eng["back"]
+    c.rect(x + 1, y + 1, w - 2, h - 2, (240, 120, 40))
+    c.rect(x + 2, y + 3, w - 4, h - 6, (255, 210, 120))
+    tail = box(c, 40, 124, 2, 12, 16, white)
+    for name in ("left", "right"):
+        x, y, w, h = tail[name]
+        c.rect(x, y + 2, w, 2, orange)
+    box(c, 80, 124, 3, 8, 3, (70, 72, 80))
+    c.save("entity/spaceship.png")
+
+    def draw_ship(c):
+        c.rect(2, 7, 12, 3, white, 4)                    # Fuselage.
+        c.rect(0, 9, 5, 1, (220, 222, 228))
+        c.rect(11, 9, 5, 1, (220, 222, 228))             # Ailes.
+        c.rect(6, 5, 4, 2, (90, 150, 205))               # Verrière.
+        c.rect(2, 8, 12, 1, orange)
+        c.rect(13, 7, 2, 3, (240, 120, 40))              # Réacteur allumé.
+    icon("spaceship_kit", draw_ship)
+
 def main():
     vehicle("car", (256, 128), (150, 40, 35), [
         ("body", 0, 0, 26, 8, 48), ("cabin", 0, 56, 22, 9, 20),
@@ -1160,6 +1370,8 @@ def main():
     icon("grenade", draw_grenade)
     icon("machete", draw_machete)
     rocket()
+    planets()
+    ship_assets()
     icon("rocket_hull", draw_hull)
     icon("rocket_engine", draw_rocket_engine)
     icon("rocket_tank", draw_rocket_tank)
