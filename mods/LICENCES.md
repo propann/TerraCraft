@@ -1,4 +1,4 @@
-# Licences des mods de ce dossier (v0.38.0)
+# Licences des mods de ce dossier (v0.39.0)
 
 | Fichier | Licence | Source |
 |---|---|---|
