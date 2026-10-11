@@ -1,15 +1,24 @@
 # Compile le mod à chaque push sur main, met à jour la branche « falix » (déploiement Falix)
 # et, pour un tag vX.Y.Z, publie une release avec le jar et le pack client.
+# Sur une pull request : mêmes contrôles (ressources, compilation, démarrage du serveur),
+# sans rien déployer ni publier — les étapes de déploiement ne tournent que sur main et les tags.
 name: Build et déploiement
 
 on:
   push:
     branches: [main]
     tags: ['v*']
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: write
+
+# Un nouveau push sur la même PR annule la vérification précédente ; main et les tags vont toujours au bout.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
