@@ -58,6 +58,19 @@ comptes, villes, stations et claims sont repartis de zéro. Chaque étape se ter
 - [ ] **Densité** : centre, banlieue, campagne, zones industrielles (mobilier urbain, voitures abandonnées, végétation).
 - [ ] Cache Overture préparé pour Paris intramuros puis les grandes villes ; mesure avec et sans cache.
 
+### Chantier Génération 2.0 — qualité des bâtiments
+
+Le générateur actuel fonctionne; le rendu des bâtiments reste le défaut visuel prioritaire. Le plan détaillé est dans [plan-route-batiments-generation-2.md](plan-route-batiments-generation-2.md). Il organise le travail dans `work/buildings-roadmap`, les reproductions sur serveur local et la création éventuelle de `map` après validation. La branche `falix` reste réservée au déploiement. Le parcours d’apparition est un invariant de non-régression.
+
+- [ ] Atlas de référence et cas visuels reproductibles (quartiers denses, tours, résidentiel, port, pente, rural).
+- [ ] Inventaire mesuré des propriétés réellement présentes dans les tuiles vectorielles z14.
+- [ ] Comparaison OSM / Overture / Microsoft sur les mêmes emprises, avec fusions, cours, empreintes et attributs.
+- [ ] Diagnostic hors serveur du découpage et de l’intégration Overture/OpenFreeMap.
+- [ ] Prototypes ciblés, comparaison avant/après et mesures locales de mémoire/performance.
+- [ ] Validation sur serveur local équivalent à Falix; seulement ensuite créer la branche `map`.
+
+Aucun changement du générateur ni déploiement n’est déclaré validé par la seule présence de ce plan.
+
 ### Étape 3 — Objets lisibles (interface)
 
 - [x] Onglets créatifs TerraCraft (Espace, Stations, Vaisseaux, Industrie, Véhicules, Combat, Matériaux).
