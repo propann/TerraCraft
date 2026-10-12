@@ -98,7 +98,7 @@ et peut-être des habitants qui parlent grâce à une IA française. Le détail 
 | [`docs/entree-en-jeu.md`](docs/entree-en-jeu.md) | Parcours d'un joueur, de la liste des serveurs aux premiers pas |
 | [`docs/architecture-systeme-solaire.md`](docs/architecture-systeme-solaire.md) | Espace : destinations, carburant, stations, plans |
 | [`docs/localisation-et-monde.md`](docs/localisation-et-monde.md) | Génération de la Terre réelle |
-| [`docs/mesures-generation.md`](docs/mesures-generation.md) | Mesures de performance de la génération |
+| [`docs/mesures-generation.md`](docs/mesures-generation.md) | Mesures de performance de la génération |\n| [`docs/plan-route-batiments-generation-2.md`](docs/plan-route-batiments-generation-2.md) | Plan de travail pour améliorer le rendu des bâtiments, essais locaux et passage éventuel vers `map` |
 | [`deploy/FALIX.md`](deploy/FALIX.md) | Hébergement Falix, sauvegardes, restauration, nouveau monde |
 
 ## 🛠️ Développement
