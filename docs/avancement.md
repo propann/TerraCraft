@@ -62,7 +62,7 @@ Dernière passe : 11 octobre 2026 — version **0.38.0**.
 - [x] Sauvegardes automatiques du monde, rotation, restauration testée.
 - [x] Versions des mods tiers figées (`tools/mods.lock.json`), identiques serveur et pack.
 - [x] Test de démarrage d'un vrai serveur avant chaque déploiement Falix (CI).
-- [x] Test de scénario avec faux joueurs (`tools/scenario_test.sh`, 83 vérifications) : villes, économie, combinaison, oxygène, métiers, largages, station, vol en fusée jusqu'à la balise, plans et atelier, MOTD et icône.
+- [x] Test de scénario avec faux joueurs (`tools/scenario_test.sh`, 92 vérifications) : villes, économie, combinaison, oxygène, métiers, largages, station, vol en fusée jusqu'à la balise, plans et atelier, MOTD et icône.
 
 ## À tester en jeu
 
