@@ -19,6 +19,15 @@ Mod client + serveur (Minecraft 26.3, Fabric Loader 0.19.5, Fabric API 0.161.0, 
 CLIENT_MODS_DIR=/chemin/vers/minecraft/mods ./build-mod.sh   # + client
 ```
 
+Il faut un JDK 25 ; Gradle est fourni par le wrapper (`./gradlew`, ou `gradlew.bat` sous Windows), qui télécharge la
+bonne version au premier lancement :
+
+```bash
+./gradlew build       # compile : build/libs/terracraft-geo-<version>.jar
+./gradlew runClient   # Minecraft de développement avec le mod
+./gradlew runServer   # serveur de développement (dossier run/)
+```
+
 Le client a besoin de Fabric Loader 0.19.5, de Fabric API et de ce mod. Le serveur doit avoir `level-type=terracraft_geo\:earth` dans `server.properties` (un monde existant ne change pas de générateur : il faut un nouveau `level-name`). En solo, le type de monde « TerraCraft : Terre réelle » apparaît dans l'écran de création.
 
 ## Commandes
