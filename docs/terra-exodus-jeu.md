@@ -40,6 +40,7 @@ Lire détaille les preuves (cliquer à nouveau pour la page de détail suivante)
 | `/exodus epreuve` | Déclencher le gardien de son épreuve dans le temple |
 | `/exodus noyau` | Récupérer le Noyau après la quête du gardien |
 | `/exodus contribuer` | Déposer son Noyau au registre de sa ville |
+| `/exodus retirer` | Retirer sa contribution tant que la région n’est pas activée |
 | `/exodus restaurer` | Activer la restauration, pour le maire ou un adjoint |
 | `/exodus registre` | Consulter les régions et leurs contributeurs |
 | `/aide exodus` | Aide courte en jeu |
@@ -103,12 +104,12 @@ existantes, les ressources et l’amélioration de fusée restent nécessaires.
 Le Noyau est un `alien_artifact` nommé **Noyau d’Orion**, avec identifiant unique et
 propriétaire dans ses données. Un artefact ordinaire, un objet simplement renommé
 ou un Noyau appartenant à quelqu’un d’autre est refusé. Les récupérations répétées
-conservent le même identifiant ; toutes leurs copies ne peuvent servir qu’à un seul dépôt.
+conservent le même identifiant ; toutes leurs copies ne peuvent servir qu’à une seule contribution active et à une seule restauration.
 
 Tenir son Noyau en main près d’un registre (quatre blocs horizontalement, trois
 verticalement), dans les 64 blocs du centre de sa ville terrestre, puis contribuer.
 Le dépôt est enregistré avant de retirer l’objet. Le maire ou un adjoint active
-ensuite la restauration, depuis le registre. Le dépôt ne nécessite pas d’élection.
+ensuite la restauration, depuis le registre. Le dépôt ne nécessite pas d’élection. Avant activation, `/exodus retirer` permet au contributeur de reprendre son engagement, même après avoir quitté ou dissous sa ville ; `/exodus noyau` redonne ensuite le même Noyau. Après activation, ce retrait est refusé.
 Une ville déjà restaurée accepte la contribution d’un nouveau joueur éligible,
 qui peut ainsi terminer sa campagne sans créer une seconde région.
 

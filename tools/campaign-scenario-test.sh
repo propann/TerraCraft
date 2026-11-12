@@ -158,6 +158,11 @@ PYCORE
 )"
 cmd "item replace entity Alice weapon.mainhand with terracraft_geo:alien_artifact[minecraft:custom_data={orion_owner:\"$EXODUS_ALICE_ID\",orion_core:\"$EXODUS_CORE_ID\"}]"
 cmd 'execute as Alice run exodus contribuer' 1
+cmd 'execute as Alice run exodus retirer'
+cp world/terracraft_geo/terra-exodus.json withdrawn-core.json
+cmd 'execute as Alice run exodus noyau'
+cmd "item replace entity Alice weapon.mainhand with terracraft_geo:alien_artifact[minecraft:custom_data={orion_owner:\"$EXODUS_ALICE_ID\",orion_core:\"$EXODUS_CORE_ID\"}]"
+cmd 'execute as Alice run exodus contribuer' 1
 cmd 'execute as Alice run exodus contribuer'
 cmd 'execute as Bob run exodus restaurer'
 cmd 'execute as Alice run exodus reclamer q5_3_artifact'
@@ -188,6 +193,7 @@ cmd 'scoreboard players get poison_after exodus_test'
 cmd 'execute as Alice run exodus reclamer q5_3_artifact'
 cmd 'execute as Alice run exodus reclamer q5_3_artifact'
 cmd 'execute as Alice run exodus restaurer'
+cmd 'execute as Alice run exodus retirer'
 cmd 'execute as Alice run exodus livre'
 cmd 'execute store result score book_count exodus_test run clear Alice minecraft:written_book 0'
 cmd 'scoreboard players get book_count exodus_test'

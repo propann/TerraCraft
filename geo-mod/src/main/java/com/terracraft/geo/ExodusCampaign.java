@@ -321,7 +321,19 @@ public final class ExodusCampaign {
             witness(j,"restoration",region.active);
         })) return 0;
         held.shrink(1);
-        return say(player,"Noyau confié à "+town.name+". Le maire ou un adjoint peut activer /exodus restaurer.");
+        return say(player,"Noyau confié à "+town.name+". Le maire ou un adjoint peut activer /exodus restaurer. Avant activation, /exodus retirer permet de reprendre ta contribution.");
+    }
+    private int withdrawContribution(ServerPlayer player) {
+        ExodusState.Journal j=journal(player);
+        ExodusState.Region region=state.regions.get(j.contribution);
+        if (region==null || region.active || !region.contributors.contains(player.getUUID().toString()))
+            return say(player,"Aucune contribution non activée à retirer.");
+        if (!transaction(() -> {
+            region.contributors.remove(player.getUUID().toString());region.names.remove(player.getUUID().toString());
+            if (region.contributors.isEmpty()) state.regions.remove(j.contribution);
+            j.contribution="";
+        })) return 0;
+        return say(player,"Contribution retirée avant activation. /exodus noyau récupère ton Noyau avec le même identifiant.");
     }
     private int restore(ServerPlayer player) {
         Towns.Town town = townAtRegistry(player);
@@ -352,6 +364,7 @@ public final class ExodusCampaign {
             .then(Commands.literal("epreuve").executes(c -> trial(c.getSource().getPlayerOrException())))
             .then(Commands.literal("noyau").executes(c -> core(c.getSource().getPlayerOrException())))
             .then(Commands.literal("contribuer").executes(c -> contribute(c.getSource().getPlayerOrException())))
+            .then(Commands.literal("retirer").executes(c -> withdrawContribution(c.getSource().getPlayerOrException())))
             .then(Commands.literal("restaurer").executes(c -> restore(c.getSource().getPlayerOrException())))
             .then(Commands.literal("registre").executes(c -> ledger(c.getSource().getPlayerOrException())))
             .then(Commands.literal("admin").requires(Commands.hasPermission(Commands.LEVEL_OWNERS))

@@ -14,6 +14,7 @@ wallet = load(data / 'portefeuilles.json')
 rejected = load(work / 'rejected-core.json')
 deposited = load(work / 'deposited-core.json')
 completed = load(work / 'completed-campaign.json')
+withdrawn = load(work / 'withdrawn-core.json')
 final = load(data / 'terra-exodus.json')
 progress = load(data / 'progression.json')[alice]
 replay = load(work / 'pending-replay.json')['players'][alice]
@@ -42,6 +43,8 @@ check(all(j['facts'].get('gasoline', 0) == 0 for key, j in rejected['players'].i
 check(rejected_j['facts'].get('mars_archive') == 1, 'archive martienne générée et lue sur le terrain')
 check(rejected_j['facts'].get('mars_harvest', 0) > 0, 'récolte effective de serre attribuée sur Mars')
 check(rejected_j['facts'].get('guardian') == 1, 'gardien du temple généré vaincu avec une source joueur')
+check(not withdrawn['regions'] and withdrawn['players'][alice]['contribution'] == '', 'retrait autorisé avant activation sans effet régional')
+check(withdrawn['players'][alice]['core'] == deposited['players'][alice]['core'], 'Noyau récupéré puis redéposé avec le même identifiant')
 check(len(deposited['regions']) == 1, 'une seule région après deux tentatives de dépôt')
 region = next(iter(deposited['regions'].values()), {})
 check(region.get('contributors') == [alice] and not region.get('active'), 'dépôt unique et activation refusée au simple habitant')
