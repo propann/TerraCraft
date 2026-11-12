@@ -27,9 +27,10 @@ def external_outage(event):
     header = event.splitlines()[0]
     exceptions = [line for line in event.splitlines()
                   if "Exception" in line and not line.lstrip().startswith("at ")]
-    if ("/WARN]: Météo Open-Meteo indisponible (" in header
-            and len(event.splitlines()) == 1
-            and re.search(r"java\.net\.http\.Http(?:Connect)?TimeoutException:", header)):
+    if (len(event.splitlines()) == 1 and re.search(
+            r"/WARN\]: Météo Open-Meteo indisponible \(java\.util\.concurrent\.CompletionException: "
+            r"java\.net\.http\.(?:HttpConnectTimeoutException: HTTP connect timed out|"
+            r"HttpTimeoutException: request timed out)\)$", header)):
         return True
     if exceptions != ["MinecraftClientHttpException[type=HTTP_ERROR, status=429, response=null]"]:
         return False

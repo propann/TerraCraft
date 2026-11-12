@@ -55,6 +55,10 @@ class ScenarioLogTest(unittest.TestCase):
     def test_extra_exception_in_allowed_event_still_fails(self):
         log = self.profile_error() + "Caused by: java.lang.IllegalStateException: autre erreur\n"
         self.assertEqual(len(classify_exceptions(log)[0]), 1)
+        weather = ("[15:49:34] [worker/WARN]: Météo Open-Meteo indisponible "
+                   "(java.util.concurrent.CompletionException: java.net.http.HttpConnectTimeoutException: "
+                   "HTTP connect timed out; java.lang.IllegalStateException: autre erreur)")
+        self.assertEqual(len(classify_exceptions(weather)[0]), 1)
 
 
 if __name__ == "__main__":
