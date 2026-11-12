@@ -166,8 +166,8 @@ réécrit par cette PR ; le produire lors de la release prévue.
 
 Vérifications : JUnit pour les dépendances, seuils, reprise des identités et
 pagination ; scénario Fabric à deux joueurs pour le livre, le PNJ local, la
-production attribuée, le gardien, le faux Noyau, les permissions municipales,
-la contamination, les doublons et le redémarrage. Ce scénario prépare explicitement
+production attribuée, une archive martienne générée, une serre sur Mars, le gardien, le faux Noyau, les permissions municipales,
+la contamination, les doublons, le redémarrage et la reprise injectée d’une remise interrompue. Ce scénario prépare explicitement
 une fouille et valide administrativement les étapes intermédiaires : il ne constitue
 pas une partie complète des 19 quêtes. Les scénarios PNJ et multijoueur existants
 restent requis. L’équilibrage, le rendu du livre et de l’interface ainsi que la

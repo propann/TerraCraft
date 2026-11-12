@@ -38,7 +38,7 @@ Path('alice-id').write_text(player)
 Path('usercache.json').write_text(json.dumps([{'name':'Alice','uuid':player,'expiresOn':'2099-12-31 23:59:59 +0000'}]))
 source=(Path(sys.argv[1])/'geo-mod/src/main/java/com/terracraft/geo/ExodusQuests.java').read_text()
 ids=re.findall(r'q\("(q[1-5]_[a-z0-9_]+)"',source)
-Path('setup-quests').write_text('\n'.join(q for q in ids if q not in {'q1_1_ashes','q5_2_sanctuary','q5_3_artifact'})+'\n')
+Path('setup-quests').write_text('\n'.join(q for q in ids if q not in {'q1_1_ashes','q4_3_orion_glyphs','q5_2_sanctuary','q5_3_artifact'})+'\n')
 # Premier centre contaminé de la zone environnante, même arithmétique entière signée que Java.
 mask=(1<<64)-1
 for x in range(-2,3):
@@ -110,6 +110,19 @@ cmd 'setblock 2 201 0 minecraft:air'
 cmd 'give Alice terracraft_geo:fuel_can 10'
 # Les autres étapes intermédiaires sont des fixtures administrateur sans paiement.
 while IFS= read -r quest; do cmd "exodus admin valider Alice $quest" 0.1; done < setup-quests
+# Archive martienne réellement générée, puis récolte d'une serre alimentée sur Mars.
+cmd 'execute in terracraft_geo:mars run forceload add 128 128 143 143' 5
+cmd 'execute in terracraft_geo:mars positioned 136 0 136 positioned over motion_blocking run tp Alice ~ ~ ~' 2
+cmd 'execute as Alice at Alice run exodus archives'
+cmd 'execute as Alice run exodus reclamer q4_3_orion_glyphs'
+cmd 'execute at Alice run setblock ~2 ~ ~ terracraft_geo:greenhouse'
+cmd 'execute at Alice run setblock ~3 ~ ~ minecraft:barrel'
+cmd 'execute at Alice run setblock ~2 ~1 ~ terracraft_geo:solar_panel'
+cmd 'execute at Alice run setblock ~2 ~ ~1 terracraft_geo:battery_bank'
+cmd 'execute at Alice run data merge block ~2 ~ ~1 {Charge:1200}'
+cmd 'execute at Alice run player Alice look at ~2.5 ~0.5 ~0.5'
+cmd 'player Alice use once'
+cmd 'execute at Alice run data merge block ~2 ~ ~ {Growth:44}' 4
 cmd 'execute in terracraft_geo:asteroids run forceload add 128 128 143 143' 5
 cmd 'execute in terracraft_geo:asteroids run tp Alice 136 129 136' 2
 cmd 'execute as Alice at Alice run exodus epreuve' 2
