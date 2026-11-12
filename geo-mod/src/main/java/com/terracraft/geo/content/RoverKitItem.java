@@ -46,9 +46,11 @@ public class RoverKitItem extends Item {
             player.sendOverlayMessage(Component.literal("Pas assez de place pour déballer le rover.").withStyle(ChatFormatting.RED));
             return InteractionResult.FAIL;
         }
+        if (level.dimension() == com.terracraft.geo.Space.MOON) com.terracraft.geo.ExodusCampaign.get().fact(player,"moon_rover",1);
         context.getItemInHand().consume(1, player);
         player.sendOverlayMessage(Component.literal("Rover déballé : clic droit pour monter, il se recharge à l'arrêt.")
                 .withStyle(ChatFormatting.AQUA));
         return InteractionResult.SUCCESS;
     }
 }
+

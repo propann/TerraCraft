@@ -27,13 +27,14 @@ final class JsonStore {
                 if (value != null) {
                     return value;
                 }
+                throw new IllegalArgumentException("Document JSON vide");
             } catch (IOException | RuntimeException e) {
                 GeoMod.LOGGER.error("Fichier illisible {} : tentative avec la sauvegarde", file, e);
                 try {
-                    Files.copy(file, file.resolveSibling(file.getFileName() + ".corrompu-" + System.currentTimeMillis()),
+                    Files.move(file, file.resolveSibling(file.getFileName() + ".corrompu-" + System.currentTimeMillis()),
                             StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException ignored) {
-                    // La copie de diagnostic est facultative.
+                    // La mise à l’écart conserve la sauvegarde saine lors de la prochaine écriture.
                 }
             }
         }
@@ -68,3 +69,4 @@ final class JsonStore {
         return file.resolveSibling(file.getFileName() + ".bak");
     }
 }
+

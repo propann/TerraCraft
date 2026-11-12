@@ -133,6 +133,7 @@ public final class Bosses {
             return;
         }
         onUnload(entity);
+        if (ExodusCampaign.isGuardian(entity)) return;
         var random = level.getRandom();
         ItemStack[] loot = {
                 new ItemStack(ModBlocks.COMMANDER_BADGE),
@@ -153,3 +154,4 @@ public final class Bosses {
                 source.getEntity() == null ? "?" : source.getEntity().getName().getString());
     }
 }
+

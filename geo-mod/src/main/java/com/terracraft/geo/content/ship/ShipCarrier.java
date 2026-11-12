@@ -389,6 +389,7 @@ public class ShipCarrier extends Entity {
         String message = docked ? "Amarrage réussi : le sas du vaisseau est collé à celui de la station."
                 : Space.isOrbitId(Space.id(level)) ? "Vaisseau posé sur le quai." : "Vaisseau posé.";
         for (ServerPlayer player : crewOnline(level)) {
+            com.terracraft.geo.ExodusCampaign.get().fact(player, "built_flight", 1);
             player.sendOverlayMessage(Component.literal(message).withStyle(ChatFormatting.AQUA));
         }
         GeoMod.LOGGER.info("[VAISSEAU] posé en {} {} ({} blocs, amarré : {})", level.dimension().identifier(), origin, blocks.size(), docked);
@@ -477,3 +478,4 @@ public class ShipCarrier extends Entity {
         pilot = input.read("Pilot", UUIDUtil.CODEC).orElse(null);
     }
 }
+

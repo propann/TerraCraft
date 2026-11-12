@@ -170,6 +170,7 @@ public class Rocket extends VehicleEntity implements Craft {
         if ((here == Space.MOON_ID || here == Space.MARS_ID || here == Space.EARTH) && hasPayload(ModContent.ROVER_KIT)) {
             for (double[] offset : new double[][]{{0, 3.5}, {0, -3.5}, {3.5, 0}, {-3.5, 0}}) {
                 if (RoverKitItem.unpack(level, position().add(offset[0], 0.2, offset[1]), getYRot()) != null) {
+                    if (level.dimension() == Space.MOON) com.terracraft.geo.ExodusCampaign.get().fact(pilot,"moon_rover",1);
                     removePayload(ModContent.ROVER_KIT);
                     pilot.sendSystemMessage(Component.literal("Rover déposé à côté de la fusée : clic droit pour monter.")
                             .withStyle(ChatFormatting.AQUA));
@@ -651,3 +652,4 @@ public class Rocket extends VehicleEntity implements Craft {
         earthZ = input.getDoubleOr("EarthZ", 0);
     }
 }
+

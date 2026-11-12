@@ -114,10 +114,13 @@ public final class MarsChunkGenerator extends ChunkGenerator {
     @Override public int getBaseHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor h, RandomState r) { return Math.min(h.getMaxY(), height(x, z) + 1); }
     @Override public NoiseColumn getBaseColumn(int x, int z, LevelHeightAccessor h, RandomState r) { return new NoiseColumn(h.getMinY(), column(x, z, h)); }
     @Override public void addDebugScreenInfo(List<String> result, RandomState r, BlockPos pos, SamplerContext context) { result.add("TerraCraft : Mars"); }
-    @Override public void applyBiomeDecoration(WorldGenLevel level, ChunkAccess chunk, StructureManager structures) {}
+    @Override public void applyBiomeDecoration(WorldGenLevel level, ChunkAccess chunk, StructureManager structures) {
+        com.terracraft.geo.OrionSites.generate(level, chunk, false);
+    }
     @Override public void spawnOriginalMobs(WorldGenRegion region) {}
     @Override public int getGenDepth() { return 384; }
     @Override public int getSeaLevel() { return -63; }
     @Override public int getMinY() { return -64; }
     @Override public int getSpawnHeight(LevelHeightAccessor height) { return BASE + 1; }
 }
+

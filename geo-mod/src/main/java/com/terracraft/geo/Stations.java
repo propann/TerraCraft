@@ -157,6 +157,7 @@ public final class Stations {
         StationBuilder.buildOrbital(level, beacon);
         registerBuilt(owner, level, beacon, "Station orbitale de " + owner.getName().getString());
         SpaceRace.reached(owner, "orbital_station");
+        ExodusCampaign.get().fact(owner, "station", 1);
         GeoMod.LOGGER.info("[STATION] {} déploie sa station orbitale en {}", owner.getName().getString(), beacon);
         owner.sendSystemMessage(Component.literal("✦ Station orbitale déployée : salle de travail, tunnels, stockage et quai "
                 + "d'amarrage. Tes fusées se poseront ici ; les voyages vers la Lune et au-delà partent de ce quai.")
@@ -172,6 +173,8 @@ public final class Stations {
         BlockPos beacon = new BlockPos((int) Math.floor(x) - 2, y - 1, (int) Math.floor(z));
         StationBuilder.buildSurfaceBase(level, beacon);
         registerBuilt(owner, level, beacon, kind + " de " + owner.getName().getString());
+        if (level.dimension() == Space.MOON) ExodusCampaign.get().fact(owner, "moon_base", 1);
+        if (level.dimension() == Space.MARS) ExodusCampaign.get().fact(owner, "mars_base", 1);
         if (level.dimension() == Space.MOON) {
             SpaceRace.reached(owner, "lunar_base");
         }
@@ -286,3 +289,4 @@ public final class Stations {
         };
     }
 }
+

@@ -130,6 +130,7 @@ public class MachineBlockEntity extends BlockEntity {
             case OIL_PUMP -> {
                 int richness = Oil.richness(worldPosition.getX(), worldPosition.getZ());
                 if (power > 0 && richness > 0 && level.dimension() == net.minecraft.world.level.Level.OVERWORLD) {
+                    com.terracraft.geo.ExodusCampaign.get().machineFact(level, worldPosition, "pumping", 1);
                     add(FluidKind.CRUDE, PUMP_RATE * richness * Math.min(power, 2));
                 }
                 push(level, FluidKind.CRUDE);
@@ -140,6 +141,8 @@ public class MachineBlockEntity extends BlockEntity {
                         && amount(FluidKind.KEROSENE) + REFINE_KEROSENE <= kind().capacity) {
                     add(FluidKind.CRUDE, -REFINE_INPUT);
                     add(FluidKind.GASOLINE, REFINE_GASOLINE);
+                    com.terracraft.geo.ExodusCampaign.get().machineFact(level, worldPosition, "gasoline", REFINE_GASOLINE);
+                    com.terracraft.geo.ExodusCampaign.get().machineFact(level, worldPosition, "kerosene", REFINE_KEROSENE);
                     add(FluidKind.KEROSENE, REFINE_KEROSENE);
                 }
                 push(level, FluidKind.GASOLINE);
@@ -151,6 +154,8 @@ public class MachineBlockEntity extends BlockEntity {
                     net.minecraft.world.Container container = output(level);
                     if (container != null && insert(container, harvest(level))) {
                         growth = 0;
+                        if (level.dimension() == com.terracraft.geo.Space.MARS)
+                            com.terracraft.geo.ExodusCampaign.get().machineFact(level, worldPosition, "mars_harvest", 1);
                     }
                 }
                 setChanged();
@@ -338,3 +343,4 @@ public class MachineBlockEntity extends BlockEntity {
         growth = input.getIntOr("Growth", 0);
     }
 }
+

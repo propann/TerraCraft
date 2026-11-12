@@ -134,3 +134,6 @@ Pour les mettre à jour : `python3 tools/install_mods.py --update-lock`, tester,
 
 <p align="center"><sub>Données cartographiques © contributeurs <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> (ODbL), tuiles <a href="https://openfreemap.org">OpenFreeMap</a>, relief AWS Terrain Tiles, météo <a href="https://open-meteo.com">Open-Meteo</a>. Minecraft est une marque de Mojang ; projet non officiel.</sub></p>
 
+
+Campagne : [TERRA EXODUS — Les Vestiges d’Orion](docs/univers/terra-exodus.md).
+Livret de départ et commandes : [guide de campagne](docs/terra-exodus-jeu.md).

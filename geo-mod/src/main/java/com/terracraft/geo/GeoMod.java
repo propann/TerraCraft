@@ -248,6 +248,22 @@ public final class GeoMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ExodusCampaign.get().wire(TOWNS, AUCTION_HOUSE);
+        ServerLifecycleEvents.SERVER_STARTED.register(ExodusCampaign.get()::load);
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> ExodusCampaign.get().save());
+        ServerTickEvents.END_SERVER_TICK.register(ExodusCampaign.get()::tick);
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> ExodusCampaign.get().register(dispatcher));
+        PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, entity) -> {
+            if (player instanceof ServerPlayer sp && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                if (state.is(ModBlocks.LUNAR_CRYSTAL)) ExodusCampaign.get().fact(sp,"lunar_crystal",1);
+                if (entity instanceof com.terracraft.geo.content.industry.MachineBlockEntity) ExodusCampaign.get().machineRemoved(serverLevel,pos);
+            }
+        });
+        UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            if (player instanceof ServerPlayer sp && level.getBlockState(hit.getBlockPos()).is(ModBlocks.MARKET_STALL))
+                ExodusCampaign.get().fact(sp,"market",1);
+            return InteractionResult.PASS;
+        });
         NPCS.wire();
         ServerLifecycleEvents.SERVER_STARTED.register(NPCS::load);
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> NPCS.stop());
@@ -439,6 +455,7 @@ public final class GeoMod implements ModInitializer {
             if (source.getEntity() instanceof ServerPlayer killer) {
                 Progression.get().onKill(entity, killer);
             }
+            ExodusCampaign.get().onDeath(entity, source);
             Bosses.onDeath(entity, source, AUCTION_HOUSE);
             if (entity instanceof ServerPlayer victim && source.getEntity() instanceof ServerPlayer killer) {
                 BOUNTIES.onPlayerKilled(victim, killer);

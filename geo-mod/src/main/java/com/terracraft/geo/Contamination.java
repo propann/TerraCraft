@@ -115,6 +115,7 @@ final class Contamination {
             if (player.isSpectator()) {
                 continue;
             }
+            if (ExodusCampaign.get().restored(player.getBlockX(),player.getBlockZ())) continue;
             Zone zone = nearest(player.getBlockX(), player.getBlockZ());
             if (zone == null) {
                 continue;
@@ -178,3 +179,4 @@ final class Contamination {
                 + " / " + zone.z + " (torche rouge).").withStyle(ChatFormatting.GOLD));
     }
 }
+

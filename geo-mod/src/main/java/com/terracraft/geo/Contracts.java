@@ -151,6 +151,7 @@ final class Contracts {
             return false;
         }
         daily.claimed.add(contract.id());
+        ExodusCampaign.get().fact(player, "contracts", 1);
         save();
         bank.credit(player, contract.reward(), "Contrat du jour : " + contract.title());
         GeoMod.LOGGER.info("[CONTRAT] {} remplit « {} » (+{} crédits)", player.getName().getString(), contract.title(), contract.reward());
@@ -173,3 +174,4 @@ final class Contracts {
         return array;
     }
 }
+

@@ -47,6 +47,14 @@ public final class AuctionHouse {
 
     private final Map<UUID, Long> balances = new HashMap<>();
     private final Map<Long, Listing> listings = new LinkedHashMap<>();
+    private static final class Ledger {
+        Map<UUID, Long> balances = new LinkedHashMap<>();
+        Map<Long, Listing> listings = new LinkedHashMap<>();
+        Set<String> receipts = new java.util.LinkedHashSet<>();
+        com.google.gson.JsonObject economy;
+    }
+    private final Set<String> receipts = new java.util.LinkedHashSet<>();
+    private Path ledgerFile;
     private Path balanceFile;
     private Path listingFile;
     private long nextId = 1;
@@ -58,6 +66,9 @@ public final class AuctionHouse {
         Path root = server.getWorldPath(LevelResource.ROOT).resolve(GeoMod.MOD_ID);
         balanceFile = root.resolve("balances.json");
         listingFile = root.resolve("hotel-des-ventes.json");
+        ledgerFile = root.resolve("portefeuilles.json");
+        receipts.clear();
+        nextId = 1;
         balances.clear();
         listings.clear();
         economy.load(server);
@@ -74,13 +85,54 @@ public final class AuctionHouse {
                 nextId = Math.max(nextId, listing.id() + 1);
             }
         }
+        Ledger ledger = JsonStore.load(ledgerFile, json -> GSON.fromJson(json, Ledger.class));
+        if (ledger != null) {
+            if (ledger.balances == null || ledger.listings == null || ledger.receipts == null || ledger.economy == null)
+                throw new IllegalStateException("Journal économique incomplet");
+            balances.clear(); balances.putAll(ledger.balances);
+            listings.clear(); listings.putAll(ledger.listings);
+            receipts.addAll(ledger.receipts);
+            economy.restore(ledger.economy);
+            nextId = listings.keySet().stream().mapToLong(Long::longValue).max().orElse(0) + 1;
+        } else if (java.nio.file.Files.exists(ledgerFile) || java.nio.file.Files.exists(ledgerFile.resolveSibling("portefeuilles.json.bak"))) {
+            throw new IllegalStateException("Journal économique illisible : restauration manuelle requise");
+        }
     }
+
+    /** Le reçu et le solde sont validés par une seule écriture, avant toute confirmation. */
+    boolean creditOnce(ServerPlayer player, long amount, String receipt) {
+        if (receipts.contains(receipt)) return true;
+        Ledger before = ledger();
+        balances.put(player.getUUID(), Math.addExact(balanceOf(player.getUUID()), amount));
+        receipts.add(receipt);
+        economy.created("campagne", amount);
+        try { persistLedger(); }
+        catch (IOException e) {
+            balances.clear(); balances.putAll(before.balances);
+            receipts.clear(); receipts.addAll(before.receipts);
+            economy.restore(before.economy);
+            GeoMod.LOGGER.error("[EXODUS] Récompense non enregistrée", e);
+            return false;
+        }
+        save();
+        return true;
+    }
+
+    private Ledger ledger() {
+        Ledger result = new Ledger();
+        result.balances.putAll(balances); result.listings.putAll(listings);
+        result.receipts.addAll(receipts); result.economy = economy.snapshot();
+        return result;
+    }
+
+    private void persistLedger() throws IOException { JsonStore.write(ledgerFile, GSON.toJson(ledger())); }
 
     void save() {
         if (balanceFile == null || listingFile == null) {
             return;
         }
         try {
+            persistLedger();
             Map<String, Long> storedBalances = new LinkedHashMap<>();
             balances.forEach((uuid, amount) -> storedBalances.put(uuid.toString(), amount));
             JsonStore.write(balanceFile, GSON.toJson(storedBalances));
@@ -583,3 +635,4 @@ public final class AuctionHouse {
         }
     }
 }
+
