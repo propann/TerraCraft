@@ -1,145 +1,91 @@
 package com.terracraft.geo;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/** Journal des missions : métier, contrats du jour, missions en cours et missions terminées. */
+/** Journal paginé : campagne, contrats et missions libres. */
 public final class MissionsScreen extends Screen {
-    private static final int ROW = 24;
-    private static final int GREEN = 0xFF7EE08A;
-
+    private final List<List<JsonObject>> tabs=List.of(new ArrayList<>(),new ArrayList<>(),new ArrayList<>());
     private final String job;
-    private final List<JsonObject> contracts = new ArrayList<>();
-    private final List<JsonObject> missions = new ArrayList<>();
-    private int done;
-    private int left;
-    private int top;
-    private int panelWidth;
-    private int panelHeight;
-    private int missionRows;
-
+    private static int lastTab, lastPage;
+    private int tab=lastTab,page=lastPage,selected=-1;
+    private int left,top,panelWidth,panelHeight,rows;
+    private static final int ROW=30;
     public MissionsScreen(String json) {
-        super(Component.literal("Missions TerraCraft"));
-        JsonElement root = JsonParser.parseString(json);
-        JsonArray allMissions;
-        if (root.isJsonArray()) {
-            allMissions = root.getAsJsonArray();
-            job = "";
-        } else {
-            JsonObject object = root.getAsJsonObject();
-            allMissions = object.getAsJsonArray("missions");
-            object.getAsJsonArray("contracts").forEach(e -> contracts.add(e.getAsJsonObject()));
-            job = object.has("job") ? object.get("job").getAsString() : "";
-        }
-        for (JsonElement element : allMissions) {
-            JsonObject mission = element.getAsJsonObject();
-            if (mission.get("claimed").getAsBoolean()) {
-                done++;
-            } else {
-                missions.add(mission);
-            }
-        }
-        // Les missions prêtes à réclamer d'abord.
-        missions.sort((a, b) -> Boolean.compare(ready(b), ready(a)));
-    }
-
-    private static boolean ready(JsonObject mission) {
-        return !mission.get("claimed").getAsBoolean() && mission.get("progress").getAsLong() >= mission.get("target").getAsLong();
-    }
-
-    @Override
-    protected void init() {
-        panelWidth = Math.min(560, width - 16);
-        panelHeight = Math.min(height - 16, 300);
-        left = (width - panelWidth) / 2;
-        top = (height - panelHeight) / 2;
-        int contractsTop = top + 40;
-        int missionsTop = contractsTop + contracts.size() * ROW + 16;
-        missionRows = Math.max(0, Math.min(missions.size(), (top + panelHeight - 40 - missionsTop) / ROW));
-        for (int i = 0; i < contracts.size(); i++) {
-            claimButton(contracts.get(i), contractsTop + i * ROW);
-        }
-        for (int i = 0; i < missionRows; i++) {
-            claimButton(missions.get(i), missionsTop + i * ROW);
-        }
-        addRenderableWidget(Button.builder(Component.literal("Fermer"), b -> onClose())
-                .bounds(width / 2 - 42, top + panelHeight - 26, 84, 20).build());
-    }
-
-    private void claimButton(JsonObject mission, int y) {
-        if (ready(mission)) {
-            String id = mission.get("id").getAsString();
-            addRenderableWidget(Button.builder(Component.literal("Réclamer"), b -> {
-                if (ClientPlayNetworking.canSend(ClaimMissionPayload.TYPE)) {
-                    ClientPlayNetworking.send(new ClaimMissionPayload(id));
-                }
-            }).bounds(left + panelWidth - 82, y, 74, 18).build());
+        super(Component.literal("Journal TerraCraft"));
+        JsonElement parsed=JsonParser.parseString(json);
+        if(parsed.isJsonArray()) { add(2,parsed.getAsJsonArray());job="";tab=2; }
+        else {
+            JsonObject object=parsed.getAsJsonObject();
+            add(0,object.getAsJsonArray("campaign"));add(1,object.getAsJsonArray("contracts"));add(2,object.getAsJsonArray("missions"));
+            job=object.has("job")?object.get("job").getAsString():"";
         }
     }
-
-    @Override
-    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
-        extractTransparentBackground(g);
-        Ui.frame(g, left, top, panelWidth, panelHeight, 18);
-        g.text(font, Component.literal("MISSIONS"), left + 8, top + 5, SuitScreen.GOLD, false);
-        if (!job.isEmpty()) {
-            Component jobLine = Component.literal("Métier : " + job);
-            g.text(font, font.plainSubstrByWidth(jobLine.getString(), panelWidth - 90), left + panelWidth - 8
-                    - Math.min(font.width(jobLine), panelWidth - 90), top + 5, SuitScreen.CYAN, false);
-        }
-        int contractsTop = top + 40;
-        g.text(font, Component.literal("Contrats du jour (changent à minuit)"), left + 8, contractsTop - 12, SuitScreen.GOLD, false);
-        for (int i = 0; i < contracts.size(); i++) {
-            row(g, contracts.get(i), contractsTop + i * ROW);
-        }
-        int missionsTop = contractsTop + contracts.size() * ROW + 16;
-        g.text(font, Component.literal("Missions" + (done > 0 ? "  ·  " + done + " terminée(s)" : "")), left + 8,
-                missionsTop - 12, SuitScreen.GOLD, false);
-        for (int i = 0; i < missionRows; i++) {
-            row(g, missions.get(i), missionsTop + i * ROW);
-        }
-        if (missions.size() > missionRows) {
-            g.text(font, Component.literal("… et " + (missions.size() - missionRows) + " autre(s) : /missions dans le chat"),
-                    left + 8, missionsTop + missionRows * ROW, SuitScreen.GREY, false);
-        }
-        super.extractRenderState(g, mouseX, mouseY, delta);
+    private void add(int index,JsonArray array) {
+        if(array!=null) array.forEach(e -> tabs.get(index).add(e.getAsJsonObject()));
     }
-
-    private void row(GuiGraphicsExtractor g, JsonObject mission, int y) {
-        long progress = mission.get("progress").getAsLong();
-        long target = mission.get("target").getAsLong();
-        boolean claimed = mission.get("claimed").getAsBoolean();
-        int color = claimed ? 0xFF6E8A76 : progress >= target ? GREEN : SuitScreen.TEXT;
-        int textWidth = panelWidth - 100;
-        String line = (claimed ? "✓ " : "") + mission.get("title").getAsString() + " — " + mission.get("description").getAsString();
-        g.text(font, font.plainSubstrByWidth(line, textWidth), left + 8, y, color, false);
-        // Barre de progression et récompense.
-        int bar = 120;
-        Ui.bar(g, left + 8, y + 11, bar, 3, (double) progress / Math.max(1, target), progress >= target ? GREEN : SuitScreen.CYAN);
-        g.text(font, progress + "/" + target + "  ·  " + mission.get("reward").getAsLong() + " crédits", left + 134, y + 9,
-                SuitScreen.GREY, false);
+    private static boolean ready(JsonObject m) {
+        return !m.get("claimed").getAsBoolean() && m.get("progress").getAsLong()>=m.get("target").getAsLong();
     }
-
-    @Override
-    public boolean isPauseScreen() {
-        return false;
-    }
-
-    @Override
-    public void removed() {
-        super.removed();
-        if (minecraft != null && minecraft.player != null) {
-            minecraft.mouseHandler.grabMouse();
+    private List<JsonObject> current() { return tabs.get(tab); }
+    @Override protected void init() {
+        panelWidth=Math.min(620,width-16);panelHeight=Math.min(height-16,400);
+        left=(width-panelWidth)/2;top=(height-panelHeight)/2;
+        rows=Math.max(1,(panelHeight-160)/ROW);
+        page=Math.max(0,Math.min(page,Math.max(0,(current().size()-1)/rows)));
+        lastTab=tab;lastPage=page;
+        for(int i=0;i<3;i++) {
+            final int which=i;
+            addRenderableWidget(Button.builder(Component.literal(new String[]{"Campagne","Contrats","Libres"}[i]),b -> {
+                tab=which;page=0;selected=-1;rebuild();
+            }).bounds(left+8+i*90,top+22,86,20).build());
         }
+        int end=Math.min(current().size(),(page+1)*rows);
+        for(int i=page*rows;i<end;i++) {
+            JsonObject mission=current().get(i);final int index=i;int y=top+64+(i-page*rows)*ROW;
+            addRenderableWidget(Button.builder(Component.literal("Lire"),b -> {selected=index;rebuild();})
+                    .bounds(left+panelWidth-136,y,48,18).build());
+            Button claim=Button.builder(Component.literal(mission.get("claimed").getAsBoolean()?"Reçue":"Réclamer"),b -> {
+                if(ClientPlayNetworking.canSend(ClaimMissionPayload.TYPE)) ClientPlayNetworking.send(new ClaimMissionPayload(mission.get("id").getAsString()));
+            }).bounds(left+panelWidth-82,y,74,18).build();
+            claim.active=ready(mission);addRenderableWidget(claim);
+        }
+        Button previous=Button.builder(Component.literal("←"),b -> {page--;selected=-1;rebuild();})
+                .bounds(left+8,top+panelHeight-26,32,20).build();previous.active=page>0;addRenderableWidget(previous);
+        Button next=Button.builder(Component.literal("→"),b -> {page++;selected=-1;rebuild();})
+                .bounds(left+46,top+panelHeight-26,32,20).build();next.active=end<current().size();addRenderableWidget(next);
+        addRenderableWidget(Button.builder(Component.literal("Fermer"),b -> onClose())
+                .bounds(left+panelWidth-90,top+panelHeight-26,82,20).build());
+    }
+    private void rebuild() { clearWidgets();init(); }
+    @Override public void extractRenderState(GuiGraphicsExtractor g,int mouseX,int mouseY,float delta) {
+        extractTransparentBackground(g);Ui.frame(g,left,top,panelWidth,panelHeight,18);
+        g.text(font,Component.literal("TERRA EXODUS · JOURNAL"),left+8,top+5,SuitScreen.GOLD,false);
+        g.text(font,font.plainSubstrByWidth(job,panelWidth-16),left+8,top+48,SuitScreen.CYAN,false);
+        int end=Math.min(current().size(),(page+1)*rows);
+        for(int i=page*rows;i<end;i++) {
+            JsonObject m=current().get(i);int y=top+64+(i-page*rows)*ROW;
+            String title=(m.get("claimed").getAsBoolean()?"✓ ":"")+m.get("title").getAsString();
+            g.text(font,font.plainSubstrByWidth(title,Math.max(30,panelWidth-150)),left+8,y,ready(m)?0xFF7EE08A:SuitScreen.TEXT,false);
+            long progress=m.get("progress").getAsLong(),target=m.get("target").getAsLong();
+            g.text(font,progress+"/"+target+" · "+m.get("reward").getAsLong()+" crédits",left+8,y+12,SuitScreen.GREY,false);
+        }
+        String detail=selected>=0 && selected<current().size()?current().get(selected).get("description").getAsString():"Choisis Lire pour consulter tous les objectifs. /exodus livre actualise ton carnet.";
+        int y=top+panelHeight-86;
+        for(var line:font.split(Component.literal(detail),panelWidth-16)) {
+            if(y>=top+panelHeight-32) break;
+            g.text(font,line,left+8,y,SuitScreen.TEXT,false);y+=10;
+        }
+        g.text(font,"Page "+(page+1)+"/"+Math.max(1,(current().size()+rows-1)/rows),left+90,top+panelHeight-20,SuitScreen.GREY,false);
+        super.extractRenderState(g,mouseX,mouseY,delta);
+    }
+    @Override public boolean isPauseScreen() {return false;}
+    @Override public void removed() {
+        super.removed();if(minecraft!=null && minecraft.player!=null) minecraft.mouseHandler.grabMouse();
     }
 }

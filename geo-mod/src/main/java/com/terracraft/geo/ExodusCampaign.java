@@ -95,6 +95,11 @@ public final class ExodusCampaign {
     void machineRemoved(ServerLevel level, BlockPos pos) {
         if (state.machines.remove(machineKey(level,pos)) != null) dirty = true;
     }
+    void stationReady(ServerPlayer owner, ServerLevel level, BlockPos beacon) {
+        if (level.dimension() == Space.ORBIT && level.getBlockState(beacon).is(ModBlocks.STATION_BEACON)
+                && level.getBlockState(beacon.offset(-26,2,-4)).is(ModBlocks.STATION_WORKSHOP)
+                && level.getBlockState(beacon.offset(-22,1,0)).is(ModBlocks.OXYGEN_DISTRIBUTOR)) fact(owner,"station",1);
+    }
     private void observe(ServerPlayer player) {
         ExodusState.Journal j = journal(player);
         Progression p = Progression.get();
@@ -115,10 +120,14 @@ public final class ExodusCampaign {
                 && !SpaceSuit.helmet(player).isEmpty() && SpaceSuit.hasSuit(player)) {
             boolean dock = Stations.get().dockedNear(player.level(),player.blockPosition(),16);
             if (!dock && player.getVehicle() == null && !j.evaOut) { j.evaOut = true; dirty = true; }
-            witness(j,"eva_return",j.evaOut && dock);
+            witness(j,"eva_return",j.evaOut && dock && player.getVehicle()==null);
         }
         // Reprise des bases des joueurs existants ; les déploiements ne rejouent jamais leur kit.
         if (Stations.get().hasStation(player,player.level())) {
+            if (player.level().dimension() == Space.ORBIT && j.facts.getOrDefault("station",0L)==0) {
+                BlockPos beacon=Stations.get().beaconNear(player.level(),player.blockPosition(),48);
+                if (beacon!=null) stationReady(player,player.level(),beacon);
+            }
             if (player.level().dimension() == Space.MOON) witness(j,"moon_base",true);
             if (player.level().dimension() == Space.MARS) witness(j,"mars_base",true);
         }
@@ -128,6 +137,12 @@ public final class ExodusCampaign {
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             if (player.isSpectator()) continue;
             observe(player);
+            ExodusState.Journal j=journal(player);
+            if (!j.guardian.isEmpty() && player.level().dimension()==Space.ASTEROIDS) {
+                var guardian=player.level().getEntity(UUID.fromString(j.guardian));
+                if (guardian!=null && guardian.blockPosition().distSqr(new BlockPos(j.trialX,j.trialY,j.trialZ))>24*24)
+                    guardian.teleportTo(j.trialX+0.5,j.trialY,j.trialZ+0.5);
+            }
             if (!journal(player).pending.isEmpty()) claim(player,journal(player).pending);
         }
         if (server.getTickCount() % 200 == 0) save();

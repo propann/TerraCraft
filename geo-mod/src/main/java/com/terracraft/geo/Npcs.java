@@ -41,6 +41,16 @@ final class Npcs {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final String TAG = "terracraft_npc:";
     private record Persona(String name, String role, String faction, String personality, String goal) { }
+    private static Map<String, Persona> canonical() {
+        try (var stream=Npcs.class.getResourceAsStream("/terra-exodus-personas.json")) {
+            if (stream==null) throw new IOException("Identités de campagne absentes");
+            return GSON.fromJson(new String(stream.readAllBytes(),java.nio.charset.StandardCharsets.UTF_8),
+                    new com.google.gson.reflect.TypeToken<LinkedHashMap<String,Persona>>() { }.getType());
+        } catch (IOException e) { throw new IllegalStateException("Identités de campagne illisibles",e); }
+    }
+    private static Settings withCanonical(Settings settings) {
+        Map<String,Persona> merged=canonical();merged.putAll(settings.personas);settings.personas=merged;return settings;
+    }
     private record Turn(String speaker, String text) { }
     private static final class Settings {
         boolean ai_enabled = false;
@@ -64,7 +74,7 @@ final class Npcs {
     private final Map<String, Memory> memories = new LinkedHashMap<>();
     private final Map<UUID, UUID> pending = new HashMap<>();
     private final Map<UUID, Long> cooldowns = new HashMap<>();
-    private Settings settings = new Settings();
+    private Settings settings = withCanonical(new Settings());
     private NpcBrain brain;
     private Path memoryFile;
     private MinecraftServer activeServer;
@@ -121,6 +131,7 @@ final class Npcs {
                 settings = new Settings();
                 JsonStore.write(file, GSON.toJson(settings));
             }
+            if (settings != null && settings.personas != null) settings = withCanonical(settings);
             if (settings == null || settings.personas == null || settings.personas.size() > 64) {
                 throw new IllegalArgumentException("Identités PNJ invalides");
             }
@@ -139,7 +150,7 @@ final class Npcs {
             }
             GeoMod.LOGGER.info("[PNJ] {} identité(s), dialogues IA {}", settings.personas.size(), brain == null ? "désactivés" : "activés");
         } catch (IOException | RuntimeException e) {
-            settings = new Settings();
+            settings = withCanonical(new Settings());
             GeoMod.LOGGER.warn("[PNJ] Configuration invalide : dialogues locaux utilisés ({})", e.getClass().getSimpleName());
         }
     }
@@ -272,6 +283,7 @@ final class Npcs {
         context.addProperty("town", town == null ? "" : town.name);
         context.add("memory", GSON.toJsonTree(memory.history));
         context.addProperty("message", message);
+        context.add("campaign", ExodusCampaign.get().context(player));
         JsonArray available = new JsonArray();
         Set<String> ids = Contracts.todays().stream().filter(c -> !contracts.claimed(player, c))
                 .map(c -> Contracts.PREFIX + c.id()).collect(Collectors.toSet());
@@ -286,11 +298,22 @@ final class Npcs {
             json.addProperty("reward", contract.reward());
             available.add(json);
         }
+        String identity=mob.entityTags().stream().filter(t -> t.startsWith(TAG)).map(t -> t.substring(TAG.length())).findFirst().orElse("");
+        List<ExodusQuests.Quest> campaign=ExodusCampaign.get().available(player).stream().filter(q -> q.npc().equals(identity)).toList();
+        if (canonical().containsKey(identity)) { available=new JsonArray();ids.clear(); }
+        for (ExodusQuests.Quest q:campaign) {
+            JsonObject json=new JsonObject();String id=ExodusQuests.PREFIX+q.id();
+            json.addProperty("quest_id",id);json.addProperty("title",q.title());
+            json.addProperty("description",String.join(" · ",q.goals().stream().map(ExodusQuests.Goal::label).toList()));
+            json.addProperty("reward",q.credits());available.add(json);ids.add(id);
+        }
         context.add("available_quests", available);
         String fallbackQuest = Contracts.todays().stream().map(c -> Contracts.PREFIX + c.id()).filter(ids::contains).findFirst().orElse("");
+        if (!campaign.isEmpty()) fallbackQuest=ExodusQuests.PREFIX+campaign.getFirst().id();
+        String chosenQuest=fallbackQuest;
         NpcPolicy.Reply fallback = new NpcPolicy.Reply("Bonjour, " + player.getName().getString()
-                + ". Je suis " + p.name() + ". " + (fallbackQuest.isEmpty() ? "Tu as terminé les contrats du jour."
-                : "J'ai du travail pour toi. Consulte /pnj mission."), fallbackQuest);
+                + ". Je suis " + p.name() + ". " + (fallbackQuest.isEmpty() ? "Consulte ton journal /exodus pour la suite du voyage."
+                : "J'ai du travail pour toi. Consulte /pnj mission."), chosenQuest);
         if (brain == null) {
             deliver(player, mob, message, fallback);
             return 1;
@@ -323,6 +346,10 @@ final class Npcs {
         while (memory.history.size() > 6) memory.history.remove(0);
         memory.quest = Contracts.todays().stream().filter(c -> !contracts.claimed(player, c))
                 .map(c -> Contracts.PREFIX + c.id()).filter(reply.questId()::equals).findFirst().orElse("");
+        if (ExodusCampaign.get().allowed(player,reply.questId())) {
+            ExodusQuests.Quest q=ExodusQuests.find(reply.questId());
+            if (mob.entityTags().contains(TAG+q.npc())) memory.quest=reply.questId();
+        }
         save();
         player.sendSystemMessage(Component.literal(persona(mob).name() + " : " + reply.speech()).withStyle(ChatFormatting.GREEN));
         mission(player, mob, false);
@@ -336,6 +363,17 @@ final class Npcs {
 
     private int mission(ServerPlayer player, Mob mob, boolean claim) {
         Memory memory = memory(player, mob);
+        if (memory.quest.startsWith(ExodusQuests.PREFIX)) {
+            ExodusQuests.Quest q=ExodusQuests.find(memory.quest);
+            if (q==null || !mob.entityTags().contains(TAG+q.npc()) || !ExodusCampaign.get().allowed(player,memory.quest)) {
+                memory.quest="";save();return 0;
+            }
+            if (claim) {
+                int result=ExodusCampaign.get().claim(player,memory.quest);
+                if(result>0) {memory.quest="";save();}return result;
+            }
+            player.sendSystemMessage(Component.literal(q.title()+" — /exodus pour les preuves ; /pnj reclamer pour la remise."));return 1;
+        }
         Contracts.Contract contract = Contracts.todays().stream().filter(c -> (Contracts.PREFIX + c.id()).equals(memory.quest)).findFirst().orElse(null);
         if (contract == null) {
             player.sendSystemMessage(Component.literal("Ce PNJ ne t'a pas proposé de contrat aujourd'hui. Parle-lui avec /pnj."));

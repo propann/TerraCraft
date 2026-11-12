@@ -31,7 +31,7 @@ final class JsonStore {
             } catch (IOException | RuntimeException e) {
                 GeoMod.LOGGER.error("Fichier illisible {} : tentative avec la sauvegarde", file, e);
                 try {
-                    Files.move(file, file.resolveSibling(file.getFileName() + ".corrompu-" + System.currentTimeMillis()),
+                    Files.copy(file, file.resolveSibling(file.getFileName() + ".corrompu-" + System.currentTimeMillis()),
                             StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException ignored) {
                     // La mise à l’écart conserve la sauvegarde saine lors de la prochaine écriture.
@@ -42,6 +42,9 @@ final class JsonStore {
         if (Files.isRegularFile(backup)) {
             try {
                 T value = parser.apply(Files.readString(backup));
+                if (value == null) throw new IllegalArgumentException("Sauvegarde JSON vide");
+                // Ne jamais recopier un primaire corrompu sur la sauvegarde saine à la prochaine écriture.
+                Files.deleteIfExists(file);
                 GeoMod.LOGGER.warn("Données restaurées depuis {}", backup);
                 return value;
             } catch (IOException | RuntimeException e) {

@@ -157,7 +157,7 @@ public final class Stations {
         StationBuilder.buildOrbital(level, beacon);
         registerBuilt(owner, level, beacon, "Station orbitale de " + owner.getName().getString());
         SpaceRace.reached(owner, "orbital_station");
-        ExodusCampaign.get().fact(owner, "station", 1);
+        ExodusCampaign.get().stationReady(owner, level, beacon);
         GeoMod.LOGGER.info("[STATION] {} déploie sa station orbitale en {}", owner.getName().getString(), beacon);
         owner.sendSystemMessage(Component.literal("✦ Station orbitale déployée : salle de travail, tunnels, stockage et quai "
                 + "d'amarrage. Tes fusées se poseront ici ; les voyages vers la Lune et au-delà partent de ce quai.")
