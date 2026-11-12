@@ -16,6 +16,7 @@ deposited = load(work / 'deposited-core.json')
 completed = load(work / 'completed-campaign.json')
 final = load(data / 'terra-exodus.json')
 progress = load(data / 'progression.json')[alice]
+replay = load(work / 'pending-replay.json')['players'][alice]
 log = (work / 'campaign.log').read_text(errors='replace')
 restart = (work / 'campaign-restart.log').read_text(errors='replace')
 checks = []
@@ -49,7 +50,10 @@ check(next(iter(completed['regions'].values()), {}).get('active'), 'activation p
 check(len(completed['players'][alice]['done']) == 19, '19 quêtes achevées avec étapes intermédiaires administratives explicites')
 check(first['balances'].get(alice) == 2150, f'premiers paiements uniques moins fondation : {first["balances"].get(alice)} / 2150')
 check(wallet['balances'].get(alice) == 4150, f'paiement final unique et reset sans second paiement : {wallet["balances"].get(alice)} / 4150')
+check(replay['pending'] == 'q1_1_ashes' and 'q1_1_ashes' not in replay['done'] and completed['players'][alice]['pending'] == '' and 'q1_1_ashes' in completed['players'][alice]['done'], 'remise interrompue reprise sans versement supplémentaire')
 check(len(wallet['receipts']) == 3, 'trois reçus économiques pour les trois quêtes effectivement payées')
+check('orion_restorer' in progress.get('discoveries', []), 'distinction Éveilleur d’Orion inscrite dans la fiche du personnage')
+check(next(iter(completed['regions'].values()), {}).get('names', {}).get(alice) == 'Alice', 'nom du contributeur inscrit dans le registre municipal')
 check(len(progress.get('campaignReceipts', [])) == 3, 'trois reçus de points malgré répétitions et remise à zéro')
 check(final['players'][alice]['contribution'] == completed['players'][alice]['contribution'], 'remise à zéro sans réutilisation du Noyau déposé')
 check(len(final['regions']) == 1 and next(iter(final['regions'].values()))['active'], 'région restaurée conservée après répétition et reset')

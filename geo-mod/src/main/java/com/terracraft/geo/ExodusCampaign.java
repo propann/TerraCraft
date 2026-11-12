@@ -44,7 +44,7 @@ public final class ExodusCampaign {
         file = server.getWorldPath(LevelResource.ROOT).resolve(GeoMod.MOD_ID).resolve("terra-exodus.json");
         ExodusState loaded = JsonStore.load(file, json -> {
             ExodusState value = GSON.fromJson(json, ExodusState.class);
-            if (value == null || value.version != 1 || value.players == null || value.regions == null || value.machines == null)
+            if (value == null || value.version != 1 || value.players == null || value.regions == null)
                 throw new IllegalArgumentException("Campagne incompatible ou incomplète");
             return value;
         });
@@ -218,6 +218,8 @@ public final class ExodusCampaign {
         if (chapter(player)>=3) pages.add("ARCHIVE 2089\nSujet-09 conserve les fragments du voyage. Sur la Lune, entre dans un sanctuaire puis /exodus archives. Préserve tes réserves d’oxygène.");
         if (chapter(player)>=4) pages.add("LA PISTE D’ORION\nSoren Kael cherche les archives martiennes. /exodus signal indique un site ; lis ses quatre glyphes avec /exodus archives.");
         if (chapter(player)>=5) pages.add("LE RELAIS FINAL\n/exodus signal\n/exodus epreuve\n/exodus noyau\n\nSur Terre, près du registre de ta ville : /exodus contribuer. Le maire ou un adjoint active /exodus restaurer.");
+        if (journal(player).done.size()==ExodusQuests.ALL.size()) pages.add(
+            "L’ÉVEIL COSMIQUE\n\nVotre expédition a rejoint les Archives d’Orion. Une région terrestre retrouve un avenir. Le berceau peut renaître, ville après ville.\n\nLes origines du signal restent à explorer.");
         ItemStack book = Arrival.guide(pages);
         CompoundTag tag = new CompoundTag(); tag.putString("exodus_book",player.getUUID().toString());
         book.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
@@ -314,7 +316,8 @@ public final class ExodusCampaign {
             ExodusState.Region region=state.regions.computeIfAbsent(key,k -> {
                 ExodusState.Region r=new ExodusState.Region();r.name=town.name;r.x=(int)Math.floor(town.center.x());r.z=(int)Math.floor(town.center.z());return r;
             });
-            region.contributors.add(player.getUUID().toString());j.contribution=key;
+            region.contributors.add(player.getUUID().toString());
+            region.names.put(player.getUUID().toString(),player.getName().getString());j.contribution=key;
             witness(j,"restoration",region.active);
         })) return 0;
         held.shrink(1);
@@ -335,7 +338,7 @@ public final class ExodusCampaign {
     boolean restored(int x,int z) { return state.regions.values().stream().anyMatch(r -> ExodusState.contains(r,x,z)); }
     private static int say(ServerPlayer player,String text) { player.sendSystemMessage(Component.literal(text)); return 0; }
     private int ledger(ServerPlayer player) {
-        for (ExodusState.Region r:state.regions.values()) say(player,r.name+" : "+(r.active?"restaurée":"Noyau en attente")+", centre "+r.x+" / "+r.z+", rayon "+r.radius+", "+r.contributors.size()+" contributeur(s)");
+        for (ExodusState.Region r:state.regions.values()) say(player,r.name+" : "+(r.active?"restaurée":"Noyau en attente")+", centre "+r.x+" / "+r.z+", rayon "+r.radius+", "+String.join(", ",r.contributors.stream().map(id -> r.names.getOrDefault(id,id)).toList()));
         return 1;
     }
     void register(CommandDispatcher<CommandSourceStack> dispatcher) {

@@ -315,7 +315,16 @@ final class Npcs {
                 + ". Je suis " + p.name() + ". " + (fallbackQuest.isEmpty() ? "Consulte ton journal /exodus pour la suite du voyage."
                 : "J'ai du travail pour toi. Consulte /pnj mission."), chosenQuest);
         if (brain == null) {
-            deliver(player, mob, message, fallback);
+            String line=switch(identity) {
+                case "helene_vance" -> "Un refuge tient grâce à ses habitants. Consulte /pnj mission : nous avançons une preuve à la fois.";
+                case "boulon_kowalski" -> "Le brut ne se raffine pas avec des promesses ! Clique tes machines avant de les faire tourner : leur production alimentera ton journal.";
+                case "aris_thorne" -> "Vérifie ton oxygène et garde de quoi rentrer. Ton journal indique les étapes de préparation du vol.";
+                case "sujet_09" -> "[Bzzz…] Les souvenirs restent dans la pierre. Approche des archives que ton journal autorise.";
+                case "soren_kael" -> "Un vaisseau doit revenir entier. Notre colonie a besoin de récoltes, pas seulement de coques et de promesses.";
+                case "archiviste_orion" -> "Les archives retiennent les actes des voyageurs. Ton journal indique l’épreuve qui t’est ouverte.";
+                default -> fallback.speech();
+            };
+            deliver(player, mob, message, new NpcPolicy.Reply(line,chosenQuest));
             return 1;
         }
         UUID token = UUID.randomUUID();

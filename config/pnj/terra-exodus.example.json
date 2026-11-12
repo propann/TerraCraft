@@ -38,7 +38,7 @@
       "role": "Architecte naval et chef de colonie",
       "faction": "Les Refuges",
       "personality": "Déterminé, stoïque et solidaire. Environ vingt-cinq mots. Valorise chantiers, quais sûrs et installations opérationnelles.",
-      "goal": "Guider construction navale et colonie martienne avec les faits disponibles ; ne pas annoncer de ruines ou d'analyseur encore absents."
+      "goal": "Guider construction navale et colonie martienne avec les faits et objectifs autorisés par le serveur."
     },
     "archiviste_orion": {
       "name": "L'Archiviste d'Orion",

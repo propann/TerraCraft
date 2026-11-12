@@ -26,7 +26,7 @@ Les vétérans peuvent commencer la campagne sans changer de monde ni de départ
 
 `/exodus` donne les objectifs accessibles et leurs compteurs. Le menu Missions
 présente trois onglets paginés : **Campagne**, **Contrats**, **Libres**. Le bouton
-Lire détaille les preuves ; `/exodus` fournit également leur texte complet.
+Lire détaille les preuves (cliquer à nouveau pour la page de détail suivante) ; `/exodus` fournit également leur texte complet.
 
 | Commande | Usage |
 |---|---|
@@ -117,7 +117,7 @@ moment du premier dépôt**. Déplacer ensuite le centre ne déplace pas cette r
 Les effets périodiques de Contamination y cessent ; les effets déjà actifs expirent
 normalement. Aucun terrain, claim, inventaire ni bâtiment n’est remplacé. Le reste
 du monde conserve ses zones contaminées. Les régions et contributeurs constituent
-un registre distinct des premières historiques de `SpaceRace`.
+un registre distinct des premières historiques de `SpaceRace`. Le nom des contributeurs y figure ; la distinction « Éveilleur d’Orion » apparaît dans leur fiche de personnage. Le livre actualisé contient le dénouement après les 19 remises.
 
 ## Données et reprise
 

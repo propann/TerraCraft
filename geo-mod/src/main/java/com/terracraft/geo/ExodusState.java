@@ -6,7 +6,6 @@ import java.util.*;
 final class ExodusState {
     int version = 1;
     Map<String, Journal> players = new LinkedHashMap<>();
-    Map<String, String> machines = new LinkedHashMap<>();
     Map<String, Region> regions = new LinkedHashMap<>();
     static final class Journal {
         Map<String, Long> facts = new LinkedHashMap<>();
@@ -20,6 +19,7 @@ final class ExodusState {
     }
     static final class Region {
         String name;
+        Map<String,String> names = new LinkedHashMap<>();
         int x,z,radius = 64;
         boolean active;
         Set<String> contributors = new LinkedHashSet<>();

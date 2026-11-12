@@ -152,6 +152,15 @@ stop_test_server 90
 cleanup_test_server
 cp world/terracraft_geo/terra-exodus.json deposited-core.json
 cp world/terracraft_geo/portefeuilles.json first-wallet.json
+# Injection d'un état de reprise : versement déjà inscrit, fin de quête encore en attente.
+python3 - "$EXODUS_ALICE_ID" <<'PYREPLAY'
+import json,sys
+from pathlib import Path
+file=Path('world/terracraft_geo/terra-exodus.json')
+data=json.loads(file.read_text());journal=data['players'][sys.argv[1]]
+journal['done'].remove('q1_1_ashes');journal['pending']='q1_1_ashes'
+text=json.dumps(data);file.write_text(text);Path('pending-replay.json').write_text(text)
+PYREPLAY
 
 start_game campaign-restart.log
 players campaign-restart.log

@@ -13,7 +13,7 @@ public final class MissionsScreen extends Screen {
     private final List<List<JsonObject>> tabs=List.of(new ArrayList<>(),new ArrayList<>(),new ArrayList<>());
     private final String job;
     private static int lastTab, lastPage;
-    private int tab=lastTab,page=lastPage,selected=-1;
+    private int tab=lastTab,page=lastPage,selected=-1,detailPage;
     private int left,top,panelWidth,panelHeight,rows;
     private static final int ROW=30;
     public MissionsScreen(String json) {
@@ -25,6 +25,7 @@ public final class MissionsScreen extends Screen {
             add(0,object.getAsJsonArray("campaign"));add(1,object.getAsJsonArray("contracts"));add(2,object.getAsJsonArray("missions"));
             job=object.has("job")?object.get("job").getAsString():"";
         }
+        for (var missions:tabs) missions.sort(Comparator.comparing(m -> m.get("claimed").getAsBoolean()));
     }
     private void add(int index,JsonArray array) {
         if(array!=null) array.forEach(e -> tabs.get(index).add(e.getAsJsonObject()));
@@ -48,7 +49,7 @@ public final class MissionsScreen extends Screen {
         int end=Math.min(current().size(),(page+1)*rows);
         for(int i=page*rows;i<end;i++) {
             JsonObject mission=current().get(i);final int index=i;int y=top+64+(i-page*rows)*ROW;
-            addRenderableWidget(Button.builder(Component.literal("Lire"),b -> {selected=index;rebuild();})
+            addRenderableWidget(Button.builder(Component.literal("Lire"),b -> {detailPage=selected==index?detailPage+1:0;selected=index;rebuild();})
                     .bounds(left+panelWidth-136,y,48,18).build());
             Button claim=Button.builder(Component.literal(mission.get("claimed").getAsBoolean()?"Reçue":"Réclamer"),b -> {
                 if(ClientPlayNetworking.canSend(ClaimMissionPayload.TYPE)) ClientPlayNetworking.send(new ClaimMissionPayload(mission.get("id").getAsString()));
@@ -76,11 +77,14 @@ public final class MissionsScreen extends Screen {
             g.text(font,progress+"/"+target+" · "+m.get("reward").getAsLong()+" crédits",left+8,y+12,SuitScreen.GREY,false);
         }
         String detail=selected>=0 && selected<current().size()?current().get(selected).get("description").getAsString():"Choisis Lire pour consulter tous les objectifs. /exodus livre actualise ton carnet.";
+        var lines=font.split(Component.literal(detail),panelWidth-16);
+        int detailPages=Math.max(1,(lines.size()+4)/5);
+        int detailStart=(detailPage%detailPages)*5;
         int y=top+panelHeight-86;
-        for(var line:font.split(Component.literal(detail),panelWidth-16)) {
-            if(y>=top+panelHeight-32) break;
-            g.text(font,line,left+8,y,SuitScreen.TEXT,false);y+=10;
+        for(int i=detailStart;i<Math.min(lines.size(),detailStart+5);i++) {
+            g.text(font,lines.get(i),left+8,y,SuitScreen.TEXT,false);y+=10;
         }
+        if(detailPages>1) g.text(font,"Lire : détail "+(detailPage%detailPages+1)+"/"+detailPages,left+8,top+panelHeight-36,SuitScreen.CYAN,false);
         g.text(font,"Page "+(page+1)+"/"+Math.max(1,(current().size()+rows-1)/rows),left+90,top+panelHeight-20,SuitScreen.GREY,false);
         super.extractRenderState(g,mouseX,mouseY,delta);
     }

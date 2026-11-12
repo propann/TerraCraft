@@ -130,6 +130,7 @@ public final class Progression {
             new Discovery("lieu_town_hall", "Hôtel de ville — une mairie", 15),
             new Discovery("asteroids", "Mineur de l'espace — atteindre la ceinture d'astéroïdes", 120),
             new Discovery("bunker_boss", "Chasseur de commandants — abattre un boss de bunker", 80),
+            new Discovery("orion_restorer", "Éveilleur d’Orion — contribuer à une région restaurée", 0),
             new Discovery("rampart", "Rempart — repousser une vague nocturne sur sa ville", 50),
             new Discovery("contamination", "Compteur Geiger — entrer dans une zone contaminée", 30),
             new Discovery("alien_sanctuary", "Sous la poussière — entrer dans un sanctuaire extraterrestre", 100));
@@ -365,6 +366,7 @@ public final class Progression {
         Record before = GSON.fromJson(GSON.toJson(r), Record.class);
         r.campaignReceipts.add(receipt);
         addPoints(player, points);
+        if (receipt.endsWith(":q5_3_artifact")) discover(player,"orion_restorer");
         Map<String, Record> stored = new HashMap<>();
         records.forEach((uuid, value) -> stored.put(uuid.toString(), value));
         try { JsonStore.write(file, GSON.toJson(stored)); dirty = false; return true; }
