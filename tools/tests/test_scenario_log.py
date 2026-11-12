@@ -5,14 +5,15 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from check_scenario_log import classify_exceptions, offline_uuid
+from check_scenario_log import classify_exceptions
 
 
 class ScenarioLogTest(unittest.TestCase):
     def profile_error(self, header="Couldn't find profile with name: alice", status=429):
         return (f"[15:45:31] [Server thread/WARN]: {header}\n"
                 f"MinecraftClientHttpException[type=HTTP_ERROR, status={status}, response=null]\n"
-                "\tat knot//com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:167)\n")
+                "\tat knot//com.mojang.authlib.minecraft.client.MinecraftClient.buildHttpException(MinecraftClient.java:167)\n"
+                "\tat knot//com.mojang.authlib.services.MinecraftServicesSessionService.fetchProfile(MinecraftServicesSessionService.java:161)\n")
 
     def test_clean_log(self):
         self.assertEqual(classify_exceptions("[15:45:31] [Server thread/INFO]: Done"), ([], []))
@@ -22,18 +23,18 @@ class ScenarioLogTest(unittest.TestCase):
         self.assertFalse(unexpected)
         self.assertEqual(len(external), 1)
 
-    def test_offline_uuid_matches_minecraft(self):
-        self.assertEqual(offline_uuid("alice"), "40f5db53-a47a-33ee-b1f6-db0e20deded4")
-        self.assertEqual(offline_uuid("Alice"), "10920508-d5d8-3eed-93d2-92f193afe7d7")
+    def test_real_profile_properties_rate_limit(self):
+        log = self.profile_error("Couldn't look up profile properties for fa0f91ac-8dbf-4d7c-b2d0-296ee7631986")
+        self.assertEqual(len(classify_exceptions(log)[1]), 1)
 
     def test_fake_profile_properties_rate_limit(self):
-        log = self.profile_error("Couldn't look up profile properties for " + offline_uuid("Bob"))
+        log = self.profile_error("Couldn't look up profile properties for faa5dca3-c3d4-354b-ae1b-dde9e5a14b3b")
         self.assertEqual(len(classify_exceptions(log)[1]), 1)
 
     def test_other_player_or_status_still_fails(self):
         for log in (self.profile_error("Couldn't find profile with name: inconnu"),
                     self.profile_error(status=500),
-                    self.profile_error("Couldn't look up profile properties for 00000000-0000-0000-0000-000000000000")):
+                    self.profile_error("Couldn't look up profile properties for identifiant-invalide")):
             with self.subTest(log=log):
                 self.assertEqual(len(classify_exceptions(log)[0]), 1)
 

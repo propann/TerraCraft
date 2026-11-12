@@ -1,25 +1,13 @@
 """Contrôle des exceptions du scénario ; seules les pannes externes identifiées sont tolérées."""
 
 from pathlib import Path
-import hashlib
 import re
 import sys
 import uuid
 
 
 HEADER = re.compile(r"^\[\d{2}:\d{2}:\d{2}\] \[[^\]]+/(?:TRACE|DEBUG|INFO|WARN|ERROR|FATAL)\]: ")
-PLAYERS = ("Alice", "Bob", "Eve", "Dan")
-
-
-def offline_uuid(name):
-    # Même calcul que UUID.nameUUIDFromBytes("OfflinePlayer:" + name) dans Minecraft.
-    digest = hashlib.md5(("OfflinePlayer:" + name).encode()).digest()
-    return str(uuid.UUID(bytes=digest, version=3))
-
-
-PROFILE_NAMES = {name.lower() for name in PLAYERS}
-# Le résolveur peut normaliser le nom avant de créer son identité hors ligne.
-PROFILE_IDS = {offline_uuid(value) for name in PLAYERS for value in (name, name.lower())}
+PROFILE_NAMES = {"alice", "bob", "eve", "dan"}
 
 
 def external_outage(event):
@@ -38,8 +26,15 @@ def external_outage(event):
         return False
     name = re.search(r"/WARN\]: Couldn't find profile with name: ([A-Za-z]+)$", header)
     profile = re.search(r"/WARN\]: Couldn't look up profile properties for ([0-9a-f-]+)$", header)
-    return bool((name and name.group(1).lower() in PROFILE_NAMES)
-                or (profile and profile.group(1) in PROFILE_IDS))
+    if name and name.group(1).lower() in PROFILE_NAMES:
+        return True
+    if profile and "com.mojang.authlib.services.MinecraftServicesSessionService.fetchProfile" in event:
+        try:
+            uuid.UUID(profile.group(1))
+            return True
+        except ValueError:
+            pass
+    return False
 
 
 def classify_exceptions(log):

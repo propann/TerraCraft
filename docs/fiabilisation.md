@@ -51,9 +51,10 @@ lanceur et la même protection du dossier, avec un délai d'arrêt de 120 s par 
 Les mesures géographiques complètes restent à refaire sur un hôte représentatif.
 
 Neuf autres tests vérifient le classement des exceptions du journal. Le scénario
-tolère et affiche séparément les réponses Mojang HTTP 429 pour les quatre identités
-simulées et les délais réseau Open-Meteo identifiés. Une erreur d'un autre joueur,
-un autre statut HTTP, une erreur de données météo ou une exception du mod reste
+tolère et affiche séparément les réponses Mojang HTTP 429 lors de la résolution des
+quatre noms simulés et des propriétés des profils (UUID valide et trace authlib),
+ainsi que les délais réseau Open-Meteo identifiés. Un autre statut HTTP, une erreur
+de données météo ou une exception du mod reste
 bloquante. Les profils et la météo en direct ne font pas partie des assertions de
 ce scénario ; les pannes externes restent visibles dans les journaux archivés.
 
