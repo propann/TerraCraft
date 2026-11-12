@@ -35,7 +35,7 @@ n'est nécessaire. Le scénario peut durer plusieurs minutes ; la CI est limité
 Depuis la racine du dépôt :
 
 ```bash
-bash -n tools/test_server_lib.sh tools/smoke_server.sh tools/scenario_test.sh
+bash -n tools/test-server-lib.sh tools/smoke_server.sh tools/scenario_test.sh
 python3 -m unittest discover -s tools/tests -p 'test_server_harness.py' -v
 python3 tools/check_assets.py
 python3 tools/check_recipes.py

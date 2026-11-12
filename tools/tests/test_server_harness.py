@@ -19,7 +19,7 @@ class ServerHarnessTest(unittest.TestCase):
         self.repo = self.root / "repo"
         tools = self.repo / "tools"
         tools.mkdir(parents=True)
-        for name in ("smoke_server.sh", "scenario_test.sh", "test_server_lib.sh"):
+        for name in ("smoke_server.sh", "scenario_test.sh", "test-server-lib.sh"):
             shutil.copy2(TOOLS / name, tools / name)
             (tools / name).chmod(0o755)
         (tools / "install_mods.py").write_text("# Aucun téléchargement dans ce test.\n")

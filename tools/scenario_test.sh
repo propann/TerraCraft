@@ -8,8 +8,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-# shellcheck source=test_server_lib.sh
-source "$ROOT/tools/test_server_lib.sh"
+# shellcheck source=test-server-lib.sh
+source "$ROOT/tools/test-server-lib.sh"
 prepare_test_workdir "${1:-}" "${2:-}"
 CARPET_URL="https://cdn.modrinth.com/data/TQTTVgYE/versions/yt9oDFOj/fabric-carpet-26.3%2Bv260915.jar"
 

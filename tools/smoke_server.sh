@@ -7,8 +7,8 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-# shellcheck source=test_server_lib.sh
-source "$ROOT/tools/test_server_lib.sh"
+# shellcheck source=test-server-lib.sh
+source "$ROOT/tools/test-server-lib.sh"
 prepare_test_workdir "${1:-}" "${2:-}"
 TIMEOUT="${SMOKE_TIMEOUT:-600}"
 MC_VERSION="26.3"
