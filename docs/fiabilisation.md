@@ -35,17 +35,20 @@ n'est nécessaire. Le scénario peut durer plusieurs minutes ; la CI est limité
 Depuis la racine du dépôt :
 
 ```bash
-bash -n tools/test-server-lib.sh tools/smoke_server.sh tools/scenario_test.sh
+bash -n tools/test-server-lib.sh tools/smoke_server.sh tools/scenario_test.sh tools/geo_bench.sh
 python3 -m unittest discover -s tools/tests -v
 python3 tools/check_assets.py
 python3 tools/check_recipes.py
 git diff --check
 ```
 
-Neuf tests Python utilisent un faux processus Java, sans réseau. Ils vérifient
+Onze tests Python utilisent un faux processus Java, sans réseau. Ils vérifient
 le refus des dossiers existants, le JAR absent, le démarrage en échec, l'arrêt normal,
 l'arrêt en erreur, l'arrêt bloqué, le nettoyage, la réutilisation du dossier et la
-préservation du monde si le démarrage préalable échoue. Ils ne valident pas Minecraft.
+préservation du monde si le démarrage préalable échoue, pour le scénario comme pour
+le banc de génération. Ils ne valident pas Minecraft. Le banc utilise le même
+lanceur et la même protection du dossier, avec un délai d'arrêt de 120 s par défaut.
+Les mesures géographiques complètes restent à refaire sur un hôte représentatif.
 
 Neuf autres tests vérifient le classement des exceptions du journal. Le scénario
 tolère et affiche séparément les réponses Mojang HTTP 429 pour les quatre identités
@@ -68,7 +71,7 @@ Les fichiers `console.log` et `scenario.log` restent dans le dossier pour diagno
 
 ## État de vérification du lot
 
-- Contrôles locaux : syntaxe Bash, ShellCheck, dix-huit régressions Python, lecture YAML et espaces.
+- Contrôles locaux : syntaxe Bash, ShellCheck, vingt régressions Python, lecture YAML et espaces.
 - Compilation et scénario Minecraft : consulter le résultat de la CI pour le commit
   concerné. Ils n'ont pas été exécutés localement : le réseau du terminal d'audit ne
   permet pas le téléchargement du dépôt et des dépendances.

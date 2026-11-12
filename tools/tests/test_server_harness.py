@@ -19,7 +19,7 @@ class ServerHarnessTest(unittest.TestCase):
         self.repo = self.root / "repo"
         tools = self.repo / "tools"
         tools.mkdir(parents=True)
-        for name in ("smoke_server.sh", "scenario_test.sh", "test-server-lib.sh"):
+        for name in ("smoke_server.sh", "scenario_test.sh", "geo_bench.sh", "test-server-lib.sh"):
             shutil.copy2(TOOLS / name, tools / name)
             (tools / name).chmod(0o755)
         (tools / "install_mods.py").write_text("# Aucun téléchargement dans ce test.\n")
@@ -138,6 +138,26 @@ for command in sys.stdin:
         result = self.run_script(script="scenario_test.sh", mode="bad_stop")
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertEqual(sentinel.read_text(), "monde de test précédent")
+        self.assert_server_stopped()
+
+    def test_benchmark_preserves_unmarked_world(self):
+        (self.work / ".terracraft-test-workdir").unlink()
+        world = self.work / "world"
+        world.mkdir()
+        sentinel = world / "a-conserver"
+        sentinel.write_text("monde existant")
+        result = self.run_script(script="geo_bench.sh")
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(sentinel.read_text(), "monde existant")
+
+    def test_benchmark_does_not_reset_world_after_failed_smoke(self):
+        world = self.work / "world"
+        world.mkdir()
+        sentinel = world / "a-conserver"
+        sentinel.write_text("monde du banc précédent")
+        result = self.run_script(script="geo_bench.sh", mode="bad_stop")
+        self.assertNotEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(sentinel.read_text(), "monde du banc précédent")
         self.assert_server_stopped()
 
 

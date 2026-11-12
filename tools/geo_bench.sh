@@ -9,8 +9,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-JAR="$(realpath "$1")"
-WORK="${2:-$(mktemp -d)}"
+# shellcheck source=test-server-lib.sh
+source "$ROOT/tools/test-server-lib.sh"
+prepare_test_workdir "${1:-}" "${2:-}"
 REPORT="${3:-}"
 WAIT="${WAIT:-60}"
 VIEW="${VIEW:-6}"
@@ -28,28 +29,20 @@ PLACES=(
   "Tokyo (Shinjuku);35.6938;139.7034"
 )
 
-mkdir -p "$WORK"
-rm -rf "$WORK/world"
-"$ROOT/tools/smoke_server.sh" "$JAR" "$WORK" > "$WORK/smoke.out" 2>&1 || { cat "$WORK/smoke.out"; exit 1; }
+"$ROOT/tools/smoke_server.sh" "$JAR" "$WORK"
 cd "$WORK"
-for _ in $(seq 60); do
-  busy=0
-  for pid in $(pgrep -x java || true); do
-    [ "$(readlink "/proc/$pid/cwd" 2>/dev/null)" = "$(pwd -P)" ] && busy=1
-  done
-  [ "$busy" = 0 ] && break
-  sleep 1
-done
 rm -rf world
 sed -i "s/^view-distance=.*/view-distance=$VIEW/; s/^simulation-distance=.*/simulation-distance=4/" server.properties
 curl -fsSL -o mods/carpet.jar "$CARPET_URL"
-trap 'rm -f "$WORK/mods/carpet.jar"; pkill -P $$ 2>/dev/null || true' EXIT
-
-: > console.in
-tail -f console.in | java -Xmx2G -jar server.jar nogui > bench.log 2>&1 &
-for _ in $(seq 600); do grep -q "Done (" bench.log && break; sleep 1; done
+start_test_server 2G bench.log
+trap 'cleanup_test_server; rm -f "$WORK/mods/carpet.jar"' EXIT
+for _ in $(seq 600); do
+  grep -q "Done (" bench.log && break
+  kill -0 "$TEST_SERVER_PID" 2>/dev/null || break
+  sleep 1
+done
 grep -q "Done (" bench.log || { echo "ÉCHEC : le serveur ne démarre pas"; tail -30 bench.log; exit 1; }
-cmd() { echo "$1" >> console.in; sleep "${2:-1}"; }
+cmd() { echo "$1" >&"$TEST_INPUT"; sleep "${2:-1}"; }
 
 cmd "player Mesure spawn at 0 300 0" 5
 cmd "gamemode spectator Mesure" 1
@@ -81,8 +74,7 @@ for count in 5 10; do
   cmd "terracraft suivi" 1
   cmd "say BENCH_MONDE $(du -sm world | cut -f1)" 1
 done
-cmd "stop" 2
-for _ in $(seq 120); do pgrep -f "server.jar nogui" >/dev/null || break; sleep 1; done
+stop_test_server "${STOP_TIMEOUT:-120}"
 
 python3 - "$WORK/bench.log" "$REPORT" "$WAIT" "$VIEW" "$(git -C "$ROOT" rev-parse --short HEAD)" <<'PY'
 import datetime, re, sys
@@ -109,3 +101,4 @@ print(text)
 if report:
     open(report, "w").write(text)
 PY
+
