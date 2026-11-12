@@ -39,7 +39,7 @@ jobs:
       - name: Scripts des serveurs de test
         run: |
           bash -n tools/test-server-lib.sh tools/smoke_server.sh tools/scenario_test.sh
-          python3 -m unittest discover -s tools/tests -p 'test_server_harness.py' -v
+          python3 -m unittest discover -s tools/tests -v
 
       - name: Ressources complètes (traductions, modèles, textures)
         run: python3 tools/check_assets.py

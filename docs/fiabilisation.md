@@ -36,16 +36,23 @@ Depuis la racine du dépôt :
 
 ```bash
 bash -n tools/test-server-lib.sh tools/smoke_server.sh tools/scenario_test.sh
-python3 -m unittest discover -s tools/tests -p 'test_server_harness.py' -v
+python3 -m unittest discover -s tools/tests -v
 python3 tools/check_assets.py
 python3 tools/check_recipes.py
 git diff --check
 ```
 
-Les neuf tests Python utilisent un faux processus Java, sans réseau. Ils vérifient
+Neuf tests Python utilisent un faux processus Java, sans réseau. Ils vérifient
 le refus des dossiers existants, le JAR absent, le démarrage en échec, l'arrêt normal,
 l'arrêt en erreur, l'arrêt bloqué, le nettoyage, la réutilisation du dossier et la
 préservation du monde si le démarrage préalable échoue. Ils ne valident pas Minecraft.
+
+Neuf autres tests vérifient le classement des exceptions du journal. Le scénario
+tolère et affiche séparément les réponses Mojang HTTP 429 pour les quatre identités
+simulées et les délais réseau Open-Meteo identifiés. Une erreur d'un autre joueur,
+un autre statut HTTP, une erreur de données météo ou une exception du mod reste
+bloquante. Les profils et la météo en direct ne font pas partie des assertions de
+ce scénario ; les pannes externes restent visibles dans les journaux archivés.
 
 Après compilation avec un JDK 25 et Gradle 9.7.1 :
 
@@ -61,7 +68,7 @@ Les fichiers `console.log` et `scenario.log` restent dans le dossier pour diagno
 
 ## État de vérification du lot
 
-- Contrôles locaux : syntaxe Bash, ShellCheck, neuf régressions du lanceur, lecture YAML et espaces.
+- Contrôles locaux : syntaxe Bash, ShellCheck, dix-huit régressions Python, lecture YAML et espaces.
 - Compilation et scénario Minecraft : consulter le résultat de la CI pour le commit
   concerné. Ils n'ont pas été exécutés localement : le réseau du terminal d'audit ne
   permet pas le téléchargement du dépôt et des dépendances.

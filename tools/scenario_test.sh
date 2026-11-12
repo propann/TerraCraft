@@ -319,9 +319,11 @@ cmd "execute as Alice run ville election clore" 2
 # Laisser le serveur finir sa sauvegarde avant de quitter (sinon le monde reste à moitié écrit).
 stop_test_server "${STOP_TIMEOUT:-90}"
 
-python3 - "$WORK" <<'EOF'
+python3 - "$WORK" "$ROOT/tools" <<'EOF'
 import json, re, sys
 from pathlib import Path
+sys.path.insert(0, sys.argv[2])
+from check_scenario_log import check_log
 work = Path(sys.argv[1])
 data = work / "world" / "terracraft_geo"
 log = (work / "scenario.log").read_text(errors="replace")
@@ -482,8 +484,7 @@ ping = json.loads((work / "ping.json").read_text() or "{}")
 check("TerraCraft" in ping.get("motd", "") and "0." in ping.get("motd", ""), f"MOTD de la liste des serveurs ({ping.get('motd', '')!r})")
 check(ping.get("icon") is True, "icône du serveur installée et servie")
 check((work / "server-icon.png").exists(), "server-icon.png écrit à la racine du serveur")
-check(not any("Exception" in line and "spark" not in line for line in log.splitlines()),
-      "aucune exception dans le journal (hors spark)")
+check(check_log(log), "aucune exception inattendue dans le journal")
 sys.exit(1 if failures else 0)
 EOF
 
