@@ -34,3 +34,7 @@ serveur-local/server-icon.png
 
 # Mods que leur licence interdit de republier (récupérés par mods/telecharger-restants.*)
 mods/xaero*.jar
+
+# Réglages locaux et mémoires des PNJ : seuls les exemples sont versionnés.
+serveur-local/config/terracraft-npcs.json*
+**/pnj-memoires.json*

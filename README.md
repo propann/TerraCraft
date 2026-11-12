@@ -90,6 +90,7 @@ et peut-être des habitants qui parlent grâce à une IA française. Le détail 
 
 | Document | Contenu |
 |---|---|
+| [`docs/pnj-intelligents.md`](docs/pnj-intelligents.md) | PNJ avec identités, mémoire et choix de contrats, connexion directe à Ollama ou Mistral |
 | [`docs/fiabilisation.md`](docs/fiabilisation.md) | Validation avant déploiement, contrôles reproductibles, transactions et sauvegardes à fiabiliser |
 | [`REJOINDRE.md`](REJOINDRE.md) | Rejoindre le serveur : pack, installeurs, installation à la main |
 | [`docs/commandes.md`](docs/commandes.md) | Toutes les touches et commandes (joueurs et administrateurs), journaux, fichiers de données |

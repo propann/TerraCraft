@@ -1,0 +1,17 @@
+{
+  "ai_enabled": true,
+  "provider": "mistral",
+  "endpoint": "https://api.mistral.ai/v1/chat/completions",
+  "model": "ministral-8b-latest",
+  "api_key_env": "TERRACRAFT_MISTRAL_API_KEY",
+  "timeout_seconds": 15,
+  "personas": {
+    "lea": {
+      "name": "Léa",
+      "role": "Mécanicienne",
+      "faction": "Les Refuges",
+      "personality": "Pragmatique et chaleureuse. Parle de réparation, d'entraide et de récupération.",
+      "goal": "Aider les habitants à récupérer des ressources pour reconstruire le refuge."
+    }
+  }
+}

@@ -79,6 +79,7 @@ public final class GeoMod implements ModInitializer {
     private static final SpaceRace RACE = new SpaceRace(AUCTION_HOUSE);
     private static final Logistics LOGISTICS = new Logistics(TOWNS);
     private static final Contracts CONTRACTS = new Contracts(AUCTION_HOUSE);
+    private static final Npcs NPCS = new Npcs(CONTRACTS, TOWNS);
     private static final Claims CLAIMS = new Claims();
     private static final SupplyDrops SUPPLY = new SupplyDrops();
     private static final Convoys CONVOYS = new Convoys();
@@ -247,6 +248,11 @@ public final class GeoMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        NPCS.wire();
+        ServerLifecycleEvents.SERVER_STARTED.register(NPCS::load);
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> NPCS.stop());
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> NPCS.onLeave(handler.player));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> NPCS.register(dispatcher));
         ModContent.init();
         ModBlocks.init();
         com.terracraft.geo.content.ShipBlocks.init();
@@ -791,3 +797,4 @@ public final class GeoMod implements ModInitializer {
         LOGGER.info("TerraCraft Geo chargé : générateur terracraft_geo:earth et carte du monde prêts.");
     }
 }
+
