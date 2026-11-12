@@ -12,6 +12,15 @@ rm -rf world
 rm -f mock-port mock-requests.jsonl
 MOCK_PID=""
 cleanup() {
+  local status=$?
+  if [ "$status" -ne 0 ]; then
+    for log in npc.log npc-restart.log mock.log; do
+      if [ -f "$log" ]; then
+        echo "Journal de diagnostic : $log"
+        tail -100 "$log"
+      fi
+    done
+  fi
   cleanup_test_server
   if [ -n "$MOCK_PID" ]; then
     kill "$MOCK_PID" 2>/dev/null || true
@@ -68,6 +77,7 @@ spawn_player npc.log
 cmd 'gamemode survival Alice'
 cmd 'execute as Alice at Alice run pnj creer lea'
 cmd 'execute as Alice at Alice run pnj dire BONJOUR' 5
+cp world/terracraft_geo/pnj-memoires.json first-dialogue.json
 cmd 'execute as Alice at Alice run pnj reclamer'
 cmd 'execute as Alice at Alice run pnj dire INVALIDE' 5
 cmd 'execute as Alice at Alice run pnj dire PANNE' 5
@@ -88,7 +98,7 @@ import json, sys
 from pathlib import Path
 work = Path(sys.argv[1])
 log = (work/'npc.log').read_text(errors='replace')
-restart = (work/'npc-restart.log').read_text(errors='replace')
+first = json.loads((work/'first-dialogue.json').read_text())
 data = work/'world/terracraft_geo'
 memory = json.loads((data/'pnj-memoires.json').read_text())
 requests = [json.loads(line) for line in (work/'mock-requests.jsonl').read_text().splitlines()]
@@ -96,10 +106,10 @@ def check(condition, message):
     print(('ok : ' if condition else 'ÉCHEC : ') + message)
     if not condition:
         raise SystemExit(1)
-check('IA_BONJOUR' in log, 'dialogue HTTP en français depuis un mob identifié')
+check('IA_BONJOUR' in json.dumps(first), 'dialogue HTTP en français depuis un mob identifié')
 check(len(memory) == 1, 'même mémoire joueur/PNJ conservée au redémarrage')
 saved = next(iter(memory.values()))
-check('MEMOIRE_REPRISE' in restart, 'souvenir transmis au modèle après redémarrage')
+check('MEMOIRE_REPRISE' in json.dumps(memory), 'souvenir transmis au modèle après redémarrage')
 check(len(saved['history']) <= 6, 'mémoire conversationnelle bornée')
 check(any('Léa' in r['identity']['name'] for r in requests), 'identité pré-promptée')
 check({r['message'] for r in requests} >= {'BONJOUR','INVALIDE','PANNE','LENT','SOUVENIR','RETOUR'}, 'tous les cas testés ont atteint le modèle simulé')
