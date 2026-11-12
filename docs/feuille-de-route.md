@@ -1,5 +1,9 @@
 # Feuille de route TerraCraft
 
+Trame narrative retenue : [TERRA EXODUS — Les Vestiges d'Orion](univers/terra-exodus.md).
+Le [plan de quêtes](univers/quetes-terra-exodus.md) conserve les 19 ID du document
+de conception et précise les prérequis ainsi que le travail restant.
+
 Objectif : un serveur survie multijoueur sur la Terre réelle après la chute de l'humanité — exploration des villes
 réelles, commerce, villes de joueurs, véhicules, danger, et une progression qui mène jusqu'aux stations lunaires et à
 Mars.
@@ -279,3 +283,4 @@ lisibles, espace, dette technique, ouverture.
 - Après la release : `python3 tools/sync_client_mods.py` met à jour `mods/` et `TerraCraft-client.mrpack` du dépôt, puis commit.
 - `docs/avancement.md` et cette feuille de route sont à jour.
 - Aucun système ne supprime silencieusement un objet, un crédit, une ville, une station ou un véhicule.
+

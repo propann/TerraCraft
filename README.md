@@ -90,6 +90,7 @@ et peut-être des habitants qui parlent grâce à une IA française. Le détail 
 
 | Document | Contenu |
 |---|---|
+| [`docs/univers/terra-exodus.md`](docs/univers/terra-exodus.md) | Univers TERRA EXODUS, cinq actes, 19 quêtes et six PNJ : trame de référence et plan d'intégration |
 | [`REJOINDRE.md`](REJOINDRE.md) | Rejoindre le serveur : pack, installeurs, installation à la main |
 | [`docs/commandes.md`](docs/commandes.md) | Toutes les touches et commandes (joueurs et administrateurs), journaux, fichiers de données |
 | [`docs/feuille-de-route.md`](docs/feuille-de-route.md) | Plan d'action, phases, ce qui est fait et la suite |
@@ -130,3 +131,4 @@ Mods tiers : versions figées dans `tools/mods.lock.json`, identiques sur le ser
 Pour les mettre à jour : `python3 tools/install_mods.py --update-lock`, tester, puis commiter.
 
 <p align="center"><sub>Données cartographiques © contributeurs <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> (ODbL), tuiles <a href="https://openfreemap.org">OpenFreeMap</a>, relief AWS Terrain Tiles, météo <a href="https://open-meteo.com">Open-Meteo</a>. Minecraft est une marque de Mojang ; projet non officiel.</sub></p>
+
