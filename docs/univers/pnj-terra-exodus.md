@@ -5,14 +5,20 @@ Le [fichier d'exemple](../../config/pnj/terra-exodus.example.json) utilise les c
 de la [PR #5](https://github.com/propann/TerraCraft/pull/5) : `name`, `role`, `faction`,
 `personality`, `goal`. Il garde l'IA désactivée par défaut.
 
+En 0.41.0, les profils sont livrés dans le mod et leurs quêtes sont proposées
+selon les prérequis serveur. Leur placement, leur personnalisation et les limites
+des dialogues sont détaillés dans le [guide de jeu](../terra-exodus-jeu.md).
+Les propositions de contexte plus bas décrivent la conception initiale ; le code
+transmet désormais le chapitre, la dimension, le canon autorisé et les quêtes accessibles.
+
 ## Identités conservées
 
 | ID de profil | Personnage | Quêtes visées | Ligne d'écriture |
 |---|---|---|---|
 | `helene_vance` | Commandant Hélène Vance | `q1_1_ashes` à `q1_4_trade` | Directe, militaire et protectrice ; deux phrases. Expliquer la fondation par les commandes et distinguer registre et claims. |
 | `boulon_kowalski` | Marcus « Boulon » Kowalski | `q2_1_oil_hunt` à `q2_4_logistics` | Mécanicien passionné, rugueux mais amical ; environ trente mots. Le titane ne bloque pas son enseignement terrestre. |
-| `aris_thorne` | Docteure Aris Thorne | `q3_1_eva_prep` à `q3_4_moon_step` | Calme, précise, attentive à l'oxygène et au retour ; deux ou trois phrases courtes. |
-| `sujet_09` | Sujet-09, « L'Écho » | `q3_5_ghosts_he3` | Phrases brèves, souvenirs fragmentaires et statique discrète. Informateur distinct des ennemis `lost_astronaut`. |
+| `aris_thorne` | Docteure Aris Thorne | `q3_1_eva_prep` à `q3_3_station` | Calme, précise, attentive à l'oxygène et au retour ; deux ou trois phrases courtes. |
+| `sujet_09` | Sujet-09, « L'Écho » | `q3_4_moon_step` et `q3_5_ghosts_he3` | Phrases brèves, souvenirs fragmentaires et statique discrète. Informateur distinct des ennemis `lost_astronaut`. |
 | `soren_kael` | Capitaine Soren Kael | `q4_1_shipyard` à `q4_3_orion_glyphs` | Déterminé et solidaire ; environ vingt-cinq mots. Valoriser un quai sûr et une colonie qui fonctionne. |
 | `archiviste_orion` | L'Archiviste d'Orion | `q5_1_zero_g` à `q5_3_artifact` | Solennel et impartial ; deux phrases. Transmettre uniquement les révélations écrites et autorisées. |
 

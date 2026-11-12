@@ -141,6 +141,7 @@ public final class ExodusCampaign {
         }
         if (server.getTickCount() % 200 == 0) save();
     }
+    boolean hasCompletedAny(ServerPlayer player) { return !journal(player).done.isEmpty(); }
     int chapter(ServerPlayer player) { return ExodusQuests.chapter(journal(player).done); }
     List<ExodusQuests.Quest> available(ServerPlayer player) {
         ExodusState.Journal j = journal(player);
@@ -300,7 +301,7 @@ public final class ExodusCampaign {
             if (player.level().getBlockState(pos).is(ModBlocks.TOWN_REGISTRY)) return town;
         return null;
     }
-    private static String townKey(Towns.Town town) { return town.center.x()+":"+town.center.z()+":"+town.founded; }
+    private static String townKey(Towns.Town town) { return town.founded+":"+town.name.toLowerCase(java.util.Locale.ROOT); }
     private int contribute(ServerPlayer player) {
         Towns.Town town = townAtRegistry(player);
         ExodusState.Journal j = journal(player);

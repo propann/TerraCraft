@@ -1,148 +1,90 @@
 # Quêtes et progression — TERRA EXODUS
 
-Spécification d'intégration issue des cinq tableaux de quêtes du
-[DOCX fourni](sources-terra-exodus.md). Les **19 identifiants d'origine sont conservés**.
-Ils ne sont pas encore enregistrés dans `Missions.java`. Les récompenses et les
-déblocages de cette campagne ne sont pas activés par cette documentation.
+Les **19 identifiants du DOCX** sont conservés dans `ExodusQuests.java`.
+Cette table décrit l’implémentation de la version 0.41.0 proposée dans la PR #7.
+Les crédits et points sont remis une fois par joueur ; les étapes validées par
+l’administration ne versent pas de récompense.
 
-Les intitulés des actes et la fiction sont décrits dans [la trame](terra-exodus.md).
-Les écarts avec le code sont recensés dans [l'analyse technique](analyse-terra-exodus.md).
+Les objectifs observés avant leur déblocage restent utilisables. Ils ne dispensent
+pas des prérequis : la ville précède sa défense ; tous les objectifs d’un acte
+précèdent la progression suivante. Aucune recette ni dimension existante n’est
+verrouillée globalement par la campagne.
 
-## Acte I — Survie et renaissance civique
+## Acte 1
 
-Donneur principal : **Hélène Vance**.
-
-| ID conservé | Titre | Objectif retenu pour l'intégration | Support et travail restant |
+| Quête | Preuves serveur | Prérequis | Récompense |
 |---|---|---|---|
-| `q1_1_ashes` | Premiers Pas dans les Cendres | Choisir son secteur, fouiller des ruines et obtenir une arme de défense. | Carte et butin présents ; utiliser `loot` / `scavenger` pour la récupération. La condition d'arme et le regroupement en quête restent à ajouter. |
-| `q1_2_night` | Sous les Étoiles Hostiles | Défendre son refuge lors d'un raid et repousser des monstres. | Découverte `rampart` et compteur `kills` présents. `contaminated_zombie` et `purifier_vent` sont absents : aucune quête ne doit exiger ces objets/entités avant leur création. |
-| `q1_3_town` | L'Acte Fondateur | Rejoindre ou fonder une ville, puis protéger un premier chunk. Le registre est son mobilier civique. | Mission `citizen`, compteur `town` et claims présents. La pose du registre ne crée pas la ville. Les protections de claims restent à tester avec de vrais clients. |
-| `q1_4_trade` | Le Pouls du Commerce | Installer un étal et terminer un contrat ou une mission économique accessible. | Étals, métiers et contrats présents. Définir un événement de fin de contrat et une vérification de l'étal utilisable, sans confondre choix d'un métier et contrat terminé. |
+| `q1_1_ashes` — Premiers Pas dans les Cendres | Fouiller un coffre (1); Porter une arme (1) | Départ | 150 crédits + 25 points |
+| `q1_3_town` — L’Acte Fondateur | Habiter une ville et protéger un chunk (1) | q1_1_ashes | 250 crédits + 25 points |
+| `q1_2_night` — Sous les Étoiles Hostiles | Tenir un raid jusqu’à l’aube (1); Repousser huit monstres (8) | q1_3_town | 300 crédits + 25 points |
+| `q1_4_trade` — Le Pouls du Commerce | Utiliser un étal (1); Terminer un contrat du jour (1) | q1_3_town | 200 crédits + 25 points |
+## Acte 2
 
-Le raid dépend d'une ville : `q1_2_night` peut être proposée tôt, mais sa validation
-se fait après l'accès à une ville de `q1_3_town`. **L'ordre visuel des ID n'est pas
-une dépendance stricte** : `q1_1` ouvre `q1_3`, puis `q1_2` et `q1_4`. Le chapitre
-suivant exige les quatre objectifs, avec un parcours solo prévu.
-
-## Acte II — Pétrole et industrie
-
-Donneur principal : **Marcus « Boulon » Kowalski**.
-
-| ID conservé | Titre | Objectif retenu pour l'intégration | Support et travail restant |
+| Quête | Preuves serveur | Prérequis | Récompense |
 |---|---|---|---|
-| `q2_1_oil_hunt` | Chasseur d'Or Noir | Fabriquer le détecteur et localiser un gisement naturel. | `oil_detector` et pétrole présents ; ajouter une preuve serveur de prospection réussie. Posséder un bloc d'huile dans l'inventaire ne prouve pas la découverte d'un gisement. |
-| `q2_2_iron_blood` | Le Sang de la Terre | Mettre en marche une pompe et un réseau électrique terrestre. | Machines et connexions présentes ; ajouter l'observation d'un fonctionnement effectif. Les seize lingots de titane du DOCX sont déplacés vers une activité lunaire, afin de ne pas bloquer le premier départ. |
-| `q2_3_refining` | Raffinage Stratégique | Relier la raffinerie et produire dix bidons d'essence, puis une dose de carburant de fusée. | Employer `fuel_can` et `rocket_fuel`, pas `rocket_fuel_bucket`. Ajouter une attribution de production au joueur ou à sa ville ; déplacer dix fois un même bidon ne doit pas compter dix productions. |
-| `q2_4_logistics` | Maîtrise des Continents | Assembler un véhicule terrestre ou un avion, puis récupérer un largage ou terminer une activité de ravitaillement supportée. | Mission `mechanic` / compteur `vehicles`, véhicules et largages présents. La voie avion demande un signal de validation ; l'escorte de convoi mobile attend son implémentation. |
+| `q2_1_oil_hunt` — Chasseur d’Or Noir | Détecter un gisement sous ses pieds (1) | q1_2_night,q1_4_trade | 250 crédits + 50 points |
+| `q2_2_iron_blood` — Le Sang de la Terre | Faire fonctionner une pompe attribuée (1) | q2_1_oil_hunt | 350 crédits + 50 points |
+| `q2_3_refining` — Raffinage Stratégique | Produire 10 000 mB d’essence (10000); Produire 1 000 mB de kérosène (1000) | q2_2_iron_blood | 500 crédits + 50 points |
+| `q2_4_logistics` — Maîtrise des Continents | Assembler un véhicule (1); Ouvrir un ravitaillement (1) | q2_3_refining | 450 crédits + 50 points |
+## Acte 3
 
-Les activités de transport doivent avoir une alternative réalisable depuis le point
-de départ choisi. Les contrats quotidiens servent de soutien ; aucun tirage journalier
-précis ne doit être indispensable pour débloquer la campagne.
-
-## Acte III — Orbite et Lune
-
-Donneurs : **Aris Thorne**, puis **Sujet-09 / L'Écho**.
-
-| ID conservé | Titre | Objectif retenu pour l'intégration | Support et travail restant |
+| Quête | Preuves serveur | Prérequis | Récompense |
 |---|---|---|---|
-| `q3_1_eva_prep` | Équipement Extravéhiculaire | Équiper casque, combinaison et bottes, préparer des réserves d'oxygène utilisables. | Objets et système de combinaison présents ; lire les emplacements de `SpaceSuit`, sans se limiter à l'inventaire. Le compresseur du DOCX n'est pas un prérequis existant. |
-| `q3_2_orbit` | Cap sur l'Orbite | Assembler et alimenter une fusée, puis atteindre l'orbite terrestre. | `launches`, découverte `orbit` et mission `launch` présents. Conserver des ressources de retour. |
-| `q3_3_station` | Avant-Poste Orbital | Déployer le kit de station et vérifier atelier, balise et accès à l'oxygène. | Kits, stations et mission `orbital_builder` présents. Le kit peut être déployé pendant le premier voyage : créditer ce fait même si `q3_3` devient visible après `q3_2`. |
-| `q3_4_moon_step` | Un Pas sur la Lune | Atterrir sur la Lune avec une base, de l'oxygène et un rover. | Découverte `moon`, stations de surface et rover présents. Relire la base enregistrée, pas seulement la possession d'un kit. |
-| `q3_5_ghosts_he3` | Les Fantômes de 2089 et l'Hélium-3 | Explorer un sanctuaire lunaire, récolter l'hélium-3 et des cristaux, retrouver une archive de l'expédition. | `helium`, `titanium` et découverte `alien_sanctuary` présents. Ajouter les archives, les compteurs de victimes par type et les objectifs groupés. Un `lost_astronaut` ordinaire n'est pas un mini-boss spécifique. |
+| `q3_1_eva_prep` — Équipement Extravéhiculaire | Équiper casque, combinaison, bottes et oxygène (1) | q2_4_logistics | 300 crédits + 75 points |
+| `q3_2_orbit` — Cap sur l’Orbite | Lancer une fusée (1); Atteindre l’orbite terrestre (1) | q3_1_eva_prep | 600 crédits + 75 points |
+| `q3_3_station` — Avant-Poste Orbital | Enregistrer une station orbitale avec atelier et oxygène (1) | q3_2_orbit | 600 crédits + 75 points |
+| `q3_4_moon_step` — Un Pas sur la Lune | Visiter la Lune (1); Déployer une base lunaire (1); Déployer un rover lunaire (1) | q3_3_station | 600 crédits + 75 points |
+| `q3_5_ghosts_he3` — Les Fantômes de 2089 | Explorer un sanctuaire lunaire (1); Extraire seize éclats d’hélium-3 (16); Extraire huit cristaux lunaires (8); Extraire cinq minerais de titane (5); Lire l’archive lunaire (1) | q3_4_moon_step | 800 crédits + 75 points |
+## Acte 4
 
-Les quantités du DOCX — seize ressources d'hélium-3, huit cristaux et douze rôdeurs —
-sont des **cibles d'équilibrage à tester**, pas des seuils ajoutés au code. Distinguer
-le bloc `helium3_crystals` de l'éclat `helium3_shard` utilisé dans les recettes.
-
-Avant Mars, le parcours doit garantir une source raisonnable de l'artefact nécessaire
-à `Plans.MARS_NAV`. Les tables de butin sont aléatoires : prévoir une remise unique
-ou une autre solution déterministe, validée par le serveur, plutôt qu'un blocage
-indéfini. Ne pas réserver tous les artefacts au final.
-
-## Acte IV — Mars et vaisseaux modulaires
-
-Donneur principal : **Capitaine Soren Kael**.
-
-| ID conservé | Titre | Objectif retenu pour l'intégration | Support et travail restant |
+| Quête | Preuves serveur | Prérequis | Récompense |
 |---|---|---|---|
-| `q4_1_shipyard` | Chantier Naval Spatial | Construire un vaisseau valide, décoller puis se poser ou s'amarrer en conservant sa cargaison. | `BuiltShip`, `ShipStructure`, `ShipCarrier` et blocs présents. Ajouter un événement de vol construit réussi. Une simple possession de coque n'est pas une preuve. |
-| `q4_2_mars_colony` | La Colonie Rouge | Installer la navigation martienne, rejoindre Mars, établir une base et obtenir une récolte de serre alimentée. | `Plans`, découverte `mars`, bases et serre présents. Vérifier la dimension et une récolte effective ; une serre posée n'établit pas une autosuffisance mesurée. |
-| `q4_3_orion_glyphs` | Les Glyphes d'Orion | Découvrir des archives martiennes et reconstituer la piste vers le relais final. | Ruines martiennes, analyseur, événement de lecture et coordonnées narratives à créer. Des blocs `alien_stone` / `alien_glyph` existants ne prouvent pas une structure martienne. |
+| `q4_1_shipyard` — Chantier Naval Spatial | Achever un vol en vaisseau construit (1) | q3_5_ghosts_he3 | 900 crédits + 100 points |
+| `q4_2_mars_colony` — La Colonie Rouge | Visiter Mars (1); Déployer une base martienne (1); Obtenir une récolte de serre attribuée sur Mars (1) | q4_1_shipyard | 1000 crédits + 100 points |
+| `q4_3_orion_glyphs` — Les Glyphes d’Orion | Lire les quatre glyphes de l’archive martienne (1) | q4_2_mars_colony | 1000 crédits + 100 points |
+## Acte 5
 
-La navigation martienne exige actuellement une visite lunaire, cinq minerais de
-titane minés et l'amélioration correspondante, qui consomme deux éclats d'hélium-3,
-un bloc de redstone et un artefact. Les « coordonnées » du scénario n'ajoutent pas
-automatiquement cette amélioration. Les trajets des vaisseaux doivent rester
-compatibles avec les règles de `SpaceTravel`.
-
-## Acte V — Le Noyau d'Orion
-
-Donneur principal : **L'Archiviste d'Orion**.
-
-| ID conservé | Titre | Objectif retenu pour l'intégration | Support et travail restant |
+| Quête | Preuves serveur | Prérequis | Récompense |
 |---|---|---|---|
-| `q5_1_zero_g` | Dérive en Zéro-G | Rejoindre les astéroïdes et effectuer une sortie équipée avec un retour sûr. | Dimension, découverte `asteroids`, jetpack et bottes présents ; définir un critère serveur d'EVA complète avec équipement, trajet et retour. |
-| `q5_2_sanctuary` | L'Assaut du Sanctuaire | Localiser le sanctuaire orbital, réussir ses épreuves et vaincre son gardien. | Lieu orbital, défenses, champ de force et `sanctuary_guardian` à développer. Le sanctuaire lunaire actuel reste une étape antérieure. |
-| `q5_3_artifact` | L'Artefact de Régénération | Obtenir le Noyau d'Orion distinct, le ramener et restaurer une région autorisée. | Noyau, activation, état régional et registre de campagne à développer. Un `alien_artifact` générique ne déclenche pas la victoire. |
+| `q5_1_zero_g` — Navigation en Zéro-G | Sortir équipé dans les astéroïdes puis revenir à une balise (1) | q4_3_orion_glyphs | 1000 crédits + 125 points |
+| `q5_2_sanctuary` — L’Épreuve du Sanctuaire | Vaincre son gardien dans le temple d’Orion (1) | q5_1_zero_g | 1500 crédits + 125 points |
+| `q5_3_artifact` — L’Éveil Cosmique | Contribuer un Noyau authentique à la restauration d’une ville (1) | q5_2_sanctuary | 2000 crédits + 125 points |
 
-Le texte « purification globale » du DOCX devient une **restauration régionale
-persistante et bornée**. La portée, l'autorisation du territoire, les contributions,
-la consommation du noyau et les effets doivent être définis et testés avant livraison.
-Une réussite n'efface pas les villes, les claims ni le terrain existant.
+Total de campagne : **12 750 crédits**, sans compter les missions libres,
+contrats, primes ou objectifs municipaux déjà présents.
 
-## Récompenses et activités secondaires
+## Attribution et arbitrages
 
-Les crédits sont un solde serveur, pas un objet `terracraft:credits`. Les montants
-50 / 100 / 150 / 200 / 300 / 500 / 1 000 / 1 500 / 5 000 et les XP du DOCX sont
-des propositions à équilibrer. Aucun de ces montants n'est ajouté par ce lot.
-Conserver les récompenses déjà réclamées des missions permanentes et des contrats.
+- Arme : équipement porté ou inventaire ; le kit initial fournit une épée.
+- Ville : appartenance réelle et au moins un claim personnel. Le registre reste du mobilier.
+- Commerce : utiliser un étal et réclamer un contrat quotidien réellement terminé.
+- Industrie : le premier clic sur une machine lui attribue une télémétrie persistante.
+  La pompe doit extraire et la raffinerie doit convertir du brut. Déplacer des
+  bidons ou donner des objets ne produit aucune preuve de raffinage.
+- Équipement EVA : lecture des emplacements de combinaison, avec réserve d’oxygène.
+- Station : balise, atelier et distributeur aux emplacements du kit orbital ;
+  une station ancienne intacte peut être reconnue près de sa balise.
+- Base lunaire et martienne : station effectivement déployée ou déjà enregistrée.
+- Rover : déballage réussi sur la Lune, à la main ou par la charge utile d’une fusée.
+- Archives lunaires : lecture près du trésor d’un sanctuaire déjà découvert.
+- Vaisseau : atterrissage réussi après le vol construit, pour les membres d’équipage présents.
+- Mars : récolte réelle d’une serre attribuée, puis lecture dans un site généré.
+- EVA finale : sortie sans véhicule, casque/combinaison/bottes et jetpack alimenté,
+  puis retour à pied près d’une balise dans la ceinture.
+- Gardien : mort attribuée à un joueur, propriétaire de l’épreuve présent à proximité.
+- Final : dépôt authentifié et activation municipale. L’artefact courant ne suffit pas.
 
-Les titres, réputations de faction, augmentations de claims, Mode Prestige et objets
-spéciaux du document demandent leurs propres systèmes. Ne pas en promettre la remise
-tant que leurs identifiants et leurs effets ne sont pas disponibles.
+Les quantités de cristaux comptent les blocs extraits, comme les statistiques
+existantes. Les douze rôdeurs et le mini-boss du document initial ne sont pas un
+prérequis : le combat lunaire reste libre et le gardien final est une variante
+nommée du commandant existant, avec sa barre de vie et sans sa prime de bunker.
+Les objets absents du mod ne deviennent pas des conditions impossibles.
+Le kit d’avion constitue une alternative au véhicule terrestre.
 
-| Activité du DOCX | Base actuelle | Extension proposée |
-|---|---|---|
-| Primes de chasse | Primes sur joueurs et règles PvP. | Tableau physique, cibles PvE, infamie, tirage toutes les six heures et jetons de faction. |
-| Convois et largages | Convois militaires en panne et caisses de ravitaillement. | Convois mobiles, escorte, interception et marqueurs de carte adaptés. |
-| Fret interplanétaire | Stock commun de ville accessible par le terminal. | Cargaisons identifiées, trajet, destinataire et réception ; retirer un stock partagé sur une autre planète ne prouve pas un transport physique. |
-| Course saisonnière de factions | Jalons de première découverte par joueur. | Saisons, contributions collectives, classement de factions, cosmétiques et bonus à équilibrer séparément. |
+Le carburant obtenu via l’hélium-3 reste le `rocket_fuel` courant. Une recette
+stable permet de reconstruire l’artefact de navigation : deux cristaux lunaires,
+un éclat d’hélium-3 et un lingot de titane. Le Noyau final reste authentifié
+séparément, sur un objet nommé, sans nouveau modèle ni nouvelle recette.
 
-## État de campagne et validation
-
-La campagne sera enregistrée par UUID de joueur, avec une version de schéma,
-les objectifs accomplis et un registre de récompenses idempotent. La réussite
-collective finale utilisera des identifiants stables de communauté et de région.
-Le `player_data.json` du DOCX est une proposition, pas un fichier déjà lu par le mod.
-
-Les vétérans doivent pouvoir faire reconnaître des faits antérieurs vérifiables
-(visite, ville, station, amélioration), sans payer une deuxième fois leurs anciennes
-missions. La progression principale doit rester monotone après un départ de ville,
-une mort ou un changement de véhicule. Les compteurs de production nouveaux demandent
-une règle d'attribution ; un simple inventaire de ressources est insuffisant.
-
-Pour chaque chapitre, tester joueur neuf et vétéran, mode solo, coopération, mort,
-reconnexion, redémarrage, double clic, minuit des contrats et requête IA retardée.
-Le moteur serveur valide les faits ; une déclaration du modèle ou du joueur n'est
-jamais une preuve de réussite.
-
-## Textes d'accueil préparés
-
-Texte proposé pour `Welcome`, après conservation des règles et du choix géographique :
-
-> Bienvenue dans TERRA EXODUS. Depuis l'Effondrement de 2089, les villes attendent
-> ceux qui sauront les reconstruire. Choisis ton point de chute : trouve un abri,
-> rassemble des ressources et rejoins un refuge. Un signal venu des étoiles subsiste.
-
-Le tutoriel existant garde ses étapes utiles : maison, premier coffre, claim,
-marché, fiche et première mission. Son intégration narrative ne doit pas demander
-le `purifier_vent` absent ni prétendre que le registre fonde la ville.
-
-Proposition pour le guide : « Le refuge est ton point de départ. L'industrie te
-donne les moyens de voyager ; les quais rendent possible le retour. Les archives
-d'Orion se révèlent à mesure que tu explores et aides ta communauté. »
-
-Les clés `fr_fr.json` du DOCX ne deviennent actives que si le code utilise ces clés.
-Les descriptions actuelles de `Missions.java` sont des chaînes Java : leur migration
-et la vue en chapitres demandent une implémentation, pas seulement un ajout au JSON.
+Voir [le guide de jeu et d’exploitation](../terra-exodus-jeu.md) pour les commandes,
+les données, les sauvegardes et les limites des tests.

@@ -29,6 +29,13 @@ final class ServerGuide {
     private static final java.util.Map<String, java.util.List<Entry>> THEMES = new java.util.LinkedHashMap<>();
 
     static {
+        THEMES.put("exodus", java.util.List.of(
+                new Entry("[Journal]", "/exodus", "Les 19 quêtes des Vestiges d’Orion, en cinq actes"),
+                new Entry("[Livre]", "/exodus livre", "Récupérer ou actualiser le livre reçu au premier départ"),
+                new Entry("[Contact]", "/pnj", "Parler au personnage proche ; /pnj mission pour son objectif"),
+                new Entry("[Récompense]", "/exodus reclamer ", "Réclamer une quête dont toutes les preuves sont réunies"),
+                new Entry("[Archives]", "/exodus archives", "Lire une archive accessible sur le terrain"),
+                new Entry("[Mémoire]", "/exodus registre", "Régions restaurées et contributions des villes")));
         THEMES.put("survie", java.util.List.of(
                 new Entry("[Position]", "/terracraft ou", "Ta latitude et ta longitude réelles"),
                 new Entry("[Lieux]", "/lieux", "Hôpital, pharmacie, commissariat, gare, supermarché… les plus proches"),

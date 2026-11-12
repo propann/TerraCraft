@@ -2,7 +2,7 @@
 
 Trame narrative retenue pour le monde TerraCraft, à partir du scénario proposé par
 le porteur du projet et de son [document de quêtes](sources-terra-exodus.md).
-Cette page fixe l'univers et le parcours visé. Les mécanismes
+Cette page fixe l’univers et le parcours narratif. La campagne 0.41.0 et ses limites sont décrites dans le [guide de jeu](../terra-exodus-jeu.md). Les mécanismes
 déjà présents et les extensions nécessaires sont détaillés dans
 l'[analyse technique](analyse-terra-exodus.md) et le [plan de quêtes](quetes-terra-exodus.md).
 

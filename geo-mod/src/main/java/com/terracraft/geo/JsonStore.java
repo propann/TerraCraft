@@ -16,6 +16,7 @@ import java.util.function.Function;
  * et on repart de la sauvegarde {@code .bak}.
  */
 final class JsonStore {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(JsonStore.class);
     private JsonStore() {
     }
 
@@ -29,7 +30,7 @@ final class JsonStore {
                 }
                 throw new IllegalArgumentException("Document JSON vide");
             } catch (IOException | RuntimeException e) {
-                GeoMod.LOGGER.error("Fichier illisible {} : tentative avec la sauvegarde", file, e);
+                LOGGER.error("Fichier illisible {} : tentative avec la sauvegarde", file, e);
                 try {
                     Files.copy(file, file.resolveSibling(file.getFileName() + ".corrompu-" + System.currentTimeMillis()),
                             StandardCopyOption.REPLACE_EXISTING);
@@ -45,10 +46,10 @@ final class JsonStore {
                 if (value == null) throw new IllegalArgumentException("Sauvegarde JSON vide");
                 // Ne jamais recopier un primaire corrompu sur la sauvegarde saine à la prochaine écriture.
                 Files.deleteIfExists(file);
-                GeoMod.LOGGER.warn("Données restaurées depuis {}", backup);
+                LOGGER.warn("Données restaurées depuis {}", backup);
                 return value;
             } catch (IOException | RuntimeException e) {
-                GeoMod.LOGGER.error("Sauvegarde illisible {}", backup, e);
+                LOGGER.error("Sauvegarde illisible {}", backup, e);
             }
         }
         return null;

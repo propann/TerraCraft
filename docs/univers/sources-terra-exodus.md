@@ -46,3 +46,7 @@ mais son contexte ne contient pas encore l'état des cinq chapitres.
 
 Cette synthèse est la référence d'intégration proposée dans la PR documentaire.
 Les textes d'accueil et le moteur de campagne restent à développer séparément.
+
+## Intégration
+
+La PR #7 reprend ces sources et conserve les 19 ID. Le [catalogue des quêtes](quetes-terra-exodus.md) décrit les seuils effectivement codés et les arbitrages ; le [guide de jeu](../terra-exodus-jeu.md) décrit les commandes, l’exploitation et les limites de validation.

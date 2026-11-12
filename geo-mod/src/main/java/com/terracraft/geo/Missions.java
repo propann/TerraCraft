@@ -87,7 +87,7 @@ final class Missions {
     }
 
     boolean hasClaimedAny(ServerPlayer player) {
-        return !claimed.getOrDefault(player.getUUID(), Set.of()).isEmpty();
+        return ExodusCampaign.get().hasCompletedAny(player) || !claimed.getOrDefault(player.getUUID(), Set.of()).isEmpty();
     }
 
     void register(CommandDispatcher<CommandSourceStack> dispatcher, AuctionHouse auctionHouse) {

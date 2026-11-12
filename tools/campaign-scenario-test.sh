@@ -86,7 +86,7 @@ cmd 'give Alice minecraft:stone_sword'
 cmd 'execute as Alice run exodus livre'
 cmd 'execute as Alice run exodus livre'
 cmd 'scoreboard objectives add exodus_test dummy'
-cmd 'execute store result score book_count exodus_test if items entity Alice inventory.* minecraft:written_book'
+cmd 'execute store result score book_count exodus_test run clear Alice minecraft:written_book 0'
 cmd 'scoreboard players get book_count exodus_test'
 cmd 'data get entity Alice Inventory' 1
 cmd 'execute as Alice at Alice run pnj creer helene_vance'
@@ -130,16 +130,20 @@ cmd 'execute as Bob run ville rejoindre'
 cmd 'execute at Alice run setblock ~2 ~ ~ terracraft_geo:town_registry'
 cmd 'effect clear Alice'
 cmd 'effect give Alice minecraft:resistance 99999 255 true' 3
-cmd 'execute store success score poison_before exodus_test if entity Alice[nbt={active_effects:[{id:"minecraft:poison"}]}]'
+cmd 'execute store success score poison_before exodus_test if entity @a[name=Alice,nbt={active_effects:[{id:"minecraft:poison"}]}]'
 cmd 'scoreboard players get poison_before exodus_test'
 cmd 'item replace entity Alice weapon.mainhand with terracraft_geo:alien_artifact'
 cmd 'execute as Alice run exodus contribuer'
 cmd 'execute as Alice run exodus reclamer q5_3_artifact' 10
 cp world/terracraft_geo/terra-exodus.json rejected-core.json
 # Une copie administrative conserve le nonce authentifié : un seul dépôt reste possible.
-for slot in $(seq 1 35); do
-  cmd "execute if items entity Alice inventory.$slot terracraft_geo:alien_artifact[minecraft:custom_data~{orion_owner:\"$EXODUS_ALICE_ID\"}] run item replace entity Alice weapon.mainhand from entity Alice inventory.$slot" 0
-done
+EXODUS_CORE_ID="$(python3 - "$EXODUS_ALICE_ID" <<'PYCORE'
+import json,sys
+from pathlib import Path
+print(json.loads(Path('world/terracraft_geo/terra-exodus.json').read_text())['players'][sys.argv[1]]['core'])
+PYCORE
+)"
+cmd "item replace entity Alice weapon.mainhand with terracraft_geo:alien_artifact[minecraft:custom_data={orion_owner:\"$EXODUS_ALICE_ID\",orion_core:\"$EXODUS_CORE_ID\"}]"
 cmd 'execute as Alice run exodus contribuer' 1
 cmd 'execute as Alice run exodus contribuer'
 cmd 'execute as Bob run exodus restaurer'
@@ -157,13 +161,13 @@ cmd 'execute as Bob run exodus restaurer'
 cmd 'execute as Alice run exodus contribuer'
 cmd 'execute as Alice run exodus restaurer' 1
 cmd 'effect clear Alice' 3
-cmd 'execute store success score poison_after exodus_test if entity Alice[nbt={active_effects:[{id:"minecraft:poison"}]}]'
+cmd 'execute store success score poison_after exodus_test if entity @a[name=Alice,nbt={active_effects:[{id:"minecraft:poison"}]}]'
 cmd 'scoreboard players get poison_after exodus_test'
 cmd 'execute as Alice run exodus reclamer q5_3_artifact'
 cmd 'execute as Alice run exodus reclamer q5_3_artifact'
 cmd 'execute as Alice run exodus restaurer'
 cmd 'execute as Alice run exodus livre'
-cmd 'execute store result score book_count exodus_test if items entity Alice inventory.* minecraft:written_book'
+cmd 'execute store result score book_count exodus_test run clear Alice minecraft:written_book 0'
 cmd 'scoreboard players get book_count exodus_test'
 cmd 'save-all flush' 1
 cp world/terracraft_geo/terra-exodus.json completed-campaign.json

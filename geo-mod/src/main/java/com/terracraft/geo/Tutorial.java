@@ -52,7 +52,7 @@ public final class Tutorial {
                     (t, p) -> t.flag(p, "market")),
             new Step("sheet", "Ouvre ta fiche", "Touche K : niveau, compétences, découvertes et paliers.",
                     (t, p) -> t.flag(p, "sheet")),
-            new Step("mission", "Réclame une mission", "Touche O puis « Missions » : termine-en une et réclame ta récompense.",
+            new Step("mission", "Réclame une mission", "Touche O puis « Missions » : campagne TERRA EXODUS ou mission libre. Réclame une récompense.",
                     (t, p) -> t.missions != null && t.missions.hasClaimedAny(p)));
 
     private static final Tutorial INSTANCE = new Tutorial();
@@ -160,7 +160,7 @@ public final class Tutorial {
             player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 60, 20));
             player.connection.send(new ClientboundSetTitleTextPacket(Component.literal("Survivant prêt")
                     .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-            player.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("Explore, commerce… et vise la Lune")
+            player.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal("Poursuis TERRA EXODUS : /exodus")
                     .withStyle(ChatFormatting.GRAY)));
             player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE,
                     SoundSource.PLAYERS, 1f, 1f);

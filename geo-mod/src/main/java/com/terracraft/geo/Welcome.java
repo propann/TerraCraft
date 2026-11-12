@@ -34,6 +34,8 @@ final class Welcome {
     }
 
     private static final List<Change> CHANGES = List.of(
+            new Change("0.41", "TERRA EXODUS : 19 quêtes, journal de départ, contacts narratifs et restauration régionale (/exodus)"),
+            new Change("0.40", "Personnages à identité et mémoire ; dialogues locaux ou Mistral/Ollama (/pnj)"),
             new Change("0.39", "Villes fidèles (vrais bâtiments séparés, vrais commerces, couleurs réelles, écoles, hôpitaux), aéroports ; viseurs x2, x4, x6 et point rouge (bouton du milieu), touche R ; chat : canaux ville et local, mentions @, /mp et /r"),
             new Change("0.38", "Nouveau monde (1 bloc = 1 m à Paris, étages de 4 blocs) ; vaisseaux construits bloc par bloc, amarrage sas contre sas ; catalogue des objets (menu O) ; élection du maire"),
             new Change("0.37", "Réputation de métier, intérieurs selon le lieu, serre hydroponique, icônes redessinées"),
@@ -143,7 +145,7 @@ final class Welcome {
         if (!returning) {
             // Nouveau joueur : la carte de départ s'ouvre ; une ligne suffit en attendant.
             player.sendSystemMessage(Component.literal("✦ Bienvenue sur TerraCraft, " + player.getName().getString()
-                    + " ! Choisis ton point de départ sur la carte du monde réel.").withStyle(ChatFormatting.GOLD));
+                    + " ! Choisis ton point de départ sur la carte du monde réel. Ton journal TERRA EXODUS t’attend dans le kit de départ.").withStyle(ChatFormatting.GOLD));
             return;
         }
         player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 50, 20));
@@ -178,6 +180,7 @@ final class Welcome {
                 + " · " + (job == null ? "sans métier" : job.label);
         player.sendSystemMessage(Component.literal(status).withStyle(ready > 0 ? ChatFormatting.GREEN : ChatFormatting.AQUA));
 
+        player.sendSystemMessage(Component.literal("TERRA EXODUS : /exodus pour ta campagne ; /exodus livre pour ton journal.").withStyle(ChatFormatting.GOLD));
         List<String> news = news(lastSeen);
         if (!news.isEmpty()) {
             player.sendSystemMessage(Component.literal("Nouveau depuis ta dernière visite :").withStyle(ChatFormatting.YELLOW));

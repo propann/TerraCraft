@@ -3,7 +3,7 @@
 Analyse du 12 novembre 2026 sur `main`, commit `6736c35`, mod `0.39.0`.
 La [PR #4](https://github.com/propann/TerraCraft/pull/4) ajoute la fiabilisation de la CI ;
 la [PR #5](https://github.com/propann/TerraCraft/pull/5) prépare les PNJ en `0.40.0`.
-Ces PR sont séparées de cette documentation. Le code a été examiné depuis le dépôt,
+Cette analyse de référence décrit le socle initial. La PR #7 intègre maintenant la campagne en 0.41.0 ; son état courant, ses arbitrages et ses tests sont décrits dans le [guide de jeu](../terra-exodus-jeu.md). Les mentions de travail restant ci-dessous se rapportent au socle 0.39.0. Le code a été examiné depuis le dépôt,
 puis le texte et les six tableaux du [DOCX fourni](sources-terra-exodus.md) ont été
 rapprochés de ces sources. Le document Word définit une direction de conception ;
 ses exemples techniques ne sont pas tous des mécanismes déjà présents.
