@@ -88,6 +88,17 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
+      - name: Mod à essayer pour cette PR
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: terracraft-geo-pr-${{ github.event.pull_request.number }}-${{ github.run_id }}
+          path: |
+            geo-mod/build/libs/terracraft-geo-*.jar
+            !geo-mod/build/libs/*-sources.jar
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Identité Git du robot
         run: |
           git config user.name "terracraft-bot"

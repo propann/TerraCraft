@@ -3,7 +3,7 @@
 Version proposée : **0.41.0**, PR [#7](https://github.com/propann/TerraCraft/pull/7),
 à intégrer après les PR de [fiabilisation #4](https://github.com/propann/TerraCraft/pull/4)
 et de [PNJ #5](https://github.com/propann/TerraCraft/pull/5).
-Aucun déploiement automatique n’est effectué depuis cette branche.
+Aucun déploiement automatique n’est effectué depuis cette branche. Après réussite des tests, le JAR est téléchargeable dans l’artefact `terracraft-geo-pr-7-<run>` de l’exécution GitHub Actions, conservé quatorze jours.
 
 ## Première arrivée et livre
 
