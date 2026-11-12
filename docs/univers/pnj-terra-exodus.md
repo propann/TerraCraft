@@ -26,9 +26,9 @@ Les limites de mots sont des consignes de style. Le contrôle actuel du prototyp
 porte notamment sur le format, la longueur et les contrats autorisés ; il ne
 vérifie pas automatiquement chaque affirmation narrative.
 
-## Prévisualisation avec le prototype PNJ
+## Placement des personnages
 
-Après installation de la version comprenant la PR #5, copier l'exemple dans le
+Les six profils sont livrés en 0.41.0. Pour les personnaliser, copier l’exemple dans le
 dossier d'exécution du serveur sous `config/terracraft-npcs.json`. Depuis un compte
 administrateur en jeu :
 
@@ -42,7 +42,7 @@ Si une configuration existe déjà, y fusionner les entrées de `personas` en co
 les profils utiles et les paramètres du modèle. Le fichier d'exemple comporte six
 profils et ne remplace pas automatiquement les réglages du serveur.
 
-Créer chaque personnage depuis sa position voulue. Le prototype utilise des mobs
+Créer chaque personnage depuis sa position voulue. Le mod utilise des mobs
 vanilla ; ces profils ne créent pas les bases, les sanctuaires ni une apparence
 holographique. Garder Sujet-09 sur une entité amicale : lier une identité à un
 `lost_astronaut` ne supprime pas automatiquement son comportement hostile.
@@ -50,34 +50,32 @@ holographique. Garder Sujet-09 sur une entité amicale : lier une identité à u
 Le modèle, son URL et son activation se configurent selon le guide de la PR #5.
 Le fichier d'exemple n'ajoute ni clé, ni MCP, ni exposition réseau.
 
-## Contexte présent et contexte à ajouter
+## Contexte transmis en 0.41.0
 
-La PR #5 transmet l'identité, `player`, `job`, `town`, `memory`, `message` et
-`available_quests`. Le modèle renvoie `speech` et `quest_id` ; le serveur valide
-la proposition parmi les contrats du jour existants.
+Le serveur transmet `identity`, `player`, `job`, `town`, `memory`, `message`,
+`available_quests` et `campaign`. Ce dernier contient le chapitre, la dimension
+et le canon autorisé à ce stade. Chaque quête candidate comprend son identifiant,
+son titre, ses objectifs avec compteurs, sa progression et sa récompense.
+Les PNJ canoniques proposent seulement les étapes accessibles de leur propre acte ;
+Léa conserve les contrats quotidiens. Une réponse IA est revérifiée sur le serveur.
 
-Elle ne transmet pas encore `current_quest`, `dimension`, le chapitre ou les archives
-connues. Les marqueurs `{player_name}`, `{current_quest}`, `{dimension}` et `{town_name}`
-du DOCX ne sont pas des variables automatiquement interpolées par ce code.
-Les 19 quêtes de campagne ne sont pas dans les candidats du modèle.
+Le modèle répond avec `speech` et `quest_id`. Il n’interpole pas automatiquement
+les marqueurs du DOCX : le contexte est un objet JSON structuré. Il peut reformuler
+les objectifs transmis ; il ne valide jamais les preuves ni une remise.
 
-Pour la campagne, le serveur devra fournir le chapitre, les faits validés, la
-dimension, la quête active et les révélations autorisées. Il filtrera les objectifs
-avant l'appel IA et revérifiera l'état au retour. Un PNJ avancé placé trop tôt ne
-doit pas donner accès à un chapitre verrouillé.
+Les secrets d’un chapitre futur ne sont pas ajoutés au contexte canonique initial.
+Les souvenirs viennent des dialogues précédents et le texte d’un modèle reste
+à vérifier pour sa fidélité narrative. Les mécanismes de jeu ne dépendent pas
+de cette fidélité : même un dialogue erroné ne crée aucune récompense.
 
-Les secrets d'un chapitre futur ne doivent pas être envoyés au modèle lors d'un
-dialogue précoce. Une phrase de prompt « ne révèle pas la fin » ne remplace pas
-ce contrôle. L'Archiviste a un rôle narratif de gardien ; le modèle ne décide ni
-de la vérité du monde, ni de la réussite d'une quête, ni d'une récompense.
+## Répliques locales livrées
 
-## Répliques préparées
+Ces répliques fonctionnent lorsque l’IA est désactivée. Elles sont suivies, si une
+quête est autorisée, de sa proposition et de `/pnj mission`.
 
-Textes éditoriaux à intégrer, sans injection automatique par ce lot :
-
-- **Hélène :** « D'abord un abri, ensuite des vivres. Une ville tient debout si chacun protège son secteur et aide ses voisins. »
-- **Marcus :** « Du pétrole sans pompe, c'est une flaque. Branche ton énergie, vérifie tes tuyaux, et on parlera de carburant pour les étoiles. »
-- **Aris :** « Vérifie ta tenue, ton oxygène et le carburant du retour. Notre première destination est l'orbite terrestre. »
-- **Sujet-09 :** « [Bzzz…] Nous avions laissé des repères dans la poussière. Les pierres se souviennent mieux que moi. »
-- **Soren :** « Une coque ne fait pas encore un foyer. Prépare ton quai, teste ton vaisseau et assure le retour de ton équipage. »
-- **Archiviste, au stade autorisé :** « Vous avez appris à revenir vers les vôtres. La réparation du berceau commence par ce que vous choisissez de préserver. »
+- **`helene_vance` :** « Un refuge tient grâce à ses habitants. Consulte /pnj mission : nous avançons une preuve à la fois. »
+- **`boulon_kowalski` :** « Le brut ne se raffine pas avec des promesses ! Clique tes machines avant de les faire tourner : leur production alimentera ton journal. »
+- **`aris_thorne` :** « Vérifie ton oxygène et garde de quoi rentrer. Ton journal indique les étapes de préparation du vol. »
+- **`sujet_09` :** « [Bzzz…] Les souvenirs restent dans la pierre. Approche des archives que ton journal autorise. »
+- **`soren_kael` :** « Un vaisseau doit revenir entier. Notre colonie a besoin de récoltes, pas seulement de coques et de promesses. »
+- **`archiviste_orion` :** « Les archives retiennent les actes des voyageurs. Ton journal indique l’épreuve qui t’est ouverte. »

@@ -26,8 +26,7 @@ DOCX ne signifie pas qu'elles sont déjà chargées par le mod.
 Sources de `propann/TerraCraft`, branche `main`, commit
 `6736c356c39f2be6e72b832c5ec756789174128c`, version `0.39.0`.
 Les références de fichiers figurent dans l'[analyse technique](analyse-terra-exodus.md).
-La PR PNJ #5 est une extension distincte ; ses profils peuvent servir de prévisualisation,
-mais son contexte ne contient pas encore l'état des cinq chapitres.
+La PR #5 fournit les PNJ et l’adaptateur IA. La PR #7 les étend avec les cinq chapitres, les quêtes autorisées et leurs preuves.
 
 ## Arbitrages de cette synthèse
 
@@ -39,13 +38,12 @@ mais son contexte ne contient pas encore l'état des cinq chapitres.
 - Conserver les sanctuaires lunaires ; spécifier les ruines martiennes et le relais
   orbital comme des extensions.
 - Définir le final comme une restauration régionale autorisée, avec une persistance
-  et des effets à implémenter, plutôt qu'une action globale implicite sur le monde.
+  et des effets limités de suppression de la Contamination, sans réécriture du monde.
 - Réserver l'origine exacte de la Contamination aux révélations écrites du canon.
   Le mot « virus » apparaît dans un profil du DOCX ; il ne décrit pas une mécanique
   biologique établie par le code ni un fait que le modèle doit inventer.
 
-Cette synthèse est la référence d'intégration proposée dans la PR documentaire.
-Les textes d'accueil et le moteur de campagne restent à développer séparément.
+Cette synthèse initiale est reprise dans la PR #7, qui implémente le moteur, l’accueil et le livre de départ. Les seuils et écarts effectivement livrés sont détaillés dans le catalogue et le guide ci-dessous.
 
 ## Intégration
 

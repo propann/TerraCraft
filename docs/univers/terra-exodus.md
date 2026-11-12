@@ -82,8 +82,7 @@ nuit lunaire donnent un sens aux abris et à la préparation. Rôdeurs lunaires 
 astronautes perdus défendent les lieux anciens.
 
 Dans la fiction, les astronautes perdus sont associés à l'expédition de 2089.
-Des journaux pourront expliquer leur sort ; ces documents ne sont pas encore des
-butins narratifs implémentés. Le joueur ne connaît d'abord que leurs traces.
+Une archive contextuelle de 2089 se lit près du trésor d’un sanctuaire découvert, avec `/exodus archives`. Elle donne une piste ; elle ne prétend pas expliquer tout leur sort.
 
 **Révélation :** les sanctuaires lunaires contiennent des fragments technologiques
 et une piste vers Mars. Ils constituent la première étape alien, accessible avant
@@ -100,13 +99,10 @@ et la ceinture d'astéroïdes selon les routes et équipements disponibles.
 
 Les chantiers orbitaux permettent de construire une coque en blocs, avec siège,
 console, réservoirs, propulseurs et sas. Les fusées restent des véhicules réutilisables.
-La campagne valorise la construction modulaire sans la présenter comme une règle
-de déblocage déjà imposée par le jeu.
+La quête du chantier exige un vol construit réussi ; les recettes et les routes du jeu libre conservent leurs règles.
 
 Sur Mars, une base, de l'oxygène et une serre rendent l'installation durable.
-Le terrain martien existe ; les **archives et ruines martiennes d'Orion** sont
-une extension à réaliser. Elles révéleront les coordonnées du relais final et la
-fonction de régénération du réseau.
+Les **archives et ruines martiennes d’Orion** sont générées dans les nouveaux chunks. La lecture de leurs quatre glyphes révèle la piste vers le relais final et la fonction de régénération du réseau.
 
 **Révélation :** Orion observait la biosphère terrestre. Son dispositif peut aider
 des régions habitées, mais il exige une infrastructure reconstruite par les joueurs.
@@ -120,18 +116,17 @@ Les équipages préparent les sorties spatiales et l'approvisionnement de leurs 
 Le jetpack sert aux déplacements ; les bottes magnétiques s'utilisent sur les surfaces
 où le jeu les rend efficaces. La campagne ne suppose pas qu'elles accrochent le vide.
 
-Le **sanctuaire orbital d'Orion**, ses défenses et son gardien final sont à développer.
+Le **sanctuaire orbital d’Orion** est une première arène de campagne, avec piliers, sol brûlant et gardien nommé à barre de vie.
 Il constitue un lieu supplémentaire dans la ceinture d'astéroïdes ; les sanctuaires
 lunaires actuels conservent leur emplacement et leurs récompenses.
 
-Au cœur de ce relais se trouve le **Noyau d'Orion**, objectif de campagne futur,
+Au cœur de ce relais se trouve le **Noyau d'Orion**, objectif de campagne,
 distinct des objets `alien_artifact` déjà présents dans les coffres et recettes.
 Ses fragments préliminaires ne peuvent pas déclencher le dénouement.
 
-Rapporté sur Terre, le noyau permettra une opération de restauration limitée à une
+Rapporté sur Terre, le noyau permet une opération de restauration limitée à une
 région autorisée : réduire une contamination ciblée, stabiliser le refuge et
-enregistrer la réussite de sa communauté. L'effet, sa portée, sa persistance et
-son contrôle d'accès sont à implémenter avant d'en faire une promesse en jeu.
+enregistrer la réussite de sa communauté. La version 0.41.0 suspend les effets de Contamination dans un rayon de 64 blocs autour du centre municipal au premier dépôt, après activation par le maire ou un adjoint. Le terrain reste inchangé.
 
 **Dénouement :** la Terre n'est pas réinitialisée. Une communauté a appris à protéger
 et réparer une partie du monde, et d'autres régions peuvent suivre. Un registre
@@ -166,6 +161,4 @@ du serveur ; l'histoire n'exige ni vol, ni grief, ni élimination d'un autre jou
 Le parcours doit rester accessible en solo, proposer de l'entraide et reconnaître
 les contributions sans imposer d'attendre un scrutin réel pour progresser.
 
-La référence de production reste le code effectivement livré. Les noms « Noyau
-d'Orion », « archive de 2089 » et « sanctuaire orbital » désignent ici du contenu
-à réaliser, dont les identifiants techniques seront fixés à l'implémentation.
+La référence de production reste le code effectivement livré. Le Noyau utilise un artefact nommé avec des données authentifiées ; les lectures d’archives et le temple sont vérifiés par le serveur. Les commandes et limites effectives sont décrites dans le [guide de jeu](../terra-exodus-jeu.md).

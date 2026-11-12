@@ -304,7 +304,13 @@ final class Npcs {
         for (ExodusQuests.Quest q:campaign) {
             JsonObject json=new JsonObject();String id=ExodusQuests.PREFIX+q.id();
             json.addProperty("quest_id",id);json.addProperty("title",q.title());
-            json.addProperty("description",String.join(" · ",q.goals().stream().map(ExodusQuests.Goal::label).toList()));
+            for (var evidence:ExodusCampaign.get().toJson(player)) {
+                JsonObject detail=evidence.getAsJsonObject();
+                if (detail.get("id").getAsString().equals(id)) {
+                    json.add("description",detail.get("description"));
+                    json.add("progress",detail.get("progress"));json.add("target",detail.get("target"));
+                }
+            }
             json.addProperty("reward",q.credits());available.add(json);ids.add(id);
         }
         context.add("available_quests", available);
