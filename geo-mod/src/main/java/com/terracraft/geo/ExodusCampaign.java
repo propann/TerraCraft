@@ -78,22 +78,16 @@ public final class ExodusCampaign {
     private void witness(ExodusState.Journal j, String key, boolean value) {
         if (value && j.facts.getOrDefault(key,0L) == 0) bump(j,key,1);
     }
-    private static String machineKey(ServerLevel level, BlockPos pos) {
-        return level.dimension().identifier() + ":" + pos.asLong();
-    }
     void registerMachine(ServerPlayer player, MachineBlockEntity machine) {
-        // L'interaction suit les protections de blocs du serveur ; la première attribution reste stable.
-        String key = machineKey(player.level(),machine.getBlockPos());
-        if (!state.machines.containsKey(key)) transaction(() -> state.machines.put(key,player.getUUID().toString()));
-        player.sendSystemMessage(Component.literal("Télémétrie : " + (player.getUUID().toString().equals(state.machines.get(key))
+        // Propriétaire enregistré dans le bloc : une machine cassée n'attribue pas sa remplaçante.
+        boolean mine=machine.attribute(player.getUUID());
+        player.sendSystemMessage(Component.literal("Télémétrie : " + (mine
                 ? "production attribuée à ton journal." : "machine déjà attribuée.")));
     }
     public void machineFact(ServerLevel level, BlockPos pos, String fact, long amount) {
-        String owner = state.machines.get(machineKey(level,pos));
-        if (owner != null) bump(state.journal(UUID.fromString(owner)),fact,amount);
-    }
-    void machineRemoved(ServerLevel level, BlockPos pos) {
-        if (state.machines.remove(machineKey(level,pos)) != null) dirty = true;
+        if (!(level.getBlockEntity(pos) instanceof MachineBlockEntity machine)) return;
+        String owner=machine.telemetryOwner();
+        if (!owner.isEmpty()) bump(state.journal(UUID.fromString(owner)),fact,amount);
     }
     void stationReady(ServerPlayer owner, ServerLevel level, BlockPos beacon) {
         if (level.dimension() == Space.ORBIT && level.getBlockState(beacon).is(ModBlocks.STATION_BEACON)

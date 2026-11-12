@@ -49,6 +49,12 @@ public class MachineBlockEntity extends BlockEntity {
     private int growth;
     public static final int GROWTH_PER_HARVEST = 45;
     private int ticks;
+    private String telemetryOwner = "";
+    public String telemetryOwner() { return telemetryOwner; }
+    public boolean attribute(java.util.UUID player) {
+        if (telemetryOwner.isEmpty()) { telemetryOwner=player.toString();setChanged(); }
+        return telemetryOwner.equals(player.toString());
+    }
 
     public MachineBlockEntity(BlockPos pos, BlockState state) {
         super(IndustryBlocks.MACHINE_ENTITY, pos, state);
@@ -323,6 +329,7 @@ public class MachineBlockEntity extends BlockEntity {
         for (FluidKind fluid : FluidKind.values()) {
             output.putInt(fluid.name(), amount(fluid));
         }
+        output.putString("TelemetryOwner",telemetryOwner);
         output.putInt("Power", power);
         output.putInt("Charge", charge);
         output.putInt("Growth", growth);
@@ -331,6 +338,7 @@ public class MachineBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+        telemetryOwner=input.getStringOr("TelemetryOwner","");
         fluids.clear();
         for (FluidKind fluid : FluidKind.values()) {
             int amount = input.getIntOr(fluid.name(), 0);

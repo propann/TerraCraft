@@ -256,7 +256,6 @@ public final class GeoMod implements ModInitializer {
         PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, entity) -> {
             if (player instanceof ServerPlayer sp && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                 if (state.is(ModBlocks.LUNAR_CRYSTAL)) ExodusCampaign.get().fact(sp,"lunar_crystal",1);
-                if (entity instanceof com.terracraft.geo.content.industry.MachineBlockEntity) ExodusCampaign.get().machineRemoved(serverLevel,pos);
             }
         });
         UseBlockCallback.EVENT.register((player, level, hand, hit) -> {

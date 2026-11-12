@@ -50,6 +50,12 @@ jobs:
         working-directory: geo-mod
         run: gradle --no-daemon build
 
+      - name: Campagne et Noyau avec redémarrage
+        run: |
+          bash -n tools/campaign-scenario-test.sh
+          VERSION="$(sed -n 's/^mod_version=//p' geo-mod/gradle.properties)"
+          tools/campaign-scenario-test.sh "geo-mod/build/libs/terracraft-geo-$VERSION.jar" "$RUNNER_TEMP/terracraft-campaign"
+
       - name: PNJ avec modèle simulé et redémarrage
         run: |
           bash -n tools/npc-scenario-test.sh
@@ -72,6 +78,9 @@ jobs:
             ${{ runner.temp }}/terracraft-test/scenario.log
             ${{ runner.temp }}/terracraft-test/logs/*.log
             ${{ runner.temp }}/terracraft-test/crash-reports/*.txt
+            ${{ runner.temp }}/terracraft-campaign/*.log
+            ${{ runner.temp }}/terracraft-campaign/*.json
+            ${{ runner.temp }}/terracraft-campaign/world/terracraft_geo/*.json
             ${{ runner.temp }}/terracraft-npc/*.log
             ${{ runner.temp }}/terracraft-npc/logs/*.log
             geo-mod/build/test-results/test/*.xml
