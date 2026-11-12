@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgument;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -76,6 +76,8 @@ final class Npcs {
     }
 
     void wire() {
+        net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) ->
+                !(entity instanceof Mob mob && mob.entityTags().contains("terracraft_npc_protected") && persona(mob) != null));
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
             if (hand == InteractionHand.MAIN_HAND && player instanceof ServerPlayer serverPlayer
                     && entity instanceof Mob mob && persona(mob) != null) {
@@ -163,22 +165,22 @@ final class Npcs {
     void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("pnj")
                 .executes(c -> talkNearest(c.getSource().getPlayerOrException(), "Bonjour."))
-                .then(Commands.literal("dire").then(Commands.argument("message", StringArgument.greedyString())
-                        .executes(c -> talkNearest(c.getSource().getPlayerOrException(), StringArgument.getString(c, "message")))))
+                .then(Commands.literal("dire").then(Commands.argument("message", StringArgumentType.greedyString())
+                        .executes(c -> talkNearest(c.getSource().getPlayerOrException(), StringArgumentType.getString(c, "message")))))
                 .then(Commands.literal("mission").executes(c -> mission(c.getSource().getPlayerOrException(), false)))
                 .then(Commands.literal("reclamer").executes(c -> mission(c.getSource().getPlayerOrException(), true)))
                 .then(Commands.literal("creer").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                        .then(Commands.argument("identite", StringArgument.word()).executes(c -> spawn(
-                                c.getSource().getPlayerOrException(), StringArgument.getString(c, "identite")))))
+                        .then(Commands.argument("identite", StringArgumentType.word()).executes(c -> spawn(
+                                c.getSource().getPlayerOrException(), StringArgumentType.getString(c, "identite")))))
                 .then(Commands.literal("lier").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                        .then(Commands.argument("identite", StringArgument.word())
+                        .then(Commands.argument("identite", StringArgumentType.word())
                                 .then(Commands.argument("mob", EntityArgument.entity()).executes(c -> {
                                     var entity = EntityArgument.getEntity(c, "mob");
-                                    return entity instanceof Mob mob ? bind(mob, StringArgument.getString(c, "identite")) : 0;
+                                    return entity instanceof Mob mob ? bind(mob, StringArgumentType.getString(c, "identite")) : 0;
                                 }))))
                 .then(Commands.literal("recharger").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .executes(c -> { configure(c.getSource().getServer()); c.getSource().sendSuccess(
-                                () -> Component.literal("Identités PNJ rechargées."), false); return 1; })));
+                                () -> Component.literal("Identités PNJ rechargées : " + (brain == null ? "dialogues locaux." : "IA configurée.")), false); return 1; })));
     }
 
     private int spawn(ServerPlayer player, String id) {
@@ -191,7 +193,7 @@ final class Npcs {
         var at = player.position().add(player.getLookAngle().multiply(2, 0, 2));
         mob.snapTo(at.x, at.y, at.z, player.getYRot(), 0);
         mob.setNoAi(true);
-        mob.setInvulnerable(true);
+        mob.addTag("terracraft_npc_protected");
         bind(mob, id);
         player.level().addFreshEntity(mob);
         GeoMod.LOGGER.info("[PNJ] identité {} créée par {}", id, player.getName().getString());
@@ -201,7 +203,7 @@ final class Npcs {
     private int bind(Mob mob, String id) {
         Persona p = settings.personas.get(id);
         if (p == null) return 0;
-        new ArrayList<>(mob.getTags()).stream().filter(tag -> tag.startsWith(TAG)).forEach(mob::removeTag);
+        new ArrayList<>(mob.entityTags()).stream().filter(tag -> tag.startsWith(TAG)).forEach(mob::removeTag);
         mob.addTag(TAG + id);
         mob.setCustomName(Component.literal(p.name() + " · " + p.role()));
         mob.setCustomNameVisible(true);
@@ -210,7 +212,7 @@ final class Npcs {
     }
 
     private Persona persona(Mob mob) {
-        return mob.getTags().stream().filter(tag -> tag.startsWith(TAG))
+        return mob.entityTags().stream().filter(tag -> tag.startsWith(TAG))
                 .map(tag -> settings.personas.get(tag.substring(TAG.length()))).filter(java.util.Objects::nonNull)
                 .findFirst().orElse(null);
     }

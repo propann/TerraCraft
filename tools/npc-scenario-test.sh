@@ -50,11 +50,21 @@ start_game() {
   return 1
 }
 cmd() { echo "$1" >&"$TEST_INPUT"; sleep "${2:-1}"; }
+spawn_player() {
+  cmd 'player Alice spawn at 0 201 0'
+  for _ in $(seq 30); do
+    grep -qi 'alice\[local\] logged in' "$1" && return 0
+    kill -0 "$TEST_SERVER_PID" 2>/dev/null || break
+    sleep 1
+  done
+  tail -40 "$1"
+  return 1
+}
 
 start_game npc.log
 cmd 'forceload add -16 -16 16 16' 3
 cmd 'fill -8 200 -8 8 200 8 minecraft:stone' 2
-cmd 'player Alice spawn at 0 201 0' 5
+spawn_player npc.log
 cmd 'gamemode survival Alice'
 cmd 'execute as Alice at Alice run pnj creer lea'
 cmd 'execute as Alice at Alice run pnj dire BONJOUR' 5
@@ -68,7 +78,7 @@ stop_test_server 90
 cleanup_test_server
 
 start_game npc-restart.log
-cmd 'player Alice spawn at 0 201 0' 5
+spawn_player npc-restart.log
 cmd 'execute as Alice at Alice run pnj dire RETOUR' 5
 cmd 'execute as Alice at Alice run pnj reclamer'
 stop_test_server 90
