@@ -114,6 +114,11 @@ Lancer le scénario depuis un checkout complet, avec Java 25 et l'accès aux
 téléchargements Fabric/Modrinth. Le dossier doit être vide ou déjà réservé aux tests.
 Un essai avec le modèle réellement choisi reste nécessaire avant activation en production.
 
+La publication de la 0.40 suit la procédure du dépôt : contrôles au vert, tag de
+version, pack client régénéré par la CI puis réalignement de `mods/` et du pack
+avec `tools/sync_client_mods.py`. Cette branche prépare le code ; aucun tag ni
+déploiement Falix n'est effectué pendant son développement.
+
 Pour arrêter les appels IA, passer `ai_enabled` à `false` puis `/pnj recharger`.
 Pour retirer une identité d'un mob, retirer son étiquette avec `/tag` ; ses
 échanges restent dans le fichier de mémoire jusqu'à une suppression administrée.

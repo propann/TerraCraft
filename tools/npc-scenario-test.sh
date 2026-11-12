@@ -75,6 +75,7 @@ cmd 'forceload add -16 -16 16 16' 3
 cmd 'fill -8 200 -8 8 200 8 minecraft:stone' 2
 spawn_player npc.log
 cmd 'gamemode survival Alice'
+cmd 'execute as Alice run argent'
 cmd 'execute as Alice at Alice run pnj creer lea'
 cmd 'execute as Alice at Alice run pnj dire BONJOUR' 5
 cp world/terracraft_geo/pnj-memoires.json first-dialogue.json
@@ -118,5 +119,6 @@ check('PNJ_SERVEUR_DISPONIBLE' in log, 'serveur actif après expiration du déla
 check(saved['quest'] in {q['quest_id'] for q in requests[-1]['available_quests']}, 'contrat conservé choisi parmi les contrats autorisés')
 check('contrat:invente' not in json.dumps(memory), 'contrat inventé jamais persisté')
 balances = json.loads((data/'balances.json').read_text())
-check(sum(balances.values()) == 1000, 'réclamation prématurée répétée : aucun crédit ajouté')
+check(len(balances) == 1 and sum(balances.values()) == 1000,
+      f'réclamation prématurée répétée : aucun crédit ajouté (solde total : {sum(balances.values())})')
 PY
