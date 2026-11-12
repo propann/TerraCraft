@@ -61,9 +61,10 @@ Les fichiers `console.log` et `scenario.log` restent dans le dossier pour diagno
 
 ## État de vérification du lot
 
-- Contrôles locaux : syntaxe Bash, neuf régressions du lanceur, lecture YAML et espaces.
-- Compilation et scénario Minecraft : à confirmer par la CI de la PR ; le réseau du
-  terminal d'audit ne permet pas le téléchargement du dépôt et des dépendances.
+- Contrôles locaux : syntaxe Bash, ShellCheck, neuf régressions du lanceur, lecture YAML et espaces.
+- Compilation et scénario Minecraft : consulter le résultat de la CI pour le commit
+  concerné. Ils n'ont pas été exécutés localement : le réseau du terminal d'audit ne
+  permet pas le téléchargement du dépôt et des dépendances.
 - Interface et ressenti : à tester avec de vrais clients ; aucun test simulé ne les remplace.
 - Production Falix : aucun déploiement réalisé lors de la préparation du lot.
 

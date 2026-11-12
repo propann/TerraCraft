@@ -7,6 +7,8 @@ prepare_test_workdir() {
     echo "ÉCHEC : fournir un JAR existant en premier argument." >&2
     return 1
   fi
+  # Valeur renvoyée au script appelant après validation.
+  # shellcheck disable=SC2034
   JAR="$(realpath "$1")"
   WORK="${2:-$(mktemp -d)}"
   mkdir -p "$WORK"
