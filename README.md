@@ -53,8 +53,14 @@ raffinerie… puis tu construis ton vaisseau et tu pars pour l'orbite, la Lune e
 Le pack installe Fabric, les mods et les cartes Xaero. Autres méthodes (launcher officiel, installation à la main) :
 **[REJOINDRE.md](REJOINDRE.md)** et le dossier **[`mods/`](mods/LISEZMOI.md)**, toujours aligné sur la dernière version.
 
-**Une fois en jeu :** choisis ta ville sur la carte du monde · `O` menu et catalogue · `J` combinaison spatiale ·
-`/aide` pour tout le reste · `/signaler` si quelque chose cloche.
+**Première arrivée dans le monde :**
+
+1. Rejoins le serveur avec le pack TerraCraft. La carte du monde s’ouvre automatiquement ; tu restes spectateur pendant le choix.
+2. Zoome vers la région ou la ville où tu veux commencer, clique sur un point, puis confirme.
+3. Reste connecté le temps que le serveur prépare le relief, les rues et les bâtiments. Tu es ensuite déposé au-dessus du sol en chute lente.
+4. Tu reçois pain, torches, épée, boussole et le journal TERRA EXODUS. Le point choisi devient ton point de réapparition.
+
+Si la carte ne s’ouvre pas, vérifie que tu as lancé l’instance TerraCraft avec Fabric. Le parcours complet est dans **[Bien démarrer](docs/entree-en-jeu.md)**.
 
 ## 📜 Règles
 
@@ -69,7 +75,7 @@ Les mêmes règles s'affichent en jeu à la première connexion et avec `/regles
 
 ## 🛰️ Où en est le projet
 
-**Version 0.38** : nouveau monde à l'échelle de Paris, vaisseaux construits, catalogue, élection du maire.
+**Version 0.41.0** : TERRA EXODUS, cinq actes et 19 quêtes, journal évolutif, contacts narratifs et restauration coopérative d’une région terrestre.
 Chaque version passe une batterie de tests avant d'arriver sur le serveur :
 
 - **92 vérifications** jouées par de faux joueurs sur un vrai serveur (villes, économie, combats, industrie, vols
@@ -77,8 +83,7 @@ Chaque version passe une batterie de tests avant d'arriver sur le serveur :
 - contrôle de **chaque objet** (traductions, textures, description, recette valide) ;
 - mesures de génération sur des lieux réels (Paris, La Défense, Berlin, la frontière franco-espagnole…).
 
-**Prochaines étapes** : bâtiments encore plus fidèles, lois municipales votées, vaisseaux qui pivotent en vol,
-et peut-être des habitants qui parlent grâce à une IA française. Le détail : **[feuille de route](docs/feuille-de-route.md)**.
+**Prochaines étapes** : essais en jeu à plusieurs, amélioration progressive des bâtiments et de l’interface, équilibrage de la campagne. Le détail : **[feuille de route](docs/feuille-de-route.md)**.
 
 ## ⭐ Suivre l'aventure
 

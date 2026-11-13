@@ -34,7 +34,22 @@ Le dossier [`mods/`](mods/LISEZMOI.md) contient les mods du client ; son `LISEZM
 Réimporte le pack (méthode 1) ou relance l'installeur (méthode 2). **Connexion refusée** avec « mods différents » ou
 « registres » : ton pack n'a pas la version du serveur.
 
-## Une fois en jeu
+## Première entrée dans le monde
 
-Choisis ton point de départ sur la carte du monde réel, puis touche **O** pour le menu (carte, missions, marché,
-carte des étoiles…), **J** pour la combinaison spatiale, `/aide` pour le reste. Un souci : `/signaler <message>`.
+1. Depuis **Multijoueur**, rejoins TerraCraft avec l’instance et la version du pack.
+2. À ta première connexion, attends l’ouverture de la carte. Tu restes spectateur jusqu’à la confirmation de ton point de départ.
+3. Zoome vers la région, la ville ou le quartier souhaité, clique sur un point puis confirme.
+4. Reste connecté pendant la préparation du relief, des rues et des bâtiments. Le serveur cherche un emplacement praticable et te dépose en chute lente.
+5. Tu reçois ton kit de départ et ton journal TERRA EXODUS. Le lieu choisi devient ton point de réapparition.
+
+Le choix de départ ne se présente qu’à la première connexion. Si la carte n’apparaît pas, vérifie que tu as lancé le pack TerraCraft avec Fabric, et non Minecraft vanilla.
+
+## Tes premiers pas
+
+- `/tuto` : les premières étapes de survie.
+- `/exodus` : objectifs de campagne ; `/exodus livre` : récupérer ou actualiser le journal.
+- `O` : menu TerraCraft et catalogue ; `J` : combinaison spatiale.
+- `/aide depart` : parcours d’arrivée ; `/aide` : aide par thème.
+- `/regles` : règles ; `/signaler <message>` : signaler un souci.
+
+Le parcours détaillé est dans [docs/entree-en-jeu.md](docs/entree-en-jeu.md).

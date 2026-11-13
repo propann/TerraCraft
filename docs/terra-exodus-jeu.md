@@ -1,20 +1,14 @@
 # Jouer à TERRA EXODUS
 
-Version proposée : **0.41.0**, PR [#7](https://github.com/propann/TerraCraft/pull/7),
-à intégrer après les PR de [fiabilisation #4](https://github.com/propann/TerraCraft/pull/4)
-et de [PNJ #5](https://github.com/propann/TerraCraft/pull/5).
-Aucun déploiement automatique n’est effectué depuis cette branche. Après réussite des tests, le JAR est téléchargeable dans l’artefact `terracraft-geo-pr-7-<run>` de l’exécution GitHub Actions, conservé quatorze jours.
+Version de référence : **0.41.0** (PR [#7](https://github.com/propann/TerraCraft/pull/7), intégrée à `main`). Cette fiche décrit la campagne en jeu et son parcours d’arrivée. La branche `falix` reçoit les versions après validation de la CI.
+
+Le parcours d’arrivée et la présentation du journal sont détaillés dans [Bien démarrer sur TerraCraft](entree-en-jeu.md) et [Rejoindre le serveur](../REJOINDRE.md).
 
 ## Première arrivée et livre
 
-Après le choix géographique, le kit initial comprend pain, torches, épée,
-boussole et **TERRA EXODUS — Les Vestiges d’Orion**. `Arrival.welcome` remet le
-livre à la première arrivée seulement. Les conseils techniques de l’ancien carnet
-sont conservés, avec une pagination limitée à treize lignes courtes par page.
+À sa première connexion, le joueur ouvre la carte et choisit son point de départ. Il reste spectateur jusqu’à la confirmation ; le serveur prépare ensuite le terrain, le dépose en chute lente et lui donne le kit : pain, torches, épée en pierre, boussole et **TERRA EXODUS — Les Vestiges d’Orion**.
 
-Le livre contient le prologue de 2089, les objectifs accessibles et l’aide de
-survie. Les pages narratives des actes ultérieurs apparaissent avec la progression.
-Les personnages ne connaissent pas l’origine exacte de la Contamination.
+Le journal explique ces étapes avant son prologue de 2089. Il réunit les consignes de survie, les objectifs disponibles et les commandes de campagne. Les interludes et la présentation des personnages apparaissent selon l’acte atteint. La pagination reste limitée à treize lignes courtes par page. Les personnages ne connaissent pas l’origine exacte de la Contamination.
 
 `/exodus livre` récupère le journal perdu ou actualise l’exemplaire identifié
 à son propriétaire dans l’inventaire. Cette commande ne redonne pas le kit initial.

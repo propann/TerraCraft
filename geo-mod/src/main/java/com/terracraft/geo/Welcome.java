@@ -143,9 +143,16 @@ final class Welcome {
         String lastSeen = Progression.get().lastVersion(player);
         Progression.get().setLastVersion(player, version);
         if (!returning) {
-            // Nouveau joueur : la carte de départ s'ouvre ; une ligne suffit en attendant.
-            player.sendSystemMessage(Component.literal("✦ Bienvenue sur TerraCraft, " + player.getName().getString()
-                    + " ! Choisis ton point de départ sur la carte du monde réel. Ton journal TERRA EXODUS t’attend dans le kit de départ.").withStyle(ChatFormatting.GOLD));
+            // Le joueur confirme son lieu avant son arrivée dans le monde.
+            player.sendSystemMessage(Component.literal("✦ TERRA EXODUS · PREMIÈRE ARRIVÉE")
+                    .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+            player.sendSystemMessage(Component.literal("Bienvenue, " + player.getName().getString() + ". La carte du monde va s’ouvrir ; tu restes spectateur le temps de choisir.")
+                    .withStyle(ChatFormatting.WHITE));
+            player.sendSystemMessage(Component.literal("Zoome vers un lieu, clique sur ton point de départ, puis confirme. Le serveur prépare la zone avant de te déposer en chute lente.")
+                    .withStyle(ChatFormatting.GRAY));
+            player.sendSystemMessage(button("[Premiers pas]", "/aide depart", ChatFormatting.AQUA)
+                    .append(Component.literal("  ·  ").withStyle(ChatFormatting.DARK_GRAY))
+                    .append(button("[Règles]", "/regles", ChatFormatting.GOLD)));
             return;
         }
         player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 50, 20));

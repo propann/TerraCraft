@@ -1,46 +1,40 @@
-# Entrée en jeu : choix du point de départ
+# Bien démarrer sur TerraCraft
 
-## Règle principale
+Version de référence : **0.41.0**. Ce guide décrit le parcours réel, de l’installation du client à la première sortie dans le monde.
 
-Minecraft est le seul point d'entrée. Aucun navigateur ni formulaire externe ne sera nécessaire pour jouer.
+## Avant la connexion
 
-## Parcours joueur
+Utilise le pack client TerraCraft fourni dans [REJOINDRE.md](../REJOINDRE.md), avec Fabric et la même version que le serveur. Le mod client est nécessaire pour afficher la carte de départ. Sans lui, le serveur le signale et ne peut pas ouvrir l’écran de choix.
 
-```text
-Lancement du client Minecraft Fabric
-  → connexion au serveur
-  → écran « Choisir mon point de départ »
-  → carte mondiale interactive
-  → zoom vers pays / ville / rue
-  → clic sur une position
-  → aperçu de la zone et météo
-  → confirmation
-  → import des données
-  → génération des chunks
-  → arrivée du joueur dans le monde
-```
+## Choisir son point de départ
 
-## Architecture technique
+1. Connecte-toi au serveur. À ta première arrivée, la carte du monde s’ouvre automatiquement. Tu restes en mode spectateur pendant ce choix ; tu n’es pas encore déposé dans le monde.
+2. Zoome vers la région, la ville ou le quartier où tu veux commencer. Clique sur le point de départ souhaité.
+3. Confirme le point. Le serveur vérifie les coordonnées et prépare le relief, les rues et les bâtiments autour de la zone. Reste connecté pendant ce chargement.
+4. Le serveur cherche un emplacement praticable hors de l’eau et des bâtiments, puis te dépose au-dessus du sol en chute lente. Le titre « Jour 1 » marque ton arrivée.
+5. Tu reçois le kit de départ : quatre pains, huit torches, une épée en pierre, une boussole et le journal TERRA EXODUS. Le point choisi devient aussi ton point de réapparition.
 
-- Un mod Fabric client ouvre une `Screen` Minecraft dédiée.
-- La carte est rendue dans cette interface ; les contrôles de zoom et de sélection restent utilisables à la souris.
-- Le client envoie au serveur uniquement le point confirmé et les paramètres nécessaires.
-- Le serveur valide la position, récupère ou lit le cache cartographique, demande la météo et lance la génération.
-- La page web actuelle reste un outil de test local pour vérifier les API ; elle ne doit pas être requise par le joueur.
+Le choix est enregistré avec ton compte. Aux connexions suivantes, tu reviens dans le monde au lieu de revoir la carte de départ.
 
-## Parcours complet (0.13, 7 octobre 2026)
+## Tes premiers pas
 
-1. **Liste des serveurs** : icône TerraCraft (installée par le mod si le serveur n'en a pas) et MOTD sur deux lignes
-   avec la version. Un MOTD personnalisé est respecté.
-2. **Connexion d'un nouveau joueur** : message de bienvenue, carte du monde ouverte (spectateur en attendant), recherche
-   ou clic sur un lieu ; le serveur précharge le relief, les rues et les bâtiments, cherche la terre ferme hors des
-   bâtiments et largue le joueur (chute lente), avec le titre « Jour 1 ».
-3. **Kit de départ** : pain, torches, épée en pierre, boussole, carnet de survie (touches, véhicules, armes, espace,
-   stations, plans).
-4. **Premiers pas** : six objectifs récompensés affichés à droite de l'écran (`/tuto`).
-5. **Connexions suivantes** : titre « Bon retour », solde, contrats du jour, ville, métier, nouveautés depuis la
-   dernière version vue, boutons Missions / Ma ville / Marché / Aide.
-6. **Liste des joueurs (Tab)** : en-tête TerraCraft, joueurs en ligne, version, raccourcis.
+- `/tuto` : suis les premières étapes de survie.
+- `/exodus` : consulte les objectifs de la campagne.
+- `/exodus livre` : récupère ou actualise ton journal.
+- `/aide depart` : revois les étapes d’arrivée ; `/aide survie` et `/aide exodus` ouvrent les aides correspondantes.
+- `O` : ouvre le menu TerraCraft et son catalogue.
+- `/regles` : consulte les règles du serveur.
 
-Le choix du point de départ est enregistré dans `<monde>/terracraft_geo/start_points.json`. Reste à faire : aperçu
-météo avant confirmation.
+Le journal commence par les consignes de départ, puis révèle ses récits au fil des actes. Les objectifs affichés dépendent de ta progression réelle.
+
+## Si la carte ne s’ouvre pas
+
+Vérifie que tu as lancé l’instance TerraCraft avec Fabric, et non un profil Minecraft vanilla. Le pack client doit correspondre à la version indiquée dans la liste des serveurs. Si le chargement reste bloqué, signale-le avec `/signaler` et précise le lieu choisi.
+
+## Connexions suivantes
+
+Le serveur affiche ton accueil, ton solde, les contrats du jour, ta ville et ton métier, ainsi que les nouveautés depuis ta dernière visite. Le menu `O`, `/missions` et `/aide` restent disponibles à tout moment.
+
+## Référence d’implémentation
+
+Le parcours est géré par `StartPoints`, `Welcome` et `Arrival` dans `geo-mod`. La carte n’est requise que pour un compte sans choix enregistré. La sélection est validée par le serveur ; les coordonnées non sollicitées ou invalides sont refusées.
