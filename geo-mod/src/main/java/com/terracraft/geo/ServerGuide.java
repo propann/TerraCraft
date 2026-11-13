@@ -29,6 +29,13 @@ final class ServerGuide {
     private static final java.util.Map<String, java.util.List<Entry>> THEMES = new java.util.LinkedHashMap<>();
 
     static {
+        THEMES.put("depart", java.util.List.of(
+                new Entry("", "", "1. Lance le pack TerraCraft avec Fabric. Sans le mod client, la carte ne peut pas s’ouvrir."),
+                new Entry("", "", "2. À la première connexion, attends l’ouverture de la carte ; tu restes spectateur pendant ton choix."),
+                new Entry("", "", "3. Zoome vers un pays, une ville ou un quartier. Clique sur le point où tu veux commencer."),
+                new Entry("", "", "4. Confirme. Le serveur prépare relief, rues et bâtiments ; reste connecté pendant le chargement."),
+                new Entry("", "", "5. Tu es déposé au-dessus d’un endroit praticable, en chute lente. Le kit et le journal arrivent avec toi."),
+                new Entry("[Journal]", "/exodus", "Tes premières quêtes ; /exodus livre pour récupérer le carnet.")));
         THEMES.put("exodus", java.util.List.of(
                 new Entry("[Journal]", "/exodus", "Les 19 quêtes des Vestiges d’Orion, en cinq actes"),
                 new Entry("[Livre]", "/exodus livre", "Récupérer ou actualiser le livre reçu au premier départ"),
