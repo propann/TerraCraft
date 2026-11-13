@@ -1,0 +1,5 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": ["terracraft_geo:lunar_crystal", "terracraft_geo:lunar_crystal", "terracraft_geo:helium3_shard", "terracraft_geo:titanium_ingot"],
+  "result": {"id": "terracraft_geo:alien_artifact", "count": 1}
+}

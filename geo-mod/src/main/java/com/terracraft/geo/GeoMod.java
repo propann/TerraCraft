@@ -79,6 +79,7 @@ public final class GeoMod implements ModInitializer {
     private static final SpaceRace RACE = new SpaceRace(AUCTION_HOUSE);
     private static final Logistics LOGISTICS = new Logistics(TOWNS);
     private static final Contracts CONTRACTS = new Contracts(AUCTION_HOUSE);
+    private static final Npcs NPCS = new Npcs(CONTRACTS, TOWNS);
     private static final Claims CLAIMS = new Claims();
     private static final SupplyDrops SUPPLY = new SupplyDrops();
     private static final Convoys CONVOYS = new Convoys();
@@ -247,6 +248,26 @@ public final class GeoMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        ExodusCampaign.get().wire(TOWNS, AUCTION_HOUSE);
+        ServerLifecycleEvents.SERVER_STARTED.register(ExodusCampaign.get()::load);
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> ExodusCampaign.get().save());
+        ServerTickEvents.END_SERVER_TICK.register(ExodusCampaign.get()::tick);
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> ExodusCampaign.get().register(dispatcher));
+        PlayerBlockBreakEvents.AFTER.register((level, player, pos, state, entity) -> {
+            if (player instanceof ServerPlayer sp && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                if (state.is(ModBlocks.LUNAR_CRYSTAL)) ExodusCampaign.get().fact(sp,"lunar_crystal",1);
+            }
+        });
+        UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            if (player instanceof ServerPlayer sp && level.getBlockState(hit.getBlockPos()).is(ModBlocks.MARKET_STALL))
+                ExodusCampaign.get().fact(sp,"market",1);
+            return InteractionResult.PASS;
+        });
+        NPCS.wire();
+        ServerLifecycleEvents.SERVER_STARTED.register(NPCS::load);
+        ServerLifecycleEvents.SERVER_STOPPING.register(server -> NPCS.stop());
+        ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> NPCS.onLeave(handler.player));
+        CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> NPCS.register(dispatcher));
         ModContent.init();
         ModBlocks.init();
         com.terracraft.geo.content.ShipBlocks.init();
@@ -433,6 +454,7 @@ public final class GeoMod implements ModInitializer {
             if (source.getEntity() instanceof ServerPlayer killer) {
                 Progression.get().onKill(entity, killer);
             }
+            ExodusCampaign.get().onDeath(entity, source);
             Bosses.onDeath(entity, source, AUCTION_HOUSE);
             if (entity instanceof ServerPlayer victim && source.getEntity() instanceof ServerPlayer killer) {
                 BOUNTIES.onPlayerKilled(victim, killer);
@@ -791,3 +813,4 @@ public final class GeoMod implements ModInitializer {
         LOGGER.info("TerraCraft Geo chargé : générateur terracraft_geo:earth et carte du monde prêts.");
     }
 }
+

@@ -1,5 +1,8 @@
 # Feuille de route TerraCraft
 
+Suivi technique au 12 novembre 2026 : [fiabilisation](fiabilisation.md)
+(CI, scénarios, transactions, sauvegardes et critères de validation).
+
 Objectif : un serveur survie multijoueur sur la Terre réelle après la chute de l'humanité — exploration des villes
 réelles, commerce, villes de joueurs, véhicules, danger, et une progression qui mène jusqu'aux stations lunaires et à
 Mars.
@@ -279,3 +282,4 @@ lisibles, espace, dette technique, ouverture.
 - Après la release : `python3 tools/sync_client_mods.py` met à jour `mods/` et `TerraCraft-client.mrpack` du dépôt, puis commit.
 - `docs/avancement.md` et cette feuille de route sont à jour.
 - Aucun système ne supprime silencieusement un objet, un crédit, une ville, une station ou un véhicule.
+

@@ -44,6 +44,7 @@ final class Industry {
     }
 
     private static InteractionResult use(ServerPlayer player, MachineBlockEntity machine, ItemStack stack, InteractionHand hand) {
+        ExodusCampaign.get().registerMachine(player, machine);
         if (machine.kind() == MachineKind.FUEL_PUMP && stack.is(IndustryBlocks.EMPTY_FUEL_CAN)) {
             FluidKind fluid = player.isShiftKeyDown() ? FluidKind.KEROSENE : FluidKind.GASOLINE;
             if (!draw(player.level(), machine, fluid, CAN)) {
@@ -217,6 +218,7 @@ final class Industry {
         int z = player.getBlockZ();
         int here = Oil.richness(x, z);
         if (here > 0) {
+            ExodusCampaign.get().fact(player, "oil", 1);
             player.sendOverlayMessage(Component.literal("⛽ Gisement sous tes pieds (richesse " + here + "/3) : pose une pompe à pétrole ici.")
                     .withStyle(ChatFormatting.GREEN));
             return;
@@ -235,3 +237,4 @@ final class Industry {
                 + " (richesse " + d.richness() + "/3)").withStyle(ChatFormatting.GOLD));
     }
 }
+

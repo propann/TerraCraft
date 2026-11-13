@@ -149,6 +149,10 @@ final class Economy {
         data = stored == null ? new Saved() : stored;
     }
 
+    com.google.gson.JsonObject snapshot() { return GSON.toJsonTree(data).getAsJsonObject(); }
+
+    void restore(com.google.gson.JsonObject json) { data = GSON.fromJson(json, Saved.class); }
+
     void save() {
         if (file == null) {
             return;
@@ -207,3 +211,4 @@ final class Economy {
         return Math.max(1, (price * LISTING_FEE_PER_MILLE + 999) / 1000);
     }
 }
+

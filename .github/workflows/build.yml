@@ -6,14 +6,21 @@ on:
   push:
     branches: [main]
     tags: ['v*']
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: write
 
+# Les PR devenues obsolètes sont annulées ; un déploiement commencé va au bout.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
     runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
         with:
@@ -28,6 +35,11 @@ jobs:
         with:
           gradle-version: '9.7.1'
 
+      - name: Scripts des serveurs de test
+        run: |
+          bash -n tools/test-server-lib.sh tools/smoke_server.sh tools/scenario_test.sh tools/geo_bench.sh
+          python3 -m unittest discover -s tools/tests -v
+
       - name: Ressources complètes (traductions, modèles, textures)
         run: python3 tools/check_assets.py
 
@@ -38,12 +50,54 @@ jobs:
         working-directory: geo-mod
         run: gradle --no-daemon build
 
-      # Démarre un vrai serveur avec le jar compilé et les mods figés : si le serveur ne
-      # démarre pas (données invalides, crash au chargement), rien n'est déployé sur Falix.
-      - name: Test de démarrage du serveur
+      - name: Campagne et Noyau avec redémarrage
+        run: |
+          bash -n tools/campaign-scenario-test.sh
+          VERSION="$(sed -n 's/^mod_version=//p' geo-mod/gradle.properties)"
+          tools/campaign-scenario-test.sh "geo-mod/build/libs/terracraft-geo-$VERSION.jar" "$RUNNER_TEMP/terracraft-campaign"
+
+      - name: PNJ avec modèle simulé et redémarrage
+        run: |
+          bash -n tools/npc-scenario-test.sh
+          VERSION="$(sed -n 's/^mod_version=//p' geo-mod/gradle.properties)"
+          tools/npc-scenario-test.sh "geo-mod/build/libs/terracraft-geo-$VERSION.jar" "$RUNNER_TEMP/terracraft-npc"
+
+      # Le scénario inclut le démarrage ; toute erreur bloque Falix et les releases.
+      - name: Scénario multijoueur complet
         run: |
           VERSION="$(sed -n 's/^mod_version=//p' geo-mod/gradle.properties)"
-          tools/smoke_server.sh "geo-mod/build/libs/terracraft-geo-$VERSION.jar" "$RUNNER_TEMP/smoke"
+          tools/scenario_test.sh "geo-mod/build/libs/terracraft-geo-$VERSION.jar" "$RUNNER_TEMP/terracraft-test"
+
+      - name: Journaux du serveur en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: journaux-serveur-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/terracraft-test/console.log
+            ${{ runner.temp }}/terracraft-test/scenario.log
+            ${{ runner.temp }}/terracraft-test/logs/*.log
+            ${{ runner.temp }}/terracraft-test/crash-reports/*.txt
+            ${{ runner.temp }}/terracraft-campaign/*.log
+            ${{ runner.temp }}/terracraft-campaign/*.json
+            ${{ runner.temp }}/terracraft-campaign/world/terracraft_geo/*.json
+            ${{ runner.temp }}/terracraft-npc/*.log
+            ${{ runner.temp }}/terracraft-npc/logs/*.log
+            geo-mod/build/test-results/test/*.xml
+            geo-mod/build/reports/tests/test/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Mod à essayer pour cette PR
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: terracraft-geo-pr-${{ github.event.pull_request.number }}-${{ github.run_id }}
+          path: |
+            geo-mod/build/libs/terracraft-geo-*.jar
+            !geo-mod/build/libs/*-sources.jar
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Identité Git du robot
         run: |
@@ -72,3 +126,4 @@ jobs:
           gh release create "$GITHUB_REF_NAME" dist/* --title "TerraCraft ${GITHUB_REF_NAME#v}" \
             --notes "Joueurs : lancer l'installeur (voir installer/README.md) ou importer TerraCraft-client.mrpack dans Prism / Modrinth App." \
             || gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+

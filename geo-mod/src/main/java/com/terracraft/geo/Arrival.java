@@ -45,7 +45,7 @@ final class Arrival {
             give(player, new ItemStack(Items.TORCH, 8));
             give(player, new ItemStack(Items.STONE_SWORD));
             give(player, new ItemStack(Items.COMPASS));
-            give(player, guide());
+            ExodusCampaign.get().giveBook(player);
         }
     }
 
@@ -56,7 +56,9 @@ final class Arrival {
     }
 
     /** Carnet de survie : ce qu'il faut savoir pour jouer, sans quitter le jeu. */
-    static ItemStack guide() {
+    static ItemStack guide() { return guide(List.of()); }
+
+    static ItemStack guide(List<String> introduction) {
         List<String> pages = List.of(
                 "CARNET DE SURVIE\n\nLe monde a redémarré sans humains. Les villes sont réelles : rues, ponts et immeubles "
                         + "suivent la vraie carte.\n\nLes ruines cachent du butin… et des monstres.",
@@ -112,10 +114,13 @@ final class Arrival {
                         + "Maintiens SAUT en l'air pour monter.\n30 s de poussée ; clic droit avec un bidon d'essence pour le recharger.",
                 "TOUCHES\n\nO : menu TerraCraft\nJ : combinaison spatiale\nV : coffre du véhicule\nK : fiche de personnage\nM : carte et claims\n"
                         + "' : menu des claims\n\n/tuto : premiers pas\n/terracraft ou : position réelle");
-        List<Filterable<Component>> content = pages.stream().map(p -> Filterable.passThrough((Component) Component.literal(p))).toList();
+        java.util.ArrayList<String> sections = new java.util.ArrayList<>(introduction);
+        sections.addAll(pages);
+        List<Filterable<Component>> content = BookPages.paginate(sections).stream().map(p -> Filterable.passThrough((Component) Component.literal(p))).toList();
         ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
         book.set(DataComponents.WRITTEN_BOOK_CONTENT,
-                new WrittenBookContent(Filterable.passThrough("Carnet de survie"), "TerraCraft", 0, content, true));
+                new WrittenBookContent(Filterable.passThrough("TERRA EXODUS"), "TerraCraft", 0, content, true));
         return book;
     }
 }
+

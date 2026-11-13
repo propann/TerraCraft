@@ -1,39 +1,33 @@
 #!/usr/bin/env bash
-# Test de scénario : deux faux joueurs (mod Carpet, uniquement pour ce test) jouent une partie
+# Test de scénario : des faux joueurs (mod Carpet, uniquement pour ce test) jouent une partie
 # courte sur un serveur neuf, puis on vérifie les données : villes, économie (comptoir, hôtel des
 # ventes, frais, trésorerie), combinaison spatiale et respiration sur la Lune.
 #
 # Usage : tools/scenario_test.sh <terracraft-geo.jar> [dossier de travail]
-# Prérequis : un dossier préparé par tools/smoke_server.sh (même dossier de travail).
+# Le dossier doit être vide ou réservé aux tests ; le test de démarrage le prépare.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-JAR="$(realpath "$1")"
-WORK="${2:-$(mktemp -d)}"
+# shellcheck source=test-server-lib.sh
+source "$ROOT/tools/test-server-lib.sh"
+prepare_test_workdir "${1:-}" "${2:-}"
 CARPET_URL="https://cdn.modrinth.com/data/TQTTVgYE/versions/yt9oDFOj/fabric-carpet-26.3%2Bv260915.jar"
 
-rm -rf "$WORK/world"
-"$ROOT/tools/smoke_server.sh" "$JAR" "$WORK" > "$WORK/smoke.out" 2>&1 || { cat "$WORK/smoke.out"; exit 1; }
+"$ROOT/tools/smoke_server.sh" "$JAR" "$WORK"
 cd "$WORK"
-# Le serveur du test de démarrage peut encore écrire le monde : on attend qu'il soit arrêté.
-for _ in $(seq 60); do
-  busy=0
-  for pid in $(pgrep -x java || true); do
-    [ "$(readlink "/proc/$pid/cwd" 2>/dev/null)" = "$(pwd -P)" ] && busy=1
-  done
-  [ "$busy" = 0 ] && break
-  sleep 1
-done
+# smoke_server.sh ne réussit qu'après l'arrêt effectif de son processus Java.
 rm -rf world
 curl -fsSL -o mods/carpet.jar "$CARPET_URL"
-trap 'rm -f "$WORK/mods/carpet.jar"; pkill -P $$ 2>/dev/null || true' EXIT
-
-: > console.in
-tail -f console.in | java -Xmx1536M -jar server.jar nogui > scenario.log 2>&1 &
-for _ in $(seq 600); do grep -q "Done (" scenario.log && break; sleep 1; done
+start_test_server 1536M scenario.log
+trap 'cleanup_test_server; rm -f "$WORK/mods/carpet.jar"' EXIT
+for _ in $(seq 600); do
+  grep -q "Done (" scenario.log && break
+  kill -0 "$TEST_SERVER_PID" 2>/dev/null || break
+  sleep 1
+done
 grep -q "Done (" scenario.log || { echo "ÉCHEC : le serveur ne démarre pas"; tail -30 scenario.log; exit 1; }
 
-cmd() { echo "$1" >> console.in; sleep "${2:-1}"; }
+cmd() { echo "$1" >&"$TEST_INPUT"; sleep "${2:-1}"; }
 # Plateforme en hauteur : le point 0, 0 de la Terre réelle est en plein Atlantique.
 cmd "forceload add -64 -64 63 63" 6
 cmd "fill -60 200 -60 60 200 60 minecraft:stone" 3
@@ -322,21 +316,14 @@ cmd "execute as Alice run ville voter Bob"
 cmd "execute as Bob run ville voter Bob"
 cmd "execute as Dan run ville voter Alice" 1
 cmd "execute as Alice run ville election clore" 2
-cmd "stop" 2
 # Laisser le serveur finir sa sauvegarde avant de quitter (sinon le monde reste à moitié écrit).
-for _ in $(seq 60); do
-  pgrep -f "server.jar nogui" >/dev/null || break
-  alive=0
-  for pid in $(pgrep -x java || true); do
-    [ "$(readlink "/proc/$pid/cwd" 2>/dev/null)" = "$(pwd -P)" ] && alive=1
-  done
-  [ "$alive" = 0 ] && break
-  sleep 1
-done
+stop_test_server "${STOP_TIMEOUT:-90}"
 
-python3 - "$WORK" <<'EOF'
+python3 - "$WORK" "$ROOT/tools" <<'EOF'
 import json, re, sys
 from pathlib import Path
+sys.path.insert(0, sys.argv[2])
+from check_scenario_log import check_log
 work = Path(sys.argv[1])
 data = work / "world" / "terracraft_geo"
 log = (work / "scenario.log").read_text(errors="replace")
@@ -497,7 +484,7 @@ ping = json.loads((work / "ping.json").read_text() or "{}")
 check("TerraCraft" in ping.get("motd", "") and "0." in ping.get("motd", ""), f"MOTD de la liste des serveurs ({ping.get('motd', '')!r})")
 check(ping.get("icon") is True, "icône du serveur installée et servie")
 check((work / "server-icon.png").exists(), "server-icon.png écrit à la racine du serveur")
-check(not any("Exception" in line and "spark" not in line for line in log.splitlines()),
-      "aucune exception dans le journal (hors spark)")
+check(check_log(log), "aucune exception inattendue dans le journal")
 sys.exit(1 if failures else 0)
 EOF
+

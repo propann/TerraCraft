@@ -209,6 +209,7 @@ public final class AsteroidChunkGenerator extends ChunkGenerator {
 
     @Override
     public void applyBiomeDecoration(WorldGenLevel level, ChunkAccess chunk, StructureManager structureManager) {
+        com.terracraft.geo.OrionSites.generate(level, chunk, true);
     }
 
     @Override
@@ -235,3 +236,4 @@ public final class AsteroidChunkGenerator extends ChunkGenerator {
         return 151;
     }
 }
+

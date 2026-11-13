@@ -49,6 +49,12 @@ public class MachineBlockEntity extends BlockEntity {
     private int growth;
     public static final int GROWTH_PER_HARVEST = 45;
     private int ticks;
+    private String telemetryOwner = "";
+    public String telemetryOwner() { return telemetryOwner; }
+    public boolean attribute(java.util.UUID player) {
+        if (telemetryOwner.isEmpty()) { telemetryOwner=player.toString();setChanged(); }
+        return telemetryOwner.equals(player.toString());
+    }
 
     public MachineBlockEntity(BlockPos pos, BlockState state) {
         super(IndustryBlocks.MACHINE_ENTITY, pos, state);
@@ -130,6 +136,7 @@ public class MachineBlockEntity extends BlockEntity {
             case OIL_PUMP -> {
                 int richness = Oil.richness(worldPosition.getX(), worldPosition.getZ());
                 if (power > 0 && richness > 0 && level.dimension() == net.minecraft.world.level.Level.OVERWORLD) {
+                    com.terracraft.geo.ExodusCampaign.get().machineFact(level, worldPosition, "pumping", 1);
                     add(FluidKind.CRUDE, PUMP_RATE * richness * Math.min(power, 2));
                 }
                 push(level, FluidKind.CRUDE);
@@ -140,6 +147,8 @@ public class MachineBlockEntity extends BlockEntity {
                         && amount(FluidKind.KEROSENE) + REFINE_KEROSENE <= kind().capacity) {
                     add(FluidKind.CRUDE, -REFINE_INPUT);
                     add(FluidKind.GASOLINE, REFINE_GASOLINE);
+                    com.terracraft.geo.ExodusCampaign.get().machineFact(level, worldPosition, "gasoline", REFINE_GASOLINE);
+                    com.terracraft.geo.ExodusCampaign.get().machineFact(level, worldPosition, "kerosene", REFINE_KEROSENE);
                     add(FluidKind.KEROSENE, REFINE_KEROSENE);
                 }
                 push(level, FluidKind.GASOLINE);
@@ -151,6 +160,8 @@ public class MachineBlockEntity extends BlockEntity {
                     net.minecraft.world.Container container = output(level);
                     if (container != null && insert(container, harvest(level))) {
                         growth = 0;
+                        if (level.dimension() == com.terracraft.geo.Space.MARS)
+                            com.terracraft.geo.ExodusCampaign.get().machineFact(level, worldPosition, "mars_harvest", 1);
                     }
                 }
                 setChanged();
@@ -318,6 +329,7 @@ public class MachineBlockEntity extends BlockEntity {
         for (FluidKind fluid : FluidKind.values()) {
             output.putInt(fluid.name(), amount(fluid));
         }
+        output.putString("TelemetryOwner",telemetryOwner);
         output.putInt("Power", power);
         output.putInt("Charge", charge);
         output.putInt("Growth", growth);
@@ -326,6 +338,7 @@ public class MachineBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+        telemetryOwner=input.getStringOr("TelemetryOwner","");
         fluids.clear();
         for (FluidKind fluid : FluidKind.values()) {
             int amount = input.getIntOr(fluid.name(), 0);
@@ -338,3 +351,4 @@ public class MachineBlockEntity extends BlockEntity {
         growth = input.getIntOr("Growth", 0);
     }
 }
+

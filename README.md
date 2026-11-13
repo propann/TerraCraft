@@ -90,6 +90,8 @@ et peut-être des habitants qui parlent grâce à une IA française. Le détail 
 
 | Document | Contenu |
 |---|---|
+| [`docs/pnj-intelligents.md`](docs/pnj-intelligents.md) | PNJ avec identités, mémoire et choix de contrats, connexion directe à Ollama ou Mistral |
+| [`docs/fiabilisation.md`](docs/fiabilisation.md) | Validation avant déploiement, contrôles reproductibles, transactions et sauvegardes à fiabiliser |
 | [`REJOINDRE.md`](REJOINDRE.md) | Rejoindre le serveur : pack, installeurs, installation à la main |
 | [`docs/commandes.md`](docs/commandes.md) | Toutes les touches et commandes (joueurs et administrateurs), journaux, fichiers de données |
 | [`docs/feuille-de-route.md`](docs/feuille-de-route.md) | Plan d'action, phases, ce qui est fait et la suite |
@@ -121,7 +123,8 @@ Compiler et installer en local : `geo-mod/build-mod.sh` (avec `CLIENT_MODS_DIR=�
 2. Tester : `tools/check_assets.py` (ressources, descriptions, catégories), `tools/check_recipes.py` (recettes),
    `tools/scenario_test.sh <jar>` (92 vérifications avec trois faux joueurs Carpet), `tools/geo_bench.sh`
    (génération) ; `tools/ping_server.py` montre ce que voit la liste des serveurs.
-3. Pousser sur `main` : la CI contrôle, compile, **démarre un vrai serveur** (`tools/smoke_server.sh`) puis met à jour
+3. Ouvrir une PR vers `main` : la CI contrôle, compile et joue le **scénario multijoueur complet**
+   (`tools/scenario_test.sh`, démarrage inclus). Après fusion sur `main`, les mêmes contrôles précèdent la mise à jour de
    la branche **`falix`** (copiée par Falix à la racine du serveur ; redémarrer le serveur ensuite).
 4. Si le client change (objets, écrans, réseau), pousser un tag `vX.Y.Z` : la CI publie une release avec le jar et
    `TerraCraft-client.mrpack`. Puis `python3 tools/sync_client_mods.py` réaligne `mods/` et le pack du dépôt.
@@ -130,3 +133,7 @@ Mods tiers : versions figées dans `tools/mods.lock.json`, identiques sur le ser
 Pour les mettre à jour : `python3 tools/install_mods.py --update-lock`, tester, puis commiter.
 
 <p align="center"><sub>Données cartographiques © contributeurs <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> (ODbL), tuiles <a href="https://openfreemap.org">OpenFreeMap</a>, relief AWS Terrain Tiles, météo <a href="https://open-meteo.com">Open-Meteo</a>. Minecraft est une marque de Mojang ; projet non officiel.</sub></p>
+
+
+Campagne : [TERRA EXODUS — Les Vestiges d’Orion](docs/univers/terra-exodus.md).
+Livret de départ et commandes : [guide de campagne](docs/terra-exodus-jeu.md).

@@ -87,7 +87,7 @@ final class Missions {
     }
 
     boolean hasClaimedAny(ServerPlayer player) {
-        return !claimed.getOrDefault(player.getUUID(), Set.of()).isEmpty();
+        return ExodusCampaign.get().hasCompletedAny(player) || !claimed.getOrDefault(player.getUUID(), Set.of()).isEmpty();
     }
 
     void register(CommandDispatcher<CommandSourceStack> dispatcher, AuctionHouse auctionHouse) {
@@ -101,6 +101,7 @@ final class Missions {
     }
 
     private int show(ServerPlayer player, AuctionHouse auctionHouse) {
+        ExodusCampaign.get().show(player);
         Set<String> done = claimed.computeIfAbsent(player.getUUID(), ignored -> new HashSet<>());
         if (contracts != null) {
             player.sendSystemMessage(Component.literal("✦ Contrats du jour").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
@@ -136,6 +137,7 @@ final class Missions {
     }
 
     private int claim(ServerPlayer player, String id, AuctionHouse auctionHouse) {
+        if (id.startsWith(ExodusQuests.PREFIX)) return ExodusCampaign.get().claim(player,id);
         if (id.startsWith(Contracts.PREFIX)) {
             return contracts != null && contracts.claim(player, id) ? 1 : 0;
         }
@@ -176,6 +178,8 @@ final class Missions {
             missions.add(json);
         }
         com.google.gson.JsonObject root = new com.google.gson.JsonObject();
+        root.add("campaign", ExodusCampaign.get().toJson(player));
+        root.addProperty("chapter", ExodusCampaign.get().chapter(player));
         root.add("missions", missions);
         root.add("contracts", contracts == null ? new com.google.gson.JsonArray() : contracts.toJson(player));
         Jobs.Job job = Jobs.of(player);
@@ -188,3 +192,4 @@ final class Missions {
         send(player);
     }
 }
+

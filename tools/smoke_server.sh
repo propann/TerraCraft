@@ -7,8 +7,9 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-JAR="$(realpath "$1")"
-WORK="${2:-$(mktemp -d)}"
+# shellcheck source=test-server-lib.sh
+source "$ROOT/tools/test-server-lib.sh"
+prepare_test_workdir "${1:-}" "${2:-}"
 TIMEOUT="${SMOKE_TIMEOUT:-600}"
 MC_VERSION="26.3"
 LOADER_VERSION="0.19.5"
@@ -27,6 +28,7 @@ cp "$ROOT/serveur-local/config/openpartiesandclaims-server.toml" config/
 echo "eula=true" > eula.txt
 cat > server.properties <<'EOF'
 online-mode=false
+server-ip=127.0.0.1
 server-port=25599
 query.port=25599
 management-server-port=0
@@ -34,34 +36,21 @@ view-distance=3
 simulation-distance=3
 EOF
 
-rm -f console.log
-: > console.in
-# Commandes envoyées en ajoutant des lignes à console.in.
-tail -f console.in | java -Xms512M -Xmx1536M -jar server.jar nogui > console.log 2>&1 &
-SERVER=$!
-trap 'pkill -P $$ 2>/dev/null || true' EXIT
+start_test_server 1536M console.log
 
 for _ in $(seq "$TIMEOUT"); do
   if grep -q "Done (" console.log; then
     break
   fi
-  if ! kill -0 "$SERVER" 2>/dev/null; then
+  if ! kill -0 "$TEST_SERVER_PID" 2>/dev/null; then
     break
   fi
   sleep 1
 done
 
 if grep -q "Done (" console.log && ! grep -qE "Failed to load registries|Registry loading errors" console.log; then
-  echo stop >> console.in
-  # Attendre la fin réelle du serveur (sauvegarde comprise) : le suivant peut démarrer sans conflit.
-  for _ in $(seq 90); do
-    alive=0
-    for pid in $(pgrep -x java || true); do
-      [ "$(readlink "/proc/$pid/cwd" 2>/dev/null)" = "$(pwd -P)" ] && alive=1
-    done
-    [ "$alive" = 0 ] && break
-    sleep 1
-  done
+  # Sauvegarde comprise : aucun succès si l'arrêt échoue ou dépasse le délai.
+  stop_test_server "${STOP_TIMEOUT:-90}"
   echo "Test de démarrage réussi : $(grep -o 'Done ([^)]*)' console.log)"
   exit 0
 fi
@@ -70,3 +59,4 @@ echo "ÉCHEC du test de démarrage. Fin du journal :"
 grep -nE "ERROR|Exception|Caused by|Failed" console.log | head -40 || true
 tail -40 console.log
 exit 1
+

@@ -16,6 +16,7 @@ import java.util.function.Function;
  * et on repart de la sauvegarde {@code .bak}.
  */
 final class JsonStore {
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger(JsonStore.class);
     private JsonStore() {
     }
 
@@ -27,13 +28,14 @@ final class JsonStore {
                 if (value != null) {
                     return value;
                 }
+                throw new IllegalArgumentException("Document JSON vide");
             } catch (IOException | RuntimeException e) {
-                GeoMod.LOGGER.error("Fichier illisible {} : tentative avec la sauvegarde", file, e);
+                LOGGER.error("Fichier illisible {} : tentative avec la sauvegarde", file, e);
                 try {
                     Files.copy(file, file.resolveSibling(file.getFileName() + ".corrompu-" + System.currentTimeMillis()),
                             StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException ignored) {
-                    // La copie de diagnostic est facultative.
+                    // La mise à l’écart conserve la sauvegarde saine lors de la prochaine écriture.
                 }
             }
         }
@@ -41,10 +43,13 @@ final class JsonStore {
         if (Files.isRegularFile(backup)) {
             try {
                 T value = parser.apply(Files.readString(backup));
-                GeoMod.LOGGER.warn("Données restaurées depuis {}", backup);
+                if (value == null) throw new IllegalArgumentException("Sauvegarde JSON vide");
+                // Ne jamais recopier un primaire corrompu sur la sauvegarde saine à la prochaine écriture.
+                Files.deleteIfExists(file);
+                LOGGER.warn("Données restaurées depuis {}", backup);
                 return value;
             } catch (IOException | RuntimeException e) {
-                GeoMod.LOGGER.error("Sauvegarde illisible {}", backup, e);
+                LOGGER.error("Sauvegarde illisible {}", backup, e);
             }
         }
         return null;
@@ -68,3 +73,4 @@ final class JsonStore {
         return file.resolveSibling(file.getFileName() + ".bak");
     }
 }
+

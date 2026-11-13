@@ -48,6 +48,8 @@ public class ChassisItem extends Item {
         }
         if (!level.isClientSide()) {
             level.addFreshEntity(vehicle);
+            if (vehicle instanceof Plane && player instanceof net.minecraft.server.level.ServerPlayer sp)
+                com.terracraft.geo.ExodusCampaign.get().fact(sp, "vehicles", 1);
             level.gameEvent(player, GameEvent.ENTITY_PLACE, at);
             stack.consume(1, player);
         }
