@@ -209,22 +209,22 @@ public final class ExodusCampaign {
     void giveBook(ServerPlayer player) {
         int chapter = chapter(player);
         List<String> pages = new ArrayList<>(List.of(
-            "TERRA EXODUS\\nLes Vestiges d’Orion\\n\\nCARNET DE TERRAIN\\nJournal de " + player.getName().getString(),
-            "JOUR 1\\n\\nLe réveil a lieu dans le ciel. En bas, une ville sans voix. Les rues sont familières ; les fenêtres, elles, ne répondent plus.",
-            "2089\\n\\nLe Grand Effondrement a rompu les réseaux et ravagé les villes. Une contamination gagne les ruines. Personne ne sait encore d’où elle vient.",
-            "LE SIGNAL\\n\\n« Le berceau se meurt. »\\n\\nPuis du bruit. Une anomalie sur la Lune. Une autre sur Mars. La transmission s’arrête là.",
-            "ORDRE DE MISSION\\n\\nHélène Vance tient le refuge. Son premier message est bref : « D’abord, reste en vie. Ensuite, on cherchera les autres. »",
-            "PREMIÈRE SORTIE\\n\\nFouille un coffre. Garde une arme. Trouve un lieu sûr et protège-le. Les actes suivants s’ouvriront à mesure que le refuge tiendra.",
-            "TON JOURNAL\\nActe " + chapter + "\\n" + journal(player).done.size() + "/19 quêtes accomplies.\\n\\n/exodus : objectifs\\n/exodus livre : actualiser\\n/exodus reclamer <id> : récompense"));
-        if (chapter >= 2) pages.add("ACTE II — LE FEU\\n\\nBoulon : « Le pétrole ne vaut rien sous la terre. Il faut le trouver, pomper, raffiner. Après, on pourra bouger. »\\n\\nUne machine attribuée inscrit sa production au bon journal.");
-        if (chapter >= 3) pages.add("ACTE III — LE VIDE\\n\\nAris : « Dans l’espace, l’improvisation coûte de l’oxygène. Vérifie ton équipement, puis vise l’orbite. »\\n\\nCasque, combinaison, bottes, réserves : chaque détail compte.");
-        if (chapter >= 3) pages.add("FRAGMENT — SUJET-09\\n\\n« Je me souviens d’un signal sous la Lune. Pas de son origine. Pas encore. »\\n\\nExplore un sanctuaire lunaire, puis /exodus archives.");
-        if (chapter >= 4) pages.add("ACTE IV — LA PISTE ROUGE\\n\\nSoren : « Mars n’est pas la fin du voyage. Lis les glyphes. Ils dessinent une route vers la ceinture. »\\n\\nSur le site, /exodus archives.");
-        if (chapter >= 5) pages.add("ACTE V — LE NOYAU\\n\\nL’Archiviste : « Le dernier passage se mérite. Sors dans le vide, reviens à la balise, puis affronte ton gardien. »\\n\\nLe Noyau ne restaure qu’une région, avec l’accord de la ville.");
-        for (ExodusQuests.Quest q : available(player)) pages.add("ACTE " + q.act() + " · " + q.title()+"\\n\\nTRACES À RETROUVER\\n"+String.join("\\n",q.goals().stream().map(ExodusQuests.Goal::label).toList()));
-        pages.add("LES VOIX DU REFUGE\\n\\nHélène coordonne. Boulon répare. Aris prépare les vols. Sujet-09 garde les fragments de 2089. Soren suit les glyphes. L’Archiviste connaît le temple.\\n\\n/pnj : parler à un contact proche.");
+            "TERRA EXODUS\nLes Vestiges d’Orion\n\nCARNET DE TERRAIN\nJournal de " + player.getName().getString(),
+            "JOUR 1\n\nLe réveil a lieu dans le ciel. En bas, une ville sans voix. Les rues sont familières ; les fenêtres, elles, ne répondent plus.",
+            "2089\n\nLe Grand Effondrement a rompu les réseaux et ravagé les villes. Une contamination gagne les ruines. Personne ne sait encore d’où elle vient.",
+            "LE SIGNAL\n\n« Le berceau se meurt. »\n\nPuis du bruit. Une anomalie sur la Lune. Une autre sur Mars. La transmission s’arrête là.",
+            "ORDRE DE MISSION\n\nHélène Vance tient le refuge. Son premier message est bref : « D’abord, reste en vie. Ensuite, on cherchera les autres. »",
+            "PREMIÈRE SORTIE\n\nFouille un coffre. Garde une arme. Trouve un lieu sûr et protège-le. Les actes suivants s’ouvriront à mesure que le refuge tiendra.",
+            "TON JOURNAL\nActe " + chapter + "\n" + journal(player).done.size() + "/19 quêtes accomplies.\n\n/exodus : objectifs\n/exodus livre : actualiser\n/exodus reclamer <id> : récompense"));
+        if (chapter >= 2) pages.add("ACTE II — LE FEU\n\nBoulon : « Le pétrole ne vaut rien sous la terre. Il faut le trouver, pomper, raffiner. Après, on pourra bouger. »\n\nUne machine attribuée inscrit sa production au bon journal.");
+        if (chapter >= 3) pages.add("ACTE III — LE VIDE\n\nAris : « Dans l’espace, l’improvisation coûte de l’oxygène. Vérifie ton équipement, puis vise l’orbite. »\n\nCasque, combinaison, bottes, réserves : chaque détail compte.");
+        if (chapter >= 3) pages.add("FRAGMENT — SUJET-09\n\n« Je me souviens d’un signal sous la Lune. Pas de son origine. Pas encore. »\n\nExplore un sanctuaire lunaire, puis /exodus archives.");
+        if (chapter >= 4) pages.add("ACTE IV — LA PISTE ROUGE\n\nSoren : « Mars n’est pas la fin du voyage. Lis les glyphes. Ils dessinent une route vers la ceinture. »\n\nSur le site, /exodus archives.");
+        if (chapter >= 5) pages.add("ACTE V — LE NOYAU\n\nL’Archiviste : « Le dernier passage se mérite. Sors dans le vide, reviens à la balise, puis affronte ton gardien. »\n\nLe Noyau ne restaure qu’une région, avec l’accord de la ville.");
+        for (ExodusQuests.Quest q : available(player)) pages.add("ACTE " + q.act() + " · " + q.title()+"\n\nTRACES À RETROUVER\n"+String.join("\n",q.goals().stream().map(ExodusQuests.Goal::label).toList()));
+        pages.add("LES VOIX DU REFUGE\n\nHélène coordonne. Boulon répare. Aris prépare les vols. Sujet-09 garde les fragments de 2089. Soren suit les glyphes. L’Archiviste connaît le temple.\n\n/pnj : parler à un contact proche.");
         if (journal(player).done.size()==ExodusQuests.ALL.size()) pages.add(
-            "L’ÉVEIL COSMIQUE\\n\\nVotre expédition a rejoint les Archives d’Orion. Une région terrestre retrouve un avenir. Le berceau peut renaître, ville après ville.\\n\\nLes origines du signal restent à explorer.");
+            "L’ÉVEIL COSMIQUE\n\nVotre expédition a rejoint les Archives d’Orion. Une région terrestre retrouve un avenir. Le berceau peut renaître, ville après ville.\n\nLes origines du signal restent à explorer.");
         ItemStack book = Arrival.guide(pages);
         CompoundTag tag = new CompoundTag(); tag.putString("exodus_book",player.getUUID().toString());
         book.set(DataComponents.CUSTOM_DATA,CustomData.of(tag));
