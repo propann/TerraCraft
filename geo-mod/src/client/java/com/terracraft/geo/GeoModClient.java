@@ -43,6 +43,13 @@ public final class GeoModClient implements ClientModInitializer {
         // Le serveur décide quand ouvrir la carte (premier choix ou /terracraft depart).
         ClientPlayNetworking.registerGlobalReceiver(OpenMapPayload.TYPE, (payload, context) ->
                 context.client().gui.setScreen(new WorldMapScreen(payload.required())));
+        ClientPlayNetworking.registerGlobalReceiver(NpcChatStatePayload.TYPE, (payload, context) -> {
+            if (context.client().gui.screen() instanceof NpcChatScreen open && open.entityId() == payload.entityId()) {
+                open.update(payload.json());
+            } else {
+                context.client().setScreenAndShow(new NpcChatScreen(payload.entityId(), payload.json()));
+            }
+        });
 
         // Fiche de personnage : touche K, le serveur renvoie la fiche à jour.
         KeyMapping sheetKey = KeyMappingHelper.registerKeyMapping(new KeyMapping("key.terracraft_geo.sheet",
