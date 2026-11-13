@@ -48,4 +48,4 @@ Ces éléments sont une cible de conception, pas des commandes actuellement disp
 
 - [Commandes et touches](commandes.md)
 - [Bien démarrer dans le monde](entree-en-jeu.md)
-- [Guide de modération](FALIX.md) — procédure d'exploitation serveur
+- [Guide Falix](../deploy/FALIX.md) — procédure d'exploitation serveur
