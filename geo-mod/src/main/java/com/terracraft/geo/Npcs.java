@@ -90,6 +90,7 @@ final class Npcs {
     private final Towns towns;
     private final Map<String, Memory> memories = new LinkedHashMap<>();
     private final Map<UUID, UUID> pending = new HashMap<>();
+    private final Map<UUID, Integer> conversations = new HashMap<>();
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private Settings settings = withCanonical(new Settings());
     private NpcBrain brain;
@@ -108,7 +109,7 @@ final class Npcs {
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
             if (hand == InteractionHand.MAIN_HAND && player instanceof ServerPlayer serverPlayer
                     && entity instanceof Mob mob && persona(mob) != null) {
-                talk(serverPlayer, mob, "Bonjour.");
+                openChat(serverPlayer, mob);
                 return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
@@ -188,6 +189,7 @@ final class Npcs {
     void onLeave(ServerPlayer player) {
         pending.remove(player.getUUID());
         cooldowns.remove(player.getUUID());
+        conversations.remove(player.getUUID());
     }
 
     void register(CommandDispatcher<CommandSourceStack> dispatcher) {
@@ -209,6 +211,57 @@ final class Npcs {
                 .then(Commands.literal("recharger").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .executes(c -> { configure(c.getSource().getServer()); c.getSource().sendSuccess(
                                 () -> Component.literal("Identités PNJ rechargées : " + (brain == null ? "dialogues locaux." : "IA configurée.")), false); return 1; })));
+    }
+
+    void openChat(ServerPlayer player, Mob mob) {
+        if (!nearby(player, mob) || persona(mob) == null) return;
+        conversations.put(player.getUUID(), mob.getId());
+        sendChatState(player, mob);
+    }
+
+    void closeChat(ServerPlayer player, int entityId) {
+        conversations.remove(player.getUUID(), entityId);
+    }
+
+    void talkFromClient(ServerPlayer player, int entityId, String message) {
+        var entity = player.level().getEntity(entityId);
+        if (entity instanceof Mob mob && conversations.getOrDefault(player.getUUID(), -1) == entityId && nearby(player, mob)) {
+            talk(player, mob, message);
+        }
+    }
+
+    void missionFromClient(ServerPlayer player, int entityId, boolean claim) {
+        var entity = player.level().getEntity(entityId);
+        if (entity instanceof Mob mob && conversations.getOrDefault(player.getUUID(), -1) == entityId && nearby(player, mob)) {
+            mission(player, mob, claim);
+            sendChatState(player, mob);
+        }
+    }
+
+    private void sendChatState(ServerPlayer player, Mob mob) {
+        Persona p = persona(mob);
+        if (p == null || conversations.getOrDefault(player.getUUID(), -1) != mob.getId()) return;
+        Memory memory = memory(player, mob);
+        JsonObject state = new JsonObject();
+        state.add("identity", GSON.toJsonTree(p));
+        state.add("history", GSON.toJsonTree(memory.history));
+        state.addProperty("busy", pending.containsKey(player.getUUID()));
+        state.addProperty("ai_configured", brain != null);
+        state.addProperty("hasQuest", !memory.quest.isBlank());
+        String questTitle = "";
+        if (memory.quest.startsWith(ExodusQuests.PREFIX)) {
+            ExodusQuests.Quest quest = ExodusQuests.find(memory.quest);
+            if (quest != null) questTitle = quest.title();
+        } else {
+            Contracts.Contract quest = Contracts.todays().stream()
+                    .filter(c -> (Contracts.PREFIX + c.id()).equals(memory.quest)).findFirst().orElse(null);
+            if (quest != null) questTitle = quest.title();
+        }
+        state.addProperty("quest_title", questTitle);
+        if (net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.canSend(player, NpcChatStatePayload.TYPE)) {
+            net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(player,
+                    new NpcChatStatePayload(mob.getId(), GSON.toJson(state)));
+        }
     }
 
     private int spawn(ServerPlayer player, String id) {
@@ -286,6 +339,7 @@ final class Npcs {
         Long last = cooldowns.get(player.getUUID());
         if (pending.containsKey(player.getUUID()) || (last != null && now - last < 4_000_000_000L)) {
             player.sendSystemMessage(Component.literal("Laisse au PNJ le temps de te répondre."));
+            sendChatState(player, mob);
             return 0;
         }
         cooldowns.put(player.getUUID(), now);
@@ -353,6 +407,7 @@ final class Npcs {
         UUID token = UUID.randomUUID();
         UUID playerId = player.getUUID();
         pending.put(playerId, token);
+        sendChatState(player, mob);
         int epoch = generation;
         MinecraftServer server = activeServer;
         long day = Contracts.today();
@@ -385,6 +440,7 @@ final class Npcs {
         save();
         player.sendSystemMessage(Component.literal(persona(mob).name() + " : " + reply.speech()).withStyle(ChatFormatting.GREEN));
         mission(player, mob, false);
+        sendChatState(player, mob);
     }
 
     private int mission(ServerPlayer player, boolean claim) {
