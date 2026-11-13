@@ -32,21 +32,18 @@ Elle est générée par `deploy/make_falix_branch.sh` depuis `main`. Ne pas la m
 
 ### PNJ connectés à Mistral
 
-La branche de déploiement met à jour le mod, mais ne copie pas la configuration IA active.
-Sur Falix, ouvre **Settings → Startup → Environment** et définis
-`TERRACRAFT_MISTRAL_API_KEY` avec ta clé. Dans le gestionnaire de fichiers, crée ou
-modifie `config/terracraft-npcs.json` à la racine en reprenant
-[`config/pnj/mistral.example.json`](../config/pnj/mistral.example.json) depuis `main`.
-Garde `ai_enabled: true`, `provider: "mistral"`, l'endpoint
-`https://api.mistral.ai/v1/chat/completions` et un modèle disponible, par exemple
-`ministral-8b-2512`. La clé reste uniquement dans l'environnement Falix, jamais dans
-le fichier ni dans Git. La [configuration de démarrage Falix](https://kb.falixnodes.net/falix/dashboard/setup/startup-configuration)
+Sur Falix, ouvre **Settings → Startup → Environment** et vérifie que
+`TERRACRAFT_MISTRAL_API_KEY` contient la clé du compte. La branche de déploiement
+ne copie jamais la clé. La [configuration de démarrage Falix](https://kb.falixnodes.net/falix/dashboard/setup/startup-configuration)
 documente l'onglet Environment.
 
-Redémarre le serveur après avoir changé la variable d'environnement. Dans la console,
-`/pnj recharger` doit confirmer que les dialogues IA sont activés. Si la commande de
-création vient d'être déployée, le serveur doit aussi être redémarré pour charger le
-nouveau JAR.
+Après le redémarrage, si `config/terracraft-npcs.json` contient encore les réglages
+par défaut, TerraCraft détecte la variable et active automatiquement Mistral avec
+`ministral-8b-2512`. Il enregistre la configuration sans y écrire la clé. Les
+réglages personnalisés déjà présents sont conservés. Dans la console, vérifie le
+message `[PNJ] ... dialogues IA activés`, puis en jeu utilise `/pnj liste` et
+`/pnj creer lea`. La configuration avancée est décrite dans
+[`docs/pnj-intelligents.md`](../docs/pnj-intelligents.md).
 - Optionnel : `max-tick-time=300000` (plus de marge pendant les premiers téléchargements) et `view-distance=8` si le serveur n'a que 4 Go.
 
 ## Liste des serveurs
