@@ -79,10 +79,10 @@ final class ServerGuide {
                 new Entry("[Plans]", "/plans", "Plans de fusée et matériaux (atelier de station)"),
                 new Entry("", "", "Terre → orbite avec un kit de station ; la Lune et Mars partent du quai de la station."),
                 new Entry("", "", "Lune : sanctuaires sous la surface, micrométéorites (abrite-toi), rover en caisse."),
-                new Entry("", "", "Ceinture d'astéroïdes (depuis l'orbite de Mars) : fer, or, titane, hélium-3 ; jetpack conseillé.")));
+                new Entry("", "", "Ceinture d'astéroïdes (depuis l'orbite de Mars) : fer, or, titane, hélium-3 ; propulseur dorsal conseillé.")));
         THEMES.put("touches", java.util.List.of(
                 new Entry("", "", "O menu · J combinaison · V coffre du véhicule · K fiche · M carte et claims · ' menu des claims"),
-                new Entry("", "", "E : inventaire avec le panneau de la combinaison (casque, combinaison, bottes, jetpack, O₂)"),
+                new Entry("", "", "E : inventaire avec le panneau de la combinaison (casque, combinaison, bottes, propulseur dorsal, O₂)"),
                 new Entry("", "", "Avion : Z/S gaz · Q/D tourner · Espace monter · Ctrl descendre"),
                 new Entry("", "", "Rover : clic droit avec la caisse ; Maj + clic gauche pour le remballer"),
                 new Entry("[Véhicule]", "/terracraft vehicule partager ", "Partager ton véhicule ; retirer, liberer")));
