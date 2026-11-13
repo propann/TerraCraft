@@ -169,6 +169,13 @@ cmd "say OXYGEN_DAMAGE_WINDOW" 3
 cmd "data get entity Bob Health" 1
 cmd "say OXYGEN_TEST_END" 1
 cmd "effect give Bob minecraft:instant_health 1 255 true" 1
+# Après le test sans air, équiper Bob pour les vols spatiaux suivants.
+cmd "item replace entity Bob weapon.mainhand with terracraft_geo:space_helmet"
+cmd "player Bob use once" 2
+cmd "item replace entity Bob weapon.mainhand with terracraft_geo:oxygen_tank 16"
+cmd "player Bob use once" 2
+cmd "item replace entity Bob weapon.mainhand with terracraft_geo:jetpack"
+cmd "player Bob use once" 2
 # Orbite lunaire : module de station et balise (Bob regarde le sol, orienté vers le sud)
 cmd "execute in terracraft_geo:moon_orbit run forceload add -16 -16 16 16" 3
 cmd "execute in terracraft_geo:moon_orbit run fill -6 150 -6 6 150 6 minecraft:stone" 2
@@ -371,7 +378,8 @@ reports = json.loads(reports_path.read_text()) if reports_path.exists() else []
 check(len(reports) == 1 and reports[0]["player"] == "Bob",
       f"signalement enregistré (fichier présent={reports_path.exists()}, reçus={reports})")
 check("[LARGAGE] Caisse en" in log, "caisse de ravitaillement larguée sur la plateforme")
-print("  ignoré module de station : interaction d'équipement client réservée au test réel")
+check(log.count("Test passed") >= 2, "module de station : distributeur d'oxygène au centre, porte ouverte")
+check(any(s.get("modules") == 1 for s in stats), "compteur de modules de station")
 stations_path = data / "stations.json"
 stations = json.loads(stations_path.read_text()) if stations_path.exists() else []
 station_interactions_testables = stations_path.exists()
