@@ -106,6 +106,9 @@ final class Npcs {
     void wire() {
         net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) ->
                 !(entity instanceof Mob mob && mob.entityTags().contains("terracraft_npc_protected") && persona(mob) != null));
+        net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+            if (entity instanceof Mob mob) refreshDisplayName(mob);
+        });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
             if (hand == InteractionHand.MAIN_HAND && player instanceof ServerPlayer serverPlayer
                     && entity instanceof Mob mob && persona(mob) != null) {
@@ -351,10 +354,17 @@ final class Npcs {
         if (p == null) return 0;
         new ArrayList<>(mob.entityTags()).stream().filter(tag -> tag.startsWith(TAG)).forEach(mob::removeTag);
         mob.addTag(TAG + id);
-        mob.setCustomName(Component.literal(p.name() + " · " + p.role()));
-        mob.setCustomNameVisible(true);
+        refreshDisplayName(mob);
         mob.setPersistenceRequired();
         return 1;
+    }
+
+    private void refreshDisplayName(Mob mob) {
+        Persona p = persona(mob);
+        if (p != null) {
+            mob.setCustomName(Component.literal(p.name() + " · " + p.role()));
+            mob.setCustomNameVisible(true);
+        }
     }
 
     private Persona persona(Mob mob) {
