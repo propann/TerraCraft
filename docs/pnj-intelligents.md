@@ -51,7 +51,7 @@ Mistral configuré ; aucune requête à une API payante ne fait partie des tests
 La branche de déploiement ne contient pas la configuration IA active. Sur Falix,
 dans **Settings → Startup → Environment**, définir `TERRACRAFT_MISTRAL_API_KEY`
 avec la clé du compte, puis créer ou modifier
-`config/terracraft-npcs.json) à la racine du serveur à partir de l'exemple Mistral.
+`config/terracraft-npcs.json` à la racine du serveur à partir de l'exemple Mistral.
 Vérifier `ai_enabled: true`, `provider: "mistral"`,
 `endpoint: "https://api.mistral.ai/v1/chat/completions"` et un modèle choisi
 dans le compte (l'exemple utilise `ministral-8b-2512`). Ne jamais copier la clé
