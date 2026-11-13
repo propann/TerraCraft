@@ -32,8 +32,9 @@ serveur-local/backups/
 serveur-local/config/terracraft-backup.json
 serveur-local/server-icon.png
 
-# Mods que leur licence interdit de republier (récupérés par mods/telecharger-restants.*)
-mods/xaero*.jar
+# Mods client téléchargés localement ; les licences Xaero interdisent la redistribution.
+mods/*.jar
+mods/shaderpacks/
 
 # Réglages locaux et mémoires des PNJ : seuls les exemples sont versionnés.
 serveur-local/config/terracraft-npcs.json*
