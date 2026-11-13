@@ -202,9 +202,18 @@ final class Npcs {
                         .executes(c -> talkNearest(c.getSource().getPlayerOrException(), StringArgumentType.getString(c, "message")))))
                 .then(Commands.literal("mission").executes(c -> mission(c.getSource().getPlayerOrException(), false)))
                 .then(Commands.literal("reclamer").executes(c -> mission(c.getSource().getPlayerOrException(), true)))
+                .then(Commands.literal("liste").executes(c -> {
+                    c.getSource().sendSuccess(() -> Component.literal("Identités PNJ disponibles :"), false);
+                    settings.personas.forEach((id, persona) -> c.getSource().sendSuccess(
+                            () -> Component.literal("• " + id + " — " + persona.name()), false));
+                    return 1;
+                }))
                 .then(Commands.literal("creer").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                        .then(Commands.argument("identite", StringArgumentType.word()).executes(c -> spawn(
-                                c.getSource().getPlayerOrException(), StringArgumentType.getString(c, "identite")))))
+                        .then(Commands.argument("identite", StringArgumentType.word())
+                                .suggests((context, builder) ->
+                                        net.minecraft.commands.SharedSuggestionProvider.suggest(settings.personas.keySet(), builder))
+                                .executes(c -> spawn(c.getSource().getPlayerOrException(),
+                                        StringArgumentType.getString(c, "identite")))))
                 .then(Commands.literal("lier").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .then(Commands.argument("identite", StringArgumentType.word())
                                 .then(Commands.argument("mob", EntityArgument.entity()).executes(c -> {
@@ -333,18 +342,26 @@ final class Npcs {
     }
 
     private int spawn(ServerPlayer player, String id) {
-        if (!settings.personas.containsKey(id)) {
-            player.sendSystemMessage(Component.literal("Identité inconnue : " + id));
+        Persona persona = settings.personas.get(id);
+        if (persona == null) {
+            player.sendSystemMessage(Component.literal("Identité inconnue : " + id + ". Utilise /pnj liste."));
             return 0;
         }
         var mob = EntityTypes.VILLAGER.create(player.level(), EntitySpawnReason.COMMAND);
-        if (mob == null) return 0;
+        if (mob == null) {
+            player.sendSystemMessage(Component.literal("Impossible de créer ce citoyen ici."));
+            return 0;
+        }
         var at = player.position().add(player.getLookAngle().multiply(2, 0, 2));
         mob.snapTo(at.x, at.y, at.z, player.getYRot(), 0);
         mob.setNoAi(true);
         mob.addTag("terracraft_npc_protected");
         bind(mob, id);
-        player.level().addFreshEntity(mob);
+        if (!player.level().addFreshEntity(mob)) {
+            player.sendSystemMessage(Component.literal("Le citoyen n'a pas pu apparaître ici. Essaie dans un espace dégagé."));
+            return 0;
+        }
+        player.sendSystemMessage(Component.literal("Citoyen créé : " + persona.name() + " [" + id + "]. Fais un clic droit pour lui parler."));
         GeoMod.LOGGER.info("[PNJ] identité {} créée par {}", id, player.getName().getString());
         return 1;
     }
