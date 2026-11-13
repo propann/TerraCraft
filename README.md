@@ -99,6 +99,7 @@ Chaque version passe une batterie de tests avant d'arriver sur le serveur :
 | [`docs/fiabilisation.md`](docs/fiabilisation.md) | Validation avant déploiement, contrôles reproductibles, transactions et sauvegardes à fiabiliser |
 | [`REJOINDRE.md`](REJOINDRE.md) | Rejoindre le serveur : pack, installeurs, installation à la main |
 | [`docs/commandes.md`](docs/commandes.md) | Touches et référence des commandes, avec aide en jeu par thèmes |
+| [`docs/rediger-livres.md`](docs/rediger-livres.md) | Préparer et prévisualiser des pages de livre avant leur intégration à la campagne |
 | [`docs/permissions.md`](docs/permissions.md) | Accès existants des joueurs, modérateurs et opérateurs ; cible d'un système de permissions détaillées |
 | [`docs/feuille-de-route.md`](docs/feuille-de-route.md) | Plan d'action, phases, ce qui est fait et la suite |
 | [`docs/etat-du-projet.md`](docs/etat-du-projet.md) | Analyse : ce que nous avons, niveau de vérification, risques |
