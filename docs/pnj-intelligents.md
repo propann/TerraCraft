@@ -60,7 +60,18 @@ tirets ou traits bas. Le mob porte l'étiquette persistante `terracraft_npc:lea`
 | `/pnj reclamer` | Joueur | Réclamer sa récompense si le contrat est terminé |
 | `/pnj creer lea` | Administrateur, niveau 2 | Créer un villageois nommé, immobile et invulnérable |
 | `/pnj lier lea <sélecteur>` | Administrateur, niveau 2 | Associer l'identité à un mob existant, dont le comportement vanilla est conservé |
+| `/pnj editer <id> nom <texte>` | Administrateur, niveau 2 | Changer le nom affiché |
+| `/pnj editer <id> role <texte>` | Administrateur, niveau 2 | Changer le rôle |
+| `/pnj editer <id> faction <texte>` | Administrateur, niveau 2 | Changer la faction |
+| `/pnj editer <id> personnalite <texte>` | Administrateur, niveau 2 | Ajuster la voix, les habitudes et le tempérament |
+| `/pnj editer <id> humeur <texte>` | Administrateur, niveau 2 | Ajuster l'humeur et le ton du moment |
+| `/pnj editer <id> objectif <texte>` | Administrateur, niveau 2 | Définir ce qui motive le personnage |
 | `/pnj recharger` | Administrateur, niveau 2 | Relire les identités et l'adaptateur IA |
+
+Les champs se modifient aussi en jeu avec `/pnj editer <id> <champ> <texte>` ;
+les changements sont écrits dans `config/terracraft-npcs.json`, appliqués immédiatement
+et le nom au-dessus des PNJ déjà placés est actualisé. Les valeurs sont bornées
+pour garder les profils lisibles et éviter une configuration démesurée.
 
 Il faut se trouver à six blocs maximum, dans la même dimension. Une réponse
 retardée est écartée si le joueur se déconnecte, s'éloigne, change de jour ou si
