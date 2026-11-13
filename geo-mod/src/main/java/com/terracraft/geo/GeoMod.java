@@ -300,6 +300,7 @@ public final class GeoMod implements ModInitializer {
         PayloadTypeRegistry.clientboundPlay().register(MissionPayload.TYPE, MissionPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(MarketPayload.TYPE, MarketPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(TutorialPayload.TYPE, TutorialPayload.CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(NpcChatStatePayload.TYPE, NpcChatStatePayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RequestSheetPayload.TYPE, RequestSheetPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RequestMissionsPayload.TYPE, RequestMissionsPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(ClaimMissionPayload.TYPE, ClaimMissionPayload.CODEC);
@@ -314,10 +315,22 @@ public final class GeoMod implements ModInitializer {
         PayloadTypeRegistry.serverboundPlay().register(InstallUpgradePayload.TYPE, InstallUpgradePayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(AimPayload.TYPE, AimPayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(ReloadPayload.TYPE, ReloadPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(NpcChatMessagePayload.TYPE, NpcChatMessagePayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(NpcMissionActionPayload.TYPE, NpcMissionActionPayload.CODEC);
+        PayloadTypeRegistry.serverboundPlay().register(NpcClosePayload.TYPE, NpcClosePayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(AimPayload.TYPE, (payload, context) ->
                 com.terracraft.geo.content.Sights.setAiming(context.player(), payload.aiming()));
         ServerPlayNetworking.registerGlobalReceiver(ReloadPayload.TYPE, (payload, context) ->
                 com.terracraft.geo.content.GunItem.reloadHeld(context.player()));
+        ServerPlayNetworking.registerGlobalReceiver(NpcChatMessagePayload.TYPE, (payload, context) ->
+                NPCS.talkFromClient(context.player(), payload.entityId(), payload.message()));
+        ServerPlayNetworking.registerGlobalReceiver(NpcMissionActionPayload.TYPE, (payload, context) -> {
+            if (GUI_RATE.allow(context.player())) {
+                NPCS.missionFromClient(context.player(), payload.entityId(), payload.claim());
+            }
+        });
+        ServerPlayNetworking.registerGlobalReceiver(NpcClosePayload.TYPE, (payload, context) ->
+                NPCS.closeChat(context.player(), payload.entityId()));
         PayloadTypeRegistry.clientboundPlay().register(StarMapPayload.TYPE, StarMapPayload.CODEC);
         PayloadTypeRegistry.clientboundPlay().register(MachinePayload.TYPE, MachinePayload.CODEC);
         PayloadTypeRegistry.serverboundPlay().register(RequestMachinePayload.TYPE, RequestMachinePayload.CODEC);
