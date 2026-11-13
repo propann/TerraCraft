@@ -152,6 +152,8 @@ final class Welcome {
                     .withStyle(ChatFormatting.GRAY));
             player.sendSystemMessage(button("[Premiers pas]", "/aide depart", ChatFormatting.AQUA)
                     .append(Component.literal("  ·  ").withStyle(ChatFormatting.DARK_GRAY))
+                    .append(button("[Toutes les commandes]", "/aide commandes", ChatFormatting.GREEN))
+                    .append(Component.literal("  ·  ").withStyle(ChatFormatting.DARK_GRAY))
                     .append(button("[Règles]", "/regles", ChatFormatting.GOLD)));
             return;
         }

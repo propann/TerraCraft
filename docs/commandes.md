@@ -1,6 +1,6 @@
 # Commandes et touches
 
-Référence de TerraCraft (version 0.38). Tout est en français ; `/aide` en donne l'essentiel en jeu.
+Référence de TerraCraft (version 0.41.0). Les commandes principales sont aussi accessibles en jeu avec `/aide commandes`, puis `/aide chat`, `/aide villes`, `/aide espace` ou `/aide permissions`. La matrice des rôles actuels et la feuille de route sont dans [permissions.md](permissions.md).
 
 ## Touches
 
@@ -61,6 +61,9 @@ Clic droit main vide sur une machine : écran à jauges (contenu, énergie, char
 | `/ville` | Sa ville : `creer <nom>` (500 crédits), `inviter`, `rejoindre`, `quitter`, `exclure`, `maire`, `adjoint`, `centre`, `tp`, `deposer`, `payer`, `liste` (adjoints : inviter, exclure, payer) ; `stock [deposer|retirer]` devant un terminal logistique |
 | `/ville election`, `candidat`, `voter <joueur>`, `defiance` | Élection du maire : état du scrutin et boutons de vote ; se présenter ; voter (on peut changer d'avis) ; signer la motion de défiance (un tiers des habitants ouvre un scrutin). Tous les 14 jours, scrutin de 48 h, 3 habitants au moins ; le maire peut `election convoquer` |
 | `/canal [global|ville|local]` | Canal des messages ordinaires : tout le serveur, ta ville, ou 100 blocs autour de toi. `!message` écrit à ta ville quel que soit le canal |
+| `/v <message>`, `/l <message>` | Envoyer directement dans le canal ville ou local |
+| `/mp <joueur> <message>`, `/r <message>` | Message privé et réponse au dernier message privé |
+| `@Pseudo` dans un message | Mentionne un joueur connecté : surbrillance, son et notification |
 | `/v <message>`, `/l <message>` | Message à ta ville, message local (100 blocs) |
 | `/mp <joueur> <message>`, `/r <message>` | Message privé ; répondre au dernier. `@Pseudo` dans un message : le joueur est prévenu (son et bandeau) |
 | `/station` | Ses stations spatiales ; `nom <nom>` pour renommer la plus proche |
@@ -77,6 +80,8 @@ Clic droit main vide sur une machine : écran à jauges (contenu, énergie, char
 | `/signaler <message>` | Signaler un bug ou une perte d'objet aux administrateurs (un par minute) |
 
 ## Modérateurs
+
+Les modérateurs sont des joueurs nommés par un opérateur avec `/moderateurs ajouter`. Leur rôle n'accorde pas le statut d'opérateur : il ouvre uniquement les commandes `/mod`. Le rôle est lié à l'UUID et conservé dans `<monde>/terracraft_geo/moderateurs.json`.
 
 | Commande | Rôle |
 |---|---|
