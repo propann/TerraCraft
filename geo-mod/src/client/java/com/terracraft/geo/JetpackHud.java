@@ -27,7 +27,7 @@ final class JetpackHud implements HudElement {
         int left = g.guiWidth() / 2 + 96;
         int top = g.guiHeight() - 20;
         int color = SuitScreen.gaugeColor(percent);
-        g.text(minecraft.font, Component.literal("Jetpack " + percent + " %"), left, top - 10, color, true);
+        g.text(minecraft.font, Component.translatable("item.terracraft_geo.jetpack").append(Component.literal(" " + percent + " %")), left, top - 10, color, true);
         Ui.bar(g, left, top, WIDTH, 4, percent / 100.0, color);
     }
 }

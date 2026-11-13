@@ -46,7 +46,7 @@ public final class Tutorial {
                     (t, p) -> t.survival != null && t.survival.hasHome(p)),
             new Step("loot", "Fouille un coffre", "Les immeubles et les bunkers cachent du butin. Ouvre un coffre jamais fouillé.",
                     (t, p) -> Progression.get().stat(p, "loot") > 0),
-            new Step("claim", "Protège ton secteur", "Touche M : carte, clic droit sur ton chunk puis « Claim selected ».",
+            new Step("claim", "Protège ton secteur", "Touche M : ouvre la carte, fais un clic droit sur la portion à protéger, puis choisis l’action de protection du terrain.",
                     (t, p) -> Claims.claimCount(p) != 0),
             new Step("market", "Visite l'hôtel des ventes", "Touche O puis « Hôtel des ventes » (ou /hdv) : vends ton surplus.",
                     (t, p) -> t.flag(p, "market")),

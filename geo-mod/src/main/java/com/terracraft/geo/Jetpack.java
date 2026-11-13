@@ -68,7 +68,7 @@ public final class Jetpack {
                         SoundSource.PLAYERS, 0.25f, 1.6f);
             }
             if (!SpaceSuit.hasJetpackFuel(player)) {
-                player.sendOverlayMessage(Component.literal("Jetpack à sec ! Recharge-le avec un bidon d'essence.")
+                player.sendOverlayMessage(Component.literal("Propulseur dorsal déchargé ! Recharge-le avec un bidon d'essence.")
                         .withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
             }
         }
@@ -78,12 +78,12 @@ public final class Jetpack {
     public static void refuel(Player player, InteractionHand hand) {
         ItemStack jetpack = SpaceSuit.jetpack(player);
         if (jetpack.isEmpty()) {
-            player.sendOverlayMessage(Component.literal("Bidon d'essence : clic droit sur un véhicule, ou porte un jetpack (touche J).")
+            player.sendOverlayMessage(Component.literal("Bidon d'essence : clic droit sur un véhicule ou utilise-le sur le propulseur dorsal que tu portes (touche J).")
                     .withStyle(ChatFormatting.GOLD));
             return;
         }
         if (jetpack.getDamageValue() == 0) {
-            player.sendOverlayMessage(Component.literal("Le jetpack est déjà plein.").withStyle(ChatFormatting.GRAY));
+            player.sendOverlayMessage(Component.literal("Le propulseur dorsal est déjà chargé.").withStyle(ChatFormatting.GRAY));
             return;
         }
         jetpack.setDamageValue(Math.max(0, jetpack.getDamageValue() - REFUEL));
@@ -92,7 +92,7 @@ public final class Jetpack {
         com.terracraft.geo.content.industry.IndustryBlocks.returnEmptyCan(player);
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS, 0.7f, 1.2f);
         int percent = 100 - 100 * jetpack.getDamageValue() / jetpack.getMaxDamage();
-        player.sendOverlayMessage(Component.literal("Jetpack rechargé : " + percent + " %").withStyle(ChatFormatting.AQUA));
+        player.sendOverlayMessage(Component.literal("Propulseur dorsal rechargé : " + percent + " %").withStyle(ChatFormatting.AQUA));
     }
 
     static boolean isJetpack(ItemStack stack) {
