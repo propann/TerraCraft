@@ -106,7 +106,7 @@ final class Npcs {
     void wire() {
         net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.ALLOW_DAMAGE.register((entity, source, amount) ->
                 !(entity instanceof Mob mob && mob.entityTags().contains("terracraft_npc_protected") && persona(mob) != null));
-        net.fabricmc.fabric.api.event.lifecycle.v1.ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
+        net.fabricmc.fabric.api.entity.event.v1.ServerEntityEvents.ENTITY_LOAD.register((entity, world) -> {
             if (entity instanceof Mob mob) refreshDisplayName(mob);
         });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) -> {
