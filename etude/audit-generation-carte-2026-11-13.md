@@ -190,6 +190,9 @@ Si la cellule contient **un seul** bâtiment du cache Overture, **tous** les bâ
 ignorés. Le cache Overture est téléchargé pour une petite zone (exemple de `tools/fetch_overture_buildings.py` :
 1,5 km de large) : les cellules de 512 blocs à cheval sur le bord perdent les bâtiments situés hors de la zone.
 
+`docs/etat-du-projet.md` (audit du 11 octobre) donne ce bug pour corrigé : il l'a été en partie (le remplacement
+était global, il est maintenant limité à la cellule), mais l'effet de bord reste au bord de la zone.
+
 **Piste** : n'écarter un bâtiment OpenFreeMap que s'il **recouvre** un bâtiment Overture (test de boîte englobante,
 puis du centre dans l'emprise), ou découper par le polygone de couverture Overture.
 
