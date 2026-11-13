@@ -48,18 +48,20 @@ Mistral configuré ; aucune requête à une API payante ne fait partie des tests
 
 ### Activation sur Falix
 
-La branche de déploiement ne contient pas la configuration IA active. Sur Falix,
-dans **Settings → Startup → Environment**, définir `TERRACRAFT_MISTRAL_API_KEY`
-avec la clé du compte, puis créer ou modifier
-`config/terracraft-npcs.json` à la racine du serveur à partir de l'exemple Mistral.
-Vérifier `ai_enabled: true`, `provider: "mistral"`,
-`endpoint: "https://api.mistral.ai/v1/chat/completions"` et un modèle choisi
-dans le compte (l'exemple utilise `ministral-8b-2512`). Ne jamais copier la clé
-dans ce fichier ni dans Git.
+La branche de déploiement ne contient jamais la clé ni de configuration IA active.
+Sur Falix, dans **Settings → Startup → Environment**, définir
+`TERRACRAFT_MISTRAL_API_KEY` avec la clé du compte. Ne jamais copier la clé
+dans un fichier ni dans Git.
 
-Redémarrer le serveur pour charger la variable d'environnement, puis lancer
-`/pnj recharger`. La console doit indiquer `dialogues IA activés`. Sans la
-configuration explicite, le serveur crée un fichier par défaut avec l'IA désactivée.
+Au prochain démarrage, si le fichier PNJ contient encore les réglages par défaut
+(Ollama local désactivé) et que cette variable est présente, TerraCraft active
+automatiquement Mistral avec `ministral-8b-2512`, puis enregistre les réglages
+sans la clé dans `config/terracraft-npcs.json`. Cela évite une édition manuelle
+après déploiement. Un profil déjà personnalisé n'est pas remplacé.
+
+Redémarrer le serveur après avoir défini la variable. La console doit indiquer
+`dialogues IA activés`. La configuration avancée reste possible en éditant
+`config/terracraft-npcs.json` selon [l'exemple Mistral](../config/pnj/mistral.example.json).
 
 ## Identités et commandes
 
