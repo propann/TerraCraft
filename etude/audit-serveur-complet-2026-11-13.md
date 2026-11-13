@@ -248,5 +248,6 @@ S = moins d'une journée · M = quelques jours · L = une à deux semaines.
 - `.github/workflows/build.yml`, `deploy/make_falix_branch.sh`, `deploy/FALIX.md`, `deploy/ops.json`,
   `tools/mods.txt`, `tools/install_mods.py`, `mods/LICENCES.md`.
 
-Non vérifié : comportement en jeu (interfaces, équilibrage, mixins), redéploiement à chaud chez Falix, disponibilité
+Client, installation, mixins et contenu : voir [le troisième volet](audit-client-installation-2026-11-13.md).
+Non vérifié : comportement en jeu (interfaces, équilibrage), redéploiement à chaud chez Falix, disponibilité
 d'un anti-X-ray pour Minecraft 26.3.
