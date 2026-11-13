@@ -204,6 +204,27 @@ final class Chat {
         return 1;
     }
 
+    private int showChannelMenu(ServerPlayer player) {
+        player.sendSystemMessage(Component.literal("━━ Canal de discussion ━━").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+        var menu = Component.empty()
+                .append(channelButton("[Global]", "/canal global", ChatFormatting.AQUA))
+                .append(Component.literal("   "))
+                .append(channelButton("[Ville]", "/canal ville", ChatFormatting.GREEN))
+                .append(Component.literal("   "))
+                .append(channelButton("[Proximité]", "/canal local", ChatFormatting.GOLD));
+        player.sendSystemMessage(menu);
+        player.sendSystemMessage(Component.literal("Global : tout le serveur · Ville : tes habitants · Proximité : 100 blocs dans ta dimension")
+                .withStyle(ChatFormatting.GRAY));
+        player.sendSystemMessage(Component.literal("Raccourcis : /v <message> · /l <message> · /mp <joueur> <message> · /r <message> · @Pseudo")
+                .withStyle(ChatFormatting.DARK_GRAY));
+        return 1;
+    }
+
+    private static Component channelButton(String label, String command, ChatFormatting color) {
+        return Component.literal(label).withStyle(style -> style.withColor(color).withBold(true)
+                .withClickEvent(new ClickEvent.RunCommand(command)));
+    }
+
     private int setChannel(ServerPlayer player, Channel channel) {
         if (channel == Channel.TOWN && towns.townOf(player.getUUID()) == null) {
             player.sendSystemMessage(Component.literal("Tu n'as pas de ville.").withStyle(ChatFormatting.RED));
@@ -220,7 +241,7 @@ final class Chat {
 
     void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("canal")
-                .executes(c -> setChannel(c.getSource().getPlayerOrException(), Channel.GLOBAL))
+                .executes(c -> showChannelMenu(c.getSource().getPlayerOrException()))
                 .then(Commands.literal("global").executes(c -> setChannel(c.getSource().getPlayerOrException(), Channel.GLOBAL)))
                 .then(Commands.literal("ville").executes(c -> setChannel(c.getSource().getPlayerOrException(), Channel.TOWN)))
                 .then(Commands.literal("local").executes(c -> setChannel(c.getSource().getPlayerOrException(), Channel.LOCAL))));
