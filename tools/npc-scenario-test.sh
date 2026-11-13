@@ -107,6 +107,7 @@ def check(condition, message):
     print(('ok : ' if condition else 'ÉCHEC : ') + message)
     if not condition:
         raise SystemExit(1)
+check('[PNJ] identité lea créée par Alice' in log, 'commande admin crée le PNJ demandé')
 check('IA_BONJOUR' in json.dumps(first), 'dialogue HTTP en français depuis un mob identifié')
 check(len(memory) == 1, 'même mémoire joueur/PNJ conservée au redémarrage')
 saved = next(iter(memory.values()))
