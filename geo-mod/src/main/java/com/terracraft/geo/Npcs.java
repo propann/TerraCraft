@@ -513,7 +513,10 @@ final class Npcs {
             if (mob.entityTags().contains(TAG+q.npc())) memory.quest=reply.questId();
         }
         save();
-        player.sendSystemMessage(Component.literal(persona(mob).name() + " : " + reply.speech()).withStyle(ChatFormatting.GREEN));
+        if (conversations.getOrDefault(player.getUUID(), -1) != mob.getId()) {
+            // La fenêtre dédiée affiche déjà l'historique : ne pas répéter la réplique dans le chat global.
+            player.sendSystemMessage(Component.literal(persona(mob).name() + " : " + reply.speech()).withStyle(ChatFormatting.GREEN));
+        }
         mission(player, mob, false);
         sendChatState(player, mob);
     }
