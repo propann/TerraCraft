@@ -324,8 +324,11 @@ public final class GeoMod implements ModInitializer {
                 com.terracraft.geo.content.GunItem.reloadHeld(context.player()));
         ServerPlayNetworking.registerGlobalReceiver(NpcChatMessagePayload.TYPE, (payload, context) ->
                 NPCS.talkFromClient(context.player(), payload.entityId(), payload.message()));
-        ServerPlayNetworking.registerGlobalReceiver(NpcMissionActionPayload.TYPE, (payload, context) ->
-                NPCS.missionFromClient(context.player(), payload.entityId(), payload.claim()));
+        ServerPlayNetworking.registerGlobalReceiver(NpcMissionActionPayload.TYPE, (payload, context) -> {
+            if (GUI_RATE.allow(context.player())) {
+                NPCS.missionFromClient(context.player(), payload.entityId(), payload.claim());
+            }
+        });
         ServerPlayNetworking.registerGlobalReceiver(NpcClosePayload.TYPE, (payload, context) ->
                 NPCS.closeChat(context.player(), payload.entityId()));
         PayloadTypeRegistry.clientboundPlay().register(StarMapPayload.TYPE, StarMapPayload.CODEC);
