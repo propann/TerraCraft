@@ -15,6 +15,8 @@ CARPET_URL="https://cdn.modrinth.com/data/TQTTVgYE/versions/yt9oDFOj/fabric-carp
 
 "$ROOT/tools/smoke_server.sh" "$JAR" "$WORK"
 cd "$WORK"
+# Spark n'est pas testé ici et son contrôle asynchrone peut courir après l'arrêt.
+rm -f mods/spark.jar
 # smoke_server.sh ne réussit qu'après l'arrêt effectif de son processus Java.
 rm -rf world
 curl -fsSL -o mods/carpet.jar "$CARPET_URL"
@@ -348,15 +350,13 @@ check(balances == sorted([660, 938 + race_bob - 180]), f"soldes Alice 400 + 10 d
 eco = json.loads((data / "economie.json").read_text())
 created, destroyed = sum(eco["created"].values()), sum(eco["destroyed"].values())
 check(created == sum(balances) + towns[0]["treasury"] + destroyed, "aucun crédit perdu ni créé : créés = comptes + trésorerie + détruits")
-check(eco["destroyed"].get("frais_hdv") == 2 and eco["destroyed"].get("comptoir") == 60 + 180,
-      f"frais de 2 % et comptoir (observé {eco['destroyed']})")
+check(eco["destroyed"].get("frais_hdv") == 2 and eco["destroyed"].get("comptoir") == 60 + 180, "frais de 2 % et comptoir (dont l'offre réservée du pilote)")
 check(re.search(r"Teleported Bob|Bienvenue au centre", log) is not None or "ville tp" in log, "retour au centre-ville")
-suit = "\n".join(line for line in log.splitlines()
-                if "Bob has the following entity data:" in line and "fabric:attachments" in line)
-check(all(item in suit for item in ("space_helmet", "jetpack", "oxygen_tank")),
-      f"équipement spatial porté (données observées : {suit[:500]!r})")
-check("minecraft:damage" in suit, f"le casque consomme de l'oxygène sur la Lune (données : {suit[:500]!r})")
-health = [float(h) for h in re.findall(r"Bob has the following entity data: (\d+(?:\.\d+)?)(?:f)?", log)]
+suit = re.findall(r'"terracraft_geo:space_suit": \[(.*?)\]\}', log)
+check(bool(suit) and "space_helmet" in suit[-1] and "jetpack" in suit[-1] and "oxygen_tank" in suit[-1],
+      "casque, bouteilles et jetpack portés par clic droit")
+check(bool(suit) and '"minecraft:damage"' in suit[-1], "le casque consomme de l'oxygène sur la Lune")
+health = [float(h) for h in re.findall(r"Bob has the following entity data: (\d+\.\d+)f", log)]
 # Santé pleine (20, ou plus si un palier a ajouté des cœurs) : l'oxygène a protégé Bob sur la Lune.
 check(bool(health) and health[0] >= 20, f"Bob respire (aucun dégât, santé {health[:1]})")
 progression = json.loads((data / "progression.json").read_text())
@@ -367,10 +367,8 @@ check(any(s.get("listings") == 1 for s in stats) and any(s.get("shop", 0) >= 1 f
 check(any(s.get("town") == 1 for s in stats) and any(s.get("job") == 1 for s in stats), "compteurs ville et métier")
 contracts = json.loads((data / "contrats.json").read_text())
 check(len(contracts) >= 2 and all("baseline" in c for c in contracts.values()), "journée de contrats ouverte pour chaque joueur")
-reports_path = data / "signalements.json"
-reports = json.loads(reports_path.read_text()) if reports_path.exists() else []
-check(len(reports) == 1 and reports[0]["player"] == "Bob",
-      f"signalement enregistré (fichier présent={reports_path.exists()}, reçus={reports})")
+reports = json.loads((data / "signalements.json").read_text())
+check(len(reports) == 1 and reports[0]["player"] == "Bob", "signalement enregistré")
 check("[LARGAGE] Caisse en" in log, "caisse de ravitaillement larguée sur la plateforme")
 check(log.count("Test passed") >= 2, "module de station : distributeur d'oxygène au centre, porte ouverte")
 check(any(s.get("modules") == 1 for s in stats), "compteur de modules de station")
