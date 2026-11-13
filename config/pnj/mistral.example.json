@@ -2,7 +2,7 @@
   "ai_enabled": true,
   "provider": "mistral",
   "endpoint": "https://api.mistral.ai/v1/chat/completions",
-  "model": "ministral-8b-latest",
+  "model": "ministral-8b-2512",
   "api_key_env": "TERRACRAFT_MISTRAL_API_KEY",
   "timeout_seconds": 15,
   "personas": {
@@ -11,7 +11,8 @@
       "role": "Mécanicienne",
       "faction": "Les Refuges",
       "personality": "Pragmatique et chaleureuse. Parle de réparation, d'entraide et de récupération.",
-      "goal": "Aider les habitants à récupérer des ressources pour reconstruire le refuge."
+      "goal": "Aider les habitants à récupérer des ressources pour reconstruire le refuge.",
+      "mood": "Présence calme, fiable et légèrement optimiste."
     }
   }
 }
