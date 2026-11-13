@@ -30,11 +30,23 @@ done
 grep -q "Done (" scenario.log || { echo "ÉCHEC : le serveur ne démarre pas"; tail -30 scenario.log; exit 1; }
 
 cmd() { echo "$1" >&"$TEST_INPUT"; sleep "${2:-1}"; }
+wait_for_fake_player() {
+  local player="$1"
+  for _ in $(seq 30); do
+    grep -qi "${player}\\[local\\] logged in" scenario.log && return 0
+    sleep 1
+  done
+  echo "ÉCHEC : le faux joueur ${player} ne s'est pas connecté"
+  tail -40 scenario.log
+  exit 1
+}
 # Plateforme en hauteur : le point 0, 0 de la Terre réelle est en plein Atlantique.
 cmd "forceload add -64 -64 63 63" 6
 cmd "fill -60 200 -60 60 200 60 minecraft:stone" 3
-cmd "player Alice spawn at 0 201 0" 4
-cmd "player Bob spawn at 5 201 5" 4
+cmd "player Alice spawn at 0 201 0" 1
+cmd "player Bob spawn at 5 201 5" 1
+wait_for_fake_player Alice
+wait_for_fake_player Bob
 cmd "gamemode survival Alice"
 cmd "gamemode survival Bob"
 # Villes
@@ -310,9 +322,10 @@ cmd 'give Bob terracraft_geo:rifle[terracraft_geo:sight="scope_x4"]' 1
 cmd 'execute if items entity Bob container.* terracraft_geo:rifle[terracraft_geo:sight="scope_x4"] run say VISEUR_MONTE' 1
 # Élection municipale : Dan rejoint Bourg Neuf (3 habitants), Alice convoque, Bob se présente et gagne
 # Alice, tuée au test PvP, a quitté le serveur (faux joueur) : elle revient pour l'élection.
-cmd "player Alice spawn at 0 201 2" 4
-cmd "player Dan spawn at 2 201 2" 4
-for _ in $(seq 20); do grep -q "dan\[local\] logged in\|Dan\[local\] logged in" scenario.log && break; sleep 1; done
+cmd "player Alice spawn at 0 201 2" 1
+cmd "player Dan spawn at 2 201 2" 1
+wait_for_fake_player Alice
+wait_for_fake_player Dan
 cmd "execute as Alice run ville inviter Dan"
 cmd "execute as Dan run ville rejoindre" 1
 cmd "execute as Alice run v Réunion à la mairie ce soir" 1
