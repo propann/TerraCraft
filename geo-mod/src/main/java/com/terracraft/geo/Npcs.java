@@ -208,9 +208,74 @@ final class Npcs {
                                     var entity = EntityArgument.getEntity(c, "mob");
                                     return entity instanceof Mob mob ? bind(mob, StringArgumentType.getString(c, "identite")) : 0;
                                 }))))
+                .then(Commands.literal("editer").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                        .then(Commands.argument("identite", StringArgumentType.word())
+                                .then(Commands.argument("champ", StringArgumentType.word())
+                                        .then(Commands.argument("valeur", StringArgumentType.greedyString())
+                                                .executes(c -> editPersona(c.getSource(),
+                                                        StringArgumentType.getString(c, "identite"),
+                                                        StringArgumentType.getString(c, "champ"),
+                                                        StringArgumentType.getString(c, "valeur")))))))
                 .then(Commands.literal("recharger").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                         .executes(c -> { configure(c.getSource().getServer()); c.getSource().sendSuccess(
                                 () -> Component.literal("Identités PNJ rechargées : " + (brain == null ? "dialogues locaux." : "IA configurée.")), false); return 1; })));
+    }
+
+    private int editPersona(CommandSourceStack source, String id, String field, String rawValue) {
+        Persona current = settings.personas.get(id);
+        if (current == null) {
+            source.sendFailure(Component.literal("Identité inconnue : " + id));
+            return 0;
+        }
+        String value = rawValue.strip();
+        int limit = switch (field) {
+            case "nom" -> 48;
+            case "role", "faction" -> 120;
+            case "personnalite" -> 1200;
+            case "objectif" -> 500;
+            case "humeur" -> 300;
+            default -> 0;
+        };
+        if (limit == 0) {
+            source.sendFailure(Component.literal("Champ invalide. Choisis nom, role, faction, personnalite, objectif ou humeur."));
+            return 0;
+        }
+        if (value.isBlank() || value.length() > limit) {
+            source.sendFailure(Component.literal("La valeur doit contenir de 1 à " + limit + " caractères."));
+            return 0;
+        }
+        Persona updated = switch (field) {
+            case "nom" -> new Persona(value, current.role(), current.faction(), current.personality(), current.goal(), current.mood());
+            case "role" -> new Persona(current.name(), value, current.faction(), current.personality(), current.goal(), current.mood());
+            case "faction" -> new Persona(current.name(), current.role(), value, current.personality(), current.goal(), current.mood());
+            case "personnalite" -> new Persona(current.name(), current.role(), current.faction(), value, current.goal(), current.mood());
+            case "objectif" -> new Persona(current.name(), current.role(), current.faction(), current.personality(), value, current.mood());
+            case "humeur" -> new Persona(current.name(), current.role(), current.faction(), current.personality(), current.goal(), value);
+            default -> current;
+        };
+        settings.personas.put(id, updated);
+        MinecraftServer server = source.getServer();
+        Path file = server.getServerDirectory().resolve("config/terracraft-npcs.json");
+        try {
+            JsonStore.write(file, GSON.toJson(settings));
+        } catch (IOException e) {
+            settings.personas.put(id, current);
+            source.sendFailure(Component.literal("Impossible d’enregistrer la configuration PNJ."));
+            GeoMod.LOGGER.warn("[PNJ] Échec d’écriture de la configuration ({})", e.getClass().getSimpleName());
+            return 0;
+        }
+        configure(server);
+        Persona saved = settings.personas.get(id);
+        for (var level : server.getAllLevels()) {
+            for (var entity : level.getAllEntities()) {
+                if (entity instanceof Mob mob && mob.entityTags().contains(TAG + id)) {
+                    mob.setCustomName(Component.literal(saved.name() + " · " + saved.role()));
+                }
+            }
+        }
+        source.sendSuccess(() -> Component.literal("PNJ " + saved.name() + " mis à jour : " + field + ". Dialogue "
+                + (brain == null ? "local" : "IA configurée") + "."), false);
+        return 1;
     }
 
     void openChat(ServerPlayer player, Mob mob) {
