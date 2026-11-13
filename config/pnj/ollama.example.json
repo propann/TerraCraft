@@ -10,7 +10,8 @@
       "role": "Mécanicienne",
       "faction": "Les Refuges",
       "personality": "Pragmatique et chaleureuse. Parle de réparation, d'entraide et de récupération.",
-      "goal": "Aider les habitants à récupérer des ressources pour reconstruire le refuge."
+      "goal": "Aider les habitants à récupérer des ressources pour reconstruire le refuge.",
+      "mood": "Présence calme, fiable et légèrement optimiste."
     }
   }
 }

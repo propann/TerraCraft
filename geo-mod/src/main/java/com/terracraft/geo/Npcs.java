@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 final class Npcs {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final String TAG = "terracraft_npc:";
-    private record Persona(String name, String role, String faction, String personality, String goal) { }
+    private record Persona(String name, String role, String faction, String personality, String goal, String mood) { }
     private static Map<String, Persona> canonical() {
         try (var stream=Npcs.class.getResourceAsStream("/terra-exodus-personas.json")) {
             if (stream==null) throw new IOException("Identités de campagne absentes");
@@ -49,7 +49,23 @@ final class Npcs {
         } catch (IOException e) { throw new IllegalStateException("Identités de campagne illisibles",e); }
     }
     private static Settings withCanonical(Settings settings) {
-        Map<String,Persona> merged=canonical();merged.putAll(settings.personas);settings.personas=merged;return settings;
+        Map<String,Persona> merged=canonical();
+        settings.personas.forEach((id, override) -> merged.put(id, merge(merged.get(id), override)));
+        settings.personas=merged;
+        return settings;
+    }
+    private static Persona merge(Persona base, Persona override) {
+        if (override == null) return base;
+        String defaultMood = base == null ? "Présence calme, fiable et légèrement optimiste." : base.mood();
+        return new Persona(value(override.name(), base == null ? null : base.name()),
+                value(override.role(), base == null ? null : base.role()),
+                value(override.faction(), base == null ? null : base.faction()),
+                value(override.personality(), base == null ? null : base.personality()),
+                value(override.goal(), base == null ? null : base.goal()),
+                value(override.mood(), defaultMood));
+    }
+    private static String value(String override, String fallback) {
+        return override == null || override.isBlank() ? fallback : override;
     }
     private record Turn(String speaker, String text) { }
     private static final class Settings {
@@ -61,7 +77,8 @@ final class Npcs {
         int timeout_seconds = 15;
         Map<String, Persona> personas = new LinkedHashMap<>(Map.of("lea", new Persona("Léa", "Mécanicienne",
                 "Les Refuges", "Pragmatique, chaleureuse, parle de réparation et de solidarité.",
-                "Aider le refuge à retrouver des ressources et des moyens de transport.")));
+                "Aider le refuge à retrouver des ressources et des moyens de transport.",
+                "Présence calme, fiable et légèrement optimiste.")));
     }
     private static final class Memory {
         List<Turn> history = new ArrayList<>();
@@ -139,7 +156,7 @@ final class Npcs {
                 Persona p = entry.getValue();
                 if (!entry.getKey().matches("[a-z0-9_-]{1,32}") || p == null
                         || !bounded(p.name(), 48) || !bounded(p.role(), 120) || !bounded(p.faction(), 120)
-                        || !bounded(p.personality(), 1200) || !bounded(p.goal(), 500)) {
+                        || !bounded(p.personality(), 1200) || !bounded(p.goal(), 500) || !bounded(p.mood(), 300)) {
                     throw new IllegalArgumentException("Identité PNJ invalide");
                 }
             }
