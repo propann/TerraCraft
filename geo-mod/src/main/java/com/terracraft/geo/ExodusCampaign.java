@@ -210,6 +210,9 @@ public final class ExodusCampaign {
         int chapter = chapter(player);
         List<String> pages = new ArrayList<>(List.of(
             "TERRA EXODUS\nLes Vestiges d’Orion\n\nCARNET DE TERRAIN\nJournal de " + player.getName().getString(),
+            "LE BON DÉPART\n\n1. Lance le pack TerraCraft avec Fabric.\n2. À ta première connexion, attends la carte. Tu es spectateur pendant ton choix.\n3. Zoome, clique sur un lieu, puis confirme.",
+            "L’ARRIVÉE\n\nLe serveur prépare relief, rues et bâtiments. Reste connecté. Il cherche un point praticable, puis te dépose au-dessus du sol en chute lente.",
+            "TON KIT\n\nÀ l’arrivée : pain, torches, épée, boussole et ce journal. Ouvre-le avant de partir.\n\nBesoin d’aide ? /aide depart",
             "JOUR 1\n\nLe réveil a lieu dans le ciel. En bas, une ville sans voix. Les rues sont familières ; les fenêtres, elles, ne répondent plus.",
             "2089\n\nLe Grand Effondrement a rompu les réseaux et ravagé les villes. Une contamination gagne les ruines. Personne ne sait encore d’où elle vient.",
             "LE SIGNAL\n\n« Le berceau se meurt. »\n\nPuis du bruit. Une anomalie sur la Lune. Une autre sur Mars. La transmission s’arrête là.",
