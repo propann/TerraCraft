@@ -1,15 +1,13 @@
-# Mods du client TerraCraft
+# Installer les mods client
 
-Ce dossier contient les mods à installer sur chaque machine qui rejoint le serveur, alignés sur la dernière version
-publiée (voir `LICENCES.md`).
+Les fichiers `.jar` ne sont plus stockés dans Git. Le pack et l'installeur sont les chemins recommandés :
+- Importer le pack `TerraCraft-client.mrpack` de la dernière release dans Prism Launcher ou Modrinth App.
+- Ou lancer l'installeur du dossier `installer/` pour le launcher Minecraft officiel.
 
-1. Installe **Fabric** pour Minecraft **26.3** (loader **0.19.5**) : https://fabricmc.net/use/installer/
-2. Dans ce dossier, lance `telecharger-restants.sh` (Linux / macOS) ou `telecharger-restants.ps1` (Windows) : il
-   ajoute les deux cartes Xaero, que leur licence interdit de republier ici.
-3. Copie tous les `.jar` dans le dossier `mods` de ton Minecraft (`%APPDATA%\.minecraft\mods` sous Windows,
-   `~/.minecraft/mods` sous Linux) après avoir mis de côté les anciens, puis ajoute le serveur `terre1.falixsrv.me`.
+Pour préparer manuellement ce dossier depuis un clone du dépôt, avec Python 3 et une connexion Internet :
 
-Plus simple : le pack [`TerraCraft-client.mrpack`](../TerraCraft-client.mrpack) à la racine du dépôt (Prism Launcher, Modrinth App) ou l'installeur du dossier
-`installer/` font tout cela d'un coup, shader compris.
+1. Depuis la racine du dépôt, exécute `python3 tools/sync_client_mods.py`. Le script récupère le pack de la dernière release et télécharge les mods redistribuables avec vérification SHA-512.
+2. Toujours depuis la racine, lance `./mods/telecharger-restants.sh` (Linux/macOS) ou `./mods/telecharger-restants.ps1` (Windows). Ces scripts récupèrent les deux cartes Xaero directement depuis Modrinth ; elles ne sont pas redistribuées par le dépôt.
+3. Copie les `.jar` obtenus dans le dossier `mods` de l'instance Fabric 26.3, loader 0.19.5.
 
-Ce dossier est régénéré à chaque version par `python3 tools/sync_client_mods.py`.
+Le dossier local ainsi créé correspond à la release téléchargée. Répète la procédure après une mise à jour du serveur. Les versions et empreintes SHA-512 sont tenues à jour par `tools/mods.lock.json` et `tools/sync_client_mods.py`.
