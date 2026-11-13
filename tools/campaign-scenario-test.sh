@@ -8,6 +8,9 @@ source "$ROOT/tools/test-server-lib.sh"
 prepare_test_workdir "${1:-}" "${2:-}"
 "$ROOT/tools/smoke_server.sh" "$JAR" "$WORK"
 cd "$WORK"
+# Spark n'est pas utilisé par ce scénario et sa résolution asynchrone de profils
+# peut survivre à l'arrêt du serveur de test avec la PlayerList déjà détruite.
+rm -f mods/spark.jar
 rm -rf world
 cleanup() {
   local status=$?
