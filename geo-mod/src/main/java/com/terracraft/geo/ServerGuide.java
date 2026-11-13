@@ -67,6 +67,39 @@ final class ServerGuide {
                 new Entry("[Stock]", "/ville stock", "Stock commun : le même dans chaque terminal logistique, Terre comme Lune"),
                 new Entry("", "", "Claims : touche M, clic droit sur les chunks ; les claims des habitants agrandissent la ville."),
                 new Entry("", "", "Certaines nuits, des hordes attaquent les villes : tenez jusqu'à l'aube !")));
+        THEMES.put("commandes", java.util.List.of(
+                new Entry("[Survie]", "/aide survie", "Arrivée, premiers pas, maison, retours et lieux"),
+                new Entry("[Discussion]", "/aide chat", "Canaux global, ville et proximité ; messages privés"),
+                new Entry("[Commerce]", "/aide commerce", "Crédits, marché, comptoir et étals"),
+                new Entry("[Villes]", "/aide villes", "Fonder ou rejoindre une ville, rôles municipaux et stock"),
+                new Entry("[Combat]", "/aide combat", "Règles, PvP, primes et signalements"),
+                new Entry("[Campagne]", "/aide exodus", "Journal, quêtes, contacts et archives"),
+                new Entry("[Espace]", "/aide espace", "Fusées, stations, plans et destinations"),
+                new Entry("[Touches]", "/aide touches", "Raccourcis clavier et véhicules"),
+                new Entry("[Équipe]", "/aide permissions", "Rôles actuels et outils de modération")));
+        THEMES.put("chat", java.util.List.of(
+                new Entry("[Global]", "/canal global", "Messages visibles par tout le serveur (canal par défaut)"),
+                new Entry("[Ville]", "/canal ville", "Choisir le canal de ta ville ; !message l’utilise aussi"),
+                new Entry("[Proximité]", "/canal local", "Messages audibles à 100 blocs, dans la même dimension"),
+                new Entry("[Message ville]", "/v ", "Envoyer un message aux membres de ta ville"),
+                new Entry("[Message local]", "/l ", "Envoyer un message aux joueurs proches"),
+                new Entry("[Privé]", "/mp ", "Écrire en privé : /mp <joueur> <message>"),
+                new Entry("[Répondre]", "/r ", "Répondre au dernier message privé"),
+                new Entry("", "", "Écris @Pseudo pour attirer l’attention d’un joueur connecté."),
+                new Entry("", "", "Le canal choisi reste actif jusqu’à /canal global ou ta déconnexion.")));
+        THEMES.put("permissions", java.util.List.of(
+                new Entry("", "", "Joueur : commandes de jeu et rôles de sa ville (maire ou adjoint)."),
+                new Entry("[Modération]", "/mod", "Réservé aux modérateurs nommés et aux opérateurs."),
+                new Entry("[Règles]", "/regles", "Les mêmes règles sont présentées à la première arrivée."),
+                new Entry("[Aide]", "/signaler ", "Contacter l’équipe pour un bug, une perte ou un comportement."),
+                new Entry("", "", "Les modérateurs ne deviennent pas opérateurs : leur accès est limité à /mod."),
+                new Entry("", "", "Les permissions détaillées par commande ne sont pas encore configurables.")));
+        THEMES.put("moderation", java.util.List.of(
+                new Entry("[Règles]", "/regles", "Consulter les règles du serveur"),
+                new Entry("[Signaler]", "/signaler ", "Envoyer un signalement à l’équipe"),
+                new Entry("", "", "Les modérateurs nommés disposent de /mod expulser, silence, avertir, aller et signalements."),
+                new Entry("", "", "Les administrateurs nomment l’équipe avec /moderateurs ajouter ou retirer."),
+                new Entry("", "", "Les silences sont temporaires et prennent fin au redémarrage du serveur.")));
         THEMES.put("combat", java.util.List.of(
                 new Entry("[Règles]", "/regles", "Les règles du serveur"),
                 new Entry("[PvP]", "/pvp", "PvE partout ; le combat entre joueurs n'existe que dans les zones PvP"),
@@ -98,7 +131,7 @@ final class ServerGuide {
                         .withClickEvent(new ClickEvent.RunCommand("/aide " + name)))).append(Component.literal("  "));
             }
             player.sendSystemMessage(menu);
-            player.sendSystemMessage(Component.literal("Touche O : menu TerraCraft · /regles · /signaler en cas de souci").withStyle(ChatFormatting.GRAY));
+            player.sendSystemMessage(Component.literal("Commandes et chat : /aide commandes · règles : /regles · besoin d’aide : /signaler").withStyle(ChatFormatting.GRAY));
             return 1;
         }
         player.sendSystemMessage(Component.literal("✦ Guide — " + theme.toLowerCase(java.util.Locale.ROOT)).withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
