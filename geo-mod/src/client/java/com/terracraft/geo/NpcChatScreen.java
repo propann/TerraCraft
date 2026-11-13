@@ -17,6 +17,7 @@ public final class NpcChatScreen extends Screen {
     private final int entityId;
     private JsonObject state;
     private EditBox input;
+    private Button claimButton;
     private int left, top, panelWidth, panelHeight;
 
     public NpcChatScreen(int entityId, String json) {
@@ -32,7 +33,10 @@ public final class NpcChatScreen extends Screen {
     public void update(String json) {
         try {
             JsonObject parsed = JsonParser.parseString(json).getAsJsonObject();
-            if (parsed.has("identity") && parsed.has("history")) state = parsed;
+            if (parsed.has("identity") && parsed.has("history")) {
+                state = parsed;
+                if (claimButton != null) claimButton.active = state.has("hasQuest") && state.get("hasQuest").getAsBoolean();
+            }
         } catch (RuntimeException ignored) {
             // Un état mal formé ne remplace pas la dernière conversation lisible.
         }
@@ -47,10 +51,10 @@ public final class NpcChatScreen extends Screen {
         int actionY = top + 77;
         addRenderableWidget(Button.builder(Component.literal("Objectif"), b -> action(false))
                 .bounds(left + 10, actionY, 88, 20).build());
-        Button claim = Button.builder(Component.literal("Réclamer"), b -> action(true))
+        claimButton = Button.builder(Component.literal("Réclamer"), b -> action(true))
                 .bounds(left + 104, actionY, 88, 20).build();
-        claim.active = state != null && state.has("hasQuest") && state.get("hasQuest").getAsBoolean();
-        addRenderableWidget(claim);
+        claimButton.active = state != null && state.has("hasQuest") && state.get("hasQuest").getAsBoolean();
+        addRenderableWidget(claimButton);
 
         input = new EditBox(font, left + 10, top + panelHeight - 38, panelWidth - 112, 20, Component.literal("Écrire au personnage"));
         input.setMaxLength(500);
