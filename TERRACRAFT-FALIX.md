@@ -29,6 +29,21 @@ Elle est générée par `deploy/make_falix_branch.sh` depuis `main`. Ne pas la m
   Le contrôle anti-vol vanilla est donc remplacé par celui de TerraCraft : un joueur (ou sa voiture) qui plane plus de 3 s sur Terre est ramené au sol, les opérateurs connectés sont prévenus et la console affiche `[ANTITRICHE]`. Pas d'expulsion automatique.
 - Journal des transactions dans la console : `[HDV]`, `[ECO]`, `[MISSION]`. Mesures de performance : `/spark tps`, `/spark health`.
 - **Administrateurs** : `ops.json` est fourni par cette branche et réécrit à chaque déploiement. Pour ajouter un admin, modifie `deploy/ops.json` dans `main`.
+
+### PNJ connectés à Mistral
+
+Sur Falix, ouvre **Settings → Startup → Environment** et vérifie que
+`TERRACRAFT_MISTRAL_API_KEY` contient la clé du compte. La branche de déploiement
+ne copie jamais la clé. La [configuration de démarrage Falix](https://kb.falixnodes.net/falix/dashboard/setup/startup-configuration)
+documente l'onglet Environment.
+
+Après le redémarrage, si `config/terracraft-npcs.json` contient encore les réglages
+par défaut, TerraCraft détecte la variable et active automatiquement Mistral avec
+`ministral-8b-2512`. Il enregistre la configuration sans y écrire la clé. Les
+réglages personnalisés déjà présents sont conservés. Dans la console, vérifie le
+message `[PNJ] ... dialogues IA activés`, puis en jeu utilise `/pnj liste` et
+`/pnj creer lea`. La configuration avancée est décrite dans
+[`docs/pnj-intelligents.md`](../docs/pnj-intelligents.md).
 - Optionnel : `max-tick-time=300000` (plus de marge pendant les premiers téléchargements) et `view-distance=8` si le serveur n'a que 4 Go.
 
 ## Liste des serveurs
