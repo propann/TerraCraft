@@ -114,7 +114,7 @@ public final class NpcChatScreen extends Screen {
         String quest = state != null && state.has("quest_title") ? state.get("quest_title").getAsString() : "";
         if (!quest.isBlank()) {
             g.text(font, font.plainSubstrByWidth("Objectif lié : " + quest, panelWidth - 32),
-                    left + 16, logTop - 13, SuitScreen.GREEN, false);
+                    left + 16, logTop - 13, 0xFF7EE08A, false);
         }
 
         int y = logBottom - 10;
