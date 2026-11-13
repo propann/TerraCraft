@@ -222,7 +222,12 @@ public final class ExodusCampaign {
         if (chapter >= 4) pages.add("ACTE IV — LA PISTE ROUGE\n\nSoren : « Mars n’est pas la fin du voyage. Lis les glyphes. Ils dessinent une route vers la ceinture. »\n\nSur le site, /exodus archives.");
         if (chapter >= 5) pages.add("ACTE V — LE NOYAU\n\nL’Archiviste : « Le dernier passage se mérite. Sors dans le vide, reviens à la balise, puis affronte ton gardien. »\n\nLe Noyau ne restaure qu’une région, avec l’accord de la ville.");
         for (ExodusQuests.Quest q : available(player)) pages.add("ACTE " + q.act() + " · " + q.title()+"\n\nTRACES À RETROUVER\n"+String.join("\n",q.goals().stream().map(ExodusQuests.Goal::label).toList()));
-        pages.add("LES VOIX DU REFUGE\n\nHélène coordonne. Boulon répare. Aris prépare les vols. Sujet-09 garde les fragments de 2089. Soren suit les glyphes. L’Archiviste connaît le temple.\n\n/pnj : parler à un contact proche.");
+        StringBuilder voices = new StringBuilder("LES VOIX DU REFUGE\n\nHélène coordonne le refuge.");
+        if (chapter >= 2) voices.append(" Boulon répare les machines.");
+        if (chapter >= 3) voices.append(" Aris prépare les vols. Sujet-09 garde les fragments de 2089.");
+        if (chapter >= 4) voices.append(" Soren suit les glyphes martiens.");
+        if (chapter >= 5) voices.append(" L’Archiviste veille sur le temple.");
+        pages.add(voices.append("\n\n/pnj : parler à un contact proche.").toString());
         if (journal(player).done.size()==ExodusQuests.ALL.size()) pages.add(
             "L’ÉVEIL COSMIQUE\n\nVotre expédition a rejoint les Archives d’Orion. Une région terrestre retrouve un avenir. Le berceau peut renaître, ville après ville.\n\nLes origines du signal restent à explorer.");
         ItemStack book = Arrival.guide(pages);
