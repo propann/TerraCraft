@@ -157,19 +157,18 @@ cmd "effect clear Alice minecraft:resistance" 1
 cmd "damage Alice 1000 minecraft:player_attack by Bob" 3
 cmd "execute as Bob run pvp supprimer Arene des primes" 1
 cmd "execute as Bob run missions" 1
-# Combinaison spatiale (clic droit avec chaque pièce)
-cmd "item replace entity Bob weapon.mainhand with terracraft_geo:space_helmet"
-cmd "player Bob use once" 2
-cmd "item replace entity Bob weapon.mainhand with terracraft_geo:oxygen_tank 16"
-cmd "player Bob use once" 2
-cmd "item replace entity Bob weapon.mainhand with terracraft_geo:jetpack"
-cmd "player Bob use once" 2
-# Respiration sur la Lune
+# La combinaison se gère dans le menu client (touche J) : un faux joueur Carpet ne peut pas la porter.
+# Le scénario serveur vérifie ici le cas sans air ; l'équipement réel est couvert par la séance multi-joueurs.
 cmd "execute in terracraft_geo:moon run forceload add 0 0" 3
 cmd "execute in terracraft_geo:moon run fill -3 150 -3 3 150 3 minecraft:stone" 2
 cmd "execute in terracraft_geo:moon run tp Bob 0 151 0" 8
-cmd 'data get entity Bob "fabric:attachments"' 2
+cmd "effect clear Bob minecraft:resistance" 1
+cmd "say OXYGEN_TEST_START" 1
 cmd "data get entity Bob Health" 1
+cmd "say OXYGEN_DAMAGE_WINDOW" 3
+cmd "data get entity Bob Health" 1
+cmd "say OXYGEN_TEST_END" 1
+cmd "effect give Bob minecraft:instant_health 1 255 true" 1
 # Orbite lunaire : module de station et balise (Bob regarde le sol, orienté vers le sud)
 cmd "execute in terracraft_geo:moon_orbit run forceload add -16 -16 16 16" 3
 cmd "execute in terracraft_geo:moon_orbit run fill -6 150 -6 6 150 6 minecraft:stone" 2
@@ -353,14 +352,10 @@ check(created == sum(balances) + towns[0]["treasury"] + destroyed, "aucun crédi
 check(eco["destroyed"].get("frais_hdv") == 2 and eco["destroyed"].get("comptoir") == 60 + 180,
       f"frais de 2 % et comptoir (observé {eco['destroyed']})")
 check(re.search(r"Teleported Bob|Bienvenue au centre", log) is not None or "ville tp" in log, "retour au centre-ville")
-suit = "\n".join(line for line in log.splitlines()
-                if "Bob has the following entity data:" in line and "fabric:attachments" in line)
-check(all(item in suit for item in ("space_helmet", "jetpack", "oxygen_tank")),
-      f"équipement spatial porté (données observées : {suit[:500]!r})")
-check("minecraft:damage" in suit, f"le casque consomme de l'oxygène sur la Lune (données : {suit[:500]!r})")
-health = [float(h) for h in re.findall(r"Bob has the following entity data: (\d+\.\d+)f", log)]
-# Santé pleine (20, ou plus si un palier a ajouté des cœurs) : l'oxygène a protégé Bob sur la Lune.
-check(bool(health) and health[0] >= 20, f"Bob respire (aucun dégât, santé {health[:1]})")
+oxygen_window = log.split("OXYGEN_TEST_START", 1)[1].split("OXYGEN_TEST_END", 1)[0]
+oxygen_health = [float(h) for h in re.findall(r"Bob has the following entity data: (\d+(?:\.\d+)?)(?:f)?", oxygen_window)]
+check(len(oxygen_health) >= 2 and oxygen_health[-1] < oxygen_health[0],
+      f"sans casque ni réserve, l'absence d'air inflige des dégâts sur la Lune (santé {oxygen_health})")
 progression = json.loads((data / "progression.json").read_text())
 jobs = sorted(r.get("job") for r in progression.values() if r.get("job"))  # Eve (test de protection) n'a pas de métier
 check(jobs == ["MECANICIEN", "PILOTE"], f"métiers enregistrés (obtenu {jobs})")
