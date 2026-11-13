@@ -153,6 +153,21 @@ final class Npcs {
                 JsonStore.write(file, GSON.toJson(settings));
             }
             if (settings != null && settings.personas != null) settings = withCanonical(settings);
+            if (settings != null && !settings.ai_enabled
+                    && "ollama".equals(settings.provider)
+                    && "http://127.0.0.1:11434/api/chat".equals(settings.endpoint)
+                    && "mistral".equals(settings.model)
+                    && "TERRACRAFT_MISTRAL_API_KEY".equals(settings.api_key_env)) {
+                String key = System.getenv(settings.api_key_env);
+                if (key != null && !key.isBlank()) {
+                    settings.ai_enabled = true;
+                    settings.provider = "mistral";
+                    settings.endpoint = "https://api.mistral.ai/v1/chat/completions";
+                    settings.model = "ministral-8b-2512";
+                    JsonStore.write(file, GSON.toJson(settings));
+                    GeoMod.LOGGER.info("[PNJ] Clé Mistral détectée : activation du modèle économique Ministral 8B.");
+                }
+            }
             if (settings == null || settings.personas == null || settings.personas.size() > 64) {
                 throw new IllegalArgumentException("Identités PNJ invalides");
             }
