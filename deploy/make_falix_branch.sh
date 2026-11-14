@@ -58,7 +58,7 @@ if git diff --cached --quiet; then
   echo "Rien de nouveau à déployer."
   exit 0
 fi
-git -c user.name="$(git config user.name || echo azoth)" -c user.email="$(git config user.email || echo 000.enzo.000@gmail.com)" \
+git -c user.name="$(git config user.name || echo azoth)" -c user.email="$(git config user.email || echo 54742679+propann@users.noreply.github.com)" \
   commit -q -m "deploy: TerraCraft $VERSION pour Falix" -m "Construit depuis $(git -C "$ROOT" rev-parse --short HEAD)."
 echo "Commit $(git rev-parse --short HEAD) sur $BRANCH : $(ls mods | tr '\n' ' ')"
 if [ "${1:-}" != "--no-push" ]; then
