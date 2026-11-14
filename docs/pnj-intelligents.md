@@ -65,7 +65,7 @@ Redémarrer le serveur après avoir défini la variable. La console doit indique
 
 ## Identités et commandes
 
-Chaque entrée de `personas` définit `name`, `role`, `faction`, `personality` et `goal`.
+Chaque entrée de `personas` définit `name`, `role`, `faction`, `personality`, `goal`, `mood` et jusqu’à quatre `topics`. `personality` est le préprompt du personnage : sa voix, sa façon d’aider, ses domaines de connaissance et ses limites. Léa est le guide polyvalent du quotidien (construction, survie, réparations et véhicules) ; les six personnages de campagne gardent chacun une voix et un savoir distincts. Les sujets apparaissent comme amorces cliquables dans la fenêtre de dialogue. Une ancienne configuration sans `topics` reprend ses sujets canoniques.
 L'identifiant, par exemple `lea`, contient 1 à 32 lettres minuscules, chiffres,
 tirets ou traits bas. Le mob porte l'étiquette persistante `terracraft_npc:lea`.
 
@@ -93,6 +93,12 @@ pour garder les profils lisibles et éviter une configuration démesurée.
 Il faut se trouver à six blocs maximum, dans la même dimension. Une réponse
 retardée est écartée si le joueur se déconnecte, s'éloigne, change de jour ou si
 la configuration est rechargée. Lier une autre identité remplace l'ancienne étiquette.
+
+## Dialogue vivant et limites de connaissance
+
+Le préprompt demande des réponses naturelles, contextualisées par les derniers échanges, en deux à cinq phrases. Le personnage peut aider hors de sa spécialité ; ses sujets servent d’amorces, pas de sujets interdits. Il distingue les conseils généraux de Minecraft des mécaniques spécifiques à TerraCraft : sans fait ou commande confirmé dans le contexte, il exprime son incertitude et propose de vérifier l’aide ou le journal. Il ne fabrique ni recette, ni commande, ni règle, ni révélation de scénario.
+
+La fenêtre est en français, affiche le rôle et l’humeur, propose les amorces du profil et conserve les actions d’objectif et de récompense. Une amorce remplit le champ de saisie ; le joueur peut la modifier avant envoi.
 
 ## Contrôle du jeu et performances
 
