@@ -45,10 +45,11 @@ public final class NpcChatScreen extends Screen {
     @Override
     protected void init() {
         panelWidth = Math.min(620, width - 16);
-        panelHeight = Math.min(420, height - 16);
+        panelHeight = Math.min(440, height - 16);
         left = (width - panelWidth) / 2;
         top = (height - panelHeight) / 2;
-        int actionY = top + 77;
+
+        int actionY = top + 60;
         addRenderableWidget(Button.builder(Component.literal("Objectif"), b -> action(false))
                 .bounds(left + 10, actionY, 88, 20).build());
         claimButton = Button.builder(Component.literal("Réclamer"), b -> action(true))
@@ -56,12 +57,33 @@ public final class NpcChatScreen extends Screen {
         claimButton.active = state != null && state.has("hasQuest") && state.get("hasQuest").getAsBoolean();
         addRenderableWidget(claimButton);
 
-        input = new EditBox(font, left + 10, top + panelHeight - 38, panelWidth - 112, 20, Component.literal("Écrire au personnage"));
+        input = new EditBox(font, left + 10, top + panelHeight - 38, panelWidth - 112, 20,
+                Component.literal("Écrire au personnage"));
         input.setMaxLength(500);
         input.setHint(Component.literal("Écris ton message…"));
         addRenderableWidget(input);
         addRenderableWidget(Button.builder(Component.literal("Envoyer"), b -> send())
                 .bounds(left + panelWidth - 94, top + panelHeight - 38, 84, 20).build());
+
+        JsonObject identity = state != null ? state.getAsJsonObject("identity") : new JsonObject();
+        JsonArray topics = identity != null && identity.has("topics") ? identity.getAsJsonArray("topics") : new JsonArray();
+        int count = Math.min(4, topics.size());
+        if (count > 0) {
+            int gap = 4;
+            int topicWidth = Math.min(100, (panelWidth - 20 - gap * (count - 1)) / count);
+            for (int i = 0; i < count; i++) {
+                String topic = topics.get(i).getAsString();
+                int x = left + 10 + i * (topicWidth + gap);
+                addRenderableWidget(Button.builder(Component.literal(topic), b -> startTopic(topic))
+                        .bounds(x, top + 87, topicWidth, 20).build());
+            }
+        }
+    }
+
+    private void startTopic(String topic) {
+        if (input == null) return;
+        input.setValue("J’aimerais parler de « " + topic + " ».");
+        input.setFocused(true);
     }
 
     private void send() {
@@ -101,20 +123,19 @@ public final class NpcChatScreen extends Screen {
         g.text(font, font.plainSubstrByWidth(role + (faction.isBlank() ? "" : " · " + faction), panelWidth - 24),
                 left + 12, top + 22, SuitScreen.TEXT, false);
         g.text(font, font.plainSubstrByWidth(mood, panelWidth - 24), left + 12, top + 36, SuitScreen.GREY, false);
-        String mode = state != null && state.has("ai_configured") && state.get("ai_configured").getAsBoolean()
-                ? "IA configurée" : "Dialogue local";
+        String mode = "À l’écoute";
         int modeWidth = font.width(mode);
         g.text(font, mode, left + panelWidth - modeWidth - 12, top + 7, SuitScreen.CYAN, false);
-        g.text(font, "CONVERSATION", left + 12, top + 65, SuitScreen.GOLD, false);
+        g.text(font, "NOTRE CONVERSATION", left + 12, top + 113, SuitScreen.GOLD, false);
 
-        int logTop = top + 106;
+        int logTop = top + 131;
         int logBottom = top + panelHeight - 52;
         g.fill(left + 8, logTop, left + panelWidth - 8, logBottom, 0xA009111A);
         g.outline(left + 8, logTop, panelWidth - 16, logBottom - logTop, SuitScreen.SLOT_EDGE);
         String quest = state != null && state.has("quest_title") ? state.get("quest_title").getAsString() : "";
         if (!quest.isBlank()) {
             g.text(font, font.plainSubstrByWidth("Objectif lié : " + quest, panelWidth - 32),
-                    left + 16, logTop - 13, 0xFF7EE08A, false);
+                    left + 16, logTop + 4, 0xFF7EE08A, false);
         }
 
         int y = logBottom - 10;
@@ -125,7 +146,7 @@ public final class NpcChatScreen extends Screen {
         }
         JsonArray history = state != null && state.has("history") ? state.getAsJsonArray("history") : new JsonArray();
         int first = Math.max(0, history.size() - 8);
-        for (int i = history.size() - 1; i >= first && y > logTop + 4; i--) {
+        for (int i = history.size() - 1; i >= first && y > logTop + 18; i--) {
             JsonObject turn = history.get(i).getAsJsonObject();
             boolean player = turn.has("speaker") && turn.get("speaker").getAsString().equals("player");
             String label = player ? "TOI" : name.toUpperCase(java.util.Locale.ROOT);
@@ -144,7 +165,7 @@ public final class NpcChatScreen extends Screen {
             y = blockTop - 5;
         }
         if (history.isEmpty() && (state == null || !state.has("busy") || !state.get("busy").getAsBoolean())) {
-            g.centeredText(font, Component.literal("Approche-toi, choisis tes mots, et lance la conversation."), width / 2,
+            g.centeredText(font, Component.literal("Choisis un sujet pour commencer, ou écris simplement ce qui te préoccupe."), width / 2,
                     logTop + (logBottom - logTop) / 2, SuitScreen.GREY);
         }
         g.text(font, "Échap : fermer", left + panelWidth - 76, top + panelHeight - 13, SuitScreen.GREY, false);
