@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
 final class Npcs {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final String TAG = "terracraft_npc:";
-    private record Persona(String name, String role, String faction, String personality, String goal, String mood) { }
+    private record Persona(String name, String role, String faction, String personality, String goal, String mood, List<String> topics) { }
     private static Map<String, Persona> canonical() {
         try (var stream=Npcs.class.getResourceAsStream("/terra-exodus-personas.json")) {
             if (stream==null) throw new IOException("Identités de campagne absentes");
@@ -57,12 +57,16 @@ final class Npcs {
     private static Persona merge(Persona base, Persona override) {
         if (override == null) return base;
         String defaultMood = base == null ? "Présence calme, fiable et légèrement optimiste." : base.mood();
+        List<String> defaultTopics = base == null ? List.of("Conseils", "Construction") : base.topics();
+        List<String> topics = override.topics() == null || override.topics().isEmpty()
+                ? (defaultTopics == null || defaultTopics.isEmpty() ? List.of("Conseils", "Survie") : defaultTopics)
+                : List.copyOf(override.topics());
         return new Persona(value(override.name(), base == null ? null : base.name()),
                 value(override.role(), base == null ? null : base.role()),
                 value(override.faction(), base == null ? null : base.faction()),
                 value(override.personality(), base == null ? null : base.personality()),
                 value(override.goal(), base == null ? null : base.goal()),
-                value(override.mood(), defaultMood));
+                value(override.mood(), defaultMood), topics);
     }
     private static String value(String override, String fallback) {
         return override == null || override.isBlank() ? fallback : override;
@@ -75,10 +79,11 @@ final class Npcs {
         String model = "mistral";
         String api_key_env = "TERRACRAFT_MISTRAL_API_KEY";
         int timeout_seconds = 15;
-        Map<String, Persona> personas = new LinkedHashMap<>(Map.of("lea", new Persona("Léa", "Mécanicienne",
-                "Les Refuges", "Pragmatique, chaleureuse, parle de réparation et de solidarité.",
-                "Aider le refuge à retrouver des ressources et des moyens de transport.",
-                "Présence calme, fiable et légèrement optimiste.")));
+        Map<String, Persona> personas = new LinkedHashMap<>(Map.of("lea", new Persona("Léa", "Guide et mécanicienne du refuge",
+                "Les Refuges", "Pragmatique et chaleureuse. Écoute avant de conseiller, pose une question utile si le besoin est flou, puis propose une prochaine étape simple. Explique avec des mots accessibles et des exemples concrets. Aide sur la construction, la réparation, les véhicules, la survie, l'organisation d'une base et les mécaniques Minecraft. Vive, débrouillarde, encourageante, avec un humour léger.",
+                "Être le premier repère du joueur dans le monde : l'aider à comprendre les mécaniques réellement présentes, planifier une construction, diagnostiquer une panne, préparer ou réparer un véhicule et trouver les bonnes personnes ou commandes. Si une mécanique dépend d'un mod ou de la version et n'est pas connue, le dire franchement et aider à vérifier au lieu d'inventer.",
+                "Accueillante, curieuse et confiante sans être naïve. Elle se réjouit des progrès, reste calme devant un problème et n'affirme pas ressentir les événements du joueur.",
+                List.of("Construire", "Réparer", "Véhicules", "Survie"))));
     }
     private static final class Memory {
         List<Turn> history = new ArrayList<>();
@@ -175,7 +180,9 @@ final class Npcs {
                 Persona p = entry.getValue();
                 if (!entry.getKey().matches("[a-z0-9_-]{1,32}") || p == null
                         || !bounded(p.name(), 48) || !bounded(p.role(), 120) || !bounded(p.faction(), 120)
-                        || !bounded(p.personality(), 1200) || !bounded(p.goal(), 500) || !bounded(p.mood(), 300)) {
+                        || !bounded(p.personality(), 1200) || !bounded(p.goal(), 500) || !bounded(p.mood(), 300)
+                        || p.topics() == null || p.topics().isEmpty() || p.topics().size() > 4
+                        || p.topics().stream().anyMatch(topic -> !bounded(topic, 28))) {
                     throw new IllegalArgumentException("Identité PNJ invalide");
                 }
             }
@@ -272,12 +279,12 @@ final class Npcs {
             return 0;
         }
         Persona updated = switch (field) {
-            case "nom" -> new Persona(value, current.role(), current.faction(), current.personality(), current.goal(), current.mood());
-            case "role" -> new Persona(current.name(), value, current.faction(), current.personality(), current.goal(), current.mood());
-            case "faction" -> new Persona(current.name(), current.role(), value, current.personality(), current.goal(), current.mood());
-            case "personnalite" -> new Persona(current.name(), current.role(), current.faction(), value, current.goal(), current.mood());
-            case "objectif" -> new Persona(current.name(), current.role(), current.faction(), current.personality(), value, current.mood());
-            case "humeur" -> new Persona(current.name(), current.role(), current.faction(), current.personality(), current.goal(), value);
+            case "nom" -> new Persona(value, current.role(), current.faction(), current.personality(), current.goal(), current.mood(), current.topics());
+            case "role" -> new Persona(current.name(), value, current.faction(), current.personality(), current.goal(), current.mood(), current.topics());
+            case "faction" -> new Persona(current.name(), current.role(), value, current.personality(), current.goal(), current.mood(), current.topics());
+            case "personnalite" -> new Persona(current.name(), current.role(), current.faction(), value, current.goal(), current.mood(), current.topics());
+            case "objectif" -> new Persona(current.name(), current.role(), current.faction(), current.personality(), value, current.mood(), current.topics());
+            case "humeur" -> new Persona(current.name(), current.role(), current.faction(), current.personality(), current.goal(), value, current.topics());
             default -> current;
         };
         settings.personas.put(id, updated);
