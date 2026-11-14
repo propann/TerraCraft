@@ -7,8 +7,7 @@ version que le serveur (affichée dans la liste des serveurs).
 
 1. Installe **[Prism Launcher](https://prismlauncher.org/)** (gratuit, Windows / macOS / Linux) ou **Modrinth App**,
    et connecte ton compte Microsoft.
-2. Télécharge le pack : **[TerraCraft-client.mrpack](https://github.com/propann/TerraCraft/raw/main/TerraCraft-client.mrpack)**
-   (dans ce dépôt, toujours à jour).
+2. Télécharge la dernière version publiée : **[TerraCraft-client.mrpack](https://github.com/propann/TerraCraft/releases/latest/download/TerraCraft-client.mrpack)**.
 3. Dans le launcher : *Ajouter une instance → Importer* → choisis le fichier → *OK*.
 4. Lance l'instance → **Multijoueur** : le serveur **TerraCraft** est déjà dans la liste. Clique, c'est parti.
 

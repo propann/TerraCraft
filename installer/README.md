@@ -3,7 +3,7 @@
 Les installeurs prennent toujours la **dernière version publiée** sur GitHub : relance-les à chaque mise à jour du serveur.
 
 ## Le plus simple : Prism Launcher ou Modrinth App
-Télécharge **[TerraCraft-client.mrpack](https://github.com/propann/TerraCraft/raw/main/TerraCraft-client.mrpack)** (toujours la dernière version), puis : *Ajouter une instance → Importer*. Le serveur est déjà dans la liste Multijoueur. Les mods graphiques (Sodium, Iris, Distant Horizons, shaders) sont proposés en option.
+Télécharge **[TerraCraft-client.mrpack](https://github.com/propann/TerraCraft/releases/latest/download/TerraCraft-client.mrpack)** (toujours la dernière version publiée), puis : *Ajouter une instance → Importer*. Le serveur est déjà dans la liste Multijoueur. Les mods graphiques (Sodium, Iris, Distant Horizons, shaders) sont proposés en option.
 
 ## Launcher Minecraft officiel
 - **Windows** : télécharge [`install-windows.ps1`](install-windows.ps1), clic droit → *Exécuter avec PowerShell*.
