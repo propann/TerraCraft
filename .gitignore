@@ -14,6 +14,7 @@ serveur-local/libraries/
 serveur-local/versions/
 geo-mod/build/
 geo-mod/.gradle/
+geo-mod/run/
 # Fichiers d'exécution du serveur (contiennent des secrets ou des données de joueurs)
 serveur-local/server.properties
 serveur-local/ops.json

@@ -1,0 +1,4 @@
+# Scripts exécutés sous Linux (CI, Falix) ou Git Bash : toujours en LF, même extraits sous Windows.
+*.sh text eol=lf
+geo-mod/gradlew text eol=lf
+*.bat text eol=crlf
