@@ -2,7 +2,7 @@
   "ai_enabled": true,
   "provider": "ollama",
   "endpoint": "http://127.0.0.1:11434/api/chat",
-  "model": "mistral",
+  "model": "qwen3.5:9b",
   "timeout_seconds": 15,
   "personas": {
     "lea": {

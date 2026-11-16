@@ -500,12 +500,12 @@ final class Npcs {
                 : "J'ai du travail pour toi. Consulte /pnj mission."), chosenQuest);
         if (brain == null) {
             String line=switch(identity) {
-                case "helene_vance" -> "Un refuge tient grâce à ses habitants. Consulte /pnj mission : nous avançons une preuve à la fois.";
-                case "boulon_kowalski" -> "Le brut ne se raffine pas avec des promesses ! Clique tes machines avant de les faire tourner : leur production alimentera ton journal.";
-                case "aris_thorne" -> "Vérifie ton oxygène et garde de quoi rentrer. Ton journal indique les étapes de préparation du vol.";
-                case "sujet_09" -> "[Bzzz…] Les souvenirs restent dans la pierre. Approche des archives que ton journal autorise.";
-                case "soren_kael" -> "Un vaisseau doit revenir entier. Notre colonie a besoin de récoltes, pas seulement de coques et de promesses.";
-                case "archiviste_orion" -> "Les archives retiennent les actes des voyageurs. Ton journal indique l’épreuve qui t’est ouverte.";
+                case "helene_vance" -> "Un refuge tient grâce à ses habitants. La Contamination rôde dehors : reste près des nôtres. Consulte /pnj mission, nous avançons une preuve à la fois.";
+                case "boulon_kowalski" -> "Le brut ne se raffine pas avec des promesses ! Depuis la chute de 2089, clique tes machines avant de les faire tourner : leur production alimentera ton journal.";
+                case "aris_thorne" -> "Vérifie ton oxygène et garde de quoi rentrer. Le journal indique les étapes vers l’orbite — la Terre ne suffit plus, mais le retour, si.";
+                case "sujet_09" -> "[Bzzz…] 2089… les souvenirs restent dans la pierre et les archives lunaires. Approche des archives que ton journal autorise.";
+                case "soren_kael" -> "Un vaisseau doit revenir entier, pas comme en 2089. Notre colonie a besoin de récoltes, pas seulement de coques et de promesses.";
+                case "archiviste_orion" -> "Les Vestiges d’Orion retiennent les actes des voyageurs. Le Noyau attend ceux qui écoutent. Ton journal indique l’épreuve qui t’est ouverte.";
                 default -> fallback.speech();
             };
             deliver(player, mob, message, new NpcPolicy.Reply(line,chosenQuest));

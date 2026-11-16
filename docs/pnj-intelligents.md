@@ -23,8 +23,12 @@ besoins d'une ville sont les prochaines extensions.
 
 ## Installation locale avec Ollama
 
-1. Installer un modèle compatible avec les réponses JSON dans Ollama. Le nom `mistral`
-   des exemples doit correspondre au modèle installé sur l'hôte ; aucun modèle n'est téléchargé par le mod.
+1. Installer un modèle compatible avec les réponses JSON dans Ollama. Les exemples
+   utilisent désormais `qwen3.5:9b` (Q4_K_M, ~6,6 Go) ; adapte `model` au modèle
+   réellement installé sur l'hôte — aucun modèle n'est téléchargé par le mod.
+   Le mod envoie `think:false` à Ollama : les modèles à raisonnement (Qwen3.5…)
+   répondent ainsi directement en JSON dans le budget de 256 tokens, sans que la
+   réflexion interne ne mange la réponse.
 2. Copier [l'exemple Ollama](../config/pnj/ollama.example.json) dans le dossier d'exécution
    du serveur, sous `config/terracraft-npcs.json`.
 3. Adapter `model`, puis lancer `/pnj recharger` dans la console ou comme administrateur.

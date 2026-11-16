@@ -100,6 +100,10 @@ final class NpcBrain implements AutoCloseable {
             body.addProperty("format", "json");
             JsonObject options = new JsonObject();
             options.addProperty("num_predict", 256);
+            // Les modèles locaux à raisonnement (Qwen3.5…) consommeraient tout le
+            // budget de 256 tokens en réflexion avant le JSON : on désactive le
+            // raisonnement pour que la réponse structurée arrive à temps.
+            options.addProperty("think", false);
             body.add("options", options);
         } else {
             body.addProperty("max_tokens", 256);

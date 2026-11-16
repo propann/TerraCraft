@@ -49,6 +49,9 @@ class NpcBrainTest {
                 assertEquals("contrat:commerce", brain.ask(new JsonObject(), Set.of("contrat:commerce")).get(4, TimeUnit.SECONDS).questId());
                 assertFalse(received.get().get("stream").getAsBoolean());
                 assertEquals(provider.equals("mistral") ? "Bearer cle-factice" : null, auth.get());
+                if (provider.equals("ollama")) {
+                    assertFalse(received.get().getAsJsonObject("options").get("think").getAsBoolean());
+                }
             } finally {
                 server.stop(0);
             }
