@@ -4,6 +4,7 @@
   "endpoint": "http://127.0.0.1:11434/api/chat",
   "model": "qwen3.5:9b",
   "timeout_seconds": 15,
+  "auto_spawn": ["helene_vance"],
   "personas": {
     "helene_vance": {
       "name": "Commandant Hélène Vance",

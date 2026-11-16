@@ -75,6 +75,7 @@ final class Npcs {
         String model = "mistral";
         String api_key_env = "TERRACRAFT_MISTRAL_API_KEY";
         int timeout_seconds = 15;
+        List<String> auto_spawn;
         Map<String, Persona> personas = new LinkedHashMap<>(Map.of("lea", new Persona("Léa", "Mécanicienne",
                 "Les Refuges", "Pragmatique, chaleureuse, parle de réparation et de solidarité.",
                 "Aider le refuge à retrouver des ressources et des moyens de transport.",
@@ -137,6 +138,34 @@ final class Npcs {
         }
         trimMemories();
         configure(server);
+        autoSpawn(server);
+    }
+
+    /** Fait apparaître les identités de `auto_spawn` au spawn du monde si elles n'existent pas encore. */
+    private void autoSpawn(MinecraftServer server) {
+        List<String> ids = settings.auto_spawn;
+        if (ids == null || ids.isEmpty()) return;
+        var level = server.overworld();
+        var existing = new java.util.HashSet<String>();
+        for (var entity : level.getAllEntities()) {
+            if (entity instanceof Mob mob) {
+                mob.entityTags().stream().filter(t -> t.startsWith(TAG)).forEach(t -> existing.add(t.substring(TAG.length())));
+            }
+        }
+        var spawnPos = server.getWorldData().overworldData().getRespawnData().pos();
+        var pos = level.getHeightmapPos(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, spawnPos);
+        for (String id : ids) {
+            if (existing.contains(id)) continue;
+            var mob = EntityTypes.VILLAGER.create(level, EntitySpawnReason.COMMAND);
+            if (mob == null) continue;
+            mob.snapTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
+            mob.setNoAi(true);
+            mob.addTag("terracraft_npc_protected");
+            bind(mob, id);
+            if (level.addFreshEntity(mob)) {
+                GeoMod.LOGGER.info("[PNJ] apparition automatique de {} au spawn du monde ({}, {}, {})", id, pos.getX(), pos.getY(), pos.getZ());
+            }
+        }
     }
 
     private void configure(MinecraftServer server) {
@@ -153,10 +182,11 @@ final class Npcs {
                 JsonStore.write(file, GSON.toJson(settings));
             }
             if (settings != null && settings.personas != null) settings = withCanonical(settings);
+            // Activation auto de l'API Mistral dès que la clé est présente dans
+            // l'environnement, même si le champ model a été personnalisé (ex. qwen3.5:9b).
             if (settings != null && !settings.ai_enabled
                     && "ollama".equals(settings.provider)
                     && "http://127.0.0.1:11434/api/chat".equals(settings.endpoint)
-                    && "mistral".equals(settings.model)
                     && "TERRACRAFT_MISTRAL_API_KEY".equals(settings.api_key_env)) {
                 String key = System.getenv(settings.api_key_env);
                 if (key != null && !key.isBlank()) {
@@ -170,6 +200,14 @@ final class Npcs {
             }
             if (settings == null || settings.personas == null || settings.personas.size() > 64) {
                 throw new IllegalArgumentException("Identités PNJ invalides");
+            }
+            if (settings.auto_spawn != null) {
+                if (settings.auto_spawn.size() > 16) throw new IllegalArgumentException("auto_spawn trop long (16 max)");
+                for (String id : settings.auto_spawn) {
+                    if (id == null || !id.matches("[a-z0-9_-]{1,32}") || !settings.personas.containsKey(id)) {
+                        throw new IllegalArgumentException("Identité auto_spawn inconnue : " + id);
+                    }
+                }
             }
             for (var entry : settings.personas.entrySet()) {
                 Persona p = entry.getValue();

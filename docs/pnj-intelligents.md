@@ -67,6 +67,21 @@ Redémarrer le serveur après avoir défini la variable. La console doit indique
 `dialogues IA activés`. La configuration avancée reste possible en éditant
 `config/terracraft-npcs.json` selon [l'exemple Mistral](../config/pnj/mistral.example.json).
 
+## Apparition automatique au spawn (`auto_spawn`)
+
+Le champ `auto_spawn` de `config/terracraft-npcs.json` liste les identités à faire
+apparaître **au point de spawn du monde** au démarrage, si elles n'y sont pas déjà
+(16 identités max, identifiants valides existants). Exemple :
+
+```json
+"auto_spawn": ["helene_vance"]
+```
+
+Ainsi, le premier personnage de la campagne (Commandant Hélène Vance, acte I)
+apparaît avec la sauvegarde du monde dès le premier démarrage, sans commande admin.
+Le placement manuel (`/pnj creer`, `/pnj lier`) reste possible ensuite pour déplacer
+les contacts vers les refuges, ateliers et bases.
+
 ## Identités et commandes
 
 Chaque entrée de `personas` définit `name`, `role`, `faction`, `personality` et `goal`.
