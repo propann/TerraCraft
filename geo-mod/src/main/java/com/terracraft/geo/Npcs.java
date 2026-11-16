@@ -87,8 +87,12 @@ final class Npcs {
         long day;
     }
 
+    private static final double SPAWN_NEAR_RADIUS = 32.0;
+    private static final int SPAWN_NEAR_MAX = 32;
+
     private final Contracts contracts;
     private final Towns towns;
+    private final Map<String, Integer> spawnedCounts = new HashMap<>();
     private final Map<String, Memory> memories = new LinkedHashMap<>();
     private final Map<UUID, UUID> pending = new HashMap<>();
     private final Map<UUID, Integer> conversations = new HashMap<>();
@@ -122,6 +126,7 @@ final class Npcs {
 
     void load(MinecraftServer server) {
         stop();
+        spawnedCounts.clear();
         activeServer = server;
         memoryFile = server.getWorldPath(LevelResource.ROOT).resolve(GeoMod.MOD_ID).resolve("pnj-memoires.json");
         memories.clear();
@@ -139,6 +144,38 @@ final class Npcs {
         trimMemories();
         configure(server);
         autoSpawn(server);
+    }
+
+    /**
+     * Fait apparaître les identités de `auto_spawn` près d'un point d'arrivée choisi sur la
+     * carte, si aucune n'existe déjà dans le rayon. Chaque zone de départ reçoit ainsi son
+     * contact, même loin du spawn du monde. Plafond de copies par identité (anti-spam).
+     */
+    void spawnNear(ServerPlayer player, net.minecraft.core.BlockPos pos) {
+        List<String> ids = settings.auto_spawn;
+        if (ids == null || ids.isEmpty() || activeServer == null) return;
+        var level = player.level();
+        if (level != activeServer.overworld()) return;
+        for (String id : ids) {
+            if (!settings.personas.containsKey(id)) continue;
+            boolean nearby = !level.getEntitiesOfClass(Mob.class, new net.minecraft.world.phys.AABB(pos).inflate(SPAWN_NEAR_RADIUS),
+                    mob -> mob.entityTags().stream().anyMatch(t -> t.equals(TAG + id))).isEmpty();
+            if (nearby) continue;
+            int copies = spawnedCounts.merge(id, 1, Integer::sum);
+            if (copies > SPAWN_NEAR_MAX) continue;
+            var mob = EntityTypes.VILLAGER.create(level, EntitySpawnReason.COMMAND);
+            if (mob == null) continue;
+            int ox = pos.getX() + 2;
+            int oz = pos.getZ() + 2;
+            int oy = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING, ox, oz);
+            mob.snapTo(ox + 0.5, oy, oz + 0.5, 0, 0);
+            mob.setNoAi(true);
+            mob.addTag("terracraft_npc_protected");
+            bind(mob, id);
+            if (level.addFreshEntity(mob)) {
+                GeoMod.LOGGER.info("[PNJ] {} apparaît près de l’arrivée de {} en ({}, {}, {})", id, player.getName().getString(), ox, oy, oz);
+            }
+        }
     }
 
     /** Fait apparaître les identités de `auto_spawn` au spawn du monde si elles n'existent pas encore. */

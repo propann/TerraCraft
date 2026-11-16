@@ -185,6 +185,9 @@ public final class StartPoints {
             player.setGameMode(server.getDefaultGameType());
         }
         Arrival.welcome(player, label, firstChoice);
+        // Les contacts de campagne (auto_spawn) apparaissent près de la zone choisie,
+        // même si le joueur démarre loin du spawn du monde.
+        GeoMod.npcs().spawnNear(player, pos);
         choices.put(player.getUUID(), new Choice(latitude, longitude, label, pos.getX(), pos.getY(), pos.getZ()));
         save();
 

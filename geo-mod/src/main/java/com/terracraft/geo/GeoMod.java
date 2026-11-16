@@ -80,6 +80,10 @@ public final class GeoMod implements ModInitializer {
     private static final Logistics LOGISTICS = new Logistics(TOWNS);
     private static final Contracts CONTRACTS = new Contracts(AUCTION_HOUSE);
     private static final Npcs NPCS = new Npcs(CONTRACTS, TOWNS);
+
+    static Npcs npcs() {
+        return NPCS;
+    }
     private static final Claims CLAIMS = new Claims();
     private static final SupplyDrops SUPPLY = new SupplyDrops();
     private static final Convoys CONVOYS = new Convoys();

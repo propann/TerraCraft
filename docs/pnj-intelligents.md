@@ -79,6 +79,12 @@ apparaître **au point de spawn du monde** au démarrage, si elles n'y sont pas 
 
 Ainsi, le premier personnage de la campagne (Commandant Hélène Vance, acte I)
 apparaît avec la sauvegarde du monde dès le premier démarrage, sans commande admin.
+
+**Apparition près de chaque zone d'arrivée** : comme chaque joueur choisit son point
+de départ sur la carte du monde, `land()` appelle aussi `spawnNear` à l'arrivée : si
+aucune identité `auto_spawn` n'existe dans un rayon de 32 blocs autour du point choisi,
+elle y apparaît (à 2 blocs du point, au sol). Chaque zone de départ reçoit donc son
+contact, même très loin du spawn. Plafond de 32 copies par identité (anti-spam).
 Le placement manuel (`/pnj creer`, `/pnj lier`) reste possible ensuite pour déplacer
 les contacts vers les refuges, ateliers et bases.
 
